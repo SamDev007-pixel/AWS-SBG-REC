@@ -1,0 +1,9 @@
+node_modules/
+/uploads/
+/apps/backend/uploads/
+/apps/frontend/public/uploads/
+*.log
+.env
+.vscode/
+chroma/
+*.sqlite3

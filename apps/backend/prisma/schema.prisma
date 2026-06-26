@@ -1,0 +1,1156 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model Role {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  permissions String[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  users       UserRole[]
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  isActive      Boolean        @default(true)
+  avatar        String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  refreshToken  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  role          String         @default("enthusiasts")
+  xp            Int            @default(0)
+  eventxp       Int            @default(0)
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  roles         UserRole[]
+  events        Event[]
+  registrations Registration[]
+  moduleProgress UserModuleProgress[]
+  quizAttempts  QuizAttempt[]
+  crewPermissions CrewPermission[]
+  createdTasks    Task[]           @relation("TaskCreator")
+  assignedTasks   Task[]           @relation("TaskAssignee")
+  reviewAssignedTasks Task[]       @relation("TaskReviewAssignee")
+  comments        Comment[]
+  progressUpdates ProgressUpdate[]
+  activityLogs    ActivityLog[]
+  workUpdates     WorkUpdate[]
+  reviewDecisions ReviewDecision[]
+}
+
+model Event {
+  id                   String               @id @default(uuid()) @map("event_id")
+  title                String
+  category             String?
+  description          String?              @map("full_description")
+  shortDescription     String?              @map("short_description")
+  posterImage          String?              @map("banner_url")
+  venue                String?
+  mode                 String?
+  capacity             Int?                 @map("max_capacity")
+  date                 DateTime?            @map("start_datetime")
+  time                 String?
+  registrationDeadline DateTime?            @map("registration_deadline")
+  status               String               @default("DRAFT") @map("event_status")
+  registrationFormType RegistrationFormType @default(DEFAULT) @map("registration_form_type")
+  organizerId          String?              @map("organizer_id")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+  endDatetime          DateTime?            @map("end_datetime")
+  meetingLink          String?              @map("meeting_link")
+  agendaJson           Json?                @map("agenda")
+  speakerDetailsJson   Json?                @map("speaker_details")
+  announcements        Announcement[]
+  agenda               EventAgenda[]
+  speakers             EventSpeaker[]
+  crewTasks            CrewTask[]
+  organizer            User?                @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  formFields           FormField[]
+  incidents            Incident[]
+  registrations        Registration[]
+  tickets              Ticket[]
+
+  @@index([status])
+  @@index([organizerId])
+  @@index([createdAt])
+  @@map("events")
+}
+
+model EventAgenda {
+  id        String   @id @default(uuid())
+  eventId   String
+  title     String
+  speaker   String?
+  startTime String
+  endTime   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model EventSpeaker {
+  id           String   @id @default(uuid())
+  eventId      String
+  name         String
+  role         String?
+  organization String?
+  bio          String?
+  photo        String?
+  linkedinUrl  String?  @map("linkedin_url")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model FormField {
+  id         String    @id @default(uuid()) @map("field_id")
+  eventId    String    @map("event_id")
+  label      String    @map("field_label")
+  type       String    @map("field_type")
+  isRequired Boolean   @default(false) @map("is_required")
+  fieldOrder Int       @map("field_order")
+  options    Json?     @map("select_options")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @default(now()) @map("updated_at")
+  event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("form_fields")
+}
+
+model Registration {
+  id               String               @id @default(uuid()) @map("registration_id")
+  userId           String               @map("user_id")
+  eventId          String               @map("event_id")
+  registrationDate DateTime             @default(now()) @map("registration_date")
+  status           String               @default("CONFIRMED") @map("registration_status")
+  name             String?              @map("name")
+  roll_number      String?              @map("roll_number")
+  email            String?              @map("email")
+  department       String?              @map("department")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime?            @default(now()) @map("updated_at")
+  emailSent        Boolean?             @default(false) @map("email_sent")
+  responses        Json?                @map("responses")
+  answers          RegistrationAnswer[]
+  event            Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket           Ticket?
+
+  @@unique([userId, eventId])
+  @@index([status])
+  @@index([eventId])
+  @@index([userId])
+  @@index([registrationDate])
+  @@map("registrations")
+}
+
+model RegistrationAnswer {
+  id             String       @id @default(uuid())
+  registrationId String
+  fieldId        String
+  value          Json
+  createdAt      DateTime     @default(now())
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+}
+
+model Ticket {
+  id               String          @id @default(uuid()) @map("ticket_id")
+  registrationId   String          @unique @map("registration_id")
+  eventId          String          @map("event_id")
+  ticketCode       String          @unique @map("ticket_code")
+  qrCodeUrl        String?         @map("qr_code_url")
+  status           String          @default("ACTIVE") @map("ticket_status")
+  scannedAt        DateTime?       @map("scanned_at")
+  scannerId        String?         @map("scanner_id")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime?       @default(now()) @map("updated_at")
+  eventTitle       String?         @map("event_title")
+  eventDate        String?         @map("event_date")
+  eventTime        String?         @map("event_time")
+  eventVenue       String?         @map("event_venue")
+  userName         String?         @map("user_name")
+  userRoll         String?         @map("user_roll")
+  userEmail        String?         @map("user_email")
+  attendanceStatus String?         @map("attendance_status")
+  attendance       AttendanceLog[]
+  event            Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  registration     Registration    @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([eventId])
+  @@index([createdAt])
+  @@map("tickets")
+}
+
+model AttendanceLog {
+  id        String   @id @default(uuid())
+  ticketId  String
+  userId    String
+  eventId   String
+  scannedAt DateTime @default(now())
+  scannerId String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([scannedAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  eventId   String
+  title     String
+  message   String
+  type      String   @default("UPDATE")
+  sendEmail Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model SchemaEnumDummy {
+  id        String             @id
+  status    EventStatus
+  mode      EventMode
+  tStatus   TicketStatus
+  rStatus   RegistrationStatus
+  fieldType FieldType
+}
+
+model CrewTask {
+  id          String   @id @default(uuid())
+  eventId     String
+  title       String
+  description String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("crew_tasks")
+}
+
+model Incident {
+  id            String   @id @default(uuid())
+  eventId       String
+  title         String
+  description   String
+  priority      String
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("incidents")
+}
+
+model NewsArticle {
+  id          String        @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  fullContent String?       @map("full_content")
+  aiSummary   String?       @map("ai_summary")
+  imageUrl    String?       @map("image_url")
+  sourceName  String        @map("source_name")
+  sourceUrl   String        @map("source_url")
+  articleUrl  String        @unique @map("article_url")
+  category    NewsCategory?
+  publishedAt DateTime?     @map("published_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  isActive    Boolean       @default(true) @map("is_active")
+
+  @@index([isActive, publishedAt])
+  @@index([category])
+  @@index([createdAt])
+  @@map("news_articles")
+}
+
+model IngestionRun {
+  id           String    @id @default(uuid()) @db.Uuid
+  startedAt    DateTime  @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  durationMs   Int?      @map("duration_ms")
+  fetched      Int       @default(0)
+  deduplicated Int       @default(0)
+  persisted    Int       @default(0)
+  status       String
+  errorMessage String?   @map("error_message")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([status])
+  @@map("ingestion_runs")
+}
+
+enum RegistrationFormType {
+  DEFAULT
+  CUSTOM
+}
+
+enum RoleName {
+  SUPER_ADMIN
+  ADMIN
+  ORGANIZER
+  VOLUNTEER
+  SCANNER
+  ENTHUSIAST
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  ONGOING
+  COMPLETED
+  ARCHIVED
+}
+
+enum EventMode {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum TicketStatus {
+  ACTIVE
+  USED
+  CANCELLED
+}
+
+enum NotificationType {
+  REGISTRATION_SUCCESS
+  TICKET_GENERATED
+  EVENT_REMINDER
+  EVENT_UPDATE
+}
+
+enum FieldType {
+  TEXT
+  EMAIL
+  PHONE
+  NUMBER
+  DROPDOWN
+  RADIO
+  CHECKBOX
+  TEXTAREA
+}
+
+enum NewsCategory {
+  AWS
+  AZURE
+  GCP
+  CLOUD
+  AI
+  DEVOPS
+  CYBERSECURITY
+  PROGRAMMING
+  GENERAL
+}
+
+model UnhandledQuery {
+  id             String    @id @default(uuid())
+  sessionId      String    @map("session_id")
+  message        String
+  bestSimilarity Float     @map("best_similarity")
+  bestMatchDoc   String?   @map("best_match_doc")
+  timestamp      DateTime  @default(now())
+  status         String    @default("live")
+  adminReply     String?   @map("admin_reply")
+  adminDocId     String?   @map("admin_doc_id")
+  resolvedAt     DateTime? @map("resolved_at")
+  adminName      String?   @map("admin_name")
+
+  @@map("unhandled_queries")
+}
+
+model FaqChip {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String   @default("")
+  orderIdx  Int      @default(0) @map("order_idx")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("faq_chips")
+}
+
+model CrewMessage {
+  id         String   @id @default(uuid())
+  chatId     String   @map("chat_id")
+  sender     String
+  ciphertext String
+  iv         String
+  timestamp  DateTime @default(now())
+  status     String   @default("delivered")
+
+  @@map("crew_messages")
+}
+
+model GroupChatMessage {
+  id             String   @id @default(uuid())
+  senderName     String   @map("sender_name")
+  senderRole     String   @map("sender_role")
+  avatarColor    String   @default("#FF9900") @map("avatar_color")
+  avatarInitials String   @map("avatar_initials")
+  avatarPhoto    String?  @map("avatar_photo")
+  text           String   @default("")
+  attachments    Json?    @map("attachments")
+  timestamp      DateTime @default(now())
+
+  @@map("group_chat_messages")
+}
+
+model CertificationLevel {
+  id            String           @id @default(uuid())
+  name          String           @unique
+  displayOrder  Int
+
+  certifications Certification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Certification {
+  id              String @id @default(uuid())
+
+  title           String
+  slug            String @unique
+  examCode        String @unique
+
+  badgeImageUrl   String?
+
+  examDuration    String
+  totalQuestions  Int
+  examCost        Float
+  examMode        String
+
+  displayOrder    Int
+  isActive        Boolean @default(true)
+
+  levelId         String
+  level           CertificationLevel @relation(fields: [levelId], references: [id])
+
+  domains         CertificationDomain[]
+  roleLinks       RoleCertification[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CertificationDomain {
+  id                String @id @default(uuid())
+  certificationId   String
+  certification     Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  name              String
+  weightage         Float
+
+  displayOrder      Int
+
+  topics            CertificationTopic[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model CertificationTopic {
+  id          String @id @default(uuid())
+
+  domainId    String
+  domain      CertificationDomain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  name        String
+
+  displayOrder Int
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CareerRole {
+  id            String @id @default(uuid())
+
+  name          String @unique
+  slug          String @unique
+
+  description   String
+
+  certifications RoleCertification[]
+  opportunities  CareerOpportunity[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model RoleCertification {
+  id               String @id @default(uuid())
+
+  roleId           String
+  certificationId  String
+
+  pathOrder        Int
+
+  role             CareerRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  certification    Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, certificationId])
+}
+
+model CareerOpportunity {
+  id            String @id @default(uuid())
+
+  roleId        String
+  title         String
+
+  displayOrder  Int
+
+  role          CareerRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+model ReportEvent {
+  id           Int                 @id @default(autoincrement())
+  eventName    String              @map("event_name")
+  eventNumber  Int                 @map("event_number")
+  academicYear String              @map("academic_year")
+  place        String
+  time         String
+  createdAt    DateTime            @default(now()) @map("created_at")
+  agendaItems  ReportAgendaItem[]
+  participants ReportParticipant[]
+
+  @@map("report_events")
+}
+
+model ReportAgendaItem {
+  id      Int         @id @default(autoincrement())
+  eventId Int         @map("event_id")
+  content String
+  order   Int
+  event   ReportEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("report_agenda_items")
+}
+
+model ReportParticipant {
+  id      Int         @id @default(autoincrement())
+  eventId Int         @map("event_id")
+  name    String
+  role    String
+  event   ReportEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("report_participants")
+}
+
+// =============================================
+// AWS SERVICES CATALOG MODELS
+// =============================================
+
+model AWSServiceCategory {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  description  String?
+  iconUrl      String?
+  displayOrder Int          @default(0)
+  isActive     Boolean      @default(true)
+  isDeleted    Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  services     AWSService[]
+
+  @@index([displayOrder])
+  @@index([isDeleted])
+}
+
+model AWSService {
+  id                  String             @id @default(cuid())
+  serviceCode         String             @unique
+  name                String             @unique
+  slug                String             @unique
+  categoryId          String
+  category            AWSServiceCategory @relation(fields: [categoryId], references: [id])
+  shortDescription    String
+  fullDescription     String
+  characteristics     String[]
+  features            String[]
+  useCases            String[]
+  pricingModels       String[]
+  relatedServices     Json               // [{"slug": "amazon-ebs", "name": "Amazon EBS"}]
+  iconUrl             String
+  keywords            String[]
+  awsDocumentationUrl String?
+  isFeatured          Boolean            @default(false)
+  isVisibleToEnthusiasts Boolean         @default(false)
+  status              String             @default("GA") // GA, Preview, Beta, Deprecated, Retired
+  lastAwsUpdate       DateTime?
+  comparisonTags      String[]
+  displayOrder        Int                @default(0)
+  isActive            Boolean            @default(true)
+  isDeleted           Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([categoryId])
+  @@index([displayOrder])
+  @@index([isDeleted])
+  @@index([isFeatured])
+}
+
+model Category {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
+  flag         String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  regions      Region[]
+
+  @@index([displayOrder])
+  @@index([isDeleted])
+}
+
+model Region {
+  id                        String   @id @default(cuid())
+  awsRegionCode             String   @unique
+  name                      String
+  regionCode                String
+  flag                      String
+  flagUrl                   String?
+  displayOrder              Int      @default(0)
+  latitude                  Float
+  longitude                 Float
+  infrastructureDescription String
+  availabilityZones         Int
+  launchYear                Int
+  primaryLocation           String
+  compliance                String
+  totalServices             String
+  aimlServices              String
+  analyticsServices         String
+  networkingServices        String
+  edgeLocations             String
+  directConnect             String
+  reach                     String
+  latency                   String
+
+  // Relationships
+  categoryId                String
+  category                  Category @relation(fields: [categoryId], references: [id])
+  services                  RegionService[]
+  benefits                  RegionBenefit[]
+  aiCapabilities            RegionAiCapability[]
+  topServices               RegionTopService[]
+  workloads                 RegionWorkload[]
+
+  // Soft deletion
+  isDeleted                 Boolean  @default(false)
+
+  // Audit fields
+  createdBy                 String?
+  updatedBy                 String?
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([awsRegionCode])
+  @@index([categoryId])
+  @@index([isDeleted])
+}
+
+model RegionService {
+  id       String @id @default(cuid())
+  name     String
+  regionId String
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, name])
+}
+
+model RegionBenefit {
+  id          String @id @default(cuid())
+  description String
+  regionId    String
+  region      Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, description])
+}
+
+model RegionAiCapability {
+  id         String @id @default(cuid())
+  capability String
+  regionId   String
+  region     Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, capability])
+}
+
+model RegionTopService {
+  id       String @id @default(cuid())
+  name     String
+  regionId String
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, name])
+}
+
+model RegionWorkload {
+  id          String @id @default(cuid())
+  description String
+  regionId    String
+  region      Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, description])
+}
+
+// =============================================
+// ROADMAP LEARNING MODELS
+// =============================================
+
+enum ProgressStatus {
+  LOCKED
+  UNLOCKED
+  COMPLETED
+}
+
+enum ModuleLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum TopicTheme {
+  TECH
+  FORGE
+  CITADEL
+  HARBOR
+  CRYSTAL
+}
+
+model RoadmapTopic {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String     @unique
+  description String     @default("")
+  orderIndex  Int        @unique
+  theme       TopicTheme @default(TECH)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  modules RoadmapModule[]
+
+  @@map("roadmap_topics")
+}
+
+model RoadmapModule {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  description String
+  tier        String
+  xpPoints    Int
+  orderIndex  Int
+  topicId     String?
+  level       ModuleLevel?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  topic     RoadmapTopic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  slides    LearningSlide[]
+  questions QuizQuestion[]
+  progress  UserModuleProgress[]
+  attempts  QuizAttempt[]
+
+  @@index([topicId, level])
+  @@map("roadmap_modules")
+}
+
+model LearningSlide {
+  id         String        @id @default(cuid())
+  moduleId   String
+  module     RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title      String
+  layoutType String
+  imageUrl   String?
+  bullets    String[]
+  orderIndex Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("learning_slides")
+}
+
+model QuizQuestion {
+  id            String        @id @default(cuid())
+  moduleId      String
+  module        RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctAnswer String
+  explanation   String
+  orderIndex    Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  answers QuizAttemptAnswer[]
+
+  @@map("quiz_questions")
+}
+
+model UserModuleProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  moduleId    String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      RoadmapModule  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  status      ProgressStatus @default(LOCKED)
+  score       Int?
+  xpEarned    Int            @default(0)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, moduleId])
+  @@map("user_module_progress")
+}
+
+model QuizAttempt {
+  id             String        @id @default(cuid())
+  userId         String
+  moduleId       String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module         RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  totalQuestions Int
+  correctAnswers Int
+  percentage     Float
+  xpEarned       Int
+  attemptedAt    DateTime      @default(now())
+
+  answers QuizAttemptAnswer[]
+
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id             String       @id @default(cuid())
+  attemptId      String
+  questionId     String
+  attempt        QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedAnswer String
+  isCorrect      Boolean
+
+  @@map("quiz_attempt_answers")
+}
+
+model CrewPermission {
+  id          String   @id @default(uuid())
+  userId      String
+  permission  String
+  expiresAt   DateTime
+  grantedAt   DateTime @default(now())
+  grantedById String?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
+  @@map("crew_permissions")
+}
+
+
+enum TaskCategory {
+  pre_event
+  during_event
+  post_event
+}
+
+enum Priority {
+  low
+  medium
+  high
+  critical
+}
+
+enum TaskStatus {
+  not_assigned
+  assigned
+  yet_to_start
+  in_progress
+  under_review
+  completed
+  blocked
+}
+
+enum ActivityAction {
+  created
+  assigned
+  reassigned
+  status_updated
+  progress_updated
+  comment_added
+  comment_deleted
+  deleted
+  work_submitted
+  review_approved
+  review_changes_requested
+  archived
+  permanently_deleted
+  attachment_added
+}
+
+model Task {
+  id              String           @id @default(cuid())
+  name            String
+  category        TaskCategory
+  priority        Priority
+  status          TaskStatus       @default(not_assigned)
+  progress        Int              @default(0)
+  startDate       DateTime?
+  dueDate         DateTime
+  notes           String?
+  completedAt     DateTime?
+  archivedAt      DateTime?
+  assignedAt      DateTime?
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  isDeleted       Boolean          @default(false)
+  deletedAt       DateTime?
+  reviewAssignedToId String?
+  reviewAssignedAt   DateTime?
+ 
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  createdById     String
+  createdBy       User             @relation("TaskCreator", fields: [createdById], references: [id])
+
+  assignedToId    String?
+  assignedTo      User?            @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  reviewAssignedTo User?           @relation("TaskReviewAssignee", fields: [reviewAssignedToId], references: [id], onDelete: SetNull)
+
+  comments        Comment[]
+  progressUpdates ProgressUpdate[]
+  activityLogs    ActivityLog[]
+  workUpdates     WorkUpdate[]
+  reviewDecisions ReviewDecision[]
+
+  @@index([isDeleted])
+  @@index([name])
+  @@index([createdById])
+  @@index([assignedToId])
+  @@index([reviewAssignedToId])
+  @@index([isDeleted, status, dueDate])
+  @@index([isDeleted, assignedToId, status])
+  @@index([isDeleted, archivedAt, status])
+  @@index([isDeleted, submittedAt])
+  @@index([priority])
+  @@map("tasks")
+}
+
+model Comment {
+  id              String           @id @default(cuid())
+  taskId          String
+  task            Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  message         String           @db.Text
+  createdAt       DateTime         @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model ProgressUpdate {
+  id              String           @id @default(cuid())
+  taskId          String
+  task            Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  comment         String?          @db.Text
+  percentage      Int              @default(0)
+  createdAt       DateTime         @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("progress_updates")
+}
+
+model ActivityLog {
+  id              String           @id @default(cuid())
+  taskId          String
+  task            Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  action          ActivityAction
+  metadata        Json?            
+  createdAt       DateTime         @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+enum ReviewDecisionType {
+  approved
+  changes_requested
+}
+
+model WorkUpdate {
+  id              String           @id @default(cuid())
+  taskId          String
+  task            Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  description     String           @db.Text
+  progress        Int
+  revisionNumber  Int              @default(1)
+  createdAt       DateTime         @default(now())
+
+  attachments     WorkAttachment[]
+  reviewDecisions ReviewDecision[]
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([taskId, createdAt])
+  @@map("work_updates")
+}
+
+model WorkAttachment {
+  id           String     @id @default(cuid())
+  workUpdateId String
+  workUpdate   WorkUpdate @relation(fields: [workUpdateId], references: [id], onDelete: Cascade)
+  fileName     String
+  fileUrl      String
+  fileType     String
+  fileSize     Int
+  createdAt    DateTime   @default(now())
+
+  @@index([workUpdateId])
+  @@map("work_attachments")
+}
+
+model ReviewDecision {
+  id           String             @id @default(cuid())
+  taskId       String
+  task         Task               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  reviewerId   String
+  reviewer     User               @relation(fields: [reviewerId], references: [id])
+  workUpdateId String?
+  workUpdate   WorkUpdate?        @relation(fields: [workUpdateId], references: [id], onDelete: SetNull)
+  decision     ReviewDecisionType
+  comment      String             @db.Text
+  createdAt    DateTime           @default(now())
+
+  @@index([taskId])
+  @@index([reviewerId])
+  @@index([taskId, createdAt])
+  @@map("review_decisions")
+}
+
+model AWSKnowledgeBase {
+  id        String                     @id @default(uuid())
+  text      String
+  embedding Unsupported("vector(384)")?
+  metadata  Json
+  createdAt DateTime                   @default(now()) @map("created_at")
+
+  @@map("aws_knowledge_base")
+}
+
+model ConversationMemory {
+  id        String                     @id @default(uuid())
+  text      String
+  embedding Unsupported("vector(384)")?
+  sessionId String                     @map("session_id")
+  role      String
+  timestamp DateTime                   @default(now())
+
+  @@map("conversation_memory")
+}
+
+model ChatReport {
+  id        String   @id @default(uuid())
+  sessionId String   @map("session_id")
+  reason    String
+  details   String?  @db.Text
+  userAgent String?  @map("user_agent")
+  status    String   @default("open")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@index([status])
+  @@map("chat_reports")
+}
