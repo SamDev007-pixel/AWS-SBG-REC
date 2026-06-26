@@ -1,16 +1,44 @@
-# AWS-SBG-REC: Event Registration & Management Platform
+# AWS SBG REC: Student Branch Group & Learning Portal
 
-A robust, enterprise-grade Event Registration and Ticket Management platform. The application is built using a modern full-stack monorepo architecture: **NestJS** (backend API) and **Next.js 15** (frontend dashboard).
+Welcome to the official portal for the **AWS Student Branch Group (SBG)** at **Rajalakshmi Engineering College (REC)**. 
+
+This platform serves as a comprehensive hub for cloud learning, community building, and campus event coordination, offering features ranging from interactive learning pathways to robust event ticketing and crew coordination.
 
 ---
 
 ## 🔑 Demo Login Credentials
 
-Use these seeded accounts to log in and test different access levels:
+Use the seeded Super Admin account to log in and test all platform capabilities:
 
 | Role | Email Address | Password | Permissions & Features |
 | :--- | :--- | :--- | :--- |
-| **Super Admin / Admin / Organizer** | `pranavranjan@rajalakshmi.edu.in` | `pranav123` | Full system control, event creation/management, user management, and analytics dashboard access. |
+| **Super Admin / Admin / Organizer** | `pranavranjan@rajalakshmi.edu.in` | `pranav123` | Full system control, event management, learning content publishing, task assignments, and analytics dashboard access. |
+
+---
+
+## 🌟 Key Platform Modules
+
+### 1. 📅 Event Management & Ticketing
+* **Custom Event Wizard:** Create and configure events with schedules, custom speaker lists, and custom registration forms.
+* **Smart Ticketing:** Generates unique QR-coded tickets sent directly to registrants.
+* **QR Check-in scanner:** Interactive scanning dashboard for check-in verification at the venue.
+
+### 2. 🗺️ Career Pathways & Roadmaps
+* **Visual Learning Roadmaps:** Interactive, node-based roadmaps illustrating paths to becoming a Cloud Engineer, DevOps specialist, Solutions Architect, etc.
+* **AWS Services Directory:** Structured catalogue outlining core AWS services and their use cases.
+
+### 3. 🎓 Learning Platform & Quizzes
+* **Curriculum & Topics:** Study modules for various AWS concepts.
+* **Knowledge Checks:** Built-in quizzes to test comprehension.
+* **Leaderboards:** Friendly community competition tracking score ranking of active learners.
+
+### 4. 📰 Ingested AWS News Feed
+* **News Aggregator:** Automatically pulls the latest AWS updates and announcements.
+* **AI Article Summarization:** Briefly explains complex technical announcements into easy-to-read highlights.
+
+### 5. 👥 Task & Crew Workspace
+* **Collaboration Board:** Staff workspace for organizing volunteer schedules.
+* **Task Boards:** Trello-like task assignments for managing branch operations.
 
 ---
 
@@ -20,7 +48,7 @@ Use these seeded accounts to log in and test different access levels:
 AWS-SBG-REC/
 ├── apps/
 │   ├── backend/        # NestJS REST API server (runs on port 3000)
-│   └── frontend/       # Next.js 15 Admin Dashboard (runs on port 3001)
+│   └── frontend/       # Next.js 15 Web & Admin Dashboard (runs on port 3001)
 ├── uploads/            # Local media & ticket asset storage
 └── package.json        # Root package workspace definition
 ```
@@ -38,7 +66,7 @@ Ensure you have the following installed:
 
 ### 2. Environment Setup
 
-Configure your environment variables before starting:
+Configure your environment variables:
 
 #### Backend Config (`apps/backend/.env`)
 Create a `.env` file inside `apps/backend/`:
@@ -59,7 +87,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000/api
 ---
 
 ### 3. Database Initialization & Seeding
-From the **root directory** (or inside `apps/backend`), run the following to sync the database schema and insert the default demo users:
+From the **root directory**, run the following to sync the database schema and insert the default demo users/content:
 
 ```bash
 # Push schema to PostgreSQL database
@@ -68,7 +96,7 @@ npx prisma db push
 # Generate the type-safe Prisma client
 npm run prisma:generate
 
-# Seed the database with default users and events
+# Seed the database with default users, events, roadmaps, and services
 npm run prisma:seed
 ```
 
