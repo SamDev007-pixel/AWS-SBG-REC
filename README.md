@@ -109,17 +109,3 @@ From the root directory, start the development server for both the frontend and 
 npm run dev
 ```
 
-#### Run Separately
-* **Backend API:**
-  ```bash
-  cd apps/backend
-  npm run start:dev
-  ```
-  *Exposes API Docs (Swagger UI) at `http://localhost:4000/api/docs`*
-
-* **Frontend Dashboard:**
-  ```bash
-  cd apps/frontend
-  npm run dev
-  ```
-  *Exposes user dashboard interface at `http://localhost:3000`*
