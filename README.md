@@ -8,11 +8,12 @@ This platform serves as a comprehensive hub for cloud learning, community buildi
 
 ## 🔑 Demo Login Credentials
 
-Use the seeded Super Admin account to log in and test all platform capabilities:
+Use these seeded accounts to log in and test different platform capabilities:
 
 | Role | Email Address | Password | Permissions & Features |
 | :--- | :--- | :--- | :--- |
 | **Super Admin / Admin / Organizer** | `pranavranjan@rajalakshmi.edu.in` | `pranav123` | Full system control, event management, learning content publishing, task assignments, and analytics dashboard access. |
+| **Enthusiast / Learner** | `enthusiasts@rajalakshmi.edu.in` | `Enthusiasts@123` | Access to learning modules, roadmaps, interactive quizzes, leaderboards, and event registration. |
 
 ---
 
@@ -47,8 +48,8 @@ Use the seeded Super Admin account to log in and test all platform capabilities:
 ```text
 AWS-SBG-REC/
 ├── apps/
-│   ├── backend/        # NestJS REST API server (runs on port 3000)
-│   └── frontend/       # Next.js 15 Web & Admin Dashboard (runs on port 3001)
+│   ├── backend/        # NestJS REST API server (runs on port 4000)
+│   └── frontend/       # Next.js 15 Web & Admin Dashboard (runs on port 3000)
 ├── uploads/            # Local media & ticket asset storage
 └── package.json        # Root package workspace definition
 ```
@@ -60,7 +61,7 @@ AWS-SBG-REC/
 ### 1. Prerequisites
 Ensure you have the following installed:
 * [Node.js](https://nodejs.org) (v18 or higher)
-* [PostgreSQL](https://www.postgresql.org/) (running locally or in Docker)
+* [PostgreSQL](https://www.postgresql.org/) (running locally or in Neon/Docker)
 
 ---
 
@@ -71,17 +72,17 @@ Configure your environment variables:
 #### Backend Config (`apps/backend/.env`)
 Create a `.env` file inside `apps/backend/`:
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/event_registration_core?schema=public"
-APP_PORT=3000
-APP_URL=http://localhost:3000
+DATABASE_URL="postgresql://neondb_owner:npg_suieOgbTG40v@ep-jolly-lab-aopatnec-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+APP_PORT=4000
+APP_URL=http://localhost:4000
 JWT_SECRET=your-super-secret-jwt-key
 JWT_REFRESH_SECRET=your-super-secret-refresh-key
 ```
 
-#### Frontend Config (`apps/frontend/.env.local`)
-Create a `.env.local` file inside `apps/frontend/`:
+#### Frontend Config (`apps/frontend/.env`)
+Create a `.env` file inside `apps/frontend/`:
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+DATABASE_URL="postgresql://neondb_owner:npg_suieOgbTG40v@ep-jolly-lab-aopatnec-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 ```
 
 ---
@@ -116,11 +117,11 @@ npm run dev
   cd apps/backend
   npm run start:dev
   ```
-  *Exposes API Docs (Swagger UI) at `http://localhost:3000/api`*
+  *Exposes API Docs (Swagger UI) at `http://localhost:4000/api/docs`*
 
 * **Frontend Dashboard:**
   ```bash
   cd apps/frontend
   npm run dev
   ```
-  *Exposes user dashboard interface at `http://localhost:3001`*
+  *Exposes user dashboard interface at `http://localhost:3000`*
