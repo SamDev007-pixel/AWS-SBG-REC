@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './config/winston.config';
 import compression from 'compression';
@@ -72,6 +71,8 @@ async function bootstrap() {
   if (!redisReachable) {
     winstonLogger.warn('Redis is offline. Running NestJS core app in standalone direct ingestion mode.');
   }
+
+  const { AppModule } = await import('./app.module');
 
   const app = await NestFactory.create(AppModule, {
     logger: winstonLogger,

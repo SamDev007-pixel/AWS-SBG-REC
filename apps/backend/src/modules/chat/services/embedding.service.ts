@@ -5,8 +5,11 @@ export class EmbeddingService implements OnModuleInit {
   private extractor: any;
 
   async onModuleInit() {
-    // Defer loading model to first embed request to avoid blocking NestJS bootstrap.
-    console.log('[embedder] Lazy initialization configured. Model will load on demand.');
+    // Start pre-loading model in the background so it is ready for the first request
+    console.log('[embedder] Pre-loading all-MiniLM-L6-v2 model in the background...');
+    this.getExtractor().catch((err) => {
+      console.error('[embedder] Failed to pre-load model:', err);
+    });
   }
 
   private async getExtractor() {
