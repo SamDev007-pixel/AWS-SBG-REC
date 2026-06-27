@@ -101,8 +101,6 @@ npm run prisma:generate
 npm run prisma:seed
 ```
 
----
-
 ### 4. Running the Applications
 
 #### Run Everything at Once (Recommended)
