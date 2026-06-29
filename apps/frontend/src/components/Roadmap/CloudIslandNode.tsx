@@ -19,19 +19,8 @@ interface CloudIslandNodeProps {
   levelIndex?: number;
 }
 
-export const CloudIslandNode: React.FC<CloudIslandNodeProps> = ({
-  id,
-  name,
-  points,
-  status,
-  iconName,
-  x,
-  y,
-  onClick,
-  index,
-  level,
-  levelIndex
-}) => {
+export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeProps>(
+  ({ id, name, points, status, iconName, x, y, onClick, index, level, levelIndex }, ref) => {
   // Stagger float delay for natural look
   const floatDelay = (index * 0.35) % 2;
 
@@ -41,6 +30,8 @@ export const CloudIslandNode: React.FC<CloudIslandNodeProps> = ({
 
   return (
     <div
+      ref={ref}
+      data-module-id={id}
       className={cn(
         "absolute z-25 -translate-x-1/2 -translate-y-1/2 select-none transition-all duration-300 will-change-transform",
         status !== 'locked' ? "cursor-pointer animate-float-cloud" : "cursor-default animate-float-cloud opacity-80"
@@ -298,4 +289,5 @@ export const CloudIslandNode: React.FC<CloudIslandNodeProps> = ({
       </div>
     </div>
   );
-};
+});
+CloudIslandNode.displayName = 'CloudIslandNode';

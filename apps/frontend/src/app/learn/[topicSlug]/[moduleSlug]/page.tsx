@@ -108,6 +108,7 @@ export default function ModuleLearningPage() {
   const [quizReview, setQuizReview] = useState<QuizReviewData | undefined>(undefined);
   const [quizResult, setQuizResult] = useState<{ topicCompleted: boolean; nextTopicUnlocked: boolean } | null>(null);
 
+
   // Confetti overlay state
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -429,6 +430,7 @@ export default function ModuleLearningPage() {
       const reviewData = await progressService.getQuizReview(module.dbId);
       setQuizReview(reviewData);
       setQuizResult({ topicCompleted: result.topicCompleted, nextTopicUnlocked: result.nextTopicUnlocked });
+
       setStep('review');
       setShowSubmitConfirm(false);
     } catch (err: any) {
@@ -689,7 +691,7 @@ export default function ModuleLearningPage() {
                   if (quizResult?.topicCompleted || !module.topicSlug) {
                     router.push('/learn');
                   } else {
-                    router.push(`/learn/${module.topicSlug}`);
+                    router.push(`/learn/${module.topicSlug}?from=${moduleSlug}`);
                   }
                 }}
                 returnLabel={quizResult?.topicCompleted ? 'Choose Next Topic' : 'Continue Learning'}

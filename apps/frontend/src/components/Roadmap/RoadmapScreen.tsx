@@ -132,12 +132,18 @@ const PremiumHomeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 
 export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) => {
   const router = useRouter();
-  const [modules, setModules] = useState<any[]>([]);
-  const [moduleStates, setModuleStates] = useState<Record<string, 'completed' | 'current' | 'locked'>>({});
+  const [roadmapData, setRoadmapData] = useState<{
+    modules: any[];
+    moduleStates: Record<string, 'completed' | 'current' | 'locked'>;
+  }>({ modules: [], moduleStates: {} });
   const [xp, setXp] = useState<number>(0);
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<string | null>(null);
+
+  // Derived convenience accessors
+  const modules = roadmapData.modules;
+  const moduleStates = roadmapData.moduleStates;
 
   useEffect(() => {
     const session = getAuthSession();
@@ -188,9 +194,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         });
 
         setTopicName(topicDetail.name);
-        setModules(mappedModules);
-        setModuleStates(states);
+        setRoadmapData({ modules: mappedModules, moduleStates: states });
         setXp(progress.currentXP);
+        setLoading(false);
       } catch (err) {
         console.error('Failed to load roadmap data:', err);
       } finally {
@@ -203,6 +209,46 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
       active = false;
     };
   }, [topicSlug]);
+
+  // Scroll to the active module after data loads and roadmap renders
+  useEffect(() => {
+    if (loading || modules.length === 0) return;
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const fromSlug = queryParams.get('from');
+
+    let targetId: string | null = null;
+
+    // Flow 2: returning from quiz completion — scroll to the next module
+    if (fromSlug) {
+      const fromIdx = modules.findIndex(
+        (m) => m.id.toLowerCase() === fromSlug.toLowerCase(),
+      );
+      if (fromIdx >= 0 && fromIdx < modules.length - 1) {
+        targetId = modules[fromIdx + 1].id;
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Flow 1: normal navigation — scroll to first 'current' module
+    if (!targetId) {
+      const lastCompletedIdx = modules.reduce(
+        (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
+        -1,
+      );
+      const target = modules.find(
+        (m, idx) => idx > lastCompletedIdx && moduleStates[m.id] === 'current',
+      );
+      targetId = target?.id ?? null;
+    }
+
+    if (!targetId) return;
+
+    const el = moduleNodeRefs.current.get(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [loading, modules, moduleStates]);
 
   const handleLogout = () => {
     if (authService.logout(true)) {
@@ -218,6 +264,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   // Viewport refs for scrolling and path rendering
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+
+  // Ref map for module node DOM elements (keyed by module id)
+  const moduleNodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Measure dynamic geometry based on store modules list
   const geometry = useMemo(() => calculateRoadmapGeometry(modules), [modules]);
@@ -305,36 +354,16 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     };
   });
 
-  // Scroll to active node or beginner on mount (only once per topic selection)
-  const hasScrolledRef = useRef(false);
 
-  useEffect(() => {
-    hasScrolledRef.current = false;
-  }, [topicSlug]);
-
-  useEffect(() => {
-    if (!mapContainerRef.current || modules.length === 0 || hasScrolledRef.current) return;
-
-    // Skip scroll to active node/beginner if topic is just completed
-    const queryParams = new URLSearchParams(window.location.search);
-    if (queryParams.get('justCompleted') === 'true') return;
-
-    const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0];
-    const activeCoord = coordinates[activeNode.id];
-    if (activeCoord && mapContainerRef.current) {
-      const scrollPos = activeCoord.y - window.innerHeight / 2 + 200;
-      const timer = setTimeout(() => {
-        if (mapContainerRef.current) {
-          mapContainerRef.current.scrollTop = Math.max(0, scrollPos);
-        }
-      }, 100);
-      hasScrolledRef.current = true;
-      return () => clearTimeout(timer);
-    }
-  }, [moduleStates, modules, coordinates]);
 
   const selectedModule = modules.find((m) => m.id === selectedModuleId) || null;
-  const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
+  const lastCompletedIdxForNode = modules.reduce(
+    (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
+    -1,
+  );
+  const activeNode = modules.find(
+    (m, idx) => idx > lastCompletedIdxForNode && moduleStates[m.id] === 'current',
+  ) || modules.find((m) => moduleStates[m.id] === 'current') || modules[modules.length - 1] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
 
   // Derive display level: active module tier first, fallback to highest completed tier
   const levelOrder: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
@@ -802,6 +831,10 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             return (
               <CloudIslandNode
                 key={module.id}
+                ref={(el) => {
+                  if (el) moduleNodeRefs.current.set(module.id, el);
+                  else moduleNodeRefs.current.delete(module.id);
+                }}
                 id={module.id}
                 name={module.name}
                 points={module.points}

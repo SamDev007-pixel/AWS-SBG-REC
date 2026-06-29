@@ -757,7 +757,7 @@ export default function LearnPage() {
                                         </svg>
                                       </div>
                                    </div>
-
+                                              
                                    {/* Progress bar and numeric percentage */}
                                    <div className="flex items-center gap-3 mt-4">
                                      <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
