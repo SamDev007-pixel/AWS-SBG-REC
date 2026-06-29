@@ -32,53 +32,6 @@ import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
-const AWSSmile = ({ 
-  className = "w-10 h-auto", 
-  progress = 100, 
-  id 
-}: { 
-  className?: string; 
-  progress?: number; 
-  id: string; 
-}) => {
-  const clipWidth = Math.round((progress / 100) * 310);
-  const clipId = `smile-clip-${id}`;
-
-  return (
-    <svg viewBox="0 0 310 190" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id={clipId}>
-          <rect x="0" y="0" width={clipWidth} height="190" />
-        </clipPath>
-      </defs>
-      
-      {/* Background/Track (Empty smile) */}
-      <g className="opacity-20">
-        <path
-          fill="#0073BB"
-          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
-        />
-        <path
-          fill="#0073BB"
-          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
-        />
-      </g>
-
-      {/* Foreground/Progress (Filled orange smile) */}
-      <g clipPath={`url(#${clipId})`}>
-        <path
-          fill="#FF9900"
-          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
-        />
-        <path
-          fill="#FF9900"
-          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
-        />
-      </g>
-    </svg>
-  );
-};
-
 export default function LearnPage() {
   const router = useRouter();
 
@@ -117,6 +70,9 @@ export default function LearnPage() {
       router.push(`/learn/${continueModule.topicSlug}`);
     }
   };
+
+  // Guidelines popup state
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   const handleReviewTopics = () => {
     const element = document.getElementById('topic-rail-section');
@@ -436,12 +392,12 @@ export default function LearnPage() {
         {/* Cloud Background from Roadmaps */}
         <SkyBackground />
 
-        <div className="max-w-full mx-auto px-6 xl:px-12 pt-8 flex flex-col gap-8 relative z-10">
+        <div className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 flex flex-col gap-6 sm:gap-8 relative z-10">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col md:flex-row items-center justify-between gap-4 w-full pointer-events-auto py-2">
+          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
             {/* Left Side: Current Mission Info */}
-            <div className="flex items-center gap-4 w-full md:w-auto min-h-[72px]">
+            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-h-[52px] sm:min-h-[72px]">
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
                   <motion.div
@@ -450,10 +406,10 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-4 w-full md:w-auto"
+                    className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
                     <div
-                      className="w-12 h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
                     >
                       <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
                         <path
@@ -470,20 +426,20 @@ export default function LearnPage() {
                         />
                       </svg>
                     </div>
-                    <div className="flex flex-col text-slate-800">
-                      <span className="text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
+                    <div className="flex flex-col text-slate-800 min-w-0">
+                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
                         🎉 AWS Journey Complete
                       </span>
-                      <span className="text-xs font-semibold text-slate-500 mt-1 block">
+                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block">
                         Congratulations! You've completed every available topic.
                       </span>
-                      <div className="flex items-center gap-3 mt-2 text-[11px] font-extrabold">
-                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2.5 py-0.5 rounded-md">
-                          {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'} Completed
+                      <div className="flex items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-extrabold">
+                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2 py-0.5 rounded-md">
+                          {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'}
                         </span>
                         <span className="text-slate-300">|</span>
-                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 border border-cyan-100/30 px-2.5 py-0.5 rounded-md">
-                          {modulesCompletedCount} {modulesCompletedCount === 1 ? 'Module' : 'Modules'} Completed
+                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 border border-cyan-100/30 px-2 py-0.5 rounded-md">
+                          {modulesCompletedCount} {modulesCompletedCount === 1 ? 'Module' : 'Modules'}
                         </span>
                       </div>
                     </div>
@@ -495,38 +451,37 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-4 w-full md:w-auto"
+                    className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
                     <button
                       onClick={handleResume}
-                      disabled={!continueModule}
-                      aria-label="Resume learning"
+                      aria-label="Continue learning"
                       className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
                         continueModule
                           ? "bg-emerald-500 shadow-emerald-500/20 cursor-pointer hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-105 active:scale-95"
-                          : "bg-slate-300 cursor-not-allowed"
+                          : "bg-emerald-500/60 cursor-pointer hover:bg-emerald-400 hover:scale-105 active:scale-95"
                       )}
                     >
-                      <ChevronRight className="w-6 h-6 stroke-[3]" />
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
                     </button>
-                    <div className="flex flex-col text-slate-800">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
+                    <div className="flex flex-col text-slate-800 min-w-0 flex-1">
+                      <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
                         CONTINUE YOUR JOURNEY
                       </span>
-                      <span className="text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
+                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 truncate">
                         {continueModule ? `Current Mission: ${continueModule.name}` : 'Ready to start your AWS journey'}
                       </span>
-                      <div className="flex items-center gap-3 mt-1 text-[11px] font-extrabold text-slate-500">
+                      <div className="flex items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-[11px] font-extrabold text-slate-500">
                         <span className="flex items-center gap-1 text-cyan-600">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> {continueModule ? continueTopicProgress : 'Select a topic to start'}
+                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {continueModule ? continueTopicProgress : 'Select a topic'}
                         </span>
                         {continueModule?.topicName && (
                           <>
-                            <span className="text-slate-300">|</span>
+                            <span className="text-slate-300 hidden sm:inline">|</span>
                             <Link
                               href={`/learn/${continueModule.topicSlug}`}
-                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2.5 py-0.5 rounded-md text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
+                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 hidden sm:inline-flex"
                               title="Go to topic roadmap"
                             >
                               Topic: {continueModule.topicName}
@@ -541,40 +496,40 @@ export default function LearnPage() {
             </div>
 
             {/* Right Side: Reward & Resume */}
-            <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end flex-wrap sm:flex-nowrap">
               {/* Total XP Badge */}
-              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-indigo-650" />
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    TOTAL SCORE
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                    SCORE
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     {userXP} XP
                   </span>
                 </div>
               </div>
 
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    MISSION REWARD
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                    REWARD
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     +{continueModule ? continueXPReward : 50} XP
                   </span>
                 </div>
               </div>
 
               {/* Level badge */}
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-600" />
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
                     LEVEL
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     {continueDisplayLevel}
                   </span>
                 </div>
@@ -582,10 +537,10 @@ export default function LearnPage() {
 
               <Link
                 href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
                 title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
               >
-                <Home className="w-4 h-4" />
+                <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
 
               <AnimatePresence>
@@ -596,16 +551,10 @@ export default function LearnPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    disabled={!continueModule}
-                    onClick={handleResume}
-                    className={cn(
-                      "font-bold text-xs px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white",
-                      continueModule
-                        ? "bg-[#00cba9] hover:bg-[#00bda0]"
-                        : "bg-slate-300 shadow-none cursor-not-allowed"
-                    )}
+                    onClick={() => setShowGuidelines(true)}
+                    className="font-bold text-[10px] sm:text-xs px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0]"
                   >
-                    Resume Learning
+                    Guidelines
                   </motion.button>
                 )}
               </AnimatePresence>
@@ -613,25 +562,25 @@ export default function LearnPage() {
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-8 lg:items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-stretch">
             {/* Left Column: Search + Topic Rail */}
             <div className="flex-[1.5] min-w-0" id="topic-rail-section">
-              <div className="flex items-center gap-3 w-full pointer-events-auto">
-                <div className="relative min-w-[200px] flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
+                <div className="relative min-w-0 flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search Topics"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-9 py-2 bg-white/90 border border-slate-200/80 rounded-full text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
+                    className="w-full pl-9 pr-8 sm:pl-10 sm:pr-9 py-1.5 sm:py-2 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </button>
                   )}
                 </div>
@@ -639,11 +588,12 @@ export default function LearnPage() {
                 {userRole === 'crew' && (
                   <Link
                     href="/crew/learners"
-                    className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
                     title="View Learner Progress"
                   >
-                    <Users className="w-3.5 h-3.5" />
-                    <span>View Learner Progress</span>
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">View Learner Progress</span>
+                    <span className="sm:hidden">Learners</span>
                   </Link>
                 )}
               </div>
@@ -755,10 +705,57 @@ export default function LearnPage() {
                                        </div>
                                      </div>
 
-                                     {/* AWS Smile Badge */}
-                                     <div className="px-4 py-3 bg-sky-100 border border-[#FF9900]/35 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                                       <AWSSmile className="w-16 h-auto" progress={progressPercentToRender} id={topic.id} />
-                                     </div>
+                                     {/* AWS Swoosh Progress Illustration */}
+                                      <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
+                                        <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
+                                          <defs>
+                                            <clipPath id={`aws-swoosh-clip-${topic.id}`}>
+                                              <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                                              <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                                            </clipPath>
+                                          </defs>
+
+                                          {/* Unfilled background swoosh outline */}
+                                          <g
+                                            fill="rgba(226, 232, 240, 0.25)"
+                                            stroke={
+                                              topic.id === animatingTopicId
+                                                ? (isArrowSuccessVisual ? "#10B981" : "rgba(255, 159, 0, 1)")
+                                                : "rgba(255, 159, 0, 1)"
+                                            }
+                                            strokeWidth="3"
+                                            style={{
+                                              transition: topic.id === animatingTopicId
+                                                ? 'stroke 600ms ease-in-out'
+                                                : 'stroke 700ms ease-out'
+                                            }}
+                                          >
+                                            <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                                            <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                                          </g>
+
+                                          {/* Filled swoosh left-to-right using clipPath */}
+                                          <g clipPath={`url(#aws-swoosh-clip-${topic.id})`}>
+                                            <rect
+                                              x="0"
+                                              y="100"
+                                              width={`${(300 * progressPercentToRender) / 100}`}
+                                              height="90"
+                                              fill={
+                                                topic.id === animatingTopicId
+                                                  ? (isArrowSuccessVisual ? "#10B981" : "#FF9900")
+                                                  : "#FF9900"
+                                              }
+                                              style={{
+                                                width: `${(300 * progressPercentToRender) / 100}px`,
+                                                transition: topic.id === animatingTopicId
+                                                  ? 'width 2500ms ease-out, fill 600ms ease-in-out'
+                                                  : 'width 700ms ease-out, fill 700ms ease-out'
+                                              }}
+                                            />
+                                          </g>
+                                        </svg>
+                                      </div>
                                    </div>
 
                                    {/* Progress bar and numeric percentage */}
@@ -871,11 +868,44 @@ export default function LearnPage() {
               </main>
             </div>
 
-            {/* Right Column: Learning Guide Panel */}
-            <div className="w-full lg:flex-1 flex-shrink-0">
-              <LearningGuidePanel />
-            </div>
+            {/* Right Column: Empty (guidelines moved to popup) */}
+            <div className="w-full lg:flex-1 flex-shrink-0" />
           </div>
+
+          {/* Guidelines Popup Modal */}
+          <AnimatePresence>
+            {showGuidelines && (
+              <motion.div
+                key="guidelines-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+                onClick={() => setShowGuidelines(false)}
+              >
+                <motion.div
+                  key="guidelines-modal"
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ duration: 0.25 }}
+                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setShowGuidelines(false)}
+                    className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <div className="p-5">
+                    <LearningGuidePanel />
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
       </div>
