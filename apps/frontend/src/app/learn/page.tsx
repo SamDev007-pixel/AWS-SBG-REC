@@ -822,29 +822,29 @@ export default function LearnPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
+                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl p-4 sm:py-3.5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                                   {/* Green checkmark circle icon */}
-                                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
                                   </div>
                                   
-                                  {/* Topic Title */}
-                                  <h2 className="text-sm md:text-base font-semibold text-slate-800 tracking-tight leading-none">
-                                    {topic.name}
-                                  </h2>
-                                  
-                                  {/* Modules Pill */}
-                                  <span className="text-[9px] font-extrabold text-emerald-650 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 ml-2.5 uppercase tracking-wide">
-                                    {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                  </span>
+                                  {/* Topic Title and Modules Pill */}
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                    <h2 className="text-sm font-semibold text-slate-800 tracking-tight leading-snug">
+                                      {topic.name}
+                                    </h2>
+                                    <span className="inline-block text-[9px] font-extrabold text-emerald-650 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                    </span>
+                                  </div>
                                 </div>
 
                                 {/* Review Button */}
                                 <Link
                                   href={`/learn/${topic.slug}`}
-                                  className="px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
+                                  className="w-full sm:w-auto px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
                                 >
                                   <span>Review</span>
                                   <span className="text-xs">→</span>
@@ -859,18 +859,20 @@ export default function LearnPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
+                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <Lock className="w-4 h-4" />
                                   </div>
-                                  <span className="font-semibold text-slate-700 text-sm md:text-base leading-none">
-                                    {topic.name}
-                                  </span>
-                                  <span className="text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 ml-2 uppercase tracking-wide">
-                                    {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                  </span>
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                    <span className="font-semibold text-slate-700 text-sm leading-snug">
+                                      {topic.name}
+                                    </span>
+                                    <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                    </span>
+                                  </div>
                                 </div>
                               </motion.div>
                             )}
