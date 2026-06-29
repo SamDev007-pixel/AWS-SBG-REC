@@ -88,6 +88,8 @@ export default function ModuleLearningPage() {
     iconName: string;
     topicSlug: string;
     topicName: string;
+    topicId?: string;
+    prevPercent?: number;
   } | null>(null);
   const [slides, setSlides] = useState<any[]>([]);
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
@@ -146,12 +148,16 @@ export default function ModuleLearningPage() {
         // Resolve topicSlug and topicName for navigation & header info
         let resolvedTopicSlug = topicSlug;
         let topicName = '';
+        let prevPercent = 0;
         if (activeModule.topicId) {
           const topics = await learningService.getTopicList();
           const matchedTopic = topics.find((t) => t.id === activeModule.topicId);
           if (matchedTopic) {
             resolvedTopicSlug = matchedTopic.slug;
             topicName = matchedTopic.name;
+            prevPercent = matchedTopic.totalModules > 0
+              ? Math.round((matchedTopic.completedModules / matchedTopic.totalModules) * 100)
+              : 0;
           }
         }
 
@@ -201,6 +207,8 @@ export default function ModuleLearningPage() {
           iconName: getIconForSlug(activeModule.slug),
           topicSlug: resolvedTopicSlug,
           topicName,
+          topicId: activeModule.topicId || undefined,
+          prevPercent,
         });
 
         // Map backend slides content
@@ -430,6 +438,15 @@ export default function ModuleLearningPage() {
       const reviewData = await progressService.getQuizReview(module.dbId);
       setQuizReview(reviewData);
       setQuizResult({ topicCompleted: result.topicCompleted, nextTopicUnlocked: result.nextTopicUnlocked });
+
+      if (result.topicCompleted && module && typeof window !== 'undefined') {
+        if (module.topicId) {
+          sessionStorage.setItem("recentTopicCompletion", module.topicId);
+        }
+        if (module.prevPercent !== undefined) {
+          sessionStorage.setItem("recentTopicPrevPercent", String(module.prevPercent));
+        }
+      }
 
       setStep('review');
       setShowSubmitConfirm(false);
