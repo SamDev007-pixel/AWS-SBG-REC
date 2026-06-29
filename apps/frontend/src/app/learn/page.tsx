@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -39,6 +39,8 @@ export default function LearnPage() {
   const [mounted, setMounted] = useState(false);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -249,7 +251,6 @@ export default function LearnPage() {
       console.log("visualPercent updated:", visualPercent);
     }
   }, [visualPercent, animatingTopicId]);
-
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
     if (!searchQuery.trim()) return topics;
@@ -259,6 +260,20 @@ export default function LearnPage() {
       (t.description && t.description.toLowerCase().includes(q))
     );
   }, [topics, searchQuery]);
+
+  // Measure dynamic height of the content to stretch the SkyBackground dynamically
+  useEffect(() => {
+    if (!contentRef.current) return;
+    const updateHeight = () => {
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.scrollHeight);
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, [topics, filteredTopics]);
 
   // Find matching topic progress for continue module
   const continueTopicProgress = useMemo(() => {
@@ -388,11 +403,11 @@ export default function LearnPage() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white font-sans select-none relative overflow-y-auto pb-12">
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto pb-12">
         {/* Cloud Background from Roadmaps */}
-        <SkyBackground />
+        <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
 
-        <div className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 flex flex-col gap-6 sm:gap-8 relative z-10">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 flex flex-col gap-6 sm:gap-8 relative z-10">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">

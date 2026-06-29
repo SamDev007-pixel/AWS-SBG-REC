@@ -140,6 +140,14 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Derived convenience accessors
   const modules = roadmapData.modules;
@@ -471,8 +479,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   ];
 
   // Dynamic values for intermediate / advanced card positioning
-  const intermediateCardTop = intermediateStartY - 140;
-  const advancedCardTop = advancedStartY - 160;
+  // On mobile, summits extend ~128px below center and overlap the banners,
+  // so we add extra offset to push banners below the preceding summit.
+  const mobileIntermediateGap = isMobile ? 200 : 0;
+  const mobileAdvancedGap = isMobile ? 250 : 0;
+  const intermediateCardTop = intermediateStartY - 140 + mobileIntermediateGap;
+  const advancedCardTop = advancedStartY - 160 + mobileAdvancedGap;
 
   if (loading) {
     return (
@@ -657,7 +669,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         style={{ background: backgroundGradient }}
       >
         {/* Animated Sky background */}
-        <SkyBackground />
+        <SkyBackground height={totalHeight + 300} />
 
         {/* Loader removed as it is now handled as a full-page view */}
 
