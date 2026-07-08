@@ -1160,29 +1160,29 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           <g transform={`translate(${dimensions.width / 2}, ${totalViewHeight - 35})`}>
             {/* Soil/dirt base */}
             <path
-              d="M -70,15 C -55,30 -30,35 0,35 C 30,35 55,30 70,15 C 55,8 30,8 0,8 C -30,8 -55,8 -70,15 Z"
+              d="M -150,15 C -118,30 -64,35 0,35 C 64,35 118,30 150,15 C 118,8 64,8 0,8 C -64,8 -118,8 -150,15 Z"
               fill="url(#bottomDirtGrad)"
             />
             {/* Grass cover */}
             <path
-              d="M -75,10 C -55,-5 -30,-10 0,-10 C 30,-10 55,-5 75,10 C 55,8 30,8 0,8 C -30,8 -55,8 -75,10 Z"
+              d="M -160,10 C -118,-5 -64,-10 0,-10 C 64,-10 118,-5 160,10 C 118,8 64,8 0,8 C -64,8 -118,8 -160,10 Z"
               fill="url(#bottomGrassGrad)"
               stroke="#166534"
               strokeWidth="1"
             />
             {/* Rocks */}
-            <ellipse cx="-45" cy="8" rx="6" ry="4" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
-            <ellipse cx="-40" cy="10" rx="4" ry="2.5" fill="#cbd5e1" stroke="#475569" strokeWidth="0.8" />
-            <ellipse cx="50" cy="9" rx="5" ry="3" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
+            <ellipse cx="-95" cy="8" rx="6" ry="4" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
+            <ellipse cx="-88" cy="10" rx="4" ry="2.5" fill="#cbd5e1" stroke="#475569" strokeWidth="0.8" />
+            <ellipse cx="110" cy="9" rx="5" ry="3" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
             {/* Flowers */}
-            <g transform="translate(-20, 0)">
+            <g transform="translate(-45, 0)">
               <circle cx="0" cy="0" r="1.5" fill="#fef08a" />
               <circle cx="-1.5" cy="0" r="1" fill="#f472b6" />
               <circle cx="1.5" cy="0" r="1" fill="#f472b6" />
               <circle cx="0" cy="-1.5" r="1" fill="#f472b6" />
               <circle cx="0" cy="1.5" r="1" fill="#f472b6" />
             </g>
-            <g transform="translate(25, 2)">
+            <g transform="translate(60, 2)">
               <circle cx="0" cy="0" r="1.2" fill="#fef08a" />
               <circle cx="-1.2" cy="0" r="0.8" fill="#38bdf8" />
               <circle cx="1.2" cy="0" r="0.8" fill="#38bdf8" />
@@ -1190,11 +1190,11 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
               <circle cx="0" cy="1.2" r="0.8" fill="#38bdf8" />
             </g>
             {/* Bushes */}
-            <path d="M -65,5 Q -72,-2 -65,-8 Q -58,-12 -52,-6 Q -45,-8 -45,0 Q -45,7 -65,5 Z" fill="#15803d" opacity="0.9" />
-            <path d="M 40,6 Q 33,-1 40,-7 Q 47,-11 53,-5 Q 60,-7 60,1 Q 60,8 40,6 Z" fill="#15803d" opacity="0.9" />
+            <path d="M -115,5 Q -122,-2 -115,-8 Q -108,-12 -102,-6 Q -95,-8 -95,0 Q -95,7 -115,5 Z" fill="#15803d" opacity="0.9" />
+            <path d="M 100,6 Q 93,-1 100,-7 Q 107,-11 113,-5 Q 120,-7 120,1 Q 120,8 100,6 Z" fill="#15803d" opacity="0.9" />
             {/* Roots */}
-            <path d="M 0,-1 Q -5,-3 -8,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <path d="M 0,-1 Q 6,-3 9,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+            <path d="M 0,-1 Q -8,-3 -15,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M 0,-1 Q 10,-3 17,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
           </g>
 
           {/* CloudMan Character - Translated to match vine bending horizontally, and vertically along the vine */}
