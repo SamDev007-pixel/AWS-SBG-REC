@@ -594,10 +594,14 @@ const CloudMan: React.FC<CloudManProps> = ({
   );
 };
 
-// ==========================================
-// 4. Configurable Positioning Constants
-// ==========================================
 const LANDING_REVEAL_MARGIN = 0; // Distance in pixels before platform enters viewport to trigger landing transition
+
+const ENVIRONMENT_ANCHORS = {
+  landingStoneX: 0,
+  landingStoneY: -8,       // relative to platform center: totalViewHeight - 35 (which is topicListHeight)
+  signboardAnchorX: 35,
+  signboardAnchorY: -8
+};
 
 const getViewportHeight = (): number => {
   if (typeof window === 'undefined') return 600;
@@ -951,18 +955,16 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
       const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
 
       if (currentScrollTop >= maxScroll - 2) {
-        // Initialize already landed at bottom on page refresh
         setLandingState('IDLE');
         landingStateRef.current = 'IDLE';
         setWalkProgress(1.0);
 
-        const totalLength = pathElement.getTotalLength();
-        const endPoint = pathElement.getPointAtLength(totalLength);
-        const signboardAnchorX = dimensions.width / 2 + 35;
+        const signboardAnchorX = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
+        const signboardAnchorY = topicListHeight + ENVIRONMENT_ANCHORS.signboardAnchorY;
 
         setCloudPos({
           x: signboardAnchorX,
-          y: endY + 15,
+          y: signboardAnchorY,
           rotate: 0
         });
         setCurrentProgress(1.0);
@@ -1040,7 +1042,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           descendStartTimeRef.current = null;
           vineEndXRef.current = null;
           vineEndYRef.current = null;
-          
+
           if (landingStateRef.current !== 'CLIMBING') {
             landingStateRef.current = 'CLIMBING';
             setLandingState('CLIMBING');
@@ -1099,11 +1101,13 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
           updateCoordinates(currentPath, clampedTargetY);
         } else {
-          // Locked/frozen ground/platform coordinates
-          const fallbackX = dimensions.width / 2;
-          const initialX = vineEndXRef.current ?? fallbackX;
+          // Locked/frozen ground/platform coordinates defined by ENVIRONMENT_ANCHORS
+          const initialX = vineEndXRef.current ?? (dimensions.width / 2);
           const initialY = vineEndYRef.current ?? endY;
-          const signboardAnchorX = dimensions.width / 2 + 35;
+
+          const landingStoneXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.landingStoneX;
+          const landingStoneYAbs = topicListHeightVal + ENVIRONMENT_ANCHORS.landingStoneY;
+          const signboardAnchorXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
 
           let targetX = initialX;
           let targetYVal = initialY;
@@ -1115,18 +1119,18 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             const elapsed = performance.now() - (descendStartTimeRef.current ?? 0);
             const t = Math.min(1, elapsed / 300);
             targetX = initialX;
-            targetYVal = initialY + t * 15; // drop 15px vertically
+            targetYVal = initialY + t * (landingStoneYAbs - initialY);
           } else if (currentState === 'TOUCHDOWN') {
-            targetX = initialX;
-            targetYVal = initialY + 15;
+            targetX = landingStoneXAbs;
+            targetYVal = landingStoneYAbs;
           } else if (currentState === 'WALKING') {
-            targetYVal = initialY + 15;
+            targetYVal = landingStoneYAbs;
             const currentWalkProgress = (performance.now() - (walkStartTimeRef.current ?? 0)) / 1500;
             const clampedWalkProgress = Math.max(0, Math.min(1, currentWalkProgress));
-            targetX = initialX + clampedWalkProgress * (signboardAnchorX - initialX);
+            targetX = landingStoneXAbs + clampedWalkProgress * (signboardAnchorXAbs - landingStoneXAbs);
           } else if (currentState === 'IDLE') {
-            targetX = signboardAnchorX;
-            targetYVal = initialY + 15;
+            targetX = signboardAnchorXAbs;
+            targetYVal = landingStoneYAbs;
           }
 
           setCloudPos({
@@ -1402,6 +1406,11 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             {/* Roots */}
             <path d="M 0,-1 Q -8,-3 -15,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
             <path d="M 0,-1 Q 10,-3 17,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+            {/* Landing Stepping Stone */}
+            <g transform={`translate(${ENVIRONMENT_ANCHORS.landingStoneX}, ${ENVIRONMENT_ANCHORS.landingStoneY})`}>
+              <ellipse cx="0" cy="0" rx="14" ry="4" fill="#64748b" stroke="#334155" strokeWidth="1" />
+              <ellipse cx="0" cy="-1" rx="12" ry="3" fill="#94a3b8" stroke="#475569" strokeWidth="0.5" />
+            </g>
             {/* Beautiful wooden custom signboard */}
             <g>
               <rect x="65" y="-12" width="6" height="25" fill="#78350f" stroke="#451a03" strokeWidth="1" />
