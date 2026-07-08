@@ -11,6 +11,8 @@ interface VineWheepPrototypeProps {
   scrollContainerRef: React.RefObject<HTMLElement | null>;
 }
 
+export type LandingState = 'CLIMBING' | 'DESCENDING' | 'TOUCHDOWN' | 'RELEASE' | 'WALKING' | 'IDLE';
+
 interface LeafPoint {
   id: string;
   x: number;
@@ -71,6 +73,9 @@ interface CloudManProps {
   isLeftStep: boolean;
   swingRotate: number;
   swingX: number;
+  landingState: LandingState;
+  touchdownTime: number | null;
+  walkProgress: number;
 }
 
 const CloudMan: React.FC<CloudManProps> = ({
@@ -81,7 +86,10 @@ const CloudMan: React.FC<CloudManProps> = ({
   stepProgress,
   isLeftStep,
   swingRotate,
-  swingX
+  swingX,
+  landingState,
+  touchdownTime,
+  walkProgress
 }) => {
   // Occasional eye blink state
   const [blink, setBlink] = useState(false);
@@ -336,12 +344,12 @@ const CloudMan: React.FC<CloudManProps> = ({
   }
 
   // ==========================================
-  // CLIMBING & HANGING CUSTOM VECTOR GAIT ANIMATION
+  // CLIMBING, LANDING, & WALKING VECTOR SOLVER
   // ==========================================
   const time = typeof window !== 'undefined' ? performance.now() : 0;
   const HALF_CYCLE = 30;
 
-  // 1. Hand Positions
+  // 1. Hand and Shoulder / Arm Positions
   const leftHandIdle = { x: -6, y: 5 };
   const rightHandIdle = { x: 6, y: 5 };
 
@@ -349,7 +357,6 @@ const CloudMan: React.FC<CloudManProps> = ({
   let rightHandClimb = { x: 6, y: 5 };
 
   if (isLeftStep) {
-    // Case 1: Left hand is reaching, Right hand is gripping/anchored
     rightHandClimb = {
       x: 6,
       y: -15 + 30 * stepProgress
@@ -359,7 +366,6 @@ const CloudMan: React.FC<CloudManProps> = ({
       y: 15 - 30 * stepProgress
     };
   } else {
-    // Case 2: Right hand is reaching, Left hand is gripping/anchored
     leftHandClimb = {
       x: -6,
       y: -15 + 30 * stepProgress
@@ -370,36 +376,67 @@ const CloudMan: React.FC<CloudManProps> = ({
     };
   }
 
-  // Interpolate based on climb intensity
-  const leftHand = {
+  // Base arm coordinates
+  let leftHand = {
     x: leftHandIdle.x * (1 - climbIntensity) + leftHandClimb.x * climbIntensity,
     y: leftHandIdle.y * (1 - climbIntensity) + leftHandClimb.y * climbIntensity
   };
-  const rightHand = {
+  let rightHand = {
     x: rightHandIdle.x * (1 - climbIntensity) + rightHandClimb.x * climbIntensity,
     y: rightHandIdle.y * (1 - climbIntensity) + rightHandClimb.y * climbIntensity
   };
 
-  // 2. Squash and Stretch Body Deformation
-  const stretchY = 1 + 0.08 * Math.sin(2 * Math.PI * stepProgress - Math.PI / 2) * climbIntensity;
-  const stretchX = 1 - 0.05 * Math.sin(2 * Math.PI * stepProgress - Math.PI / 2) * climbIntensity;
+  // Base squash & stretch & offsets
+  let stretchY = 1 + 0.08 * Math.sin(2 * Math.PI * stepProgress - Math.PI / 2) * climbIntensity;
+  let stretchX = 1 - 0.05 * Math.sin(2 * Math.PI * stepProgress - Math.PI / 2) * climbIntensity;
 
-  // 3. Sway and Bobbing Offset
-  const bodyRotate = swingRotate * climbIntensity;
-  const bodyX = swingX * climbIntensity;
+  let bodyRotate = swingRotate * climbIntensity;
+  let bodyX = swingX * climbIntensity;
 
-  // Eased breathing/bobbing when idle
   const idleY = Math.sin(time * 0.002) * 2.5 * (1 - climbIntensity);
   const idleX = Math.sin(time * 0.001) * 1.5 * (1 - climbIntensity);
   const idleRotate = Math.sin(time * 0.0015) * 1.2 * (1 - climbIntensity);
 
-  const totalX = bodyX + idleX;
-  const totalY = idleY;
-  const totalRotate = bodyRotate + idleRotate;
-  const totalScaleX = stretchX;
-  const totalScaleY = stretchY;
+  let totalX = bodyX + idleX;
+  let totalY = idleY;
+  let totalRotate = bodyRotate + idleRotate;
+  let totalScaleX = stretchX;
+  let totalScaleY = stretchY;
 
-  // 4. Arm Path Shoulder Joints Vector Math
+  // Adapt for different landing states
+  const isWalking = landingState === 'WALKING';
+  const isIdle = landingState === 'IDLE';
+  const isTouchdown = landingState === 'TOUCHDOWN';
+  const isRelease = landingState === 'RELEASE';
+
+  if (isTouchdown) {
+    // 300ms squash & stretch
+    const elapsed = touchdownTime ? Math.max(0, time - touchdownTime) : 0;
+    const t = Math.min(1, elapsed / 300);
+    const squash = Math.sin(t * Math.PI);
+    totalScaleY = 1.0 - 0.15 * squash;
+    totalScaleX = 1.0 + 0.08 * squash;
+    totalRotate = 0;
+    totalX = 0;
+    totalY = 4; // Sink slightly on touchdown
+  } else if (isRelease || isWalking || isIdle) {
+    // Straight relaxed body, turn slightly towards learner
+    totalRotate = isIdle ? Math.sin(time * 0.0015) * 0.8 : 0;
+    totalX = 0;
+    totalY = isIdle ? Math.sin(time * 0.002) * 0.6 : 0;
+
+    // Idle breathing
+    if (isIdle) {
+      const breathe = Math.sin(time * 0.002) * 0.015;
+      totalScaleY = 1.0 + breathe;
+      totalScaleX = 1.0 - breathe * 0.5;
+    } else {
+      totalScaleY = 1.0;
+      totalScaleX = 1.0;
+    }
+  }
+
+  // Calculate shoulder locations based on body transforms
   const transformPoint = (x: number, y: number, tx: number, ty: number, angle: number, sx: number, sy: number) => {
     const scaleX = x * sx;
     const scaleY = y * sy;
@@ -415,28 +452,74 @@ const CloudMan: React.FC<CloudManProps> = ({
   const leftShoulder = transformPoint(-18, 5, totalX, totalY, totalRotate, totalScaleX, totalScaleY);
   const rightShoulder = transformPoint(18, 5, totalX, totalY, totalRotate, totalScaleX, totalScaleY);
 
-  // Left Arm Quad Curve (Elbow bends outward)
-  const leftMid = { x: (leftShoulder.x + leftHand.x) / 2, y: (leftShoulder.y + leftHand.y) / 2 };
-  const leftControl = {
-    x: leftMid.x - 6 * climbIntensity,
-    y: leftMid.y + 4 * climbIntensity
-  };
-  const leftArmD = `M ${leftShoulder.x} ${leftShoulder.y} Q ${leftControl.x} ${leftControl.y}, ${leftHand.x} ${leftHand.y}`;
+  // Arm Path String setup
+  let leftArmD = '';
+  let rightArmD = '';
 
-  // Right Arm Quad Curve (Elbow bends outward)
-  const rightMid = { x: (rightShoulder.x + rightHand.x) / 2, y: (rightShoulder.y + rightHand.y) / 2 };
-  const rightControl = {
-    x: rightMid.x + 6 * climbIntensity,
-    y: rightMid.y + 4 * climbIntensity
-  };
-  const rightArmD = `M ${rightShoulder.x} ${rightShoulder.y} Q ${rightControl.x} ${rightControl.y}, ${rightHand.x} ${rightHand.y}`;
+  if (isRelease || isWalking || isIdle) {
+    // Relaxed hanging arms at the body's sides
+    let lSwing = 0;
+    let rSwing = 0;
+    if (isWalking) {
+      // Walking arm swing cycle
+      const walkCycle = walkProgress * Math.PI * 10;
+      lSwing = 5 * Math.sin(walkCycle);
+      rSwing = -5 * Math.sin(walkCycle);
+    }
+    leftHand = { x: leftShoulder.x - 3 + lSwing, y: leftShoulder.y + 20 };
+    rightHand = { x: rightShoulder.x + 3 + rSwing, y: rightShoulder.y + 20 };
 
-  // 5. Leg coordinates (Bicycling movement relative to body coordinates)
-  const legLeftY = 25 + 4 * Math.sin(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
-  const legLeftX = -9 - 2 * Math.cos(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+    leftArmD = `M ${leftShoulder.x} ${leftShoulder.y} Q ${leftShoulder.x - 3} ${leftShoulder.y + 10}, ${leftHand.x} ${leftHand.y}`;
+    rightArmD = `M ${rightShoulder.x} ${rightShoulder.y} Q ${rightShoulder.x + 3} ${rightShoulder.y + 10}, ${rightHand.x} ${rightHand.y}`;
+  } else {
+    // Standard climbing arms holding the vine
+    const leftMid = { x: (leftShoulder.x + leftHand.x) / 2, y: (leftShoulder.y + leftHand.y) / 2 };
+    const leftControl = {
+      x: leftMid.x - 6 * climbIntensity,
+      y: leftMid.y + 4 * climbIntensity
+    };
+    leftArmD = `M ${leftShoulder.x} ${leftShoulder.y} Q ${leftControl.x} ${leftControl.y}, ${leftHand.x} ${leftHand.y}`;
 
-  const legRightY = 25 - 4 * Math.sin(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
-  const legRightX = 9 - 2 * Math.cos(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+    const rightMid = { x: (rightShoulder.x + rightHand.x) / 2, y: (rightShoulder.y + rightHand.y) / 2 };
+    const rightControl = {
+      x: rightMid.x + 6 * climbIntensity,
+      y: rightMid.y + 4 * climbIntensity
+    };
+    rightArmD = `M ${rightShoulder.x} ${rightShoulder.y} Q ${rightControl.x} ${rightControl.y}, ${rightHand.x} ${rightHand.y}`;
+  }
+
+  // 5. Leg Coordinates
+  let legLeftY = 25;
+  let legLeftX = -9;
+  let legRightY = 25;
+  let legRightX = 9;
+
+  if (isTouchdown || isRelease) {
+    // Standing flat on platform
+    legLeftY = 24;
+    legLeftX = -8;
+    legRightY = 24;
+    legRightX = 8;
+  } else if (isWalking) {
+    // Walking leg steps cycle
+    const walkCycle = walkProgress * Math.PI * 10;
+    legLeftY = 24 + 4 * Math.max(0, Math.sin(walkCycle));
+    legLeftX = -8 + 3 * Math.cos(walkCycle);
+    legRightY = 24 + 4 * Math.max(0, Math.sin(walkCycle + Math.PI));
+    legRightX = 8 + 3 * Math.cos(walkCycle + Math.PI);
+  } else if (isIdle) {
+    // Tiny gentle idle stand breath sway
+    legLeftY = 24;
+    legLeftX = -8;
+    legRightY = 24;
+    legRightX = 8;
+  } else {
+    // Standard climbing bicycling legs
+    legLeftY = 25 + 4 * Math.sin(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+    legLeftX = -9 - 2 * Math.cos(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+    legRightY = 25 - 4 * Math.sin(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+    legRightX = 9 - 2 * Math.cos(Math.PI * (cycleDist / HALF_CYCLE)) * climbIntensity;
+  }
 
   return (
     <g
@@ -500,7 +583,7 @@ const CloudMan: React.FC<CloudManProps> = ({
 
         {/* Mouth */}
         <path
-          d={climbIntensity > 0.3 ? "M -3 3 Q 0 1 3 3" : "M -2.5 4 Q 0 6.5 2.5 4"}
+          d={isRelease || isWalking || isIdle ? "M -3.5 3 Q 0 6 3.5 3" : (climbIntensity > 0.3 ? "M -3 3 Q 0 1 3 3" : "M -2.5 4 Q 0 6.5 2.5 4")}
           stroke="#0f172a"
           strokeWidth="1.6"
           strokeLinecap="round"
@@ -514,8 +597,7 @@ const CloudMan: React.FC<CloudManProps> = ({
 // ==========================================
 // 4. Configurable Positioning Constants
 // ==========================================
-const CAMERA_LOCK_END_RATIO = 0.90; // Locks CloudMan to screen height until 90% scroll progress
-const TRANSITION_DURATION_RATIO = 0.10; // Last 10% scroll progress eases his transition to the landing platform
+const LANDING_REVEAL_MARGIN = 50; // Distance in pixels before platform enters viewport to trigger landing transition
 
 const getViewportHeight = (): number => {
   if (typeof window === 'undefined') return 600;
@@ -576,6 +658,15 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
   // Time-driven climbing cycle phase state and ref accumulator
   const [climbCycle, setClimbCycle] = useState(0);
   const cyclePhaseRef = useRef(0);
+
+  // Dedicated landing controller state variables and refs
+  const [landingState, setLandingState] = useState<LandingState>('CLIMBING');
+  const landingStateRef = useRef<LandingState>('CLIMBING');
+  const [touchdownTime, setTouchdownTime] = useState<number | null>(null);
+  const touchdownTimeRef = useRef<number | null>(null);
+  const [walkProgress, setWalkProgress] = useState(0);
+  const releaseTimeRef = useRef<number | null>(null);
+  const walkStartTimeRef = useRef<number | null>(null);
 
   // Measure the width of the right column container
   useEffect(() => {
@@ -838,24 +929,51 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
       const entryProgress = Math.min(1, scrollRatio / 0.15);
       const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
 
-      let targetY = 0;
-      if (scrollRatio <= CAMERA_LOCK_END_RATIO) {
-        targetY = climbY;
+      const scrollAtLandingReveal = Math.max(0, endY - viewportHeight - LANDING_REVEAL_MARGIN);
+
+      if (currentScrollTop >= maxScroll - 2) {
+        // Initialize already landed at bottom on page refresh
+        setLandingState('IDLE');
+        landingStateRef.current = 'IDLE';
+        setWalkProgress(1.0);
+
+        const totalLength = pathElement.getTotalLength();
+        const endPoint = pathElement.getPointAtLength(totalLength);
+        const signboardAnchorX = dimensions.width / 2 + 35;
+
+        setCloudPos({
+          x: signboardAnchorX,
+          y: endY,
+          rotate: 0
+        });
+        setCurrentProgress(1.0);
       } else {
-        // Transition from climbY (at lock end ratio) to endY (landing platform) over duration ratio
-        const scrollAtLockEnd = maxScroll * CAMERA_LOCK_END_RATIO;
-        const entryProgressAtLockEnd = Math.min(1, CAMERA_LOCK_END_RATIO / 0.15);
-        const climbYAtLockEnd = scrollAtLockEnd + (startY + 45) + entryProgressAtLockEnd * (viewportHeight * 0.58 - (startY + 45));
-        const t = (scrollRatio - CAMERA_LOCK_END_RATIO) / TRANSITION_DURATION_RATIO;
-        const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
-        targetY = (1 - easedT) * climbYAtLockEnd + easedT * endY;
+        const nextState = currentScrollTop >= scrollAtLandingReveal ? 'DESCENDING' : 'CLIMBING';
+        setLandingState(nextState);
+        landingStateRef.current = nextState;
+        setWalkProgress(0);
+
+        let targetY = 0;
+        if (currentScrollTop < scrollAtLandingReveal) {
+          targetY = climbY;
+        } else {
+          // Transition from climbY (at reveal scroll) to endY (landing platform) over remaining scroll
+          const scrollRatioAtReveal = Math.max(0, Math.min(1, scrollAtLandingReveal / maxScroll));
+          const entryProgressAtReveal = Math.min(1, scrollRatioAtReveal / 0.15);
+          const climbYAtReveal = scrollAtLandingReveal + (startY + 45) + entryProgressAtReveal * (viewportHeight * 0.58 - (startY + 45));
+
+          const denom = maxScroll - scrollAtLandingReveal;
+          const t = denom > 1 ? Math.max(0, Math.min(1, (currentScrollTop - scrollAtLandingReveal) / denom)) : 1;
+          const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
+          targetY = (1 - easedT) * climbYAtReveal + easedT * endY;
+        }
+
+        const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+        const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
+
+        setCurrentProgress(clampedProgress);
+        updateCoordinates(pathElement, clampedTargetY);
       }
-
-      const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
-      const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
-
-      setCurrentProgress(clampedProgress);
-      updateCoordinates(pathElement, clampedTargetY);
     } catch (err) {
       console.error('Error performing dynamic layout updates:', err);
     }
@@ -869,7 +987,9 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
     let animFrameId: number;
     const update = () => {
       // 1. Ease climb intensity (decay target to a minimum of 0.35 to maintain a gentle climbing idle state)
-      const target = isScrolling ? 1 : 0.35;
+      // Lock climb intensity to 0 when walking or idle
+      const state = landingStateRef.current;
+      const target = (isScrolling && (state === 'CLIMBING' || state === 'DESCENDING')) ? 1 : 0.35;
       const current = climbIntensityRef.current;
       const diff = target - current;
       if (Math.abs(diff) > 0.001) {
@@ -903,34 +1023,107 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         const maxScroll = Math.max(50, topicListHeightVal - viewportHeight);
         const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
 
-        // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
-        const entryProgress = Math.min(1, scrollRatio / 0.15);
-        const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
+        const scrollAtLandingReveal = Math.max(0, endY - viewportHeight - LANDING_REVEAL_MARGIN);
 
-        let targetY = 0;
-        if (scrollRatio <= CAMERA_LOCK_END_RATIO) {
-          targetY = climbY;
+        // Update landing state machine inside anim loop
+        if (currentScrollTop < maxScroll - 6) {
+          touchdownTimeRef.current = null;
+          releaseTimeRef.current = null;
+          walkStartTimeRef.current = null;
+
+          const nextState = currentScrollTop >= scrollAtLandingReveal ? 'DESCENDING' : 'CLIMBING';
+          if (landingStateRef.current !== nextState) {
+            landingStateRef.current = nextState;
+            setLandingState(nextState);
+          }
+          setWalkProgress(0);
         } else {
-          // Transition from climbY (at lock end ratio) to endY (landing platform) over duration ratio
-          const scrollAtLockEnd = maxScroll * CAMERA_LOCK_END_RATIO;
-          const entryProgressAtLockEnd = Math.min(1, CAMERA_LOCK_END_RATIO / 0.15);
-          const climbYAtLockEnd = scrollAtLockEnd + (startY + 45) + entryProgressAtLockEnd * (viewportHeight * 0.58 - (startY + 45));
-          const t = (scrollRatio - CAMERA_LOCK_END_RATIO) / TRANSITION_DURATION_RATIO;
-          const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
-          targetY = (1 - easedT) * climbYAtLockEnd + easedT * endY;
+          if (landingStateRef.current === 'CLIMBING' || landingStateRef.current === 'DESCENDING') {
+            landingStateRef.current = 'TOUCHDOWN';
+            setLandingState('TOUCHDOWN');
+            touchdownTimeRef.current = performance.now();
+            setTouchdownTime(touchdownTimeRef.current);
+          } else if (landingStateRef.current === 'TOUCHDOWN') {
+            const elapsed = performance.now() - (touchdownTimeRef.current ?? 0);
+            if (elapsed >= 300) {
+              landingStateRef.current = 'RELEASE';
+              setLandingState('RELEASE');
+              releaseTimeRef.current = performance.now();
+            }
+          } else if (landingStateRef.current === 'RELEASE') {
+            const elapsed = performance.now() - (releaseTimeRef.current ?? 0);
+            if (elapsed >= 400) {
+              landingStateRef.current = 'WALKING';
+              setLandingState('WALKING');
+              walkStartTimeRef.current = performance.now();
+            }
+          } else if (landingStateRef.current === 'WALKING') {
+            const elapsed = performance.now() - (walkStartTimeRef.current ?? 0);
+            const progress = Math.min(1, elapsed / 1500);
+            setWalkProgress(progress);
+            if (progress >= 1) {
+              landingStateRef.current = 'IDLE';
+              setLandingState('IDLE');
+            }
+          }
         }
 
-        // Clamp targetY to keep CloudMan within safe vine bounds
-        const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+        // Apply coordinates based on the landing state
+        const currentState = landingStateRef.current;
+        if (currentState === 'CLIMBING' || currentState === 'DESCENDING') {
+          // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
+          const entryProgress = Math.min(1, scrollRatio / 0.15);
+          const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
 
-        const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
+          let targetY = 0;
+          if (currentScrollTop < scrollAtLandingReveal) {
+            targetY = climbY;
+          } else {
+            // Transition from climbY (at reveal scroll) to endY (landing platform) over remaining scroll
+            const scrollRatioAtReveal = Math.max(0, Math.min(1, scrollAtLandingReveal / maxScroll));
+            const entryProgressAtReveal = Math.min(1, scrollRatioAtReveal / 0.15);
+            const climbYAtReveal = scrollAtLandingReveal + (startY + 45) + entryProgressAtReveal * (viewportHeight * 0.58 - (startY + 45));
 
-        if (Math.abs(progressRef.current - clampedProgress) > 0.001) {
-          progressRef.current = clampedProgress;
-          setCurrentProgress(clampedProgress);
+            const denom = maxScroll - scrollAtLandingReveal;
+            const t = denom > 1 ? Math.max(0, Math.min(1, (currentScrollTop - scrollAtLandingReveal) / denom)) : 1;
+            const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
+            targetY = (1 - easedT) * climbYAtReveal + easedT * endY;
+          }
+
+          // Clamp targetY to keep CloudMan within safe vine bounds
+          const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+
+          const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
+
+          if (Math.abs(progressRef.current - clampedProgress) > 0.001) {
+            progressRef.current = clampedProgress;
+            setCurrentProgress(clampedProgress);
+          }
+
+          updateCoordinates(currentPath, clampedTargetY);
+        } else {
+          // Solved ground level position
+          const totalLength = currentPath.getTotalLength();
+          const endPoint = currentPath.getPointAtLength(totalLength);
+          const vineEndX = endPoint.x;
+          const signboardAnchorX = dimensions.width / 2 + 35;
+
+          let targetX = vineEndX;
+          if (currentState === 'WALKING') {
+            const currentWalkProgress = (performance.now() - (walkStartTimeRef.current ?? 0)) / 1500;
+            const clampedWalkProgress = Math.max(0, Math.min(1, currentWalkProgress));
+            targetX = vineEndX + clampedWalkProgress * (signboardAnchorX - vineEndX);
+          } else if (currentState === 'IDLE') {
+            targetX = signboardAnchorX;
+          }
+
+          setCloudPos({
+            x: targetX,
+            y: endY,
+            rotate: 0
+          });
+          setCurrentProgress(1.0);
         }
-
-        updateCoordinates(currentPath, clampedTargetY);
       }
 
       animFrameId = requestAnimationFrame(update);
@@ -941,8 +1134,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
       cancelAnimationFrame(animFrameId);
       unsubscribeSpring();
     };
-  }, [isScrolling, scrollTopSpring, updateCoordinates]);
-
+  }, [isScrolling, scrollTopSpring, updateCoordinates, dimensions.width]);
   // Monitor scroll events across all nested scroll elements dynamically
   useEffect(() => {
     const handleScroll = () => {
@@ -1019,8 +1211,8 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
   const swingX = 2.5 * Math.sin(swingAngle);
   const swingRotate = 5 * Math.sin(swingAngle);
 
-  // Vine bend amount: proportional to the climber's swing and climb intensity
-  const bendX = swingX * 1.5 * climbIntensity;
+  // Vine bend amount: proportional to the climber's swing and climb intensity (deactivated when letting go of vine)
+  const bendX = (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE') ? 0 : swingX * 1.5 * climbIntensity;
 
   // Dynamic deformed path string for the visible vine
   const deformedPathString = useMemo(() => {
@@ -1198,17 +1390,26 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             {/* Roots */}
             <path d="M 0,-1 Q -8,-3 -15,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
             <path d="M 0,-1 Q 10,-3 17,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+            {/* Beautiful wooden custom signboard */}
+            <g>
+              <rect x="65" y="-12" width="6" height="25" fill="#78350f" stroke="#451a03" strokeWidth="1" />
+              <rect x="45" y="-32" width="46" height="20" rx="3" fill="#b45309" stroke="#451a03" strokeWidth="1.2" />
+              {/* Wood grain detail lines */}
+              <line x1="48" y1="-22" x2="88" y2="-22" stroke="#78350f" strokeWidth="1.5" />
+              <line x1="52" y1="-17" x2="82" y2="-17" stroke="#78350f" strokeWidth="1.2" />
+              <text x="68" y="-18" fill="#fef3c7" fontSize="8" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">AWS</text>
+            </g>
           </g>
 
           {/* CloudMan Character - Translated to match vine bending horizontally, and vertically along the vine */}
           <g transform={`translate(${cloudPos.x + bendX}, ${cloudPos.y}) rotate(${cloudPos.rotate})`}>
             <motion.g
               animate={{
-                y: [0, -10, 0]
+                y: (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE' || landingState === 'TOUCHDOWN') ? 0 : [0, -10, 0]
               }}
               transition={{
                 duration: 3,
-                repeat: Infinity,
+                repeat: (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE' || landingState === 'TOUCHDOWN') ? 0 : Infinity,
                 ease: "easeInOut"
               }}
             >
@@ -1221,6 +1422,9 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
                 isLeftStep={isLeftStep}
                 swingRotate={swingRotate}
                 swingX={swingX}
+                landingState={landingState}
+                touchdownTime={touchdownTime}
+                walkProgress={walkProgress}
               />
             </motion.g>
           </g>
