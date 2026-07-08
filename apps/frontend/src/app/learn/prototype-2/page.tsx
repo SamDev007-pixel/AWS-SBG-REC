@@ -516,7 +516,7 @@ export default function LearnPrototype2Page() {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-stretch">
             {/* Left Column: Search + Topic Rail */}
             <div className="flex-[1.5] min-w-0" id="topic-rail-section">
-              
+
               {/* INTERACTIVE TESTING TOOLBAR */}
               <div className="w-full bg-slate-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto shadow-xl z-20 relative mb-6 border border-slate-800">
                 <div>

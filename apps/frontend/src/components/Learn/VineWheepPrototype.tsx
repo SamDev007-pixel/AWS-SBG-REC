@@ -609,6 +609,9 @@ const ENVIRONMENT_ANCHORS = {
   signboardAnchorY: -10
 };
 
+// Start offset down the vine to keep CloudMan's face and eyes fully visible (not clipped by header)
+const CHARACTER_START_OFFSET = 75;
+
 const getViewportHeight = (): number => {
   if (typeof window === 'undefined') return 600;
   return window.innerHeight || document.documentElement.clientHeight || 600;
@@ -624,7 +627,7 @@ export const computeTargetY = (
   const maxScroll = Math.max(50, topicListHeight - viewportHeight);
   const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
   const entryProgress = Math.min(1, scrollRatio / 0.15);
-  const targetY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
+  const targetY = currentScrollTop + (startY + CHARACTER_START_OFFSET) + entryProgress * (viewportHeight * 0.58 - (startY + CHARACTER_START_OFFSET));
   return { targetY, maxScroll };
 };
 
@@ -963,7 +966,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         topicListHeight
       );
 
-      const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+      const clampedTargetY = Math.max(startY + CHARACTER_START_OFFSET, Math.min(endY, targetY));
       const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
 
       if (currentScrollTop >= maxScroll - 2) {
@@ -1044,7 +1047,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           topicListHeightVal
         );
 
-        const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+        const clampedTargetY = Math.max(startY + CHARACTER_START_OFFSET, Math.min(endY, targetY));
         const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
 
         // Reset state machine if user scrolls back up away from the bottom of the vine
