@@ -9,6 +9,12 @@ import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motio
 
 interface VineWheepPrototypeProps {
   scrollContainerRef: React.RefObject<HTMLElement | null>;
+  onDebugUpdate?: (data: {
+    vineHeight: number;
+    progress: number;
+    landingY: number;
+    islandY: number;
+  }) => void;
 }
 
 export type LandingState = 'CLIMBING' | 'DESCENDING' | 'TOUCHDOWN' | 'RELEASE' | 'WALKING' | 'IDLE';
@@ -598,9 +604,9 @@ const CloudMan: React.FC<CloudManProps> = ({
 
 const ENVIRONMENT_ANCHORS = {
   landingGroundX: 0,
-  landingGroundY: -30,      // relative to platform center: totalViewHeight - 35 (which is topicListHeight)
+  landingGroundY: -10,      // relative to platform center: totalViewHeight - 35
   signboardAnchorX: 35,
-  signboardAnchorY: -100
+  signboardAnchorY: -10
 };
 
 const getViewportHeight = (): number => {
@@ -627,7 +633,8 @@ export const computeTargetY = (
 // ==========================================
 
 export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
-  scrollContainerRef
+  scrollContainerRef,
+  onDebugUpdate
 }) => {
   // Dimension state for responsive container width
   const [dimensions, setDimensions] = useState({ width: 300, height: 600 });
@@ -915,6 +922,11 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
   const startCoordsRef = useRef(startCoords);
   const scrollContainerRefRef = useRef(scrollContainerRef);
   const pathElementRef = useRef(pathElement);
+  const onDebugUpdateRef = useRef(onDebugUpdate);
+
+  useEffect(() => {
+    onDebugUpdateRef.current = onDebugUpdate;
+  }, [onDebugUpdate]);
 
   useEffect(() => {
     topicListHeightRef.current = topicListHeight;
@@ -960,7 +972,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         setWalkProgress(1.0);
 
         const signboardAnchorX = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
-        const landingGroundYAbs = topicListHeight + ENVIRONMENT_ANCHORS.landingGroundY;
+        const landingGroundYAbs = (topicListHeight - 35) + ENVIRONMENT_ANCHORS.landingGroundY;
         const standY = landingGroundYAbs + 1 - 27; // Align feet with grass surface (sinks 1px, feet are 27px below center)
 
         setCloudPos({
@@ -1112,7 +1124,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           const GRASS_SINK_OFFSET = 1;
 
           const landingGroundXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.landingGroundX;
-          const landingGroundYAbs = topicListHeightVal + ENVIRONMENT_ANCHORS.landingGroundY;
+          const landingGroundYAbs = (topicListHeightVal - 35) + ENVIRONMENT_ANCHORS.landingGroundY;
           const standY = landingGroundYAbs + GRASS_SINK_OFFSET - CHARACTER_FEET_OFFSET;
 
           const signboardAnchorXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
@@ -1147,6 +1159,15 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             rotate: 0
           });
           setCurrentProgress(1.0);
+        }
+
+        if (onDebugUpdateRef.current) {
+          onDebugUpdateRef.current({
+            vineHeight: topicListHeightVal - 80,
+            progress: currentState === 'CLIMBING' ? clampedProgress : 1.0,
+            landingY: (topicListHeightVal - 35) + ENVIRONMENT_ANCHORS.landingGroundY + 1 - 27,
+            islandY: topicListHeightVal - 35
+          });
         }
       }
 
