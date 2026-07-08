@@ -830,13 +830,13 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
       const endY = topicListHeight - 40;
 
       const viewportHeight = getViewportHeight();
-      console.log('VERIFICATION_METRICS: new viewportHeight is:', viewportHeight);
 
       const maxScroll = Math.max(50, topicListHeight - viewportHeight);
       const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
 
-      // Lock to 58% of viewport height during main journey
-      const climbY = currentScrollTop + viewportHeight * 0.58;
+      // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
+      const entryProgress = Math.min(1, scrollRatio / 0.15);
+      const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
 
       let targetY = 0;
       if (scrollRatio <= CAMERA_LOCK_END_RATIO) {
@@ -844,7 +844,8 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
       } else {
         // Transition from climbY (at lock end ratio) to endY (landing platform) over duration ratio
         const scrollAtLockEnd = maxScroll * CAMERA_LOCK_END_RATIO;
-        const climbYAtLockEnd = scrollAtLockEnd + viewportHeight * 0.58;
+        const entryProgressAtLockEnd = Math.min(1, CAMERA_LOCK_END_RATIO / 0.15);
+        const climbYAtLockEnd = scrollAtLockEnd + (startY + 45) + entryProgressAtLockEnd * (viewportHeight * 0.58 - (startY + 45));
         const t = (scrollRatio - CAMERA_LOCK_END_RATIO) / TRANSITION_DURATION_RATIO;
         const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
         targetY = (1 - easedT) * climbYAtLockEnd + easedT * endY;
@@ -902,8 +903,9 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         const maxScroll = Math.max(50, topicListHeightVal - viewportHeight);
         const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
 
-        // Lock to 58% of viewport height during main journey
-        const climbY = currentScrollTop + viewportHeight * 0.58;
+        // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
+        const entryProgress = Math.min(1, scrollRatio / 0.15);
+        const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
 
         let targetY = 0;
         if (scrollRatio <= CAMERA_LOCK_END_RATIO) {
@@ -911,7 +913,8 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         } else {
           // Transition from climbY (at lock end ratio) to endY (landing platform) over duration ratio
           const scrollAtLockEnd = maxScroll * CAMERA_LOCK_END_RATIO;
-          const climbYAtLockEnd = scrollAtLockEnd + viewportHeight * 0.58;
+          const entryProgressAtLockEnd = Math.min(1, CAMERA_LOCK_END_RATIO / 0.15);
+          const climbYAtLockEnd = scrollAtLockEnd + (startY + 45) + entryProgressAtLockEnd * (viewportHeight * 0.58 - (startY + 45));
           const t = (scrollRatio - CAMERA_LOCK_END_RATIO) / TRANSITION_DURATION_RATIO;
           const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
           targetY = (1 - easedT) * climbYAtLockEnd + easedT * endY;
