@@ -960,11 +960,12 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         setWalkProgress(1.0);
 
         const signboardAnchorX = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
-        const signboardAnchorY = topicListHeight + ENVIRONMENT_ANCHORS.signboardAnchorY;
+        const landingStoneYAbs = topicListHeight + ENVIRONMENT_ANCHORS.landingStoneY;
+        const standY = landingStoneYAbs - 4 - 27; // Align feet with stone top surface (4px above center, feet are 27px below center)
 
         setCloudPos({
           x: signboardAnchorX,
-          y: signboardAnchorY,
+          y: standY,
           rotate: 0
         });
         setCurrentProgress(1.0);
@@ -1105,8 +1106,16 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           const initialX = vineEndXRef.current ?? (dimensions.width / 2);
           const initialY = vineEndYRef.current ?? endY;
 
+          // CloudMan standing feet bottom local offset is 27px
+          const CHARACTER_FEET_OFFSET = 27;
+          // Landing stone top surface relative offset (4px height from center)
+          const STONE_TOP_Y_OFFSET = -4;
+
           const landingStoneXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.landingStoneX;
           const landingStoneYAbs = topicListHeightVal + ENVIRONMENT_ANCHORS.landingStoneY;
+          const stoneTopY = landingStoneYAbs + STONE_TOP_Y_OFFSET;
+          const standY = stoneTopY - CHARACTER_FEET_OFFSET;
+
           const signboardAnchorXAbs = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
 
           let targetX = initialX;
@@ -1119,18 +1128,18 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             const elapsed = performance.now() - (descendStartTimeRef.current ?? 0);
             const t = Math.min(1, elapsed / 300);
             targetX = initialX;
-            targetYVal = initialY + t * (landingStoneYAbs - initialY);
+            targetYVal = initialY + t * (standY - initialY);
           } else if (currentState === 'TOUCHDOWN') {
             targetX = landingStoneXAbs;
-            targetYVal = landingStoneYAbs;
+            targetYVal = standY;
           } else if (currentState === 'WALKING') {
-            targetYVal = landingStoneYAbs;
+            targetYVal = standY;
             const currentWalkProgress = (performance.now() - (walkStartTimeRef.current ?? 0)) / 1500;
             const clampedWalkProgress = Math.max(0, Math.min(1, currentWalkProgress));
             targetX = landingStoneXAbs + clampedWalkProgress * (signboardAnchorXAbs - landingStoneXAbs);
           } else if (currentState === 'IDLE') {
             targetX = signboardAnchorXAbs;
-            targetYVal = landingStoneYAbs;
+            targetYVal = standY;
           }
 
           setCloudPos({
