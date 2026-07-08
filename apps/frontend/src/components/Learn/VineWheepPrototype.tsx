@@ -597,11 +597,25 @@ const CloudMan: React.FC<CloudManProps> = ({
 // ==========================================
 // 4. Configurable Positioning Constants
 // ==========================================
-const LANDING_REVEAL_MARGIN = 50; // Distance in pixels before platform enters viewport to trigger landing transition
+const LANDING_REVEAL_MARGIN = 0; // Distance in pixels before platform enters viewport to trigger landing transition
 
 const getViewportHeight = (): number => {
   if (typeof window === 'undefined') return 600;
   return window.innerHeight || document.documentElement.clientHeight || 600;
+};
+
+export const computeTargetY = (
+  currentScrollTop: number,
+  startY: number,
+  endY: number,
+  viewportHeight: number,
+  topicListHeight: number
+) => {
+  const maxScroll = Math.max(50, topicListHeight - viewportHeight);
+  const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
+  const entryProgress = Math.min(1, scrollRatio / 0.15);
+  const targetY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
+  return { targetY, maxScroll };
 };
 
 // ==========================================
@@ -667,6 +681,9 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
   const [walkProgress, setWalkProgress] = useState(0);
   const releaseTimeRef = useRef<number | null>(null);
   const walkStartTimeRef = useRef<number | null>(null);
+  const vineEndXRef = useRef<number | null>(null);
+  const vineEndYRef = useRef<number | null>(null);
+  const descendStartTimeRef = useRef<number | null>(null);
 
   // Measure the width of the right column container
   useEffect(() => {
@@ -922,14 +939,16 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
       const viewportHeight = getViewportHeight();
 
-      const maxScroll = Math.max(50, topicListHeight - viewportHeight);
-      const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
+      const { targetY, maxScroll } = computeTargetY(
+        currentScrollTop,
+        startY,
+        endY,
+        viewportHeight,
+        topicListHeight
+      );
 
-      // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
-      const entryProgress = Math.min(1, scrollRatio / 0.15);
-      const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
-
-      const scrollAtLandingReveal = Math.max(0, endY - viewportHeight - LANDING_REVEAL_MARGIN);
+      const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+      const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
 
       if (currentScrollTop >= maxScroll - 2) {
         // Initialize already landed at bottom on page refresh
@@ -943,33 +962,14 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
         setCloudPos({
           x: signboardAnchorX,
-          y: endY,
+          y: endY + 15,
           rotate: 0
         });
         setCurrentProgress(1.0);
       } else {
-        const nextState = currentScrollTop >= scrollAtLandingReveal ? 'DESCENDING' : 'CLIMBING';
-        setLandingState(nextState);
-        landingStateRef.current = nextState;
+        setLandingState('CLIMBING');
+        landingStateRef.current = 'CLIMBING';
         setWalkProgress(0);
-
-        let targetY = 0;
-        if (currentScrollTop < scrollAtLandingReveal) {
-          targetY = climbY;
-        } else {
-          // Transition from climbY (at reveal scroll) to endY (landing platform) over remaining scroll
-          const scrollRatioAtReveal = Math.max(0, Math.min(1, scrollAtLandingReveal / maxScroll));
-          const entryProgressAtReveal = Math.min(1, scrollRatioAtReveal / 0.15);
-          const climbYAtReveal = scrollAtLandingReveal + (startY + 45) + entryProgressAtReveal * (viewportHeight * 0.58 - (startY + 45));
-
-          const denom = maxScroll - scrollAtLandingReveal;
-          const t = denom > 1 ? Math.max(0, Math.min(1, (currentScrollTop - scrollAtLandingReveal) / denom)) : 1;
-          const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
-          targetY = (1 - easedT) * climbYAtReveal + easedT * endY;
-        }
-
-        const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
-        const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
 
         setCurrentProgress(clampedProgress);
         updateCoordinates(pathElement, clampedTargetY);
@@ -1020,39 +1020,60 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
         const endY = topicListHeightVal - 40;
 
         const viewportHeight = getViewportHeight();
-        const maxScroll = Math.max(50, topicListHeightVal - viewportHeight);
-        const scrollRatio = Math.max(0, Math.min(1, currentScrollTop / maxScroll));
 
-        const scrollAtLandingReveal = Math.max(0, endY - viewportHeight - LANDING_REVEAL_MARGIN);
+        const { targetY } = computeTargetY(
+          currentScrollTop,
+          startY,
+          endY,
+          viewportHeight,
+          topicListHeightVal
+        );
 
-        // Update landing state machine inside anim loop
-        if (currentScrollTop < maxScroll - 6) {
+        const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
+        const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
+
+        // Reset state machine if user scrolls back up away from the bottom of the vine
+        if (clampedProgress < 0.99) {
           touchdownTimeRef.current = null;
           releaseTimeRef.current = null;
           walkStartTimeRef.current = null;
-
-          const nextState = currentScrollTop >= scrollAtLandingReveal ? 'DESCENDING' : 'CLIMBING';
-          if (landingStateRef.current !== nextState) {
-            landingStateRef.current = nextState;
-            setLandingState(nextState);
+          descendStartTimeRef.current = null;
+          vineEndXRef.current = null;
+          vineEndYRef.current = null;
+          
+          if (landingStateRef.current !== 'CLIMBING') {
+            landingStateRef.current = 'CLIMBING';
+            setLandingState('CLIMBING');
           }
           setWalkProgress(0);
         } else {
-          if (landingStateRef.current === 'CLIMBING' || landingStateRef.current === 'DESCENDING') {
-            landingStateRef.current = 'TOUCHDOWN';
-            setLandingState('TOUCHDOWN');
-            touchdownTimeRef.current = performance.now();
-            setTouchdownTime(touchdownTimeRef.current);
-          } else if (landingStateRef.current === 'TOUCHDOWN') {
-            const elapsed = performance.now() - (touchdownTimeRef.current ?? 0);
-            if (elapsed >= 300) {
+          // Landing sequence triggers sequentially at progress >= 0.995
+          if (landingStateRef.current === 'CLIMBING') {
+            if (clampedProgress >= 0.995) {
               landingStateRef.current = 'RELEASE';
               setLandingState('RELEASE');
               releaseTimeRef.current = performance.now();
+              vineEndXRef.current = cloudPos.x;
+              vineEndYRef.current = cloudPos.y;
             }
           } else if (landingStateRef.current === 'RELEASE') {
             const elapsed = performance.now() - (releaseTimeRef.current ?? 0);
             if (elapsed >= 400) {
+              landingStateRef.current = 'DESCENDING';
+              setLandingState('DESCENDING');
+              descendStartTimeRef.current = performance.now();
+            }
+          } else if (landingStateRef.current === 'DESCENDING') {
+            const elapsed = performance.now() - (descendStartTimeRef.current ?? 0);
+            if (elapsed >= 300) {
+              landingStateRef.current = 'TOUCHDOWN';
+              setLandingState('TOUCHDOWN');
+              touchdownTimeRef.current = performance.now();
+              setTouchdownTime(touchdownTimeRef.current);
+            }
+          } else if (landingStateRef.current === 'TOUCHDOWN') {
+            const elapsed = performance.now() - (touchdownTimeRef.current ?? 0);
+            if (elapsed >= 300) {
               landingStateRef.current = 'WALKING';
               setLandingState('WALKING');
               walkStartTimeRef.current = performance.now();
@@ -1070,31 +1091,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
         // Apply coordinates based on the landing state
         const currentState = landingStateRef.current;
-        if (currentState === 'CLIMBING' || currentState === 'DESCENDING') {
-          // Lock to 58% of viewport height during main journey (ease in from top at beginning of scroll)
-          const entryProgress = Math.min(1, scrollRatio / 0.15);
-          const climbY = currentScrollTop + (startY + 45) + entryProgress * (viewportHeight * 0.58 - (startY + 45));
-
-          let targetY = 0;
-          if (currentScrollTop < scrollAtLandingReveal) {
-            targetY = climbY;
-          } else {
-            // Transition from climbY (at reveal scroll) to endY (landing platform) over remaining scroll
-            const scrollRatioAtReveal = Math.max(0, Math.min(1, scrollAtLandingReveal / maxScroll));
-            const entryProgressAtReveal = Math.min(1, scrollRatioAtReveal / 0.15);
-            const climbYAtReveal = scrollAtLandingReveal + (startY + 45) + entryProgressAtReveal * (viewportHeight * 0.58 - (startY + 45));
-
-            const denom = maxScroll - scrollAtLandingReveal;
-            const t = denom > 1 ? Math.max(0, Math.min(1, (currentScrollTop - scrollAtLandingReveal) / denom)) : 1;
-            const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
-            targetY = (1 - easedT) * climbYAtReveal + easedT * endY;
-          }
-
-          // Clamp targetY to keep CloudMan within safe vine bounds
-          const clampedTargetY = Math.max(startY + 45, Math.min(endY, targetY));
-
-          const clampedProgress = Math.max(0, Math.min(1, (clampedTargetY - startY) / (endY - startY)));
-
+        if (currentState === 'CLIMBING') {
           if (Math.abs(progressRef.current - clampedProgress) > 0.001) {
             progressRef.current = clampedProgress;
             setCurrentProgress(clampedProgress);
@@ -1102,24 +1099,39 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
           updateCoordinates(currentPath, clampedTargetY);
         } else {
-          // Solved ground level position
-          const totalLength = currentPath.getTotalLength();
-          const endPoint = currentPath.getPointAtLength(totalLength);
-          const vineEndX = endPoint.x;
+          // Locked/frozen ground/platform coordinates
+          const fallbackX = dimensions.width / 2;
+          const initialX = vineEndXRef.current ?? fallbackX;
+          const initialY = vineEndYRef.current ?? endY;
           const signboardAnchorX = dimensions.width / 2 + 35;
 
-          let targetX = vineEndX;
-          if (currentState === 'WALKING') {
+          let targetX = initialX;
+          let targetYVal = initialY;
+
+          if (currentState === 'RELEASE') {
+            targetX = initialX;
+            targetYVal = initialY;
+          } else if (currentState === 'DESCENDING') {
+            const elapsed = performance.now() - (descendStartTimeRef.current ?? 0);
+            const t = Math.min(1, elapsed / 300);
+            targetX = initialX;
+            targetYVal = initialY + t * 15; // drop 15px vertically
+          } else if (currentState === 'TOUCHDOWN') {
+            targetX = initialX;
+            targetYVal = initialY + 15;
+          } else if (currentState === 'WALKING') {
+            targetYVal = initialY + 15;
             const currentWalkProgress = (performance.now() - (walkStartTimeRef.current ?? 0)) / 1500;
             const clampedWalkProgress = Math.max(0, Math.min(1, currentWalkProgress));
-            targetX = vineEndX + clampedWalkProgress * (signboardAnchorX - vineEndX);
+            targetX = initialX + clampedWalkProgress * (signboardAnchorX - initialX);
           } else if (currentState === 'IDLE') {
             targetX = signboardAnchorX;
+            targetYVal = initialY + 15;
           }
 
           setCloudPos({
             x: targetX,
-            y: endY,
+            y: targetYVal,
             rotate: 0
           });
           setCurrentProgress(1.0);
