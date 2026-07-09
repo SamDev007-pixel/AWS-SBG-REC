@@ -56,7 +56,7 @@ export default function Sidebar({
 
   // Sidebar width: CSS-driven, no JS animation overhead
   const sidebarW = isMobile
-    ? 240
+    ? "100%"
     : isOpen ? 240 : 72;
 
   const sidebarVisible = isMobile ? isMobileOpen : true;
@@ -92,10 +92,10 @@ export default function Sidebar({
         {isMobile && (
           <button
             onClick={onMobileClose}
-            className="absolute right-3 top-4 z-50 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="absolute right-4 top-4 z-50 p-2 rounded-xl hover:bg-white/10 active:scale-95 transition-all text-slate-400 hover:text-white"
             aria-label="Close menu"
           >
-            <X className="w-4 h-4 text-slate-400" />
+            <X className="w-5.5 h-5.5" />
           </button>
         )}
 
@@ -139,9 +139,9 @@ export default function Sidebar({
                     <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-lg font-extrabold truncate text-white tracking-tight leading-tight">{user.name}</p>
+                    <p className={cn(isMobile ? "text-2xl" : "text-lg", "font-extrabold truncate text-white tracking-tight leading-tight")}>{user.name}</p>
                     {user.badge && (
-                      <p className="text-[13px] font-medium text-slate-400 mt-0.5 truncate">
+                      <p className={cn(isMobile ? "text-[16px]" : "text-[13px]", "font-medium text-slate-400 mt-0.5 truncate")}>
                         {user.badge}
                       </p>
                     )}
@@ -202,13 +202,18 @@ export default function Sidebar({
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >
-                  <div className={cn("flex items-center justify-center shrink-0", isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white")}>
+                  <div className={cn(
+                    "flex items-center justify-center shrink-0",
+                    isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]",
+                    isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
+                  )}>
                     {item.icon}
                   </div>
                   {/* Label — CSS opacity/translate/width transition, no Framer Motion */}
                   <span
                     className={cn(
-                      "text-sm truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out",
+                      isMobile ? "text-[17.5px]" : "text-sm",
+                      "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out",
                       isActive ? "font-semibold capitalize" : "font-normal capitalize"
                     )}
                     style={{
@@ -256,11 +261,15 @@ export default function Sidebar({
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >
-                  <div className={cn("flex items-center justify-center shrink-0", isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white")}>
+                  <div className={cn(
+                    "flex items-center justify-center shrink-0",
+                    isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]",
+                    isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
+                  )}>
                     {item.icon}
                   </div>
                   <span
-                    className={cn("text-sm truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
+                    className={cn(isMobile ? "text-[17.5px]" : "text-sm", "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
                     style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
                   >
                     {item.label}
@@ -281,11 +290,11 @@ export default function Sidebar({
             onClick={() => onSignOut?.()}
             className="flex items-center transition-all duration-150 group w-full px-3 py-2.5 gap-3 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-xl font-sans font-normal"
           >
-            <div className="text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0">
+            <div className={cn("text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0", isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]")}>
               <LogOut className="w-[18px] h-[18px]" />
             </div>
             <span
-              className="text-sm truncate transition-[opacity,transform,width] duration-[200ms] ease-out"
+              className={cn(isMobile ? "text-[17.5px]" : "text-sm", "truncate transition-[opacity,transform,width] duration-[200ms] ease-out")}
               style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
             >
               {signOutLabel}

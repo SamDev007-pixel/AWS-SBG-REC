@@ -66,24 +66,24 @@ const LEVELS = ["All", "Foundational", "Associate", "Professional", "Specialty"]
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
 const sectionVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: easeOut },
+    transition: { duration: 0.45, ease: easeOut },
   },
 };
 
 const certItemVariants = {
-  hidden: { opacity: 0, x: -15, scale: 0.95 },
+  hidden: { opacity: 0, y: 25, scale: 0.88 },
   visible: (i: number) => ({
     opacity: 1,
-    x: 0,
+    y: 0,
     scale: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 300,
-      damping: 30,
+      stiffness: 280,
+      damping: 24,
       delay: 0.1 + i * 0.08,
     },
   }),
@@ -96,37 +96,37 @@ const connectorVariants = {
     scaleX: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 240,
-      damping: 20,
+      stiffness: 220,
+      damping: 18,
       delay: 0.08 + i * 0.08,
     },
   }),
 };
 
 const arrowVariants = {
-  hidden: { x: -6, opacity: 0 },
+  hidden: { x: -8, opacity: 0 },
   visible: (i: number) => ({
     x: 0,
     opacity: 1,
-    transition: { delay: 0.12 + i * 0.08, duration: 0.2, ease: easeOut },
+    transition: { delay: 0.12 + i * 0.08, duration: 0.25, ease: easeOut },
   }),
 };
 
 const careerVariants = {
-  hidden: { opacity: 0, y: 15 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring" as const, stiffness: 220, damping: 26, delay: 0.25 },
+    transition: { type: "spring" as const, stiffness: 200, damping: 22, delay: 0.28 },
   },
 };
 
 const oppVariants = {
-  hidden: { opacity: 0, x: -10 },
+  hidden: { opacity: 0, y: 12 },
   visible: (i: number) => ({
     opacity: 1,
-    x: 0,
-    transition: { delay: 0.28 + i * 0.04, duration: 0.25, ease: easeOut },
+    y: 0,
+    transition: { delay: 0.3 + i * 0.05, duration: 0.28, ease: easeOut },
   }),
 };
 
@@ -312,7 +312,7 @@ function RoleSection({
       className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative"
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: false, margin: "-120px" }}
+      viewport={{ once: false, margin: "-15px" }}
       variants={sectionVariants}
     >
       <motion.div
@@ -841,7 +841,7 @@ function CertificationsPageContent() {
               </h1>
               <p style={{ fontSize: '14px', color: '#475569', marginTop: 8, margin: '8px 0 0 0' }}>
                 {activeTab === "certifications"
-                  ? "Select a difficulty level tab to browse AWS certifications. Each card shows detailed syllabus, duration, and exam weightages."
+                  ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
                   : "See how AWS certifications stack up to guide your path to high-demand cloud roles."}
               </p>
             </div>
@@ -905,7 +905,7 @@ function CertificationsPageContent() {
               className="flex flex-col gap-6"
             >
               {/* Tabs Row */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-nowrap overflow-x-auto gap-3 pb-2.5 premium-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0 scroll-smooth shrink-0 select-none">
                 {LEVELS.map((level) => {
                   const count = levelCounts[level] ?? 0;
                   const isActive = selectedLevel.toLowerCase() === level.toLowerCase();

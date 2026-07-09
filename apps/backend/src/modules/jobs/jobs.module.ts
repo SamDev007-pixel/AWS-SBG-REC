@@ -8,6 +8,7 @@ import { CleanupProcessor } from './processors/cleanup.processor';
 import { IngestionProcessor } from './processors/ingestion.processor';
 import { JobsQueueModule } from './queues/jobs-queue.module';
 import { NewsScheduler } from './schedulers/news.scheduler';
+import { EventScheduler } from './schedulers/event.scheduler';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NewsScheduler } from './schedulers/news.scheduler';
     IngestionProcessor,
     CleanupProcessor,
     NewsScheduler,
+    EventScheduler,
   ],
 })
 export class JobsModule {}

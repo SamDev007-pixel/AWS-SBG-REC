@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import GlassCard from "./GlassCard";
 import { Bell, Calendar, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAnnouncements } from "@/lib/hooks";
+import { motion } from "framer-motion";
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -16,13 +17,24 @@ function formatDate(dateString: string): string {
 
 function typeBadge(type: string) {
   const map: Record<string, string> = {
-    UPDATE: 'bg-blue-100/70 text-blue-800 border-blue-200/50',
-    REMINDER: 'bg-amber-100/70 text-amber-800 border-amber-200/50',
-    SCHEDULE_CHANGE: 'bg-rose-100/70 text-rose-800 border-rose-200/50',
-    URGENT: 'bg-red-100/70 text-red-800 border-red-200/50',
-    INFO: 'bg-emerald-100/70 text-emerald-800 border-emerald-200/50',
+    UPDATE: 'bg-blue-50 text-blue-700 border-blue-200/50',
+    REMINDER: 'bg-amber-50 text-amber-700 border-amber-200/50',
+    SCHEDULE_CHANGE: 'bg-rose-50 text-rose-700 border-rose-200/50',
+    URGENT: 'bg-red-50 text-red-700 border-red-200/50',
+    INFO: 'bg-emerald-50 text-emerald-700 border-emerald-200/50',
   };
-  return map[type] || 'bg-slate-100/70 text-slate-800 border-slate-200/50';
+  return map[type] || 'bg-slate-50 text-slate-700 border-slate-200/50';
+}
+
+function typeLeftBar(type: string) {
+  const map: Record<string, string> = {
+    UPDATE: 'bg-blue-500',
+    REMINDER: 'bg-amber-500',
+    SCHEDULE_CHANGE: 'bg-rose-500',
+    URGENT: 'bg-red-500',
+    INFO: 'bg-emerald-500',
+  };
+  return map[type] || 'bg-slate-400';
 }
 
 function typeLabel(type: string) {
@@ -31,82 +43,103 @@ function typeLabel(type: string) {
 
 export default function Announcements() {
   const { data: announcements = [], isLoading } = useAnnouncements();
+  const [headerHovered, setHeaderHovered] = useState(false);
 
   return (
     <GlassCard
-      className="flex flex-col h-full border border-orange-100/70 shadow-sm rounded-xl !p-5 min-h-[300px]"
+      className="flex flex-col h-full border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[22px] !p-5 min-h-[400px]"
       hoverEffect={false}
       style={{
-        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%)"
+        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.07) 0%, rgba(255, 255, 255, 0.75) 50%, rgba(35, 47, 62, 0.05) 100%)"
       }}
     >
       {/* Panel Header */}
-      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+      <div 
+        className="flex items-center justify-between pb-3.5 border-b border-slate-100/80 mb-4 flex-shrink-0"
+        onMouseEnter={() => setHeaderHovered(true)}
+        onMouseLeave={() => setHeaderHovered(false)}
+      >
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500">
+          <motion.div 
+            animate={headerHovered ? { rotate: [0, -15, 15, -10, 10, 0] } : {}}
+            transition={{ duration: 0.5 }}
+            className="w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 flex items-center justify-center text-[#FF9900]"
+          >
             <Bell className="w-4 h-4" />
-          </div>
-          <h3 className="text-base font-bold text-slate-800 font-display">
+          </motion.div>
+          <h3 
+            className="text-[16px] font-bold text-slate-800 tracking-tight"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
             Community Announcements
           </h3>
         </div>
-        <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-          {announcements.length} updates
+        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-slate-50 border border-slate-200/50 px-2 py-0.5 rounded-[4px]">
+          {announcements.length} {announcements.length === 1 ? "update" : "updates"}
         </span>
       </div>
 
       {/* Content Area */}
       {isLoading ? (
-        <div className="flex-1 space-y-3 pr-1 max-h-[380px] overflow-y-auto">
+        <div className="flex-1 space-y-3.5 pr-1 max-h-[320px] overflow-y-auto">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-3 rounded-lg border border-slate-100 bg-slate-50 animate-pulse">
+            <div key={i} className="p-4 rounded-xl border border-slate-100 bg-white/40 animate-pulse relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <div className="h-4 w-20 bg-slate-250 rounded" />
-                <div className="h-3 w-16 bg-slate-250 rounded" />
+                <div className="h-4.5 w-16 bg-slate-200 rounded" />
+                <div className="h-3.5 w-20 bg-slate-200 rounded" />
               </div>
-              <div className="h-4 w-3/4 bg-slate-250 rounded mb-2" />
-              <div className="h-3 w-full bg-slate-250 rounded" />
+              <div className="h-4.5 w-3/4 bg-slate-200 rounded mb-2" />
+              <div className="h-3.5 w-full bg-slate-200 rounded" />
             </div>
           ))}
         </div>
       ) : announcements.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center mt-4">
-          <Bell className="w-7 h-7 text-slate-300 mb-2" />
-          <h4 className="text-[13.5px] font-bold text-slate-700">No Announcements Yet</h4>
-          <p className="text-xs text-slate-400 mt-1 max-w-[210px] leading-relaxed">
-            Watch this space for the latest updates.
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
+          <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-3.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+            <Bell className="w-5 h-5 text-slate-400" />
+          </div>
+
+          <h4 
+            className="text-[14px] font-bold text-slate-700 tracking-tight"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
+            No Announcements Yet
+          </h4>
+          <p 
+            className="text-xs text-slate-400 mt-1 max-w-[220px] leading-relaxed font-medium"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
+            Stay tuned! When the core team publishes updates or reminders, they will appear here in real-time.
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto pr-1 max-h-[380px] custom-scrollbar space-y-3">
+        <div className="flex-1 overflow-y-auto pr-1 max-h-[320px] custom-scrollbar space-y-3.5">
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="group p-3.5 rounded-lg transition-all relative border border-slate-100 bg-white/50 hover:bg-white hover:border-orange-200/50 hover:shadow-sm"
+              className="group p-4 rounded-2xl transition-all border border-slate-100 bg-white/70 hover:bg-white hover:border-[#FF9900]/25 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.04)]"
             >
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={cn("inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase border", typeBadge(ann.type))}>
-                    {typeLabel(ann.type)}
-                  </span>
-                  {ann.event?.title && (
-                    <span className="text-[10px] font-semibold text-slate-500">
-                      @{ann.event.title}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] text-slate-400 flex items-center gap-1 font-medium">
-                  <Calendar className="h-3 w-3" />
+              <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+                <span className={cn("inline-block rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border-none", typeBadge(ann.type))}>
+                  {typeLabel(ann.type)}
+                </span>
+                <span className="text-[10px] text-slate-400 font-semibold">
                   {formatDate(ann.createdAt)}
                 </span>
               </div>
 
-              <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#FF9900] transition-colors flex items-center gap-1">
+              <h4 
+                className="text-[13.5px] font-bold text-slate-800 group-hover:text-[#FF9900] transition-colors flex items-center gap-1 leading-tight group-hover:translate-x-0.5 transition-transform duration-200"
+                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+              >
                 <span>{ann.title}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 text-[#FF9900]" />
               </h4>
 
-              <p className="text-xs text-slate-500 leading-relaxed mt-2 whitespace-pre-line">
+              <p 
+                className="text-[11.5px] text-slate-500 leading-relaxed mt-2.5 whitespace-pre-line font-medium"
+                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+              >
                 {ann.message}
               </p>
             </div>

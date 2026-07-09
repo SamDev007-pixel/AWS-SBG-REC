@@ -114,7 +114,7 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/events">
                 <button
-                  className="px-4.5 py-2 rounded-md bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                  className="px-4.5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
                 >
                   <span>Explore Events</span>
                   <ArrowRight className="w-4 h-4" />
@@ -123,7 +123,7 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
 
               <button
                 onClick={onViewLeaderboardClick}
-                className="px-4.5 py-2 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                className="px-4.5 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
               >
                 <Trophy className="w-4 h-4 text-slate-500" />
                 <span>View Leaderboard</span>

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { EmailService } from '@/modules/notifications/email.service';
@@ -13,24 +13,43 @@ export class AnnouncementsService {
   ) {}
 
   async create(dto: CreateAnnouncementDto) {
-    const event = await this.prisma.event.findUnique({
-      where: { id: dto.eventId },
-    });
-    if (!event) {
-      throw new NotFoundException(`Event with ID "${dto.eventId}" not found`);
+    const targetType = dto.targetType || 'EVENT';
+
+    // Validate event-scoped announcements
+    if (targetType === 'EVENT') {
+      if (!dto.eventId) {
+        throw new BadRequestException('eventId is required when targetType is EVENT');
+      }
+      const event = await this.prisma.event.findUnique({ where: { id: dto.eventId } });
+      if (!event) {
+        throw new NotFoundException(`Event with ID "${dto.eventId}" not found`);
+      }
+    }
+
+    // Validate crew-specific announcements
+    if (targetType === 'CREW_SPECIFIC') {
+      if (!dto.targetCrewUserId) {
+        throw new BadRequestException('targetCrewUserId is required when targetType is CREW_SPECIFIC');
+      }
+      const crewUser = await this.prisma.user.findUnique({ where: { id: dto.targetCrewUserId } });
+      if (!crewUser) {
+        throw new NotFoundException(`Crew member with ID "${dto.targetCrewUserId}" not found`);
+      }
     }
 
     const announcement = await this.prisma.announcement.create({
       data: {
-        eventId: dto.eventId,
+        eventId: dto.eventId ?? null,
         title: dto.title,
         message: dto.message,
-        type: dto.type,
-        sendEmail: dto.sendEmail,
+        type: dto.type ?? 'UPDATE',
+        sendEmail: dto.sendEmail ?? false,
+        targetType,
+        targetCrewUserId: dto.targetCrewUserId ?? null,
       },
     });
 
-    if (dto.sendEmail) {
+    if (dto.sendEmail && targetType === 'EVENT') {
       this.sendAnnouncementEmail(announcement.id).catch((err) =>
         this.logger.error(`Failed to send announcement email: ${err.message}`),
       );
@@ -43,11 +62,7 @@ export class AnnouncementsService {
     return this.prisma.announcement.findMany({
       where: {
         eventId,
-        NOT: {
-          id: {
-            startsWith: 'ann-seed',
-          },
-        },
+        NOT: { id: { startsWith: 'ann-seed' } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -55,14 +70,35 @@ export class AnnouncementsService {
 
   async findAll() {
     return this.prisma.announcement.findMany({
-      where: {
-        NOT: {
-          id: {
-            startsWith: 'ann-seed',
-          },
-        },
-      },
+      where: { NOT: { id: { startsWith: 'ann-seed' } } },
       include: { event: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /** All crew-targeted announcements (for Core Admin feed) */
+  async findCrewAnnouncements() {
+    return this.prisma.announcement.findMany({
+      where: {
+        targetType: { in: ['CREW_ALL', 'CREW_SPECIFIC'] },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Announcements visible to a specific crew member:
+   * – CREW_ALL announcements (broadcast to all crew)
+   * – CREW_SPECIFIC announcements addressed to this user
+   */
+  async findForCrewMember(userId: string) {
+    return this.prisma.announcement.findMany({
+      where: {
+        OR: [
+          { targetType: 'CREW_ALL' },
+          { targetType: 'CREW_SPECIFIC', targetCrewUserId: userId },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -89,32 +125,52 @@ export class AnnouncementsService {
       include: {
         event: {
           include: {
-            registrations: {
-              include: {
-                user: true,
-              },
-            },
+            registrations: { include: { user: true } },
           },
         },
       },
     });
 
-    if (!announcement || !announcement.sendEmail) return;
+    if (!announcement || !announcement.sendEmail || !announcement.event) return;
 
     const emailPromises = announcement.event.registrations.map((reg) =>
       this.emailService.sendMail(
         reg.user.email,
-        `[${announcement.event.title}] ${announcement.title}`,
+        `[${announcement.event!.title}] ${announcement.title}`,
         this.buildAnnouncementHtml(
           announcement.title,
           announcement.message,
           announcement.type,
-          announcement.event.title,
+          announcement.event!.title,
         ),
       ),
     );
 
     await Promise.allSettled(emailPromises);
+  }
+
+  /** Fetch all users with role = "crew" or relation roles (VOLUNTEER, SCANNER) for the target dropdown */
+  async findCrewMembers() {
+    return this.prisma.user.findMany({
+      where: {
+        OR: [
+          { role: 'crew' },
+          {
+            roles: {
+              some: {
+                role: {
+                  name: {
+                    in: ['VOLUNTEER', 'SCANNER'],
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      select: { id: true, firstName: true, lastName: true, email: true },
+      orderBy: { firstName: 'asc' },
+    });
   }
 
   private buildAnnouncementHtml(
@@ -149,7 +205,7 @@ export class AnnouncementsService {
             <div class="message">${message}</div>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Event Registration. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} AWS SBG REC. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -159,14 +215,10 @@ export class AnnouncementsService {
 
   private getHeaderColor(type: string): string {
     switch (type) {
-      case 'URGENT':
-        return '#f44336';
-      case 'INFO':
-        return '#2196F3';
-      case 'UPDATE':
-        return '#4CAF50';
-      default:
-        return '#4CAF50';
+      case 'REMINDER': return '#FF9900';
+      case 'SCHEDULE_CHANGE': return '#f44336';
+      case 'UPDATE': return '#232F3E';
+      default: return '#232F3E';
     }
   }
 }

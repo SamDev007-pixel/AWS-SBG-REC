@@ -10,8 +10,23 @@ export class AttendanceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async verifyTicket(dto: VerifyTicketDto) {
+    let lookupField: 'id' | 'ticketCode' = 'ticketCode';
+    let lookupValue = dto.ticketCode;
+
+    // Extract ticket ID from URL if a URL was scanned
+    if (lookupValue.includes('/verify/')) {
+      const parts = lookupValue.split('/verify/');
+      lookupValue = parts[parts.length - 1];
+    }
+
+    // Check if the lookupValue is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(lookupValue)) {
+      lookupField = 'id';
+    }
+
     const ticket = await this.prisma.ticket.findUnique({
-      where: { ticketCode: dto.ticketCode },
+      where: lookupField === 'id' ? { id: lookupValue } : { ticketCode: lookupValue },
       include: {
         registration: {
           include: {

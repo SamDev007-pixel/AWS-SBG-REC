@@ -9,6 +9,7 @@ const LINKS = [
   { label: "About Us", href: "/#about", sectionId: "about" },
   { label: "Gallery", href: "/#gallery", sectionId: "gallery" },
   { label: "Review", href: "/#reviews", sectionId: "reviews" },
+  { label: "Announcements", href: "/#announcements", sectionId: "announcements" },
   { label: "Team", href: "/#team", sectionId: "team" }
 ];
 
@@ -44,7 +45,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sections = ["home", "about", "gallery", "reviews", "team"];
+    const sections = ["home", "about", "gallery", "reviews", "announcements", "team"];
     const handleScrollSpy = () => {
       if (window.scrollY < 50) {
         setActiveSection("home");

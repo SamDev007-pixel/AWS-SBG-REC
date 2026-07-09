@@ -473,10 +473,10 @@ function CertificationsPageContent() {
               {activeTab === "certifications" ? "All AWS Certifications" : "Career Pathways"}
             </h1>
             <p style={{ fontSize: '14px', color: '#475569', marginTop: 8, margin: '8px 0 0 0' }}>
-              {activeTab === "certifications" 
-                ? "Select a difficulty level tab to browse AWS certifications. Each card shows detailed syllabus, duration, and exam weightages."
-                : "Manage career roles and build structured cloud certification pathways to guide learners towards high-demand industry jobs."}
-            </p>
+               {activeTab === "certifications" 
+                 ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
+                 : "Manage career roles and build structured cloud certification pathways to guide learners towards high-demand industry jobs."}
+             </p>
           </div>
           
           {/* Action Buttons Side-by-Side */}

@@ -154,23 +154,23 @@ export default function CalendarCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
-        className="glass-panel rounded-[22px] overflow-hidden p-4 border border-white/25 cursor-pointer select-none transition-all duration-[250ms] ease-out"
-        style={{ background: "rgba(255, 255, 255, 0.92)" }}
+        className="glass-panel rounded-[22px] overflow-hidden !p-4 border border-white/20 cursor-pointer select-none transition-all duration-[250ms] ease-out"
+        style={{ background: "rgba(255, 255, 255, 0.75)" }}
         whileHover={{
-          y: -3,
-          boxShadow: "-12px 0 28px rgba(105, 145, 255, 0), 12px 0 28px rgba(0, 0, 0, 0.4), 0 10px 20px rgba(15, 23, 42, 0.10)",
-          borderColor: "rgba(255, 255, 255, 0.4)",
-          transition: { duration: 0.25, ease: "easeOut" },
+          boxShadow: "0 10px 25px -5px rgba(35, 47, 62, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.03)",
+          borderColor: "rgba(255, 153, 0, 0.35)",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          transition: { duration: 0.15, ease: "easeOut" },
         }}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-xs font-bold text-foreground/50 tracking-wider uppercase">Calendar</span>
-            <span className="text-xl font-bold text-foreground font-display tracking-tight mt-1">
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">Calendar</span>
+            <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
               {MONTHS[today.getMonth()].slice(0, 3)} {today.getFullYear()}
             </span>
-            <span className="text-xs font-semibold text-brand-orange mt-1">
+            <span className="text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>

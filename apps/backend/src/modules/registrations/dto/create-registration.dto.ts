@@ -4,10 +4,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RegistrationAnswerDto } from './registration-answer.dto';
 
 export class CreateRegistrationDto {
-  @ApiProperty({ description: 'User ID registering' })
+  @ApiPropertyOptional({ description: 'User ID registering (optional for on-spot registrations)' })
   @IsString()
-  @IsNotEmpty()
-  userId: string;
+  @IsOptional()
+  userId?: string;
+
 
   @ApiProperty({ description: 'Event ID to register for' })
   @IsString()
@@ -16,26 +17,26 @@ export class CreateRegistrationDto {
 
   @ApiProperty({ description: 'Attendee Name' })
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @ApiProperty({ description: 'Attendee Roll Number' })
   @IsString()
-  @IsNotEmpty()
-  roll_number: string;
+  @IsOptional()
+  roll_number?: string;
 
   @ApiProperty({ description: 'Attendee Email' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Matches(/^[a-zA-Z0-9._%+-]+@rajalakshmi\.edu\.in$/, {
     message: 'Email must be a valid @rajalakshmi.edu.in address',
   })
-  email: string;
+  email?: string;
 
   @ApiProperty({ description: 'Attendee Department' })
   @IsString()
-  @IsNotEmpty()
-  department: string;
+  @IsOptional()
+  department?: string;
 
   @ApiPropertyOptional({
     type: [RegistrationAnswerDto],
@@ -46,4 +47,8 @@ export class CreateRegistrationDto {
   @ValidateNested({ each: true })
   @Type(() => RegistrationAnswerDto)
   answers?: RegistrationAnswerDto[];
+
+  @ApiPropertyOptional({ description: 'Flag to indicate if registering via on-spot scan' })
+  @IsOptional()
+  onSpot?: boolean;
 }

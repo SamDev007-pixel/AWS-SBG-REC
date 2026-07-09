@@ -60,11 +60,8 @@ export default function StatsCard({
           <Icon className={cn("w-6 h-6", iconClass || "text-brand-orange")} />
         </div>
       ) : bareIcon ? (
-        <div
-          onMouseEnter={() => setIconHovered(true)}
-          onMouseLeave={() => setIconHovered(false)}
-        >
-          <Icon className={cn("w-18 h-18 transition-transform duration-200", iconClass, iconHovered && "scale-110")} />
+        <div>
+          <Icon className={cn("w-[4.5rem] h-[4.5rem] transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1 group-hover:text-brand-orange", iconClass)} />
         </div>
       ) : (
         <div className={cn(
@@ -79,7 +76,7 @@ export default function StatsCard({
 
   if (onClick) {
     return (
-      <div className="block w-full">
+      <div className="block w-full group">
         <GlassCard onClick={onClick} delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
@@ -89,7 +86,7 @@ export default function StatsCard({
 
   if (href) {
     return (
-      <Link href={href} className="block w-full">
+      <Link href={href} className="block w-full group">
         <GlassCard delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
@@ -98,9 +95,10 @@ export default function StatsCard({
   }
 
   return (
-    <GlassCard delay={delay} style={style} hoverEffect={false} className="!p-4 border border-white/20 select-none">
-      <CardContent />
-    </GlassCard>
+    <div className="block w-full group">
+      <GlassCard delay={delay} style={style} className="!p-4 border border-white/30">
+        <CardContent />
+      </GlassCard>
+    </div>
   );
 }
-

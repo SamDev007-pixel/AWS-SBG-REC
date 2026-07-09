@@ -174,13 +174,13 @@ function CoreHeroBanner() {
               className="text-slate-600 max-w-xl text-[13.5px] leading-relaxed mb-5 text-left tracking-wide"
               style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontWeight: 500 }}
             >
-              Manage events, coordinate announcements, and monitor community progress from your central console. Let's inspire the next generation of cloud builders today!
+              Manage your community, empower your team, and turn ambitious ideas into impactful events that leave a lasting impression.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/core/events/create">
                 <button
-                  className="px-4.5 py-2 rounded-md bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                  className="px-4.5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Event</span>
@@ -189,7 +189,7 @@ function CoreHeroBanner() {
 
               <Link href="/core/analytics">
                 <button
-                  className="px-4.5 py-2 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                  className="px-4.5 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
                 >
                   <BarChart3 className="w-4 h-4 text-slate-500" />
                   <span>System Analytics</span>

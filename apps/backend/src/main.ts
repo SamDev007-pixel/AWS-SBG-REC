@@ -122,6 +122,7 @@ async function bootstrap() {
   }
 
   const port = parseInt(process.env.APP_PORT || '3000', 10);
+  app.enableShutdownHooks();
   await app.listen(port, '0.0.0.0');
 
   winstonLogger.log('info', `Application is running on: http://localhost:${port}`);
