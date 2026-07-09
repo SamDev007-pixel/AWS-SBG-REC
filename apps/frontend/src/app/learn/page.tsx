@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -32,51 +32,40 @@ import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
-const AWSSmile = ({ 
-  className = "w-10 h-auto", 
-  progress = 100, 
-  id 
-}: { 
-  className?: string; 
-  progress?: number; 
-  id: string; 
-}) => {
-  const clipWidth = Math.round((progress / 100) * 310);
-  const clipId = `smile-clip-${id}`;
+if (typeof window !== 'undefined') {
+  if (!(window as any).timelineLogs) {
+    (window as any).timelineLogs = [];
+    const origLog = console.log;
+    console.log = (...args) => {
+      origLog(...args);
+      (window as any).timelineLogs.push({
+        time: new Date().toISOString(),
+        text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
+      });
+    };
+  }
+}
 
-  return (
-    <svg viewBox="0 0 310 190" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id={clipId}>
-          <rect x="0" y="0" width={clipWidth} height="190" />
-        </clipPath>
-      </defs>
-      
-      {/* Background/Track (Empty smile) */}
-      <g className="opacity-20">
-        <path
-          fill="#0073BB"
-          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
-        />
-        <path
-          fill="#0073BB"
-          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
-        />
-      </g>
+// Helper to parse topic descriptions into bullet points
+const parseBulletPoints = (text: string): string[] => {
+  if (!text || !text.trim()) return [];
 
-      {/* Foreground/Progress (Filled orange smile) */}
-      <g clipPath={`url(#${clipId})`}>
-        <path
-          fill="#FF9900"
-          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
-        />
-        <path
-          fill="#FF9900"
-          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
-        />
-      </g>
-    </svg>
-  );
+  // Split by every newline
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const bulletItems: string[] = [];
+
+  for (const line of lines) {
+    const cleanBlock = line
+      .replace(/^[\s\-*•+\u2022\u2023\u25E6\u2043]+/, '') // Remove bullet markers from start of block
+      .replace(/^\d+\.\s+/, '') // Remove numbered list markers
+      .trim();
+
+    if (cleanBlock) {
+      bulletItems.push(cleanBlock);
+    }
+  }
+
+  return bulletItems.length > 0 ? bulletItems : [text.trim()];
 };
 
 export default function LearnPage() {
@@ -86,6 +75,14 @@ export default function LearnPage() {
   const [mounted, setMounted] = useState(false);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
+
+  console.log("[TIMELINE] [LearnPage Render Frame]", {
+    loading,
+    topicsCount: topics.length,
+    mounted
+  });
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,6 +101,11 @@ export default function LearnPage() {
   const [isNextUnlockedVisual, setIsNextUnlockedVisual] = useState(false);
   const [isArrowSuccessVisual, setIsArrowSuccessVisual] = useState(false);
   const [visualPercent, setVisualPercent] = useState(0);
+  const [animationDuration, setAnimationDuration] = useState(4500);
+
+  // Layout refs for localized scrolling
+  const railRef = useRef<HTMLDivElement>(null);
+  const activeCardRef = useRef<HTMLDivElement>(null);
 
   // Exit handler
   const handleExit = () => {
@@ -118,10 +120,12 @@ export default function LearnPage() {
     }
   };
 
+  // Guidelines popup state
+  const [showGuidelines, setShowGuidelines] = useState(false);
+
   const handleReviewTopics = () => {
-    const element = document.getElementById('topic-rail-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (railRef.current) {
+      railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -150,11 +154,7 @@ export default function LearnPage() {
     let active = true;
     const fetchTopics = async () => {
       try {
-        console.log("fetchTopics debug info:", {
-          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-          accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
-          aws_sgb_rec_user: typeof window !== 'undefined' ? localStorage.getItem('aws_sgb_rec_user') : null,
-        });
+        console.log("[TIMELINE] [fetchTopics Start]");
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -163,18 +163,31 @@ export default function LearnPage() {
         ]);
         if (!active) return;
 
+        console.log("[TIMELINE] [fetchTopics Success API returned]", {
+          topicsCount: data.length,
+        });
+
         // Proactively detect completion animation on initial fetch to avoid first-render flash
         const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
+        console.log("[TIMELINE] [fetchTopics Proactive Check]", { recentTopicId });
         if (recentTopicId) {
           const completedTopicIndex = data.findIndex(t => t.id === recentTopicId);
           if (completedTopicIndex !== -1) {
             const completedTopic = data[completedTopicIndex];
+            console.log("[TIMELINE] [fetchTopics Found completed topic in API data]", {
+              completedTopicId: completedTopic.id,
+              completedModules: completedTopic.completedModules,
+              totalModules: completedTopic.totalModules
+            });
             if (completedTopic.completedModules === completedTopic.totalModules) {
               const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
               const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+              console.log("[TIMELINE] [fetchTopics Comparing signatures]", { currentSig, lastSig });
               if (currentSig !== lastSig) {
+                console.log("[TIMELINE] [fetchTopics Setting Animating States Proactively]");
                 setAnimatingTopicId(completedTopic.id);
-                setVisualPercent(0);
+                const startPercent = 0;
+                setVisualPercent(startPercent);
                 setIsArrowSuccessVisual(false);
                 setIsCompletedVisual(false);
                 setIsNextUnlockedVisual(false);
@@ -190,6 +203,7 @@ export default function LearnPage() {
           }
         }
 
+        console.log("[TIMELINE] [fetchTopics Setting States in Component]");
         setTopics(data);
         setContinueModule(continueData.module);
         setUserXP(progressData.currentXP);
@@ -203,7 +217,10 @@ export default function LearnPage() {
         });
         setError('Failed to load learning topics. Please try again.');
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          console.log("[TIMELINE] [fetchTopics Finally Setting Loading to false]");
+          setLoading(false);
+        }
       }
     };
 
@@ -213,27 +230,45 @@ export default function LearnPage() {
 
   // Topic completion animation trigger
   useEffect(() => {
+    console.log("[TIMELINE] [Animation Trigger useEffect Run]", {
+      loading,
+      topicsLength: topics.length,
+      recentTopicId: typeof window !== 'undefined' ? sessionStorage.getItem("recentTopicCompletion") : null
+    });
     if (loading || topics.length === 0) return;
 
     if (typeof window === 'undefined') return;
 
     const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
-    if (!recentTopicId) return;
+    if (!recentTopicId) {
+      console.log("[TIMELINE] [Animation Trigger Check: No recentTopicCompletion in storage]");
+      return;
+    }
 
     const completedTopicIndex = topics.findIndex(t => t.id === recentTopicId);
-    if (completedTopicIndex === -1) return;
+    if (completedTopicIndex === -1) {
+      console.log("[TIMELINE] [Animation Trigger Check: completedTopicIndex is -1]");
+      return;
+    }
 
     const completedTopic = topics[completedTopicIndex];
+    console.log("[TIMELINE] [Animation Trigger Check: completedTopic found]", {
+      completedModules: completedTopic.completedModules,
+      totalModules: completedTopic.totalModules
+    });
     if (completedTopic.completedModules !== completedTopic.totalModules) return;
 
     const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
     const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+    console.log("[TIMELINE] [Animation Trigger Check: comparing signatures]", { currentSig, lastSig });
 
     if (currentSig === lastSig) {
+      console.log("[TIMELINE] [Animation Trigger Check: signature matches lastSig, removing completion key]");
       sessionStorage.removeItem("recentTopicCompletion");
       return;
     }
 
+    console.log("[TIMELINE] [Animation Trigger Check: New completion animation STARTING!]");
     // New completion found!
     setAnimatingTopicId(completedTopic.id);
     setIsCompletedVisual(false);
@@ -248,26 +283,43 @@ export default function LearnPage() {
       setNextAnimatingTopicId(null);
     }
 
-    // Set starting percent to 0 for a visual completion charge (0% to 100%)
-    setVisualPercent(0);
+    const startPercent = 0;
+    setVisualPercent(startPercent);
 
-    // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over 2500ms
+    // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over animationDuration
+    let fillInterval: NodeJS.Timeout;
     const fillTimer = setTimeout(() => {
-      setVisualPercent(100);
+      const duration = animationDuration; // 4500
+      const intervalMs = 50;
+      const totalSteps = duration / intervalMs;
+      let currentStep = 0;
+      
+      fillInterval = setInterval(() => {
+        currentStep++;
+        if (currentStep >= totalSteps) {
+          setVisualPercent(100);
+          clearInterval(fillInterval);
+        } else {
+          const ratio = currentStep / totalSteps;
+          const easeOutRatio = 1 - Math.pow(1 - ratio, 2); // Matches the css 'ease-out' transition curve
+          const currentPercent = startPercent + (100 - startPercent) * easeOutRatio;
+          setVisualPercent(Math.round(currentPercent));
+        }
+      }, intervalMs);
     }, 300);
 
-    // Phase 2 (600ms): Once progress reaches 100% at 2800ms, transition color to Success Green
+    // Phase 2 (600ms): Once progress reaches 100% at 4800ms, transition color to Success Green
     const colorTimer = setTimeout(() => {
       setIsArrowSuccessVisual(true);
-    }, 2800); // 300ms hold + 2500ms fill
+    }, 4800); // 300ms hold + 4500ms fill
 
-    // Phase 3 & 4 (Simultaneous - 500ms crossfades) at 3400ms
+    // Phase 3 & 4 (Simultaneous - 500ms crossfades) at 6400ms
     const transitionTimer = setTimeout(() => {
       setIsCompletedVisual(true);
       setIsNextUnlockedVisual(true);
-    }, 3400); // 2800ms + 600ms color transition
+    }, 6400); // 4800ms + 1600ms buffer/transitions
 
-    // Clean up animation states after 3.9 seconds total
+    // Clean up animation states after 6.3 seconds total
     const cleanupTimer = setTimeout(() => {
       localStorage.setItem("lastAnimatedCompletionKey", currentSig);
       sessionStorage.removeItem("recentTopicCompletion");
@@ -277,10 +329,11 @@ export default function LearnPage() {
       setIsCompletedVisual(false);
       setIsNextUnlockedVisual(false);
       setIsArrowSuccessVisual(false);
-    }, 3900);
+    }, 6300);
 
     return () => {
       clearTimeout(fillTimer);
+      if (fillInterval) clearInterval(fillInterval);
       clearTimeout(colorTimer);
       clearTimeout(transitionTimer);
       clearTimeout(cleanupTimer);
@@ -294,23 +347,174 @@ export default function LearnPage() {
     }
   }, [visualPercent, animatingTopicId]);
 
+
+
+
+
+  // Dynamic presentation-overlay topics mapping
+  const presentationTopics = useMemo(() => {
+    if (!animatingTopicId) return topics;
+
+    return topics.map(topic => {
+      // 1. Overlay the animating completed topic
+      if (topic.id === animatingTopicId) {
+        if (!isCompletedVisual) {
+          // Pre-completion: Status is CURRENT/IN_PROGRESS, modules count is totalModules - 1
+          const prevCompletedModules = Math.max(0, topic.totalModules - 1);
+          return {
+            ...topic,
+            status: 'IN_PROGRESS' as const,
+            completedModules: prevCompletedModules,
+          };
+        } else {
+          // Completed phase: status is COMPLETED, modules count is totalModules
+          return {
+            ...topic,
+            status: 'COMPLETED' as const,
+            completedModules: topic.totalModules,
+          };
+        }
+      }
+
+      // 2. Overlay the next unlocked topic (which is unlocking)
+      if (topic.id === nextAnimatingTopicId) {
+        if (!isNextUnlockedVisual) {
+          // Still locked before crossfade
+          return {
+            ...topic,
+            unlocked: false,
+            status: 'NOT_STARTED' as const,
+            completedModules: 0,
+          };
+        } else {
+          // Unlocked after crossfade
+          return {
+            ...topic,
+            unlocked: true,
+            status: 'IN_PROGRESS' as const,
+            completedModules: 0,
+          };
+        }
+      }
+
+      return topic;
+    });
+  }, [topics, animatingTopicId, nextAnimatingTopicId, isCompletedVisual, isNextUnlockedVisual]);
+
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
-    if (!searchQuery.trim()) return topics;
+    if (!searchQuery.trim()) return presentationTopics;
     const q = searchQuery.toLowerCase();
-    return topics.filter(t =>
+    return presentationTopics.filter(t =>
       t.name.toLowerCase().includes(q) ||
       (t.description && t.description.toLowerCase().includes(q))
     );
-  }, [topics, searchQuery]);
+  }, [presentationTopics, searchQuery]);
+
+  // Measure dynamic height of the content to stretch the SkyBackground dynamically
+  useEffect(() => {
+    if (!contentRef.current) return;
+    const updateHeight = () => {
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.scrollHeight);
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, [topics, filteredTopics]);
 
   // Find matching topic progress for continue module
   const continueTopicProgress = useMemo(() => {
-    if (!continueModule || topics.length === 0) return '0 / 0 Modules';
-    const topic = topics.find((t) => t.slug === continueModule.topicSlug);
+    if (!continueModule || presentationTopics.length === 0) return '0 / 0 Modules';
+    const topic = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
     if (!topic) return '0 / 0 Modules';
     return `${topic.completedModules} / ${topic.totalModules} Modules`;
-  }, [continueModule, topics]);
+  }, [continueModule, presentationTopics]);
+
+  // Find current topic
+  const currentTopic = useMemo(() => {
+    if (presentationTopics.length === 0) return null;
+    if (continueModule?.topicSlug) {
+      const found = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
+      if (found) return found;
+    }
+    const current = presentationTopics.find((t) => getDialStatus(t) === 'CURRENT');
+    if (current) return current;
+    const unlocked = presentationTopics.find((t) => t.unlocked);
+    if (unlocked) return unlocked;
+    return presentationTopics[0];
+  }, [continueModule, presentationTopics]);
+
+  const displayTopic = useMemo(() => {
+    if (animatingTopicId) {
+      return presentationTopics.find(t => t.id === animatingTopicId) || currentTopic;
+    }
+    return currentTopic;
+  }, [animatingTopicId, presentationTopics, currentTopic]);
+
+  const isAnimatingCompleted = animatingTopicId !== null && animatingTopicId === displayTopic?.id;
+
+  // Auto-scroll current topic and its predecessors into view
+  useEffect(() => {
+    if (typeof window === 'undefined' || loading) return;
+
+    let active = true;
+    let frameId1: number;
+    let frameId2: number;
+
+    const performScroll = () => {
+      if (!active) return;
+      const railEl = railRef.current;
+      const activeEl = activeCardRef.current;
+
+      // Guard against null refs during rapid state transitions, routing, or filtering changes
+      if (!railEl || !activeEl) return;
+
+      const isScrollable = railEl.scrollHeight > railEl.clientHeight;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+      /**
+       * Native scrollIntoView() scrolls all scrollable ancestors.
+       * That causes the SidebarLayout container to move, clipping
+       * the page header. We instead scroll only the topic rail when
+       * it is independently scrollable.
+       */
+      if (isScrollable) {
+        // Localized desktop scroll: calculate relative rect sizes only when necessary
+        const railRect = railEl.getBoundingClientRect();
+        const elRect = activeEl.getBoundingClientRect();
+
+        const targetScrollTop = railEl.scrollTop + (elRect.top - railRect.top) - (railRect.height / 2) + (elRect.height / 2);
+        const maxScroll = railEl.scrollHeight - railEl.clientHeight;
+        const clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScroll));
+
+        railEl.scrollTo({
+          top: clampedScrollTop,
+          behavior: scrollBehavior
+        });
+      } else {
+        // Native mobile scroll: center the element in the main page viewport
+        activeEl.scrollIntoView({
+          behavior: scrollBehavior,
+          block: 'center'
+        });
+      }
+    };
+
+    // Double requestAnimationFrame ensures accurate layout dimensions are read after React commits changes to the DOM
+    frameId1 = requestAnimationFrame(() => {
+      frameId2 = requestAnimationFrame(performScroll);
+    });
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(frameId1);
+      if (frameId2) cancelAnimationFrame(frameId2);
+    };
+  }, [currentTopic?.id, animatingTopicId, isCompletedVisual, loading]);
 
   // Map display level for continue module
   const continueDisplayLevel = useMemo(() => {
@@ -333,19 +537,19 @@ export default function LearnPage() {
 
   // Completion calculations
   const topicsCompletedCount = useMemo(() => {
-    return topics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
-  }, [topics]);
+    return presentationTopics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
+  }, [presentationTopics]);
 
   const modulesCompletedCount = useMemo(() => {
-    return topics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-  }, [topics]);
+    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+  }, [presentationTopics]);
 
   const isPlatformCompleted = useMemo(() => {
-    if (topics.length === 0) return false;
-    const totalCompleted = topics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-    const totalModules = topics.reduce((sum, t) => sum + (t.totalModules || 0), 0);
+    if (presentationTopics.length === 0) return false;
+    const totalCompleted = presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+    const totalModules = presentationTopics.reduce((sum, t) => sum + (t.totalModules || 0), 0);
     return (totalModules > 0 && totalCompleted === totalModules) || !continueModule;
-  }, [topics, continueModule]);
+  }, [presentationTopics, continueModule]);
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
 
@@ -370,7 +574,7 @@ export default function LearnPage() {
       );
     }
     const themedContent = (
-      <div className="min-h-screen w-full bg-slate-50/50">
+      <div className="w-full h-full bg-slate-50/50 flex-1 min-h-0">
         {children}
       </div>
     );
@@ -385,6 +589,7 @@ export default function LearnPage() {
 
   // Main UI Load/Error views
   if (loading) {
+    console.log("[TIMELINE] [Render: SkyBackgroundLoader (Page is loading)]");
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
@@ -430,18 +635,26 @@ export default function LearnPage() {
     );
   }
 
+  console.log("[TIMELINE] [Render: Main page layout (Page is ready)]", {
+    animatingTopicId,
+    displayTopicId: displayTopic?.id,
+    displayTopicCompletedModules: displayTopic?.completedModules,
+    displayTopicStatus: displayTopic?.status,
+    visualPercent
+  });
+
   return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white font-sans select-none relative overflow-y-auto pb-12">
+      <div className="h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden pb-12 lg:pb-0 flex flex-col">
         {/* Cloud Background from Roadmaps */}
-        <SkyBackground />
+        <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
 
-        <div className="max-w-full mx-auto px-6 xl:px-12 pt-8 flex flex-col gap-8 relative z-10">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col md:flex-row items-center justify-between gap-4 w-full pointer-events-auto py-2">
+          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
             {/* Left Side: Current Mission Info */}
-            <div className="flex items-center gap-4 w-full md:w-auto min-h-[72px]">
+            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-h-[52px] sm:min-h-[72px]">
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
                   <motion.div
@@ -450,10 +663,10 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-4 w-full md:w-auto"
+                    className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
                     <div
-                      className="w-12 h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
                     >
                       <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
                         <path
@@ -470,20 +683,20 @@ export default function LearnPage() {
                         />
                       </svg>
                     </div>
-                    <div className="flex flex-col text-slate-800">
-                      <span className="text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
+                    <div className="flex flex-col text-slate-800 min-w-0">
+                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
                         🎉 AWS Journey Complete
                       </span>
-                      <span className="text-xs font-semibold text-slate-500 mt-1 block">
+                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block">
                         Congratulations! You've completed every available topic.
                       </span>
-                      <div className="flex items-center gap-3 mt-2 text-[11px] font-extrabold">
-                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2.5 py-0.5 rounded-md">
-                          {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'} Completed
+                      <div className="flex items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-extrabold">
+                        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2 py-0.5 rounded-md">
+                          {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'}
                         </span>
                         <span className="text-slate-300">|</span>
-                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 border border-cyan-100/30 px-2.5 py-0.5 rounded-md">
-                          {modulesCompletedCount} {modulesCompletedCount === 1 ? 'Module' : 'Modules'} Completed
+                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 border border-cyan-100/30 px-2 py-0.5 rounded-md">
+                          {modulesCompletedCount} {modulesCompletedCount === 1 ? 'Module' : 'Modules'}
                         </span>
                       </div>
                     </div>
@@ -495,38 +708,37 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-4 w-full md:w-auto"
+                    className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
                     <button
                       onClick={handleResume}
-                      disabled={!continueModule}
-                      aria-label="Resume learning"
+                      aria-label="Continue learning"
                       className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
                         continueModule
-                          ? "bg-emerald-500 shadow-emerald-500/20 cursor-pointer hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-105 active:scale-95"
-                          : "bg-slate-300 cursor-not-allowed"
+                          ? "bg-[#FF9900] shadow-[#FF9900]/20 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/30 hover:scale-105 active:scale-95"
+                          : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
                       )}
                     >
-                      <ChevronRight className="w-6 h-6 stroke-[3]" />
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
                     </button>
-                    <div className="flex flex-col text-slate-800">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
+                    <div className="flex flex-col text-slate-800 min-w-0 flex-1">
+                      <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
                         CONTINUE YOUR JOURNEY
                       </span>
-                      <span className="text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
+                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 truncate">
                         {continueModule ? `Current Mission: ${continueModule.name}` : 'Ready to start your AWS journey'}
                       </span>
-                      <div className="flex items-center gap-3 mt-1 text-[11px] font-extrabold text-slate-500">
+                      <div className="flex items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-[11px] font-extrabold text-slate-500">
                         <span className="flex items-center gap-1 text-cyan-600">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> {continueModule ? continueTopicProgress : 'Select a topic to start'}
+                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {continueModule ? continueTopicProgress : 'Select a topic'}
                         </span>
                         {continueModule?.topicName && (
                           <>
-                            <span className="text-slate-300">|</span>
+                            <span className="text-slate-300 hidden sm:inline">|</span>
                             <Link
                               href={`/learn/${continueModule.topicSlug}`}
-                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2.5 py-0.5 rounded-md text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
+                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 hidden sm:inline-flex"
                               title="Go to topic roadmap"
                             >
                               Topic: {continueModule.topicName}
@@ -541,40 +753,40 @@ export default function LearnPage() {
             </div>
 
             {/* Right Side: Reward & Resume */}
-            <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end flex-wrap sm:flex-nowrap">
               {/* Total XP Badge */}
-              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-indigo-650" />
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    TOTAL SCORE
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                    SCORE
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     {userXP} XP
                   </span>
                 </div>
               </div>
 
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    MISSION REWARD
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                    REWARD
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     +{continueModule ? continueXPReward : 50} XP
                   </span>
                 </div>
               </div>
 
               {/* Level badge */}
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-600" />
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <div>
-                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
                     LEVEL
                   </span>
-                  <span className="text-xs font-bold text-slate-900 block leading-none mt-1">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                     {continueDisplayLevel}
                   </span>
                 </div>
@@ -582,10 +794,10 @@ export default function LearnPage() {
 
               <Link
                 href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
                 title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
               >
-                <Home className="w-4 h-4" />
+                <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
 
               <AnimatePresence>
@@ -596,16 +808,10 @@ export default function LearnPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    disabled={!continueModule}
-                    onClick={handleResume}
-                    className={cn(
-                      "font-bold text-xs px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white",
-                      continueModule
-                        ? "bg-[#00cba9] hover:bg-[#00bda0]"
-                        : "bg-slate-300 shadow-none cursor-not-allowed"
-                    )}
+                    onClick={() => setShowGuidelines(true)}
+                    className="font-bold text-[10px] sm:text-xs px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0]"
                   >
-                    Resume Learning
+                    Guidelines
                   </motion.button>
                 )}
               </AnimatePresence>
@@ -613,25 +819,25 @@ export default function LearnPage() {
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-8 lg:items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div className="flex-[1.5] min-w-0" id="topic-rail-section">
-              <div className="flex items-center gap-3 w-full pointer-events-auto">
-                <div className="relative min-w-[200px] flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+              <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
+                <div className="relative min-w-0 flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search Topics"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-9 py-2 bg-white/90 border border-slate-200/80 rounded-full text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
+                    className="w-full pl-9 pr-8 sm:pl-10 sm:pr-9 py-1.5 sm:py-2 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </button>
                   )}
                 </div>
@@ -639,11 +845,12 @@ export default function LearnPage() {
                 {userRole === 'crew' && (
                   <Link
                     href="/crew/learners"
-                    className="flex items-center gap-1.5 px-4.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
                     title="View Learner Progress"
                   >
-                    <Users className="w-3.5 h-3.5" />
-                    <span>View Learner Progress</span>
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">View Learner Progress</span>
+                    <span className="sm:hidden">Learners</span>
                   </Link>
                 )}
               </div>
@@ -705,7 +912,11 @@ export default function LearnPage() {
                       const currentModuleLabel = `MOD ${Math.min(completedModulesToRender + 1, topic.totalModules)}`;
 
                       return (
-                        <div key={topic.id} className="w-full">
+                        <div
+                          key={topic.id}
+                          ref={statusToRender === 'CURRENT' ? activeCardRef : undefined}
+                          className="w-full"
+                        >
                           {isFirstLocked && (
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-heading mt-6 mb-3 self-start pl-2">
                               UPCOMING TOPICS
@@ -727,79 +938,126 @@ export default function LearnPage() {
                                 )}
                               >
                                 <div className="w-full">
-                                   <div className="flex justify-between items-start gap-4">
-                                     <div className="flex-1">
-                                       <span className={cn(
-                                         "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
-                                         topic.id === animatingTopicId && isArrowSuccessVisual
-                                           ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
-                                           : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
-                                       )}>
-                                         Current
-                                       </span>
+                                  <div className="flex justify-between items-start gap-4">
+                                    <div className="flex-1">
+                                      <span className={cn(
+                                        "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
+                                        topic.id === animatingTopicId && isArrowSuccessVisual
+                                          ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
+                                          : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
+                                      )}>
+                                        Current
+                                      </span>
 
-                                       <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
-                                         {topic.name}
-                                       </h2>
+                                      <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
+                                        {topic.name}
+                                      </h2>
 
-                                       {/* Details Row: No time estimate */}
-                                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
-                                         <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
-                                         <span className="text-slate-350 font-semibold">•</span>
-                                         <span className={cn(
-                                           "font-semibold transition-colors duration-600",
-                                           topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-600" : "text-[#FF9900]"
-                                         )}>
-                                           {currentModuleLabel}
-                                         </span>
-                                       </div>
-                                     </div>
+                                      {/* Details Row: No time estimate */}
+                                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
+                                        <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
+                                        <span className="text-slate-350 font-semibold">•</span>
+                                        <span className={cn(
+                                          "font-semibold transition-colors duration-600",
+                                          topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-650" : "text-[#FF9900]"
+                                        )}>
+                                          {currentModuleLabel}
+                                        </span>
+                                      </div>
+                                    </div>
 
-                                     {/* AWS Smile Badge */}
-                                     <div className="px-4 py-3 bg-sky-100 border border-[#FF9900]/35 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                                       <AWSSmile className="w-16 h-auto" progress={progressPercentToRender} id={topic.id} />
-                                     </div>
-                                   </div>
+                                    {/* AWS Swoosh Progress Illustration */}
+                                    <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
+                                      <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
+                                        <defs>
+                                          <clipPath id={`aws-swoosh-clip-${topic.id}`}>
+                                            <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                                            <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                                          </clipPath>
+                                        </defs>
 
-                                   {/* Progress bar and numeric percentage */}
-                                   <div className="flex items-center gap-3 mt-4">
-                                     <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
-                                       <div
-                                         className={cn(
-                                           "h-full rounded-full",
-                                           topic.id === animatingTopicId
-                                             ? (isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]")
-                                             : "bg-[#FF9900]"
-                                         )}
-                                         style={{
-                                           width: `${progressPercentToRender}%`,
-                                           transition: topic.id === animatingTopicId
-                                             ? 'width 2500ms ease-out, background-color 600ms ease-in-out'
-                                             : 'width 700ms ease-out, background-color 700ms ease-out'
-                                         }}
-                                       />
-                                     </div>
-                                     <span className="text-xs font-semibold text-slate-500 leading-none">
-                                       {progressPercentToRender}%
-                                     </span>
-                                   </div>
-                                 </div>
+                                        {/* Unfilled background swoosh outline */}
+                                        <g
+                                          fill="rgba(226, 232, 240, 0.25)"
+                                          stroke={
+                                            topic.id === animatingTopicId
+                                              ? (isArrowSuccessVisual ? "#10B981" : "rgba(255, 159, 0, 1)")
+                                              : "rgba(255, 159, 0, 1)"
+                                          }
+                                          strokeWidth="3"
+                                          style={{
+                                            transition: topic.id === animatingTopicId
+                                              ? 'stroke 600ms ease-in-out'
+                                              : 'stroke 700ms ease-out'
+                                          }}
+                                        >
+                                          <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                                          <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                                        </g>
 
-                                 {/* Bottom Row: Action */}
-                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
-                                   <Link
-                                     href={`/learn/${topic.slug}`}
-                                     className={cn(
-                                       "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
-                                       topic.id === animatingTopicId && isArrowSuccessVisual
-                                         ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
-                                         : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
-                                     )}
-                                   >
-                                     <span>Continue</span>
-                                     <span className="text-xs">→</span>
-                                   </Link>
-                                 </div>
+                                        {/* Filled swoosh left-to-right using clipPath */}
+                                        <g clipPath={`url(#aws-swoosh-clip-${topic.id})`}>
+                                          <rect
+                                            x="0"
+                                            y="100"
+                                            width={`${(300 * progressPercentToRender) / 100}`}
+                                            height="90"
+                                            fill={
+                                              topic.id === animatingTopicId
+                                                ? (isArrowSuccessVisual ? "#10B981" : "#FF9900")
+                                                : "#FF9900"
+                                            }
+                                            style={{
+                                              width: `${(300 * progressPercentToRender) / 100}px`,
+                                              transition: topic.id === animatingTopicId
+                                                ? `width 50ms linear, fill 600ms ease-in-out`
+                                                : 'width 700ms ease-out, fill 700ms ease-out'
+                                            }}
+                                          />
+                                        </g>
+                                      </svg>
+                                    </div>
+                                  </div>
+
+                                  {/* Progress bar and numeric percentage */}
+                                  <div className="flex items-center gap-3 mt-4">
+                                    <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
+                                      <div
+                                        className={cn(
+                                          "h-full rounded-full",
+                                          topic.id === animatingTopicId
+                                            ? (isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]")
+                                            : "bg-[#FF9900]"
+                                        )}
+                                        style={{
+                                          width: `${progressPercentToRender}%`,
+                                          transition: topic.id === animatingTopicId
+                                            ? `width 50ms linear, background-color 600ms ease-in-out`
+                                            : 'width 700ms ease-out, background-color 700ms ease-out'
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="text-xs font-semibold text-slate-500 leading-none">
+                                      {progressPercentToRender}%
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Bottom Row: Action */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
+                                  <Link
+                                    href={`/learn/${topic.slug}`}
+                                    className={cn(
+                                      "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
+                                      topic.id === animatingTopicId && isArrowSuccessVisual
+                                        ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
+                                        : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
+                                    )}
+                                  >
+                                    <span>Continue</span>
+                                    <span className="text-xs">→</span>
+                                  </Link>
+                                </div>
                               </motion.div>
                             )}
 
@@ -810,29 +1068,29 @@ export default function LearnPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
+                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl p-4 sm:py-3.5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                                   {/* Green checkmark circle icon */}
-                                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
                                   </div>
-                                  
-                                  {/* Topic Title */}
-                                  <h2 className="text-sm md:text-base font-semibold text-slate-800 tracking-tight leading-none">
-                                    {topic.name}
-                                  </h2>
-                                  
-                                  {/* Modules Pill */}
-                                  <span className="text-[9px] font-extrabold text-emerald-650 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 ml-2.5 uppercase tracking-wide">
-                                    {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                  </span>
+
+                                  {/* Topic Title and Modules Pill */}
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                    <h2 className="text-sm font-semibold text-slate-800 tracking-tight leading-snug">
+                                      {topic.name}
+                                    </h2>
+                                    <span className="inline-block text-[9px] font-extrabold text-emerald-650 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                    </span>
+                                  </div>
                                 </div>
 
                                 {/* Review Button */}
                                 <Link
                                   href={`/learn/${topic.slug}`}
-                                  className="px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
+                                  className="w-full sm:w-auto px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
                                 >
                                   <span>Review</span>
                                   <span className="text-xs">→</span>
@@ -847,18 +1105,20 @@ export default function LearnPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
+                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <Lock className="w-4 h-4" />
                                   </div>
-                                  <span className="font-semibold text-slate-700 text-sm md:text-base leading-none">
-                                    {topic.name}
-                                  </span>
-                                  <span className="text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 ml-2 uppercase tracking-wide">
-                                    {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                  </span>
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                    <span className="font-semibold text-slate-700 text-sm leading-snug">
+                                      {topic.name}
+                                    </span>
+                                    <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                    </span>
+                                  </div>
                                 </div>
                               </motion.div>
                             )}
@@ -871,11 +1131,160 @@ export default function LearnPage() {
               </main>
             </div>
 
-            {/* Right Column: Learning Guide Panel */}
-            <div className="w-full lg:flex-1 flex-shrink-0">
-              <LearningGuidePanel />
+            {/* Right Column: Description of current Topic */}
+            <div className="hidden lg:flex w-full lg:flex-1 flex-shrink-0 flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+              {displayTopic ? (
+                <div className={cn(
+                  "w-full backdrop-blur-[20px] border rounded-2xl p-6 md:p-8 flex flex-col gap-6 text-left transition-all duration-600",
+                  displayTopic.status === 'COMPLETED' || (isAnimatingCompleted && isArrowSuccessVisual)
+                    ? "bg-emerald-500/[0.06] border-emerald-500/20 shadow-[inset_0_0_35px_rgba(16,185,129,0.2),inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
+                    : "bg-white/[0.15] border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
+                )}>
+                  <div className="flex items-center gap-3">
+                    {/* Book Icon: Turns green on completion */}
+                    <div className={cn(
+                      "p-2.5 rounded-xl flex items-center justify-center border transition-colors duration-600",
+                      isAnimatingCompleted && isArrowSuccessVisual
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600"
+                        : "bg-[#FF9900]/10 border-[#FF9900]/20 text-[#FF9900]"
+                    )}>
+                      <BookOpen className="w-5 h-5 stroke-[2]" />
+                    </div>
+
+                    {/* Header text container: Animates on topic change */}
+                    <div className="flex-1 min-w-0">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={displayTopic.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 50 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="flex flex-col"
+                        >
+                          <div className="relative h-3.5 w-full">
+                            <AnimatePresence initial={false}>
+                              {!(isAnimatingCompleted && isArrowSuccessVisual) ? (
+                                <motion.span
+                                  key="focus-title"
+                                  initial={{ clipPath: "inset(0 0 0 0)" }}
+                                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                                  exit={{ clipPath: "inset(0 0 0 100%)" }}
+                                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading whitespace-nowrap"
+                                >
+                                  Current Topic Focus
+                                </motion.span>
+                              ) : (
+                                <motion.span
+                                  key="completed-title"
+                                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 block font-heading whitespace-nowrap"
+                                >
+                                  Completed
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
+                          <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5 truncate">
+                            {displayTopic.name}
+                          </h3>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
+                    <div className="relative">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
+                        Description
+                      </span>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={displayTopic.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 50 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                        >
+                          {displayTopic.description ? (
+                            <ul className="list-none pl-0 flex flex-col gap-2.5">
+                              {parseBulletPoints(displayTopic.description).map((item, index) => (
+                                <li key={index} className="flex items-start gap-2.5">
+                                  <span className={cn(
+                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 transition-colors duration-600",
+                                    isAnimatingCompleted && isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]"
+                                  )} />
+                                  <span 
+                                    className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line break-words"
+                                    style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                                  >
+                                    {item}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-xs text-slate-400 italic font-medium">
+                              No description provided for this topic.
+                            </p>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                </div>
+              ) : (
+                <div className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] opacity-80">
+                  <BookOpen className="w-10 h-10 text-slate-350 mb-3 stroke-[1.5]" />
+                  <span className="text-xs font-bold text-slate-500">No active topic selected</span>
+                  <span className="text-[10px] text-slate-400 mt-1">Select a topic from the roadmap to view details.</span>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Guidelines Popup Modal */}
+          <AnimatePresence>
+            {showGuidelines && (
+              <motion.div
+                key="guidelines-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+                onClick={() => setShowGuidelines(false)}
+              >
+                <motion.div
+                  key="guidelines-modal"
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ duration: 0.25 }}
+                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Sky Background from Roadmaps */}
+                  <SkyBackground />
+
+                  <button
+                    onClick={() => setShowGuidelines(false)}
+                    className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm"
+                  >
+                    <X className="w-4 h-4 text-slate-650" />
+                  </button>
+                  <div className="p-5 relative z-10">
+                    <LearningGuidePanel />
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
       </div>

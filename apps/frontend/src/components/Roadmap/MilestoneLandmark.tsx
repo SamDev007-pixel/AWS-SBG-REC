@@ -200,7 +200,7 @@ export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, lock
             {locked ? (
               <Icons.Zap className="w-5 h-5 text-yellow-500 fill-yellow-400" />
             ) : (
-              <Icons.Trophy className="w-6 h-6 fill-current drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
+              <Icons.Zap className="w-6 h-6 text-yellow-500 fill-yellow-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
             )}
           </motion.div>
         </div>

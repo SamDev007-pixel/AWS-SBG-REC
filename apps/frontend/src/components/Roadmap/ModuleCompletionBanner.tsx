@@ -17,7 +17,7 @@ export const ModuleCompletionBanner: React.FC<ModuleCompletionBannerProps> = ({ 
       className="space-y-6 text-center py-6 flex flex-col items-center justify-center flex-1"
     >
       <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center relative shadow-inner">
-        <Icons.CheckCircle className="w-8 h-8 fill-current text-emerald-600" />
+        <Icons.Check className="w-8 h-8 text-emerald-600 stroke-[3]" />
       </div>
       <div className="space-y-2">
         <h3 className="text-lg font-black text-slate-900 tracking-tight font-heading">

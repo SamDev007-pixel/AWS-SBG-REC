@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { TopicData, TopicTheme } from '@/services/roadmap.api';
+import DescriptionBulletEditor, { cleanDescription } from './DescriptionBulletEditor';
 
 interface EditTopicModalProps {
   isOpen: boolean;
@@ -31,7 +32,8 @@ export default function EditTopicModal({ isOpen, topic, onClose, onSubmit }: Edi
     if (!topic || !name.trim()) return;
     setSubmitting(true);
     try {
-      await onSubmit(topic.id, name.trim(), description.trim(), theme);
+      const cleanedDescription = cleanDescription(description);
+      await onSubmit(topic.id, name.trim(), cleanedDescription, theme);
       onClose();
     } catch (err) {
       // Error handled by parent
@@ -76,15 +78,10 @@ export default function EditTopicModal({ isOpen, topic, onClose, onSubmit }: Edi
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="font-extrabold text-slate-555 block">Description</label>
-            <textarea
-              rows={2}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed"
-            />
-          </div>
+          <DescriptionBulletEditor
+            value={description}
+            onChange={setDescription}
+          />
 
 
           <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 mt-5">

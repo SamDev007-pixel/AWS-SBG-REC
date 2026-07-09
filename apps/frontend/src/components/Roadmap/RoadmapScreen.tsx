@@ -53,7 +53,7 @@ const LevelIslandHeader: React.FC<{
   locked: boolean;
 }> = ({ number, title, completed, total, description, levelColor, locked }) => {
   const containerClasses = cn(
-    "w-[260px] border transition-all duration-300 select-none rounded-[22px]",
+    "w-[180px] sm:w-[260px] border transition-all duration-300 select-none rounded-xl sm:rounded-[22px]",
     !locked
       ? "gradient-container border-slate-200/50 shadow-md hover:shadow-xl hover:-translate-y-0.5 text-slate-800"
       : levelColor === 'intermediate'
@@ -63,28 +63,28 @@ const LevelIslandHeader: React.FC<{
 
   return (
     <div className={containerClasses}>
-      <div className={cn(locked ? "p-5" : "gradient-overlay p-5")}>
+      <div className={cn(locked ? "p-3 sm:p-5" : "gradient-overlay p-3 sm:p-5")}>
         <div className="relative z-10 flex flex-col">
           <span className={cn(
-            "text-[9px] font-black uppercase tracking-widest block font-heading",
+            "text-[7px] sm:text-[9px] font-black uppercase tracking-widest block font-heading",
             !locked ? "text-slate-500" : "text-slate-400"
           )}>
             LEVEL {number}
           </span>
           <h2 className={cn(
-            "text-base font-black leading-tight mt-0.5 tracking-tight font-heading",
+            "text-xs sm:text-base font-black leading-tight mt-0.5 tracking-tight font-heading",
             !locked ? "text-slate-950" : "text-slate-100"
           )}>
             {title}
           </h2>
           <span className={cn(
-            "text-[10px] font-bold mt-1 font-heading",
+            "text-[8px] sm:text-[10px] font-bold mt-1 font-heading",
             !locked ? "text-slate-600" : "text-slate-400"
           )}>
             {completed} / {total} Completed
           </span>
           <p className={cn(
-            "text-[11px] leading-snug mt-2 font-medium",
+            "text-[9px] sm:text-[11px] leading-snug mt-1.5 sm:mt-2 font-medium hidden sm:block",
             !locked ? "text-slate-600" : "text-slate-300"
           )}>
             {description}
@@ -105,26 +105,26 @@ interface VisualNode {
 }
 
 const PremiumHomeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    className={className} 
-    fill="none" 
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path 
-      d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <path
+      d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
       fill="rgba(255, 255, 255, 0.05)"
     />
-    <path 
-      d="M9 22v-4a3 3 0 016 0v4" 
-      stroke="#FF9900" 
-      strokeWidth="2.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <path
+      d="M9 22v-4a3 3 0 016 0v4"
+      stroke="#FF9900"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       fill="rgba(255, 153, 0, 0.15)"
     />
   </svg>
@@ -132,12 +132,26 @@ const PremiumHomeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 
 export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) => {
   const router = useRouter();
-  const [modules, setModules] = useState<any[]>([]);
-  const [moduleStates, setModuleStates] = useState<Record<string, 'completed' | 'current' | 'locked'>>({});
+  const [roadmapData, setRoadmapData] = useState<{
+    modules: any[];
+    moduleStates: Record<string, 'completed' | 'current' | 'locked'>;
+  }>({ modules: [], moduleStates: {} });
   const [xp, setXp] = useState<number>(0);
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Derived convenience accessors
+  const modules = roadmapData.modules;
+  const moduleStates = roadmapData.moduleStates;
 
   useEffect(() => {
     const session = getAuthSession();
@@ -188,9 +202,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         });
 
         setTopicName(topicDetail.name);
-        setModules(mappedModules);
-        setModuleStates(states);
+        setRoadmapData({ modules: mappedModules, moduleStates: states });
         setXp(progress.currentXP);
+        setLoading(false);
       } catch (err) {
         console.error('Failed to load roadmap data:', err);
       } finally {
@@ -203,6 +217,46 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
       active = false;
     };
   }, [topicSlug]);
+
+  // Scroll to the active module after data loads and roadmap renders
+  useEffect(() => {
+    if (loading || modules.length === 0) return;
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const fromSlug = queryParams.get('from');
+
+    let targetId: string | null = null;
+
+    // Flow 2: returning from quiz completion — scroll to the next module
+    if (fromSlug) {
+      const fromIdx = modules.findIndex(
+        (m) => m.id.toLowerCase() === fromSlug.toLowerCase(),
+      );
+      if (fromIdx >= 0 && fromIdx < modules.length - 1) {
+        targetId = modules[fromIdx + 1].id;
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Flow 1: normal navigation — scroll to first 'current' module
+    if (!targetId) {
+      const lastCompletedIdx = modules.reduce(
+        (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
+        -1,
+      );
+      const target = modules.find(
+        (m, idx) => idx > lastCompletedIdx && moduleStates[m.id] === 'current',
+      );
+      targetId = target?.id ?? null;
+    }
+
+    if (!targetId) return;
+
+    const el = moduleNodeRefs.current.get(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [loading, modules, moduleStates]);
 
   const handleLogout = () => {
     if (authService.logout(true)) {
@@ -218,6 +272,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   // Viewport refs for scrolling and path rendering
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+
+  // Ref map for module node DOM elements (keyed by module id)
+  const moduleNodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Measure dynamic geometry based on store modules list
   const geometry = useMemo(() => calculateRoadmapGeometry(modules), [modules]);
@@ -305,36 +362,16 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     };
   });
 
-  // Scroll to active node or beginner on mount (only once per topic selection)
-  const hasScrolledRef = useRef(false);
 
-  useEffect(() => {
-    hasScrolledRef.current = false;
-  }, [topicSlug]);
-
-  useEffect(() => {
-    if (!mapContainerRef.current || modules.length === 0 || hasScrolledRef.current) return;
-
-    // Skip scroll to active node/beginner if topic is just completed
-    const queryParams = new URLSearchParams(window.location.search);
-    if (queryParams.get('justCompleted') === 'true') return;
-
-    const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0];
-    const activeCoord = coordinates[activeNode.id];
-    if (activeCoord && mapContainerRef.current) {
-      const scrollPos = activeCoord.y - window.innerHeight / 2 + 200;
-      const timer = setTimeout(() => {
-        if (mapContainerRef.current) {
-          mapContainerRef.current.scrollTop = Math.max(0, scrollPos);
-        }
-      }, 100);
-      hasScrolledRef.current = true;
-      return () => clearTimeout(timer);
-    }
-  }, [moduleStates, modules, coordinates]);
 
   const selectedModule = modules.find((m) => m.id === selectedModuleId) || null;
-  const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
+  const lastCompletedIdxForNode = modules.reduce(
+    (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
+    -1,
+  );
+  const activeNode = modules.find(
+    (m, idx) => idx > lastCompletedIdxForNode && moduleStates[m.id] === 'current',
+  ) || modules.find((m) => moduleStates[m.id] === 'current') || modules[modules.length - 1] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
 
   // Derive display level: active module tier first, fallback to highest completed tier
   const levelOrder: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
@@ -442,20 +479,24 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   ];
 
   // Dynamic values for intermediate / advanced card positioning
-  const intermediateCardTop = intermediateStartY - 140;
-  const advancedCardTop = advancedStartY - 160;
+  // On mobile, summits extend ~128px below center and overlap the banners,
+  // so we add extra offset to push banners below the preceding summit.
+  const mobileIntermediateGap = isMobile ? 200 : 0;
+  const mobileAdvancedGap = isMobile ? 250 : 0;
+  const intermediateCardTop = intermediateStartY - 140 + mobileIntermediateGap;
+  const advancedCardTop = advancedStartY - 160 + mobileAdvancedGap;
 
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
         <SkyBackground />
-        <div className="relative z-10 flex flex-col items-center gap-4">
+        <div className="relative z-10 flex flex-col items-center gap-3 sm:gap-4 px-4">
           <div className="relative flex items-center justify-center">
             {/* Outer pulsing ring */}
-            <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
-            <Icons.Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
+            <div className="absolute w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-sky-500/10 animate-ping" />
+            <Icons.Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-sky-500 animate-spin stroke-[2.5]" />
           </div>
-          <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading">
+          <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading text-center">
             Preparing Your Journey...
           </span>
         </div>
@@ -467,37 +508,38 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden select-none font-sans text-slate-800 bg-transparent">
 
       {/* Floating Top Panel Container (Stacks header and level selector dynamically) */}
-      <div className="absolute top-4 left-6 right-6 z-50 flex flex-col gap-4 pointer-events-none">
+      <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-50 flex flex-col gap-3 sm:gap-4 pointer-events-none">
 
         {/* Back to Topics Button & Centered Completion Progress Bar */}
-        <div className="w-full flex justify-between items-center pointer-events-none">
+        <div className="w-full flex justify-between items-center pointer-events-none gap-2">
           <Link
             href="/learn"
-            className="flex items-center gap-1.5 px-4.5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer pointer-events-auto flex-shrink-0"
+            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4.5 py-2 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer pointer-events-auto flex-shrink-0"
             title="Back to Topics"
           >
-            <Icons.ChevronLeft className="w-4 h-4 stroke-[3]" />
-            Back to Topics
+            <Icons.ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+            <span className="hidden sm:inline">Back to Topics</span>
+            <span className="sm:hidden">Back</span>
           </Link>
 
           {/* Centered overall completion progress bar */}
           {modules.length > 0 && (
-            <div className="flex items-center gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-5 py-2.5 pointer-events-auto backdrop-blur-md">
+            <div className="flex items-center gap-2 sm:gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 pointer-events-auto backdrop-blur-md">
               <div className="flex flex-col">
-                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
-                  Topic Progress
+                <span className="text-[7px] sm:text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
+                  Progress
                 </span>
-                <span className="text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
-                  {totalCompleted} / {modules.length} Modules
+                <span className="text-[9px] sm:text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
+                  {totalCompleted}/{modules.length}
                 </span>
               </div>
-              <div className="w-24 sm:w-40 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30 relative shadow-inner">
+              <div className="w-16 sm:w-40 h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30 relative shadow-inner">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
                   style={{ width: `${Math.round((totalCompleted / modules.length) * 100)}%` }}
                 />
               </div>
-              <span className="text-xs font-black text-slate-900 font-heading">
+              <span className="text-[10px] sm:text-xs font-black text-slate-900 font-heading">
                 {Math.round((totalCompleted / modules.length) * 100)}%
               </span>
             </div>
@@ -526,14 +568,14 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         </div>
 
         {/* 2. LEVEL NAVIGATION BADGES (PILLS) WITH PREMIUM GRADIENTS */}
-        <div className="flex justify-center gap-3 pointer-events-auto">
+        <div className="flex justify-center gap-1.5 sm:gap-3 pointer-events-auto flex-wrap sm:flex-nowrap">
           <button
             onClick={() => {
               scrollTarget(0);
               setActiveTab('beginner');
             }}
             className={cn(
-              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95 text-slate-900",
+              "flex items-center gap-1 sm:gap-1.5 px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-[9px] sm:text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95 text-slate-900",
               isBeginnerCurrent
                 ? "shadow-[0_8px_25px_rgba(80,201,153,0.5),0_0_12px_rgba(80,201,153,0.25)] scale-105 border-white/60 ring-2 ring-emerald-400/30"
                 : "shadow-[0_4px_12px_rgba(0,0,0,0.06)] border-white/25 hover:border-white/50",
@@ -545,8 +587,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               WebkitBackdropFilter: 'blur(8px)',
             }}
           >
-            <Icons.Cloud className="w-4 h-4 fill-current text-emerald-900" />
-            BEGINNER LEVEL
+            <Icons.Cloud className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-emerald-900" />
+            <span className="sm:hidden">Beginner</span>
+            <span className="hidden sm:inline">BEGINNER LEVEL</span>
           </button>
 
           <button
@@ -555,7 +598,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               setActiveTab('intermediate');
             }}
             className={cn(
-              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
+              "flex items-center gap-1 sm:gap-1.5 px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-[9px] sm:text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
               isIntermediateUnlocked
                 ? "text-slate-900 border-white/30"
                 : "text-slate-100 bg-slate-950/40 border-slate-700/40 hover:bg-slate-950/65 hover:text-white",
@@ -575,11 +618,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             }}
           >
             {isIntermediateLocked ? (
-              <Icons.Lock className="w-3.5 h-3.5 text-slate-200" />
+              <Icons.Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
             ) : (
-              <Icons.Zap className="w-4 h-4 fill-current text-blue-900" />
+              <Icons.Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-blue-900" />
             )}
-            INTERMEDIATE LEVEL
+            <span className="sm:hidden">Inter</span>
+            <span className="hidden sm:inline">INTERMEDIATE LEVEL</span>
           </button>
 
           <button
@@ -588,7 +632,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               setActiveTab('advanced');
             }}
             className={cn(
-              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
+              "flex items-center gap-1 sm:gap-1.5 px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-[9px] sm:text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
               isAdvancedUnlocked
                 ? "text-slate-900 border-white/30"
                 : "text-slate-100 bg-slate-950/40 border-slate-700/40 hover:bg-slate-950/65 hover:text-white",
@@ -608,11 +652,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             }}
           >
             {isAdvancedLocked ? (
-              <Icons.Lock className="w-3.5 h-3.5 text-slate-200" />
+              <Icons.Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
             ) : (
-              <Icons.Trophy className="w-4 h-4 fill-current text-amber-950" />
+              <Icons.Trophy className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-amber-950" />
             )}
-            ADVANCED LEVEL
+            <span className="sm:hidden">Advanced</span>
+            <span className="hidden sm:inline">ADVANCED LEVEL</span>
           </button>
         </div>
       </div>
@@ -624,14 +669,14 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         style={{ background: backgroundGradient }}
       >
         {/* Animated Sky background */}
-        <SkyBackground />
+        <SkyBackground height={totalHeight + 300} />
 
         {/* Loader removed as it is now handled as a full-page view */}
 
         {/* Board container shifted down to not collide with header at scroll top */}
         <div
           ref={boardRef}
-          className="relative w-full z-10 mt-[140px]"
+          className="relative w-full z-10 mt-[120px] sm:mt-[140px]"
           style={{ height: `${totalHeight}px` }}
         >
           {/* Connected Curves dynamic path generator */}
@@ -683,7 +728,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
           ))}
 
           {/* CANVAS REGION TITLE: LEVEL 1 BEGINNER */}
-          <div className="absolute left-[20px] top-[40px] z-20">
+          <div className="absolute left-[10px] sm:left-[20px] top-[40px] z-20">
             <LevelIslandHeader
               number="1"
               title="Beginner"
@@ -700,23 +745,23 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <div
               className="absolute z-30 flex flex-col items-center"
               style={{
-                left: `calc(${coordinates['fundamentals'].x}% - 60px)`,
+                left: `calc(${coordinates['fundamentals'].x}% - 40px)`,
                 top: `${coordinates['fundamentals'].y - 80}px`
               }}
             >
-              <div className="bg-[#0dce88] text-slate-950 font-black text-[9px] px-3 py-1 rounded-full border border-white tracking-widest shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
+              <div className="bg-[#0dce88] text-slate-950 font-black text-[7px] sm:text-[9px] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white tracking-widest shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
                 START HERE
               </div>
               {/* Tiny red flag flagpost */}
-              <div className="w-0.5 h-8 bg-rose-500 relative">
-                <div className="absolute top-0 right-0 w-2.5 h-2 bg-rose-500 rounded-sm" />
+              <div className="w-0.5 h-6 sm:h-8 bg-rose-500 relative">
+                <div className="absolute top-0 right-0 w-2 sm:w-2.5 h-1.5 sm:h-2 bg-rose-500 rounded-sm" />
               </div>
             </div>
           )}
 
           {/* CANVAS REGION TITLE: LEVEL 2 INTERMEDIATE */}
           <div
-            className="absolute left-[20px] z-20 transition-all duration-1000"
+            className="absolute left-[10px] sm:left-[20px] z-20 transition-all duration-1000"
             style={{ top: `${intermediateCardTop}px` }}
           >
             <LevelIslandHeader
@@ -732,7 +777,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
           {/* CANVAS REGION TITLE: LEVEL 3 ADVANCED */}
           <div
-            className="absolute left-[20px] z-20 transition-all duration-1000"
+            className="absolute left-[10px] sm:left-[20px] z-20 transition-all duration-1000"
             style={{ top: `${advancedCardTop}px` }}
           >
             <LevelIslandHeader
@@ -798,6 +843,10 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             return (
               <CloudIslandNode
                 key={module.id}
+                ref={(el) => {
+                  if (el) moduleNodeRefs.current.set(module.id, el);
+                  else moduleNodeRefs.current.delete(module.id);
+                }}
                 id={module.id}
                 name={module.name}
                 points={module.points}
