@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
+  LogOut,
   Search,
   BookOpen,
   AlertCircle,
@@ -20,31 +21,48 @@ import {
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
 import { getAuthSession } from '@/lib/authHelper';
+import { authService } from '@/services/auth.service';
 import { AppLayout } from '@/components/Layout/AppLayout';
 import { SkyBackground } from '@/components/Roadmap/SkyBackground';
+import { TopicRailItem } from '@/components/Learn/TopicRailItem';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
-import { LivingSkyPanel } from '@/components/Learn/LivingSkyPanel';
-import { VineWheepPrototype } from '@/components/Learn/VineWheepPrototype';
-import { RandomBirds } from '@/components/Learn/RandomBirds';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
+// Helper to parse topic descriptions into bullet points
+const parseBulletPoints = (text: string): string[] => {
+  if (!text) return [];
+  
+  // Split by double newlines (representing leaving a line/blank line)
+  const blocks = text.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
+  
+  const bulletItems: string[] = [];
+  
+  for (const block of blocks) {
+    const cleanBlock = block
+      .replace(/^[\s\-*•+\u2022\u2023\u25E6\u2043]+/, '') // Remove bullet markers from start of block
+      .replace(/^\d+\.\s+/, '') // Remove numbered list markers
+      .trim();
+      
+    if (cleanBlock) {
+      bulletItems.push(cleanBlock);
+    }
+  }
+  
+  return bulletItems.length > 0 ? bulletItems : [text];
+};
+
 export default function LearnPrototype2Page() {
   const router = useRouter();
 
   // State variables
   const [mounted, setMounted] = useState(false);
-  const [seededTopics, setSeededTopics] = useState<TopicSummary[]>([]);
-  const [dynamicTopics, setDynamicTopics] = useState<TopicSummary[]>([]);
+  const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Refs
   const contentRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,31 +71,25 @@ export default function LearnPrototype2Page() {
   const [userXP, setUserXP] = useState<number>(0);
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  // Debug metrics from VineWheepPrototype
-  const [debugMetrics, setDebugMetrics] = useState({
-    vineHeight: 0,
-    progress: 0,
-    landingY: 0,
-    islandY: 0
-  });
-
-  const handleDebugUpdate = (data: typeof debugMetrics) => {
-    setDebugMetrics(data);
-  };
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Completion animation states (disabled/simplified in prototype-2)
-  const [animatingTopicId] = useState<string | null>(null);
-  const [nextAnimatingTopicId] = useState<string | null>(null);
-  const isCompletedVisual = false;
-  const isNextUnlockedVisual = false;
-  const isArrowSuccessVisual = false;
-  const visualPercent = 0;
+  // Completion animation states
+  const [animatingTopicId, setAnimatingTopicId] = useState<string | null>(null);
+  const [nextAnimatingTopicId, setNextAnimatingTopicId] = useState<string | null>(null);
+  const [isCompletedVisual, setIsCompletedVisual] = useState(false);
+  const [isNextUnlockedVisual, setIsNextUnlockedVisual] = useState(false);
+  const [isArrowSuccessVisual, setIsArrowSuccessVisual] = useState(false);
+  const [visualPercent, setVisualPercent] = useState(0);
 
-  // Resume navigation handler
+  // Exit handler
+  const handleExit = () => {
+    authService.logout();
+    router.push('/login');
+  };
+
+  // Resume navigation handler (shared between green circle and Resume button)
   const handleResume = () => {
     if (continueModule) {
       router.push(`/learn/${continueModule.topicSlug}`);
@@ -86,6 +98,13 @@ export default function LearnPrototype2Page() {
 
   // Guidelines popup state
   const [showGuidelines, setShowGuidelines] = useState(false);
+
+  const handleReviewTopics = () => {
+    const element = document.getElementById('topic-rail-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Auth & Initial Fetch
   useEffect(() => {
@@ -112,6 +131,11 @@ export default function LearnPrototype2Page() {
     let active = true;
     const fetchTopics = async () => {
       try {
+        console.log("fetchTopics debug info:", {
+          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+          accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
+          aws_sgb_rec_user: typeof window !== 'undefined' ? localStorage.getItem('aws_sgb_rec_user') : null,
+        });
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -120,12 +144,44 @@ export default function LearnPrototype2Page() {
         ]);
         if (!active) return;
 
-        setSeededTopics(data);
+        // Proactively detect completion animation on initial fetch to avoid first-render flash
+        const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
+        if (recentTopicId) {
+          const completedTopicIndex = data.findIndex(t => t.id === recentTopicId);
+          if (completedTopicIndex !== -1) {
+            const completedTopic = data[completedTopicIndex];
+            if (completedTopic.completedModules === completedTopic.totalModules) {
+              const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
+              const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+              if (currentSig !== lastSig) {
+                setAnimatingTopicId(completedTopic.id);
+                setVisualPercent(0);
+                setIsArrowSuccessVisual(false);
+                setIsCompletedVisual(false);
+                setIsNextUnlockedVisual(false);
+
+                const nextTopic = data[completedTopicIndex + 1] || null;
+                if (nextTopic) {
+                  setNextAnimatingTopicId(nextTopic.id);
+                } else {
+                  setNextAnimatingTopicId(null);
+                }
+              }
+            }
+          }
+        }
+
+        setTopics(data);
         setContinueModule(continueData.module);
         setUserXP(progressData.currentXP);
       } catch (err) {
         if (!active) return;
-        console.error('Failed to load topics:', err);
+        console.error('Failed to load topics: error details =', {
+          message: (err as any)?.message,
+          status: (err as any)?.status,
+          errors: (err as any)?.errors,
+          raw: err
+        });
         setError('Failed to load learning topics. Please try again.');
       } finally {
         if (active) setLoading(false);
@@ -136,10 +192,88 @@ export default function LearnPrototype2Page() {
     return () => { active = false; };
   }, [router]);
 
-  // Derived topics array
-  const topics = useMemo(() => {
-    return [...seededTopics, ...dynamicTopics];
-  }, [seededTopics, dynamicTopics]);
+  // Topic completion animation trigger
+  useEffect(() => {
+    if (loading || topics.length === 0) return;
+
+    if (typeof window === 'undefined') return;
+
+    const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
+    if (!recentTopicId) return;
+
+    const completedTopicIndex = topics.findIndex(t => t.id === recentTopicId);
+    if (completedTopicIndex === -1) return;
+
+    const completedTopic = topics[completedTopicIndex];
+    if (completedTopic.completedModules !== completedTopic.totalModules) return;
+
+    const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
+    const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+
+    if (currentSig === lastSig) {
+      sessionStorage.removeItem("recentTopicCompletion");
+      return;
+    }
+
+    // New completion found!
+    setAnimatingTopicId(completedTopic.id);
+    setIsCompletedVisual(false);
+    setIsNextUnlockedVisual(false);
+    setIsArrowSuccessVisual(false);
+
+    // Find the next topic in the array to unlock simultaneously
+    const nextTopic = topics[completedTopicIndex + 1] || null;
+    if (nextTopic) {
+      setNextAnimatingTopicId(nextTopic.id);
+    } else {
+      setNextAnimatingTopicId(null);
+    }
+
+    // Set starting percent to 0 for a visual completion charge (0% to 100%)
+    setVisualPercent(0);
+
+    // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over 2500ms
+    const fillTimer = setTimeout(() => {
+      setVisualPercent(100);
+    }, 300);
+
+    // Phase 2 (600ms): Once progress reaches 100% at 2800ms, transition color to Success Green
+    const colorTimer = setTimeout(() => {
+      setIsArrowSuccessVisual(true);
+    }, 2800); // 300ms hold + 2500ms fill
+
+    // Phase 3 & 4 (Simultaneous - 500ms crossfades) at 3400ms
+    const transitionTimer = setTimeout(() => {
+      setIsCompletedVisual(true);
+      setIsNextUnlockedVisual(true);
+    }, 3400); // 2800ms + 600ms color transition
+
+    // Clean up animation states after 3.9 seconds total
+    const cleanupTimer = setTimeout(() => {
+      localStorage.setItem("lastAnimatedCompletionKey", currentSig);
+      sessionStorage.removeItem("recentTopicCompletion");
+      sessionStorage.removeItem("recentTopicPrevPercent");
+      setAnimatingTopicId(null);
+      setNextAnimatingTopicId(null);
+      setIsCompletedVisual(false);
+      setIsNextUnlockedVisual(false);
+      setIsArrowSuccessVisual(false);
+    }, 3900);
+
+    return () => {
+      clearTimeout(fillTimer);
+      clearTimeout(colorTimer);
+      clearTimeout(transitionTimer);
+      clearTimeout(cleanupTimer);
+    };
+  }, [loading, topics]);
+
+  // Temporary logging to verify visualPercent transitions
+  useEffect(() => {
+    if (animatingTopicId) {
+      console.log("visualPercent updated:", visualPercent);
+    }
+  }, [visualPercent, animatingTopicId]);
 
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
@@ -151,7 +285,7 @@ export default function LearnPrototype2Page() {
     );
   }, [topics, searchQuery]);
 
-  // Measure dynamic height
+  // Measure dynamic height of the content to stretch the SkyBackground dynamically
   useEffect(() => {
     if (!contentRef.current) return;
     const updateHeight = () => {
@@ -165,35 +299,6 @@ export default function LearnPrototype2Page() {
     return () => observer.disconnect();
   }, [topics, filteredTopics]);
 
-  // Topic count add/remove handlers
-  const addDynamicTopic = () => {
-    const defaultTheme = seededTopics[seededTopics.length - 1]?.theme || {
-      primaryColor: '#0284c7',
-      secondaryColor: '#bae6fd'
-    };
-    const newId = `dynamic-topic-${Date.now()}`;
-    const newTopic: TopicSummary = {
-      id: newId,
-      name: `New Locked Topic #${dynamicTopics.length + 1}`,
-      slug: `dynamic-topic-${dynamicTopics.length + 1}`,
-      description: 'Dynamically appended topic for curriculum length verification.',
-      orderIndex: topics.length + 1,
-      totalModules: 6,
-      completedModules: 0,
-      status: 'NOT_STARTED',
-      unlocked: false,
-      theme: defaultTheme
-    };
-    setDynamicTopics(prev => [...prev, newTopic]);
-  };
-
-  const removeDynamicTopic = () => {
-    setDynamicTopics(prev => {
-      if (prev.length === 0) return prev;
-      return prev.slice(0, -1);
-    });
-  };
-
   // Find matching topic progress for continue module
   const continueTopicProgress = useMemo(() => {
     if (!continueModule || topics.length === 0) return '0 / 0 Modules';
@@ -202,11 +307,25 @@ export default function LearnPrototype2Page() {
     return `${topic.completedModules} / ${topic.totalModules} Modules`;
   }, [continueModule, topics]);
 
+  // Find current topic
+  const currentTopic = useMemo(() => {
+    if (topics.length === 0) return null;
+    if (continueModule?.topicSlug) {
+      const found = topics.find((t) => t.slug === continueModule.topicSlug);
+      if (found) return found;
+    }
+    const current = topics.find((t) => getDialStatus(t) === 'CURRENT');
+    if (current) return current;
+    const unlocked = topics.find((t) => t.unlocked);
+    if (unlocked) return unlocked;
+    return topics[0];
+  }, [continueModule, topics]);
+
   // Map display level for continue module
   const continueDisplayLevel = useMemo(() => {
     if (!continueModule) return 'Beginner';
     const mapping: Record<string, string> = {
-      BEGINGINER: 'Beginner',
+      BEGINNER: 'Beginner',
       INTERMEDIATE: 'Intermediate',
       ADVANCED: 'Advanced',
     };
@@ -278,9 +397,12 @@ export default function LearnPrototype2Page() {
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+          {/* Cloud Background from Roadmaps */}
           <SkyBackground />
+
           <div className="flex flex-col items-center gap-4 z-10 pointer-events-auto">
             <div className="relative flex items-center justify-center">
+              {/* Outer pulsing ring */}
               <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
               <Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
             </div>
@@ -297,7 +419,9 @@ export default function LearnPrototype2Page() {
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+          {/* Cloud Background from Roadmaps */}
           <SkyBackground />
+
           <div className="flex flex-col items-center gap-4 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md rounded-3xl p-8 z-10 pointer-events-auto text-center max-w-md mx-4">
             <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200/60 flex items-center justify-center shadow-md">
               <AlertCircle className="w-8 h-8 text-rose-500" />
@@ -317,50 +441,15 @@ export default function LearnPrototype2Page() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div
-        ref={scrollRef}
-        className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto pb-12"
-      >
+      <div className="h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden pb-12 lg:pb-0 flex flex-col">
+        {/* Cloud Background from Roadmaps */}
         <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
-        <RandomBirds />
 
-        {/* FLOATING DEBUG INFORMATION PANEL */}
-        <div className="fixed bottom-4 left-4 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-4 text-white text-xs font-mono shadow-2xl flex flex-col gap-2 min-w-[220px] pointer-events-auto">
-          <div className="text-amber-500 font-bold border-b border-slate-800 pb-1.5 mb-1 text-[10px] tracking-wider uppercase font-heading">
-            Growth Debug Panel
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Topics:</span>
-            <span className="font-bold text-white">{topics.length}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Content Height:</span>
-            <span className="font-bold text-white">{contentHeight ? `${contentHeight} px` : 'Measuring...'}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Vine Height:</span>
-            <span className="font-bold text-white">{debugMetrics.vineHeight ? `${debugMetrics.vineHeight} px` : 'Measuring...'}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Cloud Progress:</span>
-            <span className="font-bold text-white">
-              {Math.round(debugMetrics.progress * 100)}%
-            </span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Landing Y:</span>
-            <span className="font-bold text-white">{Math.round(debugMetrics.landingY)}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-slate-400">Island Y:</span>
-            <span className="font-bold text-white">{Math.round(debugMetrics.islandY)}</span>
-          </div>
-        </div>
-
-        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 flex flex-col gap-6 sm:gap-8 relative z-10">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
+            {/* Left Side: Current Mission Info */}
             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-h-[52px] sm:min-h-[72px]">
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
@@ -372,13 +461,22 @@ export default function LearnPrototype2Page() {
                     transition={{ duration: 0.3 }}
                     className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
+                    >
                       <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
                         <path
                           fill="#252F3E"
-                          d="M86.4,66.4c0,3.7,0.4,6.7,1.1,8.9c0.8,2.2,1.8,4.6,3.2,7.2c0.5,0.8,0.7,1.6,0.7,2.3c0,1-0.6,2-1.9,3l-6.3,4.2c-0.9,0.6-1.8,0.9-2.6,0.9c-1,0-2-0.5-3-1.4C76.2,90,75,88.4,74,86.8c-1-1.7-2-3.6-3.1-5.9c-7.8,9.2-17.6,13.8-29.4,13.8c-8.4,0-15.1-2.4-20-7.2c-4.9-4.8-7.4-11.2-7.4-19.2c0-8.5,3-15.4,9.1-20.6c6.1-5.2,14.2-7.8,24.5-7.8c3.4,0,6.9,0.3,10.6,0.8c3.7,0.5,7.5,1.3,11.5,2.2v-7.3c0-7.6-1.6-12.9-4.7-16c-3.2-3.1-8.6-4.6-16.3-4.6c-3.5,0-7.1,0.4-10.8,1.3c-3.7,0.9-7.3,2-10.8,3.4c-1.6,0.7-2.8,1.1-3.5,1.3c-0.7,0.2-1.2,0.3-1.6,0.3c-1.4,0-2.1-1-2.1-3.1v-4.9c0-1.6,0.2-2.8,0.7-3.5c0.5-0.7,1.4-1.4,2.8-2.1c3.5-1.8,7.7-3.3,12.6-4.5c4.9-1.3,10.1-1.9,15.6-1.9c11.9,0,20.6,2.7,26.2,8.1c5.5,5.4,8.3,13.6,8.3,24.6V66.4z M45.8,81.6c3.3,0,6.7-0.6,10.3-1.8c3.6-1.2,6.8-3.4,9.5-6.4c1.6-1.9,2.8-4,3.4-6.4c0.6-2.4,1-5.3,1-8.7v-4.2c-2.9-0.7-6-1.3-9.2-1.7c-3.2-0.4-6.3-0.6-9.4-0.6c-6.7,0-11.6,1.3-14.9,4c-3.3,2.7-4.9,6.5-4.9,11.5c0,4.7,1.2,8.2,3.7,10.6C37.7,80.4,41.2,81.6,45.8,81.6z M126.1,92.4c-1.8,0-3-0.3-3.8-1c-0.8-0.6-1.5-2-2.1-3.9L96.7,10.2c-0.6-2-0.9-3.3-0.9-4c0-1.6,0.8-2.5,2.4-2.5h9.8c1.9,0,3.2,0.3,3.9,1c0.8,0.6,1.4,2,2,3.9l16.8,66.2l15.6-66.2c0.5-2,1.1-3.3,1.9-3.9c0.8-0.6,2.2-1,4-1h8c1.9,0,3.2,0.3,4,1c0.8,0.6,1.5,2,1.9,3.9l15.8,67l17.3-67c0.6-2,1.3-3.3,2-3.9c0.8-0.6,2.1-1,3.9-1h9.3c1.6,0,2.5,0.8,2.5,2.5c0,0.5-0.1,1-0.2,1.6c-0.1,0.6-0.3,1.4-0.7,2.5l-24.1,77.3c-0.6,2-1.3,3.3-2.1,3.9c-0.8,0.6-2.1,1-3.8,1h-8.6c-1.9,0-3.2-0.3-4-1c-0.8-0.7-1.5-2-1.9-4L156,23l-15.4,64.4c-0.5,2-1.1,3.3-1.9,4c-0.8,0.7-2.2,1-4,1H126.1z M254.6,95.1c-5.2,0-10.4-0.6-15.4-1.8c-5-1.2-8.9-2.5-11.5-4c-1.6-0.9-2.7-1.9-3.1-2.8c-0.4-0.9-0.6-1.9-0.6-2.8v-5.1c0-2.1,0.8-3.1,2.3-3.1c0.6,0,1.2,0.1,1.8,0.3c0.6,0.2,1.5,0.6,2.5,1c3.4,1.5,7.1,2.7,11,3.5c4,0.8,7.9,1.2,11.9,1.2c6.3,0,11.2-1.1,14.6-3.3c3.4-2.2,5.2-5.4,5.2-9.5c0-2.8-0.9-5.1-2.7-7c-1.8-1.9-5.2-3.6-10.1-5.2L246,52c-7.3-2.3-12.7-5.7-16-10.2c-3.3-4.4-5-9.3-5-14.5c0-4.2,0.9-7.9,2.7-11.1c1.8-3.2,4.2-6,7.2-8.2c3-2.3,6.4-4,10.4-5.2c4-1.2,8.2-1.7,12.6-1.7c2.2,0,4.5,0.1,6.7,0.4c2.3,0.3,4.4,0.7,6.5,1.1c2,0.5,3.9,1,5.7,1.6c1.8,0.6,3.2,1.2,4.2,1.8c1.4,0.8,2.4,1.6,3,2.5c0.6,0.8,0.9,1.9,0.9,3.3v4.7c0,2.1-0.8,3.2-2.3,3.2c-0.8,0-2.1-0.4-3.8-1.2c-5.7-2.6-12.1-3.9-19.2-3.9c-5.7,0-10.2,0.9-13.3,2.8c-3.1,1.9-4.7,4.8-4.7,8.9c0,2.8,1,5.2,3,7.1c2,1.9,5.7,3.8,11,5.5l14.2,4.5c7.2,2.3,12.4,5.5,15.5,9.6c3.1,4.1,4.6,8.8,4.6,14c0,4.3-0.9,8.2-2.6,11.6c-1.8,3.4-4.2,6.4-7.3,8.8c-3.1,2.5-6.8,4.3-11.1,5.6C264.4,94.4,259.7,95.1,254.6,95.1z" />
-                        <path fill="#FF9900" d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
-                        <path fill="#FF9900" d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                          d="M86.4,66.4c0,3.7,0.4,6.7,1.1,8.9c0.8,2.2,1.8,4.6,3.2,7.2c0.5,0.8,0.7,1.6,0.7,2.3c0,1-0.6,2-1.9,3l-6.3,4.2c-0.9,0.6-1.8,0.9-2.6,0.9c-1,0-2-0.5-3-1.4C76.2,90,75,88.4,74,86.8c-1-1.7-2-3.6-3.1-5.9c-7.8,9.2-17.6,13.8-29.4,13.8c-8.4,0-15.1-2.4-20-7.2c-4.9-4.8-7.4-11.2-7.4-19.2c0-8.5,3-15.4,9.1-20.6c6.1-5.2,14.2-7.8,24.5-7.8c3.4,0,6.9,0.3,10.6,0.8c3.7,0.5,7.5,1.3,11.5,2.2v-7.3c0-7.6-1.6-12.9-4.7-16c-3.2-3.1-8.6-4.6-16.3-4.6c-3.5,0-7.1,0.4-10.8,1.3c-3.7,0.9-7.3,2-10.8,3.4c-1.6,0.7-2.8,1.1-3.5,1.3c-0.7,0.2-1.2,0.3-1.6,0.3c-1.4,0-2.1-1-2.1-3.1v-4.9c0-1.6,0.2-2.8,0.7-3.5c0.5-0.7,1.4-1.4,2.8-2.1c3.5-1.8,7.7-3.3,12.6-4.5c4.9-1.3,10.1-1.9,15.6-1.9c11.9,0,20.6,2.7,26.2,8.1c5.5,5.4,8.3,13.6,8.3,24.6V66.4z M45.8,81.6c3.3,0,6.7-0.6,10.3-1.8c3.6-1.2,6.8-3.4,9.5-6.4c1.6-1.9,2.8-4,3.4-6.4c0.6-2.4,1-5.3,1-8.7v-4.2c-2.9-0.7-6-1.3-9.2-1.7c-3.2-0.4-6.3-0.6-9.4-0.6c-6.7,0-11.6,1.3-14.9,4c-3.3,2.7-4.9,6.5-4.9,11.5c0,4.7,1.2,8.2,3.7,10.6C37.7,80.4,41.2,81.6,45.8,81.6z M126.1,92.4c-1.8,0-3-0.3-3.8-1c-0.8-0.6-1.5-2-2.1-3.9L96.7,10.2c-0.6-2-0.9-3.3-0.9-4c0-1.6,0.8-2.5,2.4-2.5h9.8c1.9,0,3.2,0.3,3.9,1c0.8,0.6,1.4,2,2,3.9l16.8,66.2l15.6-66.2c0.5-2,1.1-3.3,1.9-3.9c0.8-0.6,2.2-1,4-1h8c1.9,0,3.2,0.3,4,1c0.8,0.6,1.5,2,1.9,3.9l15.8,67l17.3-67c0.6-2,1.3-3.3,2-3.9c0.8-0.6,2.1-1,3.9-1h9.3c1.6,0,2.5,0.8,2.5,2.5c0,0.5-0.1,1-0.2,1.6c-0.1,0.6-0.3,1.4-0.7,2.5l-24.1,77.3c-0.6,2-1.3,3.3-2.1,3.9c-0.8,0.6-2.1,1-3.8,1h-8.6c-1.9,0-3.2-0.3-4-1c-0.8-0.7-1.5-2-1.9-4L156,23l-15.4,64.4c-0.5,2-1.1,3.3-1.9,4c-0.8,0.7-2.2,1-4,1H126.1z M254.6,95.1c-5.2,0-10.4-0.6-15.4-1.8c-5-1.2-8.9-2.5-11.5-4c-1.6-0.9-2.7-1.9-3.1-2.8c-0.4-0.9-0.6-1.9-0.6-2.8v-5.1c0-2.1,0.8-3.1,2.3-3.1c0.6,0,1.2,0.1,1.8,0.3c0.6,0.2,1.5,0.6,2.5,1c3.4,1.5,7.1,2.7,11,3.5c4,0.8,7.9,1.2,11.9,1.2c6.3,0,11.2-1.1,14.6-3.3c3.4-2.2,5.2-5.4,5.2-9.5c0-2.8-0.9-5.1-2.7-7c-1.8-1.9-5.2-3.6-10.1-5.2L246,52c-7.3-2.3-12.7-5.7-16-10.2c-3.3-4.4-5-9.3-5-14.5c0-4.2,0.9-7.9,2.7-11.1c1.8-3.2,4.2-6,7.2-8.2c3-2.3,6.4-4,10.4-5.2c4-1.2,8.2-1.7,12.6-1.7c2.2,0,4.5,0.1,6.7,0.4c2.3,0.3,4.4,0.7,6.5,1.1c2,0.5,3.9,1,5.7,1.6c1.8,0.6,3.2,1.2,4.2,1.8c1.4,0.8,2.4,1.6,3,2.5c0.6,0.8,0.9,1.9,0.9,3.3v4.7c0,2.1-0.8,3.2-2.3,3.2c-0.8,0-2.1-0.4-3.8-1.2c-5.7-2.6-12.1-3.9-19.2-3.9c-5.7,0-10.2,0.9-13.3,2.8c-3.1,1.9-4.7,4.8-4.7,8.9c0,2.8,1,5.2,3,7.1c2,1.9,5.7,3.8,11,5.5l14.2,4.5c7.2,2.3,12.4,5.5,15.5,9.6c3.1,4.1,4.6,8.8,4.6,14c0,4.3-0.9,8.2-2.6,11.6c-1.8,3.4-4.2,6.4-7.3,8.8c-3.1,2.5-6.8,4.3-11.1,5.6C264.4,94.4,259.7,95.1,254.6,95.1z"
+                        />
+                        <path
+                          fill="#FF9900"
+                          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
+                        />
+                        <path
+                          fill="#FF9900"
+                          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
+                        />
                       </svg>
                     </div>
                     <div className="flex flex-col text-slate-800 min-w-0">
@@ -434,9 +532,13 @@ export default function LearnPrototype2Page() {
                         {continueModule?.topicName && (
                           <>
                             <span className="text-slate-300 hidden sm:inline">|</span>
-                            <span className="text-indigo-650 font-bold bg-indigo-50/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight inline-flex items-center gap-1 hidden sm:inline-flex">
+                            <Link
+                              href={`/learn/${continueModule.topicSlug}`}
+                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 hidden sm:inline-flex"
+                              title="Go to topic roadmap"
+                            >
                               Topic: {continueModule.topicName}
-                            </span>
+                            </Link>
                           </>
                         )}
                       </div>
@@ -474,7 +576,7 @@ export default function LearnPrototype2Page() {
               </div>
 
               {/* Level badge */}
-              <div id="level-badge-container" className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
                 <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <div>
                   <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
@@ -488,7 +590,7 @@ export default function LearnPrototype2Page() {
 
               <Link
                 href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
                 title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
               >
                 <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -512,38 +614,10 @@ export default function LearnPrototype2Page() {
             </div>
           </header>
 
-          {/* TWO-COLUMN LAYOUT: Topic rail + Sky Engine Port */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-stretch">
+          {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div className="flex-[1.5] min-w-0" id="topic-rail-section">
-
-              {/* INTERACTIVE TESTING TOOLBAR */}
-              <div className="w-full bg-slate-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto shadow-xl z-20 relative mb-6 border border-slate-800">
-                <div>
-                  <span className="text-xs font-black tracking-wider uppercase font-heading text-amber-500">
-                    Dynamic Topic Tester
-                  </span>
-                  <span className="text-[10px] text-slate-400 block mt-1">
-                    Simulate real-time curriculum resizing (seed: {seededTopics.length} topics)
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={addDynamicTopic}
-                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
-                  >
-                    + Add Topic
-                  </button>
-                  <button
-                    onClick={removeDynamicTopic}
-                    disabled={dynamicTopics.length === 0}
-                    className="px-4 py-2 bg-rose-500 hover:bg-rose-600 disabled:bg-rose-550/40 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-all active:scale-95 disabled:cursor-not-allowed"
-                  >
-                    - Remove Topic
-                  </button>
-                </div>
-              </div>
-
+            <div className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar" id="topic-rail-section">
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -563,6 +637,18 @@ export default function LearnPrototype2Page() {
                     </button>
                   )}
                 </div>
+
+                {userRole === 'crew' && (
+                  <Link
+                    href="/crew/learners"
+                    className="flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
+                    title="View Learner Progress"
+                  >
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">View Learner Progress</span>
+                    <span className="sm:hidden">Learners</span>
+                  </Link>
+                )}
               </div>
 
               <main className="flex flex-col items-center">
@@ -576,17 +662,53 @@ export default function LearnPrototype2Page() {
                   <div className="flex flex-col items-center gap-4 w-full px-4 py-6 animate-fade-in">
                     {filteredTopics.map((topic, index) => {
                       const status = getDialStatus(topic);
+                      const isCompleted = status === 'COMPLETED';
+                      const isCurrent = status === 'CURRENT' || status === 'AVAILABLE';
                       const isLocked = status === 'LOCKED';
+
+                      // Determine if this is the first locked topic in the filtered list (based on original status)
                       const isFirstLocked = isLocked && (index === 0 || getDialStatus(filteredTopics[index - 1]) !== 'LOCKED');
 
-                      const renderCurrent = status === 'CURRENT';
-                      const renderCompleted = status === 'COMPLETED';
-                      const renderLocked = status === 'LOCKED';
+                      // Visual states for overrides during completion animation
+                      let statusToRender = status;
+                      let progressPercentToRender = topic.totalModules > 0
+                        ? Math.round((topic.completedModules / topic.totalModules) * 100)
+                        : 0;
+                      let completedModulesToRender = topic.completedModules;
 
-                      const currentModuleLabel = `MOD ${Math.min(topic.completedModules + 1, topic.totalModules)}`;
+                      if (topic.id === animatingTopicId) {
+                        if (!isCompletedVisual) {
+                          statusToRender = 'CURRENT';
+                          progressPercentToRender = visualPercent;
+                          const sessionStoragePrevPercent = sessionStorage.getItem("recentTopicPrevPercent");
+                          const prevPercent = sessionStoragePrevPercent !== null
+                            ? Number(sessionStoragePrevPercent)
+                            : (topic.totalModules > 1 ? Math.round(((topic.totalModules - 1) / topic.totalModules) * 100) : 0);
+                          completedModulesToRender = Math.round((prevPercent / 100) * topic.totalModules);
+                        } else {
+                          statusToRender = 'COMPLETED';
+                          progressPercentToRender = 100;
+                          completedModulesToRender = topic.totalModules;
+                        }
+                      } else if (topic.id === nextAnimatingTopicId) {
+                        if (!isNextUnlockedVisual) {
+                          statusToRender = 'LOCKED';
+                        } else {
+                          statusToRender = 'CURRENT';
+                          progressPercentToRender = 0;
+                          completedModulesToRender = 0;
+                        }
+                      }
+
+                      const renderCurrent = statusToRender === 'CURRENT';
+                      const renderCompleted = statusToRender === 'COMPLETED';
+                      const renderLocked = statusToRender === 'LOCKED';
+
+                      // Dynamic current module label (e.g. MOD 3)
+                      const currentModuleLabel = `MOD ${Math.min(completedModulesToRender + 1, topic.totalModules)}`;
 
                       return (
-                        <div key={topic.id} id={`topic-card-${topic.id}`} className="w-full">
+                        <div key={topic.id} className="w-full">
                           {isFirstLocked && (
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-heading mt-6 mb-3 self-start pl-2">
                               UPCOMING TOPICS
@@ -600,12 +722,22 @@ export default function LearnPrototype2Page() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl p-5 md:p-6 flex flex-col gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-[#FF9900] text-left transition-[border-color]"
+                                className={cn(
+                                  "w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl p-5 md:p-6 flex flex-col gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 text-left transition-[border-color]",
+                                  topic.id === animatingTopicId
+                                    ? (isArrowSuccessVisual ? "border-l-emerald-500 duration-600 ease-in-out" : "border-l-[#FF9900]")
+                                    : "border-l-[#FF9900]"
+                                )}
                               >
                                 <div className="w-full">
                                   <div className="flex justify-between items-start gap-4">
                                     <div className="flex-1">
-                                      <span className="inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20">
+                                      <span className={cn(
+                                        "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
+                                        topic.id === animatingTopicId && isArrowSuccessVisual
+                                          ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
+                                          : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
+                                      )}>
                                         Current
                                       </span>
 
@@ -613,15 +745,20 @@ export default function LearnPrototype2Page() {
                                         {topic.name}
                                       </h2>
 
+                                      {/* Details Row: No time estimate */}
                                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
-                                        <span>{topic.completedModules} / {topic.totalModules} Modules</span>
+                                        <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
                                         <span className="text-slate-350 font-semibold">•</span>
-                                        <span className="font-semibold text-[#FF9900]">
+                                        <span className={cn(
+                                          "font-semibold transition-colors duration-600",
+                                          topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-650" : "text-[#FF9900]"
+                                        )}>
                                           {currentModuleLabel}
                                         </span>
                                       </div>
                                     </div>
 
+                                    {/* AWS Swoosh Progress Illustration */}
                                     <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
                                       <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
                                         <defs>
@@ -631,35 +768,87 @@ export default function LearnPrototype2Page() {
                                           </clipPath>
                                         </defs>
 
-                                        <g fill="rgba(226, 232, 240, 0.25)" stroke="rgba(255, 159, 0, 1)" strokeWidth="3">
+                                        {/* Unfilled background swoosh outline */}
+                                        <g
+                                          fill="rgba(226, 232, 240, 0.25)"
+                                          stroke={
+                                            topic.id === animatingTopicId
+                                              ? (isArrowSuccessVisual ? "#10B981" : "rgba(255, 159, 0, 1)")
+                                              : "rgba(255, 159, 0, 1)"
+                                          }
+                                          strokeWidth="3"
+                                          style={{
+                                            transition: topic.id === animatingTopicId
+                                              ? 'stroke 600ms ease-in-out'
+                                              : 'stroke 700ms ease-out'
+                                          }}
+                                        >
                                           <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
                                           <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
                                         </g>
 
+                                        {/* Filled swoosh left-to-right using clipPath */}
                                         <g clipPath={`url(#aws-swoosh-clip-${topic.id})`}>
                                           <rect
                                             x="0"
                                             y="100"
-                                            width={`${(300 * (topic.totalModules > 0 ? (topic.completedModules / topic.totalModules) * 100 : 0)) / 100}`}
+                                            width={`${(300 * progressPercentToRender) / 100}`}
                                             height="90"
-                                            fill="#FF9900"
+                                            fill={
+                                              topic.id === animatingTopicId
+                                                ? (isArrowSuccessVisual ? "#10B981" : "#FF9900")
+                                                : "#FF9900"
+                                            }
+                                            style={{
+                                              width: `${(300 * progressPercentToRender) / 100}px`,
+                                              transition: topic.id === animatingTopicId
+                                                ? 'width 2500ms ease-out, fill 600ms ease-in-out'
+                                                : 'width 700ms ease-out, fill 700ms ease-out'
+                                            }}
                                           />
                                         </g>
                                       </svg>
                                     </div>
                                   </div>
 
+                                  {/* Progress bar and numeric percentage */}
                                   <div className="flex items-center gap-3 mt-4">
                                     <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
                                       <div
-                                        className="h-full rounded-full bg-[#FF9900]"
-                                        style={{ width: `${topic.totalModules > 0 ? (topic.completedModules / topic.totalModules) * 100 : 0}%` }}
+                                        className={cn(
+                                          "h-full rounded-full",
+                                          topic.id === animatingTopicId
+                                            ? (isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]")
+                                            : "bg-[#FF9900]"
+                                        )}
+                                        style={{
+                                          width: `${progressPercentToRender}%`,
+                                          transition: topic.id === animatingTopicId
+                                            ? 'width 2500ms ease-out, background-color 600ms ease-in-out'
+                                            : 'width 700ms ease-out, background-color 700ms ease-out'
+                                        }}
                                       />
                                     </div>
                                     <span className="text-xs font-semibold text-slate-500 leading-none">
-                                      {topic.totalModules > 0 ? Math.round((topic.completedModules / topic.totalModules) * 100) : 0}%
+                                      {progressPercentToRender}%
                                     </span>
                                   </div>
+                                </div>
+
+                                {/* Bottom Row: Action */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
+                                  <Link
+                                    href={`/learn/${topic.slug}`}
+                                    className={cn(
+                                      "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
+                                      topic.id === animatingTopicId && isArrowSuccessVisual
+                                        ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
+                                        : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
+                                    )}
+                                  >
+                                    <span>Continue</span>
+                                    <span className="text-xs">→</span>
+                                  </Link>
                                 </div>
                               </motion.div>
                             )}
@@ -674,10 +863,12 @@ export default function LearnPrototype2Page() {
                                 className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl p-4 sm:py-3.5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
                               >
                                 <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                                  {/* Green checkmark circle icon */}
                                   <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
                                   </div>
 
+                                  {/* Topic Title and Modules Pill */}
                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
                                     <h2 className="text-sm font-semibold text-slate-800 tracking-tight leading-snug">
                                       {topic.name}
@@ -687,6 +878,15 @@ export default function LearnPrototype2Page() {
                                     </span>
                                   </div>
                                 </div>
+
+                                {/* Review Button */}
+                                <Link
+                                  href={`/learn/${topic.slug}`}
+                                  className="w-full sm:w-auto px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
+                                >
+                                  <span>Review</span>
+                                  <span className="text-xs">→</span>
+                                </Link>
                               </motion.div>
                             )}
 
@@ -697,7 +897,7 @@ export default function LearnPrototype2Page() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left animate-fade-in"
+                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
                               >
                                 <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                                   <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0">
@@ -723,13 +923,68 @@ export default function LearnPrototype2Page() {
               </main>
             </div>
 
-            {/* Right Column: Sky Engine Viewport */}
-            <div className="hidden lg:block lg:flex-1 flex-shrink-0 relative pointer-events-none overflow-hidden">
-              <LivingSkyPanel scrollContainerRef={scrollRef} preset="clear-sky" topics={topics} />
-              <VineWheepPrototype
-                scrollContainerRef={scrollRef}
-                onDebugUpdate={handleDebugUpdate}
-              />
+            {/* Right Column: Description of current Topic */}
+            <div className="w-full lg:flex-1 flex-shrink-0 flex flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+              <AnimatePresence mode="wait">
+                {currentTopic ? (
+                  <motion.div
+                    key={currentTopic.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-650 rounded-xl flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 stroke-[2]" />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading">
+                          Current Topic Focus
+                        </span>
+                        <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5">
+                          {currentTopic.name}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
+                          Description
+                        </span>
+                        {currentTopic.description ? (
+                          <ul className="list-none pl-0 flex flex-col gap-2.5">
+                            {parseBulletPoints(currentTopic.description).map((item, index) => (
+                              <li key={index} className="flex items-start gap-2.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900] flex-shrink-0 mt-1.5" />
+                                <span className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
+                                  {item}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-slate-400 italic font-medium">
+                            No description provided for this topic.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="empty-state"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] opacity-80"
+                  >
+                    <BookOpen className="w-10 h-10 text-slate-350 mb-3 stroke-[1.5]" />
+                    <span className="text-xs font-bold text-slate-500">No active topic selected</span>
+                    <span className="text-[10px] text-slate-400 mt-1">Select a topic from the roadmap to view details.</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

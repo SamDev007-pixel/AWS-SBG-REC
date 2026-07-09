@@ -82,6 +82,12 @@ interface CloudManProps {
   landingState: LandingState;
   touchdownTime: number | null;
   walkProgress: number;
+  part: 'body' | 'arms';
+  blink: boolean;
+  whipState: 'idle' | 'whip-left' | 'whip-right' | 'climb-down-left' | 'climb-down-right' | 'climb-up-left' | 'climb-up-right';
+  whipProgress: 'none' | 'shoot' | 'sparkle' | 'retract';
+  bodyOffset: { x: number; y: number; rotate: number };
+  onTriggerWhip: (type: 'left' | 'right') => void;
 }
 
 const CloudMan: React.FC<CloudManProps> = ({
@@ -95,65 +101,14 @@ const CloudMan: React.FC<CloudManProps> = ({
   swingX,
   landingState,
   touchdownTime,
-  walkProgress
+  walkProgress,
+  part,
+  blink,
+  whipState,
+  whipProgress,
+  bodyOffset,
+  onTriggerWhip
 }) => {
-  // Occasional eye blink state
-  const [blink, setBlink] = useState(false);
-
-  // Whip states (preserved for backward compatibility with click interaction)
-  const [whipState, setWhipState] = useState<
-    'idle' | 'whip-left' | 'whip-right' | 'climb-down-left' | 'climb-down-right' | 'climb-up-left' | 'climb-up-right'
-  >('idle');
-  const [whipProgress, setWhipProgress] = useState<'none' | 'shoot' | 'sparkle' | 'retract'>('none');
-  const [bodyOffset, setBodyOffset] = useState({ x: 0, y: 0, rotate: 0 });
-
-  useEffect(() => {
-    const triggerBlink = () => {
-      setBlink(true);
-      setTimeout(() => setBlink(false), 150);
-      // Schedule next blink at random interval (4-7 seconds)
-      const nextTime = 4000 + Math.random() * 3000;
-      blinkTimeoutRef.current = setTimeout(triggerBlink, nextTime);
-    };
-
-    const blinkTimeoutRef = { current: setTimeout(triggerBlink, 3000) };
-
-    return () => clearTimeout(blinkTimeoutRef.current);
-  }, []);
-
-  const triggerWhip = useCallback((type: 'left' | 'right') => {
-    // Only allow one whip at a time
-    setWhipState((current) => {
-      if (current !== 'idle') return current;
-
-      const targetState = type === 'left' ? 'whip-left' : 'whip-right';
-      setWhipProgress('shoot');
-
-      // Pull action at 200ms
-      setTimeout(() => {
-        setWhipProgress('sparkle');
-        if (type === 'left') {
-          setBodyOffset({ x: -10, y: -2, rotate: -6 });
-        } else {
-          setBodyOffset({ x: 10, y: -2, rotate: 6 });
-        }
-      }, 200);
-
-      // Retract at 450ms
-      setTimeout(() => {
-        setWhipProgress('retract');
-        setBodyOffset({ x: 0, y: 0, rotate: 0 });
-      }, 450);
-
-      // Reset at 700ms
-      setTimeout(() => {
-        setWhipState('idle');
-        setWhipProgress('none');
-      }, 700);
-
-      return targetState;
-    });
-  }, []);
 
   if (whipState !== 'idle') {
     // Original whipping animation fallback
@@ -198,10 +153,10 @@ const CloudMan: React.FC<CloudManProps> = ({
         onClick={(e) => {
           e.stopPropagation();
           const side = Math.random() > 0.5 ? 'left' : 'right';
-          triggerWhip(side);
+          onTriggerWhip(side);
         }}
       >
-        <circle cx="0" cy="0" r="35" fill="transparent" />
+        {part === 'body' && <circle cx="0" cy="0" r="35" fill="transparent" />}
 
         <motion.g
           animate={{
@@ -223,126 +178,134 @@ const CloudMan: React.FC<CloudManProps> = ({
               ease: 'easeInOut'
             }}
           >
-            {/* Dangling legs */}
-            <motion.g>
-              <line x1="-7" y1="16" x2="-9" y2="25" stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
-              <circle cx="-9" cy="25" r="3" fill="#94a3b8" />
+            {part === 'body' && (
+              <>
+                {/* Dangling legs */}
+                <motion.g>
+                  <line x1="-7" y1="16" x2="-9" y2="25" stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
+                  <circle cx="-9" cy="25" r="3" fill="#94a3b8" />
 
-              <line x1="7" y1="16" x2="9" y2="25" stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
-              <circle cx="9" cy="25" r="3" fill="#94a3b8" />
-            </motion.g>
+                  <line x1="7" y1="16" x2="9" y2="25" stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
+                  <circle cx="9" cy="25" r="3" fill="#94a3b8" />
+                </motion.g>
 
-            {/* Cloud body shadow layer */}
-            <path
-              d="M -26 4 A 14 14 0 0 1 -8 -14 A 20 20 0 0 1 12 -16 A 16 16 0 0 1 28 4 A 12 12 0 0 1 22 18 L -22 18 A 12 12 0 0 1 -26 4 Z"
-              fill="#e2e8f0"
-            />
+                {/* Cloud body shadow layer */}
+                <path
+                  d="M -26 4 A 14 14 0 0 1 -8 -14 A 20 20 0 0 1 12 -16 A 16 16 0 0 1 28 4 A 12 12 0 0 1 22 18 L -22 18 A 12 12 0 0 1 -26 4 Z"
+                  fill="#e2e8f0"
+                />
 
-            {/* Cloud body main layer */}
-            <path
-              d="M -26 1 A 14 14 0 0 1 -8 -17 A 20 20 0 0 1 12 -19 A 16 16 0 0 1 28 1 A 12 12 0 0 1 22 15 L -22 15 A 12 12 0 0 1 -26 1 Z"
-              fill="#ffffff"
-              stroke="#cbd5e1"
-              strokeWidth="1.5"
-            />
+                {/* Cloud body main layer */}
+                <path
+                  d="M -26 1 A 14 14 0 0 1 -8 -17 A 20 20 0 0 1 12 -19 A 16 16 0 0 1 28 1 A 12 12 0 0 1 22 15 L -22 15 A 12 12 0 0 1 -26 1 Z"
+                  fill="#ffffff"
+                  stroke="#cbd5e1"
+                  strokeWidth="1.5"
+                />
 
-            {/* Blush Cheeks */}
-            <circle cx="-15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
-            <circle cx="15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
+                {/* Blush Cheeks */}
+                <circle cx="-15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
+                <circle cx="15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
 
-            {/* Sparkly Eyes */}
-            <circle cx="-8" cy="-1" r="2.2" fill="#0f172a" />
-            {!blink && <circle cx="-8.7" cy="-1.7" r="0.7" fill="#ffffff" />}
+                {/* Sparkly Eyes */}
+                <circle cx="-8" cy="-1" r="2.2" fill="#0f172a" />
+                {!blink && <circle cx="-8.7" cy="-1.7" r="0.7" fill="#ffffff" />}
 
-            <circle cx="8" cy="-1" r="2.2" fill="#0f172a" />
-            {!blink && <circle cx="7.3" cy="-1.7" r="0.7" fill="#ffffff" />}
+                <circle cx="8" cy="-1" r="2.2" fill="#0f172a" />
+                {!blink && <circle cx="7.3" cy="-1.7" r="0.7" fill="#ffffff" />}
 
-            {/* Mouth */}
-            <path d="M -2.5 4 Q 0 6.5 2.5 4" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+                {/* Mouth */}
+                <path d="M -2.5 4 Q 0 6.5 2.5 4" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+              </>
+            )}
 
-            {/* Left arm */}
-            <motion.path
-              variants={leftArmVariants}
-              animate={leftArmAnimate}
-              transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-              stroke="#cbd5e1"
-              strokeWidth="3"
-              strokeLinecap="round"
-              fill="none"
-            />
-            <motion.circle
-              variants={leftHandVariants}
-              animate={leftArmAnimate}
-              transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-              r="4.5"
-              fill="#ffffff"
-              stroke="#cbd5e1"
-              strokeWidth="1.5"
-            />
+            {part === 'arms' && (
+              <>
+                {/* Left arm */}
+                <motion.path
+                  variants={leftArmVariants}
+                  animate={leftArmAnimate}
+                  transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+                  stroke="#cbd5e1"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+                <motion.circle
+                  variants={leftHandVariants}
+                  animate={leftArmAnimate}
+                  transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+                  r="4.5"
+                  fill="#ffffff"
+                  stroke="#cbd5e1"
+                  strokeWidth="1.5"
+                />
 
-            {/* Right arm */}
-            <motion.path
-              variants={rightArmVariants}
-              animate={rightArmAnimate}
-              transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-              stroke="#cbd5e1"
-              strokeWidth="3"
-              strokeLinecap="round"
-              fill="none"
-            />
-            <motion.circle
-              variants={rightHandVariants}
-              animate={rightArmAnimate}
-              transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-              r="4.5"
-              fill="#ffffff"
-              stroke="#cbd5e1"
-              strokeWidth="1.5"
-            />
+                {/* Right arm */}
+                <motion.path
+                  variants={rightArmVariants}
+                  animate={rightArmAnimate}
+                  transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+                  stroke="#cbd5e1"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+                <motion.circle
+                  variants={rightHandVariants}
+                  animate={rightArmAnimate}
+                  transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+                  r="4.5"
+                  fill="#ffffff"
+                  stroke="#cbd5e1"
+                  strokeWidth="1.5"
+                />
 
-            {/* Whip effect */}
-            <AnimatePresence>
-              {whipProgress !== 'none' && (
-                <g>
-                  <motion.path
-                    d={
-                      isWhippingLeft
-                        ? "M -40 -10 Q -65 -30 -90 -20 T -120 -25"
-                        : "M 40 -10 Q 65 -30 90 -20 T 120 -25"
-                    }
-                    stroke="#22c55e"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    fill="none"
-                    initial={{ pathLength: 0, opacity: 0.8 }}
-                    animate={{
-                      pathLength: whipProgress === 'shoot' || whipProgress === 'sparkle' ? 1 : 0,
-                      opacity: whipProgress === 'retract' ? 0 : 1
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.22, ease: "easeInOut" }}
-                  />
-                  {whipProgress === 'sparkle' && (
-                    <g transform={isWhippingLeft ? "translate(-120, -25)" : "translate(120, -25)"}>
-                      <motion.circle
-                        r="0"
+                {/* Whip effect */}
+                <AnimatePresence>
+                  {whipProgress !== 'none' && (
+                    <g>
+                      <motion.path
+                        d={
+                          isWhippingLeft
+                            ? "M -40 -10 Q -65 -30 -90 -20 T -120 -25"
+                            : "M 40 -10 Q 65 -30 90 -20 T 120 -25"
+                        }
+                        stroke="#22c55e"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
                         fill="none"
-                        stroke="#fef08a"
-                        strokeWidth="1.5"
-                        animate={{ r: 12, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        initial={{ pathLength: 0, opacity: 0.8 }}
+                        animate={{
+                          pathLength: whipProgress === 'shoot' || whipProgress === 'sparkle' ? 1 : 0,
+                          opacity: whipProgress === 'retract' ? 0 : 1
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.22, ease: "easeInOut" }}
                       />
-                      <motion.circle
-                        r="4"
-                        fill="#fef08a"
-                        animate={{ scale: [1, 1.5, 0] }}
-                        transition={{ duration: 0.25 }}
-                      />
+                      {whipProgress === 'sparkle' && (
+                        <g transform={isWhippingLeft ? "translate(-120, -25)" : "translate(120, -25)"}>
+                          <motion.circle
+                            r="0"
+                            fill="none"
+                            stroke="#fef08a"
+                            strokeWidth="1.5"
+                            animate={{ r: 12, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
+                          />
+                          <motion.circle
+                            r="4"
+                            fill="#fef08a"
+                            animate={{ scale: [1, 1.5, 0] }}
+                            transition={{ duration: 0.25 }}
+                          />
+                        </g>
+                      )}
                     </g>
                   )}
-                </g>
-              )}
-            </AnimatePresence>
+                </AnimatePresence>
+              </>
+            )}
           </motion.g>
         </motion.g>
       </g>
@@ -533,69 +496,77 @@ const CloudMan: React.FC<CloudManProps> = ({
       onClick={(e) => {
         e.stopPropagation();
         const side = Math.random() > 0.5 ? 'left' : 'right';
-        triggerWhip(side);
+        onTriggerWhip(side);
       }}
     >
-      <circle cx="0" cy="0" r="35" fill="transparent" />
+      {part === 'body' && (
+        <>
+          <circle cx="0" cy="0" r="35" fill="transparent" />
 
-      {/* Arms (drawn outside body scale/rotate to keep hands anchored to vine) */}
-      <path d={leftArmD} stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <circle cx={leftHand.x} cy={leftHand.y} r="4.5" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+          {/* Main Body Group */}
+          <g transform={`translate(${totalX}, ${totalY}) rotate(${totalRotate}) scale(${totalScaleX}, ${totalScaleY})`}>
+            {/* Legs */}
+            <line x1="-7" y1="16" x2={legLeftX} y2={legLeftY} stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx={legLeftX} cy={legLeftY} r="3" fill="#94a3b8" />
 
-      <path d={rightArmD} stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <circle cx={rightHand.x} cy={rightHand.y} r="4.5" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+            <line x1="7" y1="16" x2={legRightX} y2={legRightY} stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx={legRightX} cy={legRightY} r="3" fill="#94a3b8" />
 
-      {/* Main Body Group */}
-      <g transform={`translate(${totalX}, ${totalY}) rotate(${totalRotate}) scale(${totalScaleX}, ${totalScaleY})`}>
-        {/* Legs */}
-        <line x1="-7" y1="16" x2={legLeftX} y2={legLeftY} stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx={legLeftX} cy={legLeftY} r="3" fill="#94a3b8" />
+            {/* Cloud shadow */}
+            <path
+              d="M -26 4 A 14 14 0 0 1 -8 -14 A 20 20 0 0 1 12 -16 A 16 16 0 0 1 28 4 A 12 12 0 0 1 22 18 L -22 18 A 12 12 0 0 1 -26 4 Z"
+              fill="#e2e8f0"
+            />
 
-        <line x1="7" y1="16" x2={legRightX} y2={legRightY} stroke="#cbd5e1" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx={legRightX} cy={legRightY} r="3" fill="#94a3b8" />
+            {/* Cloud main */}
+            <path
+              d="M -26 1 A 14 14 0 0 1 -8 -17 A 20 20 0 0 1 12 -19 A 16 16 0 0 1 28 1 A 12 12 0 0 1 22 15 L -22 15 A 12 12 0 0 1 -26 1 Z"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
 
-        {/* Cloud shadow */}
-        <path
-          d="M -26 4 A 14 14 0 0 1 -8 -14 A 20 20 0 0 1 12 -16 A 16 16 0 0 1 28 4 A 12 12 0 0 1 22 18 L -22 18 A 12 12 0 0 1 -26 4 Z"
-          fill="#e2e8f0"
-        />
+            {/* Cheeks */}
+            <circle cx="-15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
+            <circle cx="15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
 
-        {/* Cloud main */}
-        <path
-          d="M -26 1 A 14 14 0 0 1 -8 -17 A 20 20 0 0 1 12 -19 A 16 16 0 0 1 28 1 A 12 12 0 0 1 22 15 L -22 15 A 12 12 0 0 1 -26 1 Z"
-          fill="#ffffff"
-          stroke="#cbd5e1"
-          strokeWidth="1.5"
-        />
+            {/* Eyes (Blinking details) */}
+            {blink ? (
+              <>
+                <line x1="-10.2" y1="-1" x2="-5.8" y2="-1" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" />
+                <line x1="5.8" y1="-1" x2="10.2" y2="-1" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" />
+              </>
+            ) : (
+              <>
+                <circle cx="-8" cy="-1" r="2.2" fill="#0f172a" />
+                <circle cx="-8.7" cy="-1.7" r="0.7" fill="#ffffff" />
+                <circle cx="8" cy="-1" r="2.2" fill="#0f172a" />
+                <circle cx="7.3" cy="-1.7" r="0.7" fill="#ffffff" />
+              </>
+            )}
 
-        {/* Cheeks */}
-        <circle cx="-15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
-        <circle cx="15" cy="3" r="3" fill="#fda4af" opacity="0.9" />
+            {/* Mouth */}
+            <path
+              d={isRelease || isWalking || isIdle ? "M -3.5 3 Q 0 6 3.5 3" : (climbIntensity > 0.3 ? "M -3 3 Q 0 5 3 3" : "M -2.5 4 Q 0 6.5 2.5 4")}
+              stroke="#0f172a"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              fill="none"
+            />
+          </g>
+        </>
+      )}
 
-        {/* Eyes (Blinking details) */}
-        {blink ? (
-          <>
-            <line x1="-10.2" y1="-1" x2="-5.8" y2="-1" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" />
-            <line x1="5.8" y1="-1" x2="10.2" y2="-1" stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round" />
-          </>
-        ) : (
-          <>
-            <circle cx="-8" cy="-1" r="2.2" fill="#0f172a" />
-            <circle cx="-8.7" cy="-1.7" r="0.7" fill="#ffffff" />
-            <circle cx="8" cy="-1" r="2.2" fill="#0f172a" />
-            <circle cx="7.3" cy="-1.7" r="0.7" fill="#ffffff" />
-          </>
-        )}
+      {part === 'arms' && (
+        <>
+          {/* Arms (drawn outside body scale/rotate to keep hands anchored to vine) */}
+          <path d={leftArmD} stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <circle cx={leftHand.x} cy={leftHand.y} r="4.5" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
 
-        {/* Mouth */}
-        <path
-          d={isRelease || isWalking || isIdle ? "M -3.5 3 Q 0 6 3.5 3" : (climbIntensity > 0.3 ? "M -3 3 Q 0 1 3 3" : "M -2.5 4 Q 0 6.5 2.5 4")}
-          stroke="#0f172a"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </g>
+          <path d={rightArmD} stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <circle cx={rightHand.x} cy={rightHand.y} r="4.5" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+        </>
+      )}
     </g>
   );
 };
@@ -698,6 +669,62 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
   const vineEndXRef = useRef<number | null>(null);
   const vineEndYRef = useRef<number | null>(null);
   const descendStartTimeRef = useRef<number | null>(null);
+
+  // CloudMan Custom Animation/Blink/Whip States
+  const [blink, setBlink] = useState(false);
+  const [whipState, setWhipState] = useState<
+    'idle' | 'whip-left' | 'whip-right' | 'climb-down-left' | 'climb-down-right' | 'climb-up-left' | 'climb-up-right'
+  >('idle');
+  const [whipProgress, setWhipProgress] = useState<'none' | 'shoot' | 'sparkle' | 'retract'>('none');
+  const [bodyOffset, setBodyOffset] = useState({ x: 0, y: 0, rotate: 0 });
+
+  const blinkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const triggerBlink = () => {
+      setBlink(true);
+      setTimeout(() => setBlink(false), 150);
+      const nextTime = 4000 + Math.random() * 3000;
+      blinkTimeoutRef.current = setTimeout(triggerBlink, nextTime);
+    };
+    blinkTimeoutRef.current = setTimeout(triggerBlink, 3000);
+    return () => {
+      if (blinkTimeoutRef.current) clearTimeout(blinkTimeoutRef.current);
+    };
+  }, []);
+
+  const triggerWhip = useCallback((type: 'left' | 'right') => {
+    setWhipState((current) => {
+      if (current !== 'idle') return current;
+
+      const targetState = type === 'left' ? 'whip-left' : 'whip-right';
+      setWhipProgress('shoot');
+
+      // Pull action at 200ms
+      setTimeout(() => {
+        setWhipProgress('sparkle');
+        if (type === 'left') {
+          setBodyOffset({ x: -10, y: -2, rotate: -6 });
+        } else {
+          setBodyOffset({ x: 10, y: -2, rotate: 6 });
+        }
+      }, 200);
+
+      // Retract at 450ms
+      setTimeout(() => {
+        setWhipProgress('retract');
+        setBodyOffset({ x: 0, y: 0, rotate: 0 });
+      }, 450);
+
+      // Reset at 700ms
+      setTimeout(() => {
+        setWhipState('idle');
+        setWhipProgress('none');
+      }, 700);
+
+      return targetState;
+    });
+  }, []);
 
   // Measure the width of the right column container
   useEffect(() => {
@@ -976,7 +1003,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
 
         const signboardAnchorX = dimensions.width / 2 + ENVIRONMENT_ANCHORS.signboardAnchorX;
         const landingGroundYAbs = (topicListHeight - 35) + ENVIRONMENT_ANCHORS.landingGroundY;
-        const standY = landingGroundYAbs + 1 - 27; // Align feet with grass surface (sinks 1px, feet are 27px below center)
+        const standY = landingGroundYAbs + 1 - 32.4; // Align feet with grass surface (sinks 1px, feet are 32.4px below center due to 1.2x scale)
 
         setCloudPos({
           x: signboardAnchorX,
@@ -1121,8 +1148,8 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           const initialX = vineEndXRef.current ?? (dimensions.width / 2);
           const initialY = vineEndYRef.current ?? endY;
 
-          // CloudMan standing feet bottom local offset is 27px
-          const CHARACTER_FEET_OFFSET = 27;
+          // CloudMan standing feet bottom local offset is 32.4px (due to 1.2x scale)
+          const CHARACTER_FEET_OFFSET = 32.4;
           // Sinks 1px into the grass for a natural terrain stand feeling
           const GRASS_SINK_OFFSET = 1;
 
@@ -1168,7 +1195,7 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           onDebugUpdateRef.current({
             vineHeight: topicListHeightVal - 80,
             progress: currentState === 'CLIMBING' ? clampedProgress : 1.0,
-            landingY: (topicListHeightVal - 35) + ENVIRONMENT_ANCHORS.landingGroundY + 1 - 27,
+            landingY: (topicListHeightVal - 35) + ENVIRONMENT_ANCHORS.landingGroundY + 1 - 32.4,
             islandY: topicListHeightVal - 35
           });
         }
@@ -1340,6 +1367,90 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
           {/* Reference path used to query coordinates (static path) */}
           <path ref={pathRefCallback} d={baseBezierPathString} stroke="#000" strokeWidth="1" opacity="0" fill="none" />
 
+          {/* Land platform at the bottom of the SVG */}
+          <g transform={`translate(${dimensions.width / 2}, ${totalViewHeight - 35})`}>
+            {/* Soil/dirt base */}
+            <path
+              d="M -150,15 C -118,30 -64,35 0,35 C 64,35 118,30 150,15 C 118,8 64,8 0,8 C -64,8 -118,8 -150,15 Z"
+              fill="url(#bottomDirtGrad)"
+            />
+            {/* Grass cover */}
+            <path
+              d="M -160,10 C -118,-5 -64,-10 0,-10 C 64,-10 118,-5 160,10 C 118,8 64,8 0,8 C -64,8 -118,8 -160,10 Z"
+              fill="url(#bottomGrassGrad)"
+              stroke="#166534"
+              strokeWidth="1"
+            />
+            {/* Rocks */}
+            <ellipse cx="-95" cy="8" rx="6" ry="4" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
+            <ellipse cx="-88" cy="10" rx="4" ry="2.5" fill="#cbd5e1" stroke="#475569" strokeWidth="0.8" />
+            <ellipse cx="110" cy="9" rx="5" ry="3" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
+            {/* Flowers */}
+            <g transform="translate(-45, 0)">
+              <circle cx="0" cy="0" r="1.5" fill="#fef08a" />
+              <circle cx="-1.5" cy="0" r="1" fill="#f472b6" />
+              <circle cx="1.5" cy="0" r="1" fill="#f472b6" />
+              <circle cx="0" cy="-1.5" r="1" fill="#f472b6" />
+              <circle cx="0" cy="1.5" r="1" fill="#f472b6" />
+            </g>
+            <g transform="translate(60, 2)">
+              <circle cx="0" cy="0" r="1.2" fill="#fef08a" />
+              <circle cx="-1.2" cy="0" r="0.8" fill="#38bdf8" />
+              <circle cx="1.2" cy="0" r="0.8" fill="#38bdf8" />
+              <circle cx="0" cy="-1.2" r="0.8" fill="#38bdf8" />
+              <circle cx="0" cy="1.2" r="0.8" fill="#38bdf8" />
+            </g>
+            {/* Bushes */}
+            <path d="M -115,5 Q -122,-2 -115,-8 Q -108,-12 -102,-6 Q -95,-8 -95,0 Q -95,7 -115,5 Z" fill="#15803d" opacity="0.9" />
+            <path d="M 100,6 Q 93,-1 100,-7 Q 107,-11 113,-5 Q 120,-7 120,1 Q 120,8 100,6 Z" fill="#15803d" opacity="0.9" />
+            {/* Roots */}
+            <path d="M 0,-1 Q -8,-3 -15,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M 0,-1 Q 10,-3 17,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+            {/* Beautiful wooden custom signboard */}
+            <g>
+              <rect x="65" y="-12" width="6" height="25" fill="#78350f" stroke="#451a03" strokeWidth="1" />
+              <rect x="45" y="-32" width="46" height="20" rx="3" fill="#b45309" stroke="#451a03" strokeWidth="1.2" />
+              {/* Wood grain detail lines */}
+              <line x1="48" y1="-22" x2="88" y2="-22" stroke="#78350f" strokeWidth="1.5" />
+              <line x1="52" y1="-17" x2="82" y2="-17" stroke="#78350f" strokeWidth="1.2" />
+              <text x="68" y="-18" fill="#fef3c7" fontSize="8" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">AWS</text>
+            </g>
+          </g>
+
+          {/* CloudMan Body (Behind Vine) */}
+          <g transform={`translate(${cloudPos.x + bendX}, ${cloudPos.y}) rotate(${cloudPos.rotate}) scale(1.2)`}>
+            <motion.g
+              animate={{
+                y: (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE' || landingState === 'TOUCHDOWN') ? 0 : [0, -10, 0]
+              }}
+              transition={{
+                duration: 3,
+                repeat: (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE' || landingState === 'TOUCHDOWN') ? 0 : Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <CloudMan
+                part="body"
+                blink={blink}
+                whipState={whipState}
+                whipProgress={whipProgress}
+                bodyOffset={bodyOffset}
+                onTriggerWhip={triggerWhip}
+                isScrolling={isScrolling}
+                scrollDirection={scrollDirection}
+                climbIntensity={climbIntensity}
+                cycleDist={cycleDist}
+                stepProgress={stepProgress}
+                isLeftStep={isLeftStep}
+                swingRotate={swingRotate}
+                swingX={swingX}
+                landingState={landingState}
+                touchdownTime={touchdownTime}
+                walkProgress={walkProgress}
+              />
+            </motion.g>
+          </g>
+
           {/* Gentle wind-sway oscillation group for the entire vine */}
           <motion.g
             animate={{
@@ -1399,58 +1510,8 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
             )}
           </motion.g>
 
-          {/* Land platform at the bottom of the SVG */}
-          <g transform={`translate(${dimensions.width / 2}, ${totalViewHeight - 35})`}>
-            {/* Soil/dirt base */}
-            <path
-              d="M -150,15 C -118,30 -64,35 0,35 C 64,35 118,30 150,15 C 118,8 64,8 0,8 C -64,8 -118,8 -150,15 Z"
-              fill="url(#bottomDirtGrad)"
-            />
-            {/* Grass cover */}
-            <path
-              d="M -160,10 C -118,-5 -64,-10 0,-10 C 64,-10 118,-5 160,10 C 118,8 64,8 0,8 C -64,8 -118,8 -160,10 Z"
-              fill="url(#bottomGrassGrad)"
-              stroke="#166534"
-              strokeWidth="1"
-            />
-            {/* Rocks */}
-            <ellipse cx="-95" cy="8" rx="6" ry="4" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
-            <ellipse cx="-88" cy="10" rx="4" ry="2.5" fill="#cbd5e1" stroke="#475569" strokeWidth="0.8" />
-            <ellipse cx="110" cy="9" rx="5" ry="3" fill="#94a3b8" stroke="#475569" strokeWidth="0.8" />
-            {/* Flowers */}
-            <g transform="translate(-45, 0)">
-              <circle cx="0" cy="0" r="1.5" fill="#fef08a" />
-              <circle cx="-1.5" cy="0" r="1" fill="#f472b6" />
-              <circle cx="1.5" cy="0" r="1" fill="#f472b6" />
-              <circle cx="0" cy="-1.5" r="1" fill="#f472b6" />
-              <circle cx="0" cy="1.5" r="1" fill="#f472b6" />
-            </g>
-            <g transform="translate(60, 2)">
-              <circle cx="0" cy="0" r="1.2" fill="#fef08a" />
-              <circle cx="-1.2" cy="0" r="0.8" fill="#38bdf8" />
-              <circle cx="1.2" cy="0" r="0.8" fill="#38bdf8" />
-              <circle cx="0" cy="-1.2" r="0.8" fill="#38bdf8" />
-              <circle cx="0" cy="1.2" r="0.8" fill="#38bdf8" />
-            </g>
-            {/* Bushes */}
-            <path d="M -115,5 Q -122,-2 -115,-8 Q -108,-12 -102,-6 Q -95,-8 -95,0 Q -95,7 -115,5 Z" fill="#15803d" opacity="0.9" />
-            <path d="M 100,6 Q 93,-1 100,-7 Q 107,-11 113,-5 Q 120,-7 120,1 Q 120,8 100,6 Z" fill="#15803d" opacity="0.9" />
-            {/* Roots */}
-            <path d="M 0,-1 Q -8,-3 -15,-6" stroke="#15803d" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <path d="M 0,-1 Q 10,-3 17,-5" stroke="#15803d" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-            {/* Beautiful wooden custom signboard */}
-            <g>
-              <rect x="65" y="-12" width="6" height="25" fill="#78350f" stroke="#451a03" strokeWidth="1" />
-              <rect x="45" y="-32" width="46" height="20" rx="3" fill="#b45309" stroke="#451a03" strokeWidth="1.2" />
-              {/* Wood grain detail lines */}
-              <line x1="48" y1="-22" x2="88" y2="-22" stroke="#78350f" strokeWidth="1.5" />
-              <line x1="52" y1="-17" x2="82" y2="-17" stroke="#78350f" strokeWidth="1.2" />
-              <text x="68" y="-18" fill="#fef3c7" fontSize="8" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">AWS</text>
-            </g>
-          </g>
-
-          {/* CloudMan Character - Translated to match vine bending horizontally, and vertically along the vine */}
-          <g transform={`translate(${cloudPos.x + bendX}, ${cloudPos.y}) rotate(${cloudPos.rotate})`}>
+          {/* CloudMan Arms (In Front of Vine) */}
+          <g transform={`translate(${cloudPos.x + bendX}, ${cloudPos.y}) rotate(${cloudPos.rotate}) scale(1.2)`}>
             <motion.g
               animate={{
                 y: (landingState === 'RELEASE' || landingState === 'WALKING' || landingState === 'IDLE' || landingState === 'TOUCHDOWN') ? 0 : [0, -10, 0]
@@ -1462,6 +1523,12 @@ export const VineWheepPrototype: React.FC<VineWheepPrototypeProps> = ({
               }}
             >
               <CloudMan
+                part="arms"
+                blink={blink}
+                whipState={whipState}
+                whipProgress={whipProgress}
+                bodyOffset={bodyOffset}
+                onTriggerWhip={triggerWhip}
                 isScrolling={isScrolling}
                 scrollDirection={scrollDirection}
                 climbIntensity={climbIntensity}
