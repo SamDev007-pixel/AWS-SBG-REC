@@ -1122,7 +1122,7 @@ export default function LearnPrototype2Page() {
             </div>
 
             {/* Right Column: Description of current Topic */}
-            <div className="w-full lg:flex-1 flex-shrink-0 flex flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+            <div className="hidden lg:flex w-full lg:flex-1 flex-shrink-0 flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
               {displayTopic ? (
                 <div className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left">
                   <div className="flex items-center gap-3">
@@ -1263,16 +1263,19 @@ export default function LearnPrototype2Page() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.25 }}
-                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200"
+                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  {/* Sky Background from Roadmaps */}
+                  <SkyBackground />
+
                   <button
                     onClick={() => setShowGuidelines(false)}
-                    className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                    className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm"
                   >
-                    <X className="w-4 h-4 text-slate-600" />
+                    <X className="w-4 h-4 text-slate-650" />
                   </button>
-                  <div className="p-5">
+                  <div className="p-5 relative z-10">
                     <LearningGuidePanel />
                   </div>
                 </motion.div>
