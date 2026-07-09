@@ -32,17 +32,30 @@ import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
+if (typeof window !== 'undefined') {
+  if (!(window as any).timelineLogs) {
+    (window as any).timelineLogs = [];
+    const origLog = console.log;
+    console.log = (...args) => {
+      origLog(...args);
+      (window as any).timelineLogs.push({
+        time: new Date().toISOString(),
+        text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
+      });
+    };
+  }
+}
+
 // Helper to parse topic descriptions into bullet points
 const parseBulletPoints = (text: string): string[] => {
-  if (!text) return [];
+  if (!text || !text.trim()) return [];
 
-  // Split by double newlines (representing leaving a line/blank line)
-  const blocks = text.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
-
+  // Split by every newline
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
   const bulletItems: string[] = [];
 
-  for (const block of blocks) {
-    const cleanBlock = block
+  for (const line of lines) {
+    const cleanBlock = line
       .replace(/^[\s\-*•+\u2022\u2023\u25E6\u2043]+/, '') // Remove bullet markers from start of block
       .replace(/^\d+\.\s+/, '') // Remove numbered list markers
       .trim();
@@ -52,7 +65,7 @@ const parseBulletPoints = (text: string): string[] => {
     }
   }
 
-  return bulletItems.length > 0 ? bulletItems : [text];
+  return bulletItems.length > 0 ? bulletItems : [text.trim()];
 };
 
 export default function LearnPage() {
@@ -62,6 +75,12 @@ export default function LearnPage() {
   const [mounted, setMounted] = useState(false);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
+
+  console.log("[TIMELINE] [LearnPage Render Frame]", {
+    loading,
+    topicsCount: topics.length,
+    mounted
+  });
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
@@ -135,11 +154,7 @@ export default function LearnPage() {
     let active = true;
     const fetchTopics = async () => {
       try {
-        console.log("fetchTopics debug info:", {
-          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-          accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
-          aws_sgb_rec_user: typeof window !== 'undefined' ? localStorage.getItem('aws_sgb_rec_user') : null,
-        });
+        console.log("[TIMELINE] [fetchTopics Start]");
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -148,21 +163,30 @@ export default function LearnPage() {
         ]);
         if (!active) return;
 
+        console.log("[TIMELINE] [fetchTopics Success API returned]", {
+          topicsCount: data.length,
+        });
+
         // Proactively detect completion animation on initial fetch to avoid first-render flash
         const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
+        console.log("[TIMELINE] [fetchTopics Proactive Check]", { recentTopicId });
         if (recentTopicId) {
           const completedTopicIndex = data.findIndex(t => t.id === recentTopicId);
           if (completedTopicIndex !== -1) {
             const completedTopic = data[completedTopicIndex];
+            console.log("[TIMELINE] [fetchTopics Found completed topic in API data]", {
+              completedTopicId: completedTopic.id,
+              completedModules: completedTopic.completedModules,
+              totalModules: completedTopic.totalModules
+            });
             if (completedTopic.completedModules === completedTopic.totalModules) {
               const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
               const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+              console.log("[TIMELINE] [fetchTopics Comparing signatures]", { currentSig, lastSig });
               if (currentSig !== lastSig) {
+                console.log("[TIMELINE] [fetchTopics Setting Animating States Proactively]");
                 setAnimatingTopicId(completedTopic.id);
-                const sessionStoragePrevPercent = sessionStorage.getItem("recentTopicPrevPercent");
-                const startPercent = sessionStoragePrevPercent !== null
-                  ? Number(sessionStoragePrevPercent)
-                  : (completedTopic.totalModules > 1 ? Math.round(((completedTopic.totalModules - 1) / completedTopic.totalModules) * 100) : 0);
+                const startPercent = 0;
                 setVisualPercent(startPercent);
                 setIsArrowSuccessVisual(false);
                 setIsCompletedVisual(false);
@@ -179,6 +203,7 @@ export default function LearnPage() {
           }
         }
 
+        console.log("[TIMELINE] [fetchTopics Setting States in Component]");
         setTopics(data);
         setContinueModule(continueData.module);
         setUserXP(progressData.currentXP);
@@ -192,7 +217,10 @@ export default function LearnPage() {
         });
         setError('Failed to load learning topics. Please try again.');
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          console.log("[TIMELINE] [fetchTopics Finally Setting Loading to false]");
+          setLoading(false);
+        }
       }
     };
 
@@ -202,27 +230,45 @@ export default function LearnPage() {
 
   // Topic completion animation trigger
   useEffect(() => {
+    console.log("[TIMELINE] [Animation Trigger useEffect Run]", {
+      loading,
+      topicsLength: topics.length,
+      recentTopicId: typeof window !== 'undefined' ? sessionStorage.getItem("recentTopicCompletion") : null
+    });
     if (loading || topics.length === 0) return;
 
     if (typeof window === 'undefined') return;
 
     const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
-    if (!recentTopicId) return;
+    if (!recentTopicId) {
+      console.log("[TIMELINE] [Animation Trigger Check: No recentTopicCompletion in storage]");
+      return;
+    }
 
     const completedTopicIndex = topics.findIndex(t => t.id === recentTopicId);
-    if (completedTopicIndex === -1) return;
+    if (completedTopicIndex === -1) {
+      console.log("[TIMELINE] [Animation Trigger Check: completedTopicIndex is -1]");
+      return;
+    }
 
     const completedTopic = topics[completedTopicIndex];
+    console.log("[TIMELINE] [Animation Trigger Check: completedTopic found]", {
+      completedModules: completedTopic.completedModules,
+      totalModules: completedTopic.totalModules
+    });
     if (completedTopic.completedModules !== completedTopic.totalModules) return;
 
     const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
     const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
+    console.log("[TIMELINE] [Animation Trigger Check: comparing signatures]", { currentSig, lastSig });
 
     if (currentSig === lastSig) {
+      console.log("[TIMELINE] [Animation Trigger Check: signature matches lastSig, removing completion key]");
       sessionStorage.removeItem("recentTopicCompletion");
       return;
     }
 
+    console.log("[TIMELINE] [Animation Trigger Check: New completion animation STARTING!]");
     // New completion found!
     setAnimatingTopicId(completedTopic.id);
     setIsCompletedVisual(false);
@@ -237,11 +283,7 @@ export default function LearnPage() {
       setNextAnimatingTopicId(null);
     }
 
-    const sessionStoragePrevPercent = sessionStorage.getItem("recentTopicPrevPercent");
-    const startPercent = sessionStoragePrevPercent !== null
-      ? Number(sessionStoragePrevPercent)
-      : (completedTopic.totalModules > 1 ? Math.round(((completedTopic.totalModules - 1) / completedTopic.totalModules) * 100) : 0);
-
+    const startPercent = 0;
     setVisualPercent(startPercent);
 
     // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over animationDuration
@@ -309,15 +351,65 @@ export default function LearnPage() {
 
 
 
+  // Dynamic presentation-overlay topics mapping
+  const presentationTopics = useMemo(() => {
+    if (!animatingTopicId) return topics;
+
+    return topics.map(topic => {
+      // 1. Overlay the animating completed topic
+      if (topic.id === animatingTopicId) {
+        if (!isCompletedVisual) {
+          // Pre-completion: Status is CURRENT/IN_PROGRESS, modules count is totalModules - 1
+          const prevCompletedModules = Math.max(0, topic.totalModules - 1);
+          return {
+            ...topic,
+            status: 'IN_PROGRESS' as const,
+            completedModules: prevCompletedModules,
+          };
+        } else {
+          // Completed phase: status is COMPLETED, modules count is totalModules
+          return {
+            ...topic,
+            status: 'COMPLETED' as const,
+            completedModules: topic.totalModules,
+          };
+        }
+      }
+
+      // 2. Overlay the next unlocked topic (which is unlocking)
+      if (topic.id === nextAnimatingTopicId) {
+        if (!isNextUnlockedVisual) {
+          // Still locked before crossfade
+          return {
+            ...topic,
+            unlocked: false,
+            status: 'NOT_STARTED' as const,
+            completedModules: 0,
+          };
+        } else {
+          // Unlocked after crossfade
+          return {
+            ...topic,
+            unlocked: true,
+            status: 'IN_PROGRESS' as const,
+            completedModules: 0,
+          };
+        }
+      }
+
+      return topic;
+    });
+  }, [topics, animatingTopicId, nextAnimatingTopicId, isCompletedVisual, isNextUnlockedVisual]);
+
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
-    if (!searchQuery.trim()) return topics;
+    if (!searchQuery.trim()) return presentationTopics;
     const q = searchQuery.toLowerCase();
-    return topics.filter(t =>
+    return presentationTopics.filter(t =>
       t.name.toLowerCase().includes(q) ||
       (t.description && t.description.toLowerCase().includes(q))
     );
-  }, [topics, searchQuery]);
+  }, [presentationTopics, searchQuery]);
 
   // Measure dynamic height of the content to stretch the SkyBackground dynamically
   useEffect(() => {
@@ -335,32 +427,32 @@ export default function LearnPage() {
 
   // Find matching topic progress for continue module
   const continueTopicProgress = useMemo(() => {
-    if (!continueModule || topics.length === 0) return '0 / 0 Modules';
-    const topic = topics.find((t) => t.slug === continueModule.topicSlug);
+    if (!continueModule || presentationTopics.length === 0) return '0 / 0 Modules';
+    const topic = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
     if (!topic) return '0 / 0 Modules';
     return `${topic.completedModules} / ${topic.totalModules} Modules`;
-  }, [continueModule, topics]);
+  }, [continueModule, presentationTopics]);
 
   // Find current topic
   const currentTopic = useMemo(() => {
-    if (topics.length === 0) return null;
+    if (presentationTopics.length === 0) return null;
     if (continueModule?.topicSlug) {
-      const found = topics.find((t) => t.slug === continueModule.topicSlug);
+      const found = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
       if (found) return found;
     }
-    const current = topics.find((t) => getDialStatus(t) === 'CURRENT');
+    const current = presentationTopics.find((t) => getDialStatus(t) === 'CURRENT');
     if (current) return current;
-    const unlocked = topics.find((t) => t.unlocked);
+    const unlocked = presentationTopics.find((t) => t.unlocked);
     if (unlocked) return unlocked;
-    return topics[0];
-  }, [continueModule, topics]);
+    return presentationTopics[0];
+  }, [continueModule, presentationTopics]);
 
   const displayTopic = useMemo(() => {
     if (animatingTopicId) {
-      return topics.find(t => t.id === animatingTopicId) || currentTopic;
+      return presentationTopics.find(t => t.id === animatingTopicId) || currentTopic;
     }
     return currentTopic;
-  }, [animatingTopicId, topics, currentTopic]);
+  }, [animatingTopicId, presentationTopics, currentTopic]);
 
   const isAnimatingCompleted = animatingTopicId !== null && animatingTopicId === displayTopic?.id;
 
@@ -445,19 +537,19 @@ export default function LearnPage() {
 
   // Completion calculations
   const topicsCompletedCount = useMemo(() => {
-    return topics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
-  }, [topics]);
+    return presentationTopics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
+  }, [presentationTopics]);
 
   const modulesCompletedCount = useMemo(() => {
-    return topics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-  }, [topics]);
+    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+  }, [presentationTopics]);
 
   const isPlatformCompleted = useMemo(() => {
-    if (topics.length === 0) return false;
-    const totalCompleted = topics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-    const totalModules = topics.reduce((sum, t) => sum + (t.totalModules || 0), 0);
+    if (presentationTopics.length === 0) return false;
+    const totalCompleted = presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+    const totalModules = presentationTopics.reduce((sum, t) => sum + (t.totalModules || 0), 0);
     return (totalModules > 0 && totalCompleted === totalModules) || !continueModule;
-  }, [topics, continueModule]);
+  }, [presentationTopics, continueModule]);
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
 
@@ -497,6 +589,7 @@ export default function LearnPage() {
 
   // Main UI Load/Error views
   if (loading) {
+    console.log("[TIMELINE] [Render: SkyBackgroundLoader (Page is loading)]");
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
@@ -541,6 +634,14 @@ export default function LearnPage() {
       </AppLayout>
     );
   }
+
+  console.log("[TIMELINE] [Render: Main page layout (Page is ready)]", {
+    animatingTopicId,
+    displayTopicId: displayTopic?.id,
+    displayTopicCompletedModules: displayTopic?.completedModules,
+    displayTopicStatus: displayTopic?.status,
+    visualPercent
+  });
 
   return renderWithSidebar(
     <AppLayout>
@@ -1117,7 +1218,10 @@ export default function LearnPage() {
                                     "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 transition-colors duration-600",
                                     isAnimatingCompleted && isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]"
                                   )} />
-                                  <span className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
+                                  <span 
+                                    className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line break-words"
+                                    style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                                  >
                                     {item}
                                   </span>
                                 </li>

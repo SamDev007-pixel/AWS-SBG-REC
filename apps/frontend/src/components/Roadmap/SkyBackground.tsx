@@ -10,12 +10,12 @@ interface SkyBackgroundProps {
 
 export const SkyBackground: React.FC<SkyBackgroundProps> = ({ height }) => {
   return (
-    <div 
+    <div
       className="absolute inset-x-0 top-0 overflow-hidden pointer-events-none select-none z-0"
       style={{ height: height ? `${height}px` : '100%' }}
     >
       {/* Sky Ambient Light Glows - Distributed throughout height */}
-      <div 
+      <div
         className="absolute w-[900px] h-[900px] rounded-full opacity-[0.15] blur-[160px] pointer-events-none"
         style={{
           top: '5%',
@@ -23,7 +23,7 @@ export const SkyBackground: React.FC<SkyBackgroundProps> = ({ height }) => {
           background: 'radial-gradient(circle, #38BDF8 0%, transparent 70%)'
         }}
       />
-      <div 
+      <div
         className="absolute w-[900px] h-[900px] rounded-full opacity-[0.12] blur-[160px] pointer-events-none"
         style={{
           top: '30%',
@@ -31,7 +31,7 @@ export const SkyBackground: React.FC<SkyBackgroundProps> = ({ height }) => {
           background: 'radial-gradient(circle, #34D399 0%, transparent 70%)'
         }}
       />
-      <div 
+      <div
         className="absolute w-[1000px] h-[1000px] rounded-full opacity-[0.12] blur-[180px] pointer-events-none"
         style={{
           top: '55%',
@@ -39,7 +39,7 @@ export const SkyBackground: React.FC<SkyBackgroundProps> = ({ height }) => {
           background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)'
         }}
       />
-      <div 
+      <div
         className="absolute w-[800px] h-[800px] rounded-full opacity-[0.1] blur-[150px] pointer-events-none"
         style={{
           top: '80%',

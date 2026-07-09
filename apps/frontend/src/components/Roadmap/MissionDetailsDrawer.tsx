@@ -190,8 +190,8 @@ export const MissionDetailsDrawer: React.FC<MissionDetailsDrawerProps> = ({
               ) : status === 'current' ? (
                 <button
                   onClick={() => handleStartLearning('reading')}
-                  className="relative w-full overflow-hidden font-black py-3.5 px-6 rounded-xl text-sm tracking-wide transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 font-outfit cursor-pointer text-white group shadow-[0_4px_20px_rgba(79,70,229,0.35)] hover:shadow-[0_6px_28px_rgba(79,70,229,0.45)] hover:-translate-y-0.5"
-                  style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 45%, #4f46e5 100%)' }}
+                  className="relative w-full overflow-hidden font-black py-3.5 px-6 rounded-xl text-sm tracking-wide transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 font-outfit cursor-pointer text-white group shadow-[0_4px_20px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)] hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #1e3b8a 0%, #2563eb 45%, #3b82f6 100%)' }}
                 >
                   {/* Subtle shimmer on hover */}
                   <span className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-white rounded-xl" />

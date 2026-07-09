@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import * as Icons from 'lucide-react';
 import { motion } from 'framer-motion';
+import DescriptionBulletEditor, { cleanDescription } from './DescriptionBulletEditor';
 
 interface CreateTopicModalProps {
   isOpen: boolean;
@@ -20,7 +21,8 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit }: CreateTo
     if (!name.trim()) return;
     setSubmitting(true);
     try {
-      await onSubmit(name.trim(), description.trim());
+      const cleanedDescription = cleanDescription(description);
+      await onSubmit(name.trim(), cleanedDescription);
       setName('');
       setDescription('');
       onClose();
@@ -68,16 +70,10 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit }: CreateTo
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="font-extrabold text-slate-550 block">Description</label>
-            <textarea
-              rows={2}
-              placeholder="Brief overview of what this topic covers..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed"
-            />
-          </div>
+          <DescriptionBulletEditor
+            value={description}
+            onChange={setDescription}
+          />
 
           <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 mt-5">
             <button
