@@ -32,6 +32,29 @@ import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
+// Helper to parse topic descriptions into bullet points
+const parseBulletPoints = (text: string): string[] => {
+  if (!text) return [];
+  
+  // Split by double newlines (representing leaving a line/blank line)
+  const blocks = text.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
+  
+  const bulletItems: string[] = [];
+  
+  for (const block of blocks) {
+    const cleanBlock = block
+      .replace(/^[\s\-*•+\u2022\u2023\u25E6\u2043]+/, '') // Remove bullet markers from start of block
+      .replace(/^\d+\.\s+/, '') // Remove numbered list markers
+      .trim();
+      
+    if (cleanBlock) {
+      bulletItems.push(cleanBlock);
+    }
+  }
+  
+  return bulletItems.length > 0 ? bulletItems : [text];
+};
+
 export default function LearnPage() {
   const router = useRouter();
 
@@ -251,6 +274,7 @@ export default function LearnPage() {
       console.log("visualPercent updated:", visualPercent);
     }
   }, [visualPercent, animatingTopicId]);
+
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
     if (!searchQuery.trim()) return topics;
@@ -281,6 +305,20 @@ export default function LearnPage() {
     const topic = topics.find((t) => t.slug === continueModule.topicSlug);
     if (!topic) return '0 / 0 Modules';
     return `${topic.completedModules} / ${topic.totalModules} Modules`;
+  }, [continueModule, topics]);
+
+  // Find current topic
+  const currentTopic = useMemo(() => {
+    if (topics.length === 0) return null;
+    if (continueModule?.topicSlug) {
+      const found = topics.find((t) => t.slug === continueModule.topicSlug);
+      if (found) return found;
+    }
+    const current = topics.find((t) => getDialStatus(t) === 'CURRENT');
+    if (current) return current;
+    const unlocked = topics.find((t) => t.unlocked);
+    if (unlocked) return unlocked;
+    return topics[0];
   }, [continueModule, topics]);
 
   // Map display level for continue module
@@ -403,11 +441,11 @@ export default function LearnPage() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto pb-12">
+      <div className="h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden pb-12 lg:pb-0 flex flex-col">
         {/* Cloud Background from Roadmaps */}
         <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
 
-        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 flex flex-col gap-6 sm:gap-8 relative z-10">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
@@ -474,8 +512,8 @@ export default function LearnPage() {
                       className={cn(
                         "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
                         continueModule
-                          ? "bg-emerald-500 shadow-emerald-500/20 cursor-pointer hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-105 active:scale-95"
-                          : "bg-emerald-500/60 cursor-pointer hover:bg-emerald-400 hover:scale-105 active:scale-95"
+                          ? "bg-[#FF9900] shadow-[#FF9900]/20 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/30 hover:scale-105 active:scale-95"
+                          : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
                       )}
                     >
                       <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
@@ -552,7 +590,7 @@ export default function LearnPage() {
 
               <Link
                 href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
                 title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
               >
                 <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -577,9 +615,9 @@ export default function LearnPage() {
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div className="flex-[1.5] min-w-0" id="topic-rail-section">
+            <div className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar" id="topic-rail-section">
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -692,126 +730,126 @@ export default function LearnPage() {
                                 )}
                               >
                                 <div className="w-full">
-                                   <div className="flex justify-between items-start gap-4">
-                                     <div className="flex-1">
-                                       <span className={cn(
-                                         "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
-                                         topic.id === animatingTopicId && isArrowSuccessVisual
-                                           ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
-                                           : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
-                                       )}>
-                                         Current
-                                       </span>
+                                  <div className="flex justify-between items-start gap-4">
+                                    <div className="flex-1">
+                                      <span className={cn(
+                                        "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
+                                        topic.id === animatingTopicId && isArrowSuccessVisual
+                                          ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
+                                          : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
+                                      )}>
+                                        Current
+                                      </span>
 
-                                       <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
-                                         {topic.name}
-                                       </h2>
+                                      <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
+                                        {topic.name}
+                                      </h2>
 
-                                       {/* Details Row: No time estimate */}
-                                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
-                                         <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
-                                         <span className="text-slate-350 font-semibold">•</span>
-                                         <span className={cn(
-                                           "font-semibold transition-colors duration-600",
-                                           topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-600" : "text-[#FF9900]"
-                                         )}>
-                                           {currentModuleLabel}
-                                         </span>
-                                       </div>
-                                     </div>
+                                      {/* Details Row: No time estimate */}
+                                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
+                                        <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
+                                        <span className="text-slate-350 font-semibold">•</span>
+                                        <span className={cn(
+                                          "font-semibold transition-colors duration-600",
+                                          topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-650" : "text-[#FF9900]"
+                                        )}>
+                                          {currentModuleLabel}
+                                        </span>
+                                      </div>
+                                    </div>
 
-                                     {/* AWS Swoosh Progress Illustration */}
-                                      <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
-                                        <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
-                                          <defs>
-                                            <clipPath id={`aws-swoosh-clip-${topic.id}`}>
-                                              <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
-                                              <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
-                                            </clipPath>
-                                          </defs>
-
-                                          {/* Unfilled background swoosh outline */}
-                                          <g
-                                            fill="rgba(226, 232, 240, 0.25)"
-                                            stroke={
-                                              topic.id === animatingTopicId
-                                                ? (isArrowSuccessVisual ? "#10B981" : "rgba(255, 159, 0, 1)")
-                                                : "rgba(255, 159, 0, 1)"
-                                            }
-                                            strokeWidth="3"
-                                            style={{
-                                              transition: topic.id === animatingTopicId
-                                                ? 'stroke 600ms ease-in-out'
-                                                : 'stroke 700ms ease-out'
-                                            }}
-                                          >
+                                    {/* AWS Swoosh Progress Illustration */}
+                                    <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
+                                      <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
+                                        <defs>
+                                          <clipPath id={`aws-swoosh-clip-${topic.id}`}>
                                             <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
                                             <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
-                                          </g>
+                                          </clipPath>
+                                        </defs>
 
-                                          {/* Filled swoosh left-to-right using clipPath */}
-                                          <g clipPath={`url(#aws-swoosh-clip-${topic.id})`}>
-                                            <rect
-                                              x="0"
-                                              y="100"
-                                              width={`${(300 * progressPercentToRender) / 100}`}
-                                              height="90"
-                                              fill={
-                                                topic.id === animatingTopicId
-                                                  ? (isArrowSuccessVisual ? "#10B981" : "#FF9900")
-                                                  : "#FF9900"
-                                              }
-                                              style={{
-                                                width: `${(300 * progressPercentToRender) / 100}px`,
-                                                transition: topic.id === animatingTopicId
-                                                  ? 'width 2500ms ease-out, fill 600ms ease-in-out'
-                                                  : 'width 700ms ease-out, fill 700ms ease-out'
-                                              }}
-                                            />
-                                          </g>
-                                        </svg>
-                                      </div>
-                                   </div>
-                                              
-                                   {/* Progress bar and numeric percentage */}
-                                   <div className="flex items-center gap-3 mt-4">
-                                     <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
-                                       <div
-                                         className={cn(
-                                           "h-full rounded-full",
-                                           topic.id === animatingTopicId
-                                             ? (isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]")
-                                             : "bg-[#FF9900]"
-                                         )}
-                                         style={{
-                                           width: `${progressPercentToRender}%`,
-                                           transition: topic.id === animatingTopicId
-                                             ? 'width 2500ms ease-out, background-color 600ms ease-in-out'
-                                             : 'width 700ms ease-out, background-color 700ms ease-out'
-                                         }}
-                                       />
-                                     </div>
-                                     <span className="text-xs font-semibold text-slate-500 leading-none">
-                                       {progressPercentToRender}%
-                                     </span>
-                                   </div>
-                                 </div>
+                                        {/* Unfilled background swoosh outline */}
+                                        <g
+                                          fill="rgba(226, 232, 240, 0.25)"
+                                          stroke={
+                                            topic.id === animatingTopicId
+                                              ? (isArrowSuccessVisual ? "#10B981" : "rgba(255, 159, 0, 1)")
+                                              : "rgba(255, 159, 0, 1)"
+                                          }
+                                          strokeWidth="3"
+                                          style={{
+                                            transition: topic.id === animatingTopicId
+                                              ? 'stroke 600ms ease-in-out'
+                                              : 'stroke 700ms ease-out'
+                                          }}
+                                        >
+                                          <path d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                                          <path d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                                        </g>
 
-                                 {/* Bottom Row: Action */}
-                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
-                                   <Link
-                                     href={`/learn/${topic.slug}`}
-                                     className={cn(
-                                       "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
-                                       topic.id === animatingTopicId && isArrowSuccessVisual
-                                         ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
-                                         : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
-                                     )}
-                                   >
-                                     <span>Continue</span>
-                                     <span className="text-xs">→</span>
-                                   </Link>
-                                 </div>
+                                        {/* Filled swoosh left-to-right using clipPath */}
+                                        <g clipPath={`url(#aws-swoosh-clip-${topic.id})`}>
+                                          <rect
+                                            x="0"
+                                            y="100"
+                                            width={`${(300 * progressPercentToRender) / 100}`}
+                                            height="90"
+                                            fill={
+                                              topic.id === animatingTopicId
+                                                ? (isArrowSuccessVisual ? "#10B981" : "#FF9900")
+                                                : "#FF9900"
+                                            }
+                                            style={{
+                                              width: `${(300 * progressPercentToRender) / 100}px`,
+                                              transition: topic.id === animatingTopicId
+                                                ? 'width 2500ms ease-out, fill 600ms ease-in-out'
+                                                : 'width 700ms ease-out, fill 700ms ease-out'
+                                            }}
+                                          />
+                                        </g>
+                                      </svg>
+                                    </div>
+                                  </div>
+
+                                  {/* Progress bar and numeric percentage */}
+                                  <div className="flex items-center gap-3 mt-4">
+                                    <div className="flex-1 h-1.5 bg-slate-100/50 rounded-full overflow-hidden">
+                                      <div
+                                        className={cn(
+                                          "h-full rounded-full",
+                                          topic.id === animatingTopicId
+                                            ? (isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]")
+                                            : "bg-[#FF9900]"
+                                        )}
+                                        style={{
+                                          width: `${progressPercentToRender}%`,
+                                          transition: topic.id === animatingTopicId
+                                            ? 'width 2500ms ease-out, background-color 600ms ease-in-out'
+                                            : 'width 700ms ease-out, background-color 700ms ease-out'
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="text-xs font-semibold text-slate-500 leading-none">
+                                      {progressPercentToRender}%
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Bottom Row: Action */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
+                                  <Link
+                                    href={`/learn/${topic.slug}`}
+                                    className={cn(
+                                      "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
+                                      topic.id === animatingTopicId && isArrowSuccessVisual
+                                        ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
+                                        : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
+                                    )}
+                                  >
+                                    <span>Continue</span>
+                                    <span className="text-xs">→</span>
+                                  </Link>
+                                </div>
                               </motion.div>
                             )}
 
@@ -829,7 +867,7 @@ export default function LearnPage() {
                                   <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5 sm:mt-0">
                                     <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
                                   </div>
-                                  
+
                                   {/* Topic Title and Modules Pill */}
                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
                                     <h2 className="text-sm font-semibold text-slate-800 tracking-tight leading-snug">
@@ -885,8 +923,69 @@ export default function LearnPage() {
               </main>
             </div>
 
-            {/* Right Column: Empty (guidelines moved to popup) */}
-            <div className="w-full lg:flex-1 flex-shrink-0" />
+            {/* Right Column: Description of current Topic */}
+            <div className="w-full lg:flex-1 flex-shrink-0 flex flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+              <AnimatePresence mode="wait">
+                {currentTopic ? (
+                  <motion.div
+                    key={currentTopic.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-[#FF9900]/10 border border-[#FF9900]/20 text-[#FF9900] rounded-xl flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 stroke-[2]" />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading">
+                          Current Topic Focus
+                        </span>
+                        <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5">
+                          {currentTopic.name}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
+                          Description
+                        </span>
+                        {currentTopic.description ? (
+                          <ul className="list-none pl-0 flex flex-col gap-2.5">
+                            {parseBulletPoints(currentTopic.description).map((item, index) => (
+                              <li key={index} className="flex items-start gap-2.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900] flex-shrink-0 mt-1.5" />
+                                <span className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
+                                  {item}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-slate-400 italic font-medium">
+                            No description provided for this topic.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="empty-state"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] opacity-80"
+                  >
+                    <BookOpen className="w-10 h-10 text-slate-350 mb-3 stroke-[1.5]" />
+                    <span className="text-xs font-bold text-slate-500">No active topic selected</span>
+                    <span className="text-[10px] text-slate-400 mt-1">Select a topic from the roadmap to view details.</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Guidelines Popup Modal */}

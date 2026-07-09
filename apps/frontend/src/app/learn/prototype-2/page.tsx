@@ -512,8 +512,8 @@ export default function LearnPrototype2Page() {
                       className={cn(
                         "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
                         continueModule
-                          ? "bg-emerald-500 shadow-emerald-500/20 cursor-pointer hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-105 active:scale-95"
-                          : "bg-emerald-500/60 cursor-pointer hover:bg-emerald-400 hover:scale-105 active:scale-95"
+                          ? "bg-[#FF9900] shadow-[#FF9900]/20 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/30 hover:scale-105 active:scale-95"
+                          : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
                       )}
                     >
                       <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
@@ -935,7 +935,7 @@ export default function LearnPrototype2Page() {
                     className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-650 rounded-xl flex items-center justify-center">
+                      <div className="p-2.5 bg-[#FF9900]/10 border border-[#FF9900]/20 text-[#FF9900] rounded-xl flex items-center justify-center">
                         <BookOpen className="w-5 h-5 stroke-[2]" />
                       </div>
                       <div>
