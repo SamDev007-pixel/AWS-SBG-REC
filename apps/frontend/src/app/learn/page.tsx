@@ -84,6 +84,10 @@ export default function LearnPage() {
   const [visualPercent, setVisualPercent] = useState(0);
   const [animationDuration, setAnimationDuration] = useState(4500);
 
+  // Layout refs for localized scrolling
+  const railRef = useRef<HTMLDivElement>(null);
+  const activeCardRef = useRef<HTMLDivElement>(null);
+
   // Exit handler
   const handleExit = () => {
     authService.logout();
@@ -101,9 +105,8 @@ export default function LearnPage() {
   const [showGuidelines, setShowGuidelines] = useState(false);
 
   const handleReviewTopics = () => {
-    const element = document.getElementById('topic-rail-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (railRef.current) {
+      railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -339,14 +342,60 @@ export default function LearnPage() {
   useEffect(() => {
     if (typeof window === 'undefined' || loading) return;
     
-    const timer = setTimeout(() => {
-      const currentEl = document.getElementById('current-topic-element');
-      if (currentEl) {
-        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 150);
+    let active = true;
+    let frameId1: number;
+    let frameId2: number;
 
-    return () => clearTimeout(timer);
+    const performScroll = () => {
+      if (!active) return;
+      const railEl = railRef.current;
+      const activeEl = activeCardRef.current;
+      
+      // Guard against null refs during rapid state transitions, routing, or filtering changes
+      if (!railEl || !activeEl) return;
+
+      const isScrollable = railEl.scrollHeight > railEl.clientHeight;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+      /**
+       * Native scrollIntoView() scrolls all scrollable ancestors.
+       * That causes the SidebarLayout container to move, clipping
+       * the page header. We instead scroll only the topic rail when
+       * it is independently scrollable.
+       */
+      if (isScrollable) {
+        // Localized desktop scroll: calculate relative rect sizes only when necessary
+        const railRect = railEl.getBoundingClientRect();
+        const elRect = activeEl.getBoundingClientRect();
+        
+        const targetScrollTop = railEl.scrollTop + (elRect.top - railRect.top) - (railRect.height / 2) + (elRect.height / 2);
+        const maxScroll = railEl.scrollHeight - railEl.clientHeight;
+        const clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScroll));
+        
+        railEl.scrollTo({
+          top: clampedScrollTop,
+          behavior: scrollBehavior
+        });
+      } else {
+        // Native mobile scroll: center the element in the main page viewport
+        activeEl.scrollIntoView({
+          behavior: scrollBehavior,
+          block: 'center'
+        });
+      }
+    };
+
+    // Double requestAnimationFrame ensures accurate layout dimensions are read after React commits changes to the DOM
+    frameId1 = requestAnimationFrame(() => {
+      frameId2 = requestAnimationFrame(performScroll);
+    });
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(frameId1);
+      if (frameId2) cancelAnimationFrame(frameId2);
+    };
   }, [currentTopic?.id, animatingTopicId, isCompletedVisual, loading]);
 
   // Map display level for continue module
@@ -407,7 +456,7 @@ export default function LearnPage() {
       );
     }
     const themedContent = (
-      <div className="min-h-screen w-full bg-slate-50/50">
+      <div className="w-full h-full bg-slate-50/50 flex-1 min-h-0">
         {children}
       </div>
     );
@@ -645,7 +694,7 @@ export default function LearnPage() {
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar" id="topic-rail-section">
+            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -738,8 +787,8 @@ export default function LearnPage() {
                       return (
                         <div
                           key={topic.id}
+                          ref={statusToRender === 'CURRENT' ? activeCardRef : undefined}
                           className="w-full"
-                          id={statusToRender === 'CURRENT' ? 'current-topic-element' : undefined}
                         >
                           {isFirstLocked && (
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-heading mt-6 mb-3 self-start pl-2">
