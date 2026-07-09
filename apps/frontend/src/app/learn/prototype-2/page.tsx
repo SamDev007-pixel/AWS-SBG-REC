@@ -73,6 +73,9 @@ export default function LearnPrototype2Page() {
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      if (testIntervalRef.current) clearInterval(testIntervalRef.current);
+    };
   }, []);
 
   // Completion animation states
@@ -87,6 +90,7 @@ export default function LearnPrototype2Page() {
   // Layout refs for localized scrolling
   const railRef = useRef<HTMLDivElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
+  const testIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Exit handler
   const handleExit = () => {
@@ -159,7 +163,11 @@ export default function LearnPrototype2Page() {
               const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
               if (currentSig !== lastSig) {
                 setAnimatingTopicId(completedTopic.id);
-                setVisualPercent(0);
+                const sessionStoragePrevPercent = sessionStorage.getItem("recentTopicPrevPercent");
+                const startPercent = sessionStoragePrevPercent !== null
+                  ? Number(sessionStoragePrevPercent)
+                  : (completedTopic.totalModules > 1 ? Math.round(((completedTopic.totalModules - 1) / completedTopic.totalModules) * 100) : 0);
+                setVisualPercent(startPercent);
                 setIsArrowSuccessVisual(false);
                 setIsCompletedVisual(false);
                 setIsNextUnlockedVisual(false);
@@ -233,26 +241,51 @@ export default function LearnPrototype2Page() {
       setNextAnimatingTopicId(null);
     }
 
-    // Set starting percent to 0 for a visual completion charge (0% to 100%)
-    setVisualPercent(0);
+    const sessionStoragePrevPercent = sessionStorage.getItem("recentTopicPrevPercent");
+    const startPercent = sessionStoragePrevPercent !== null
+      ? Number(sessionStoragePrevPercent)
+      : (completedTopic.totalModules > 1 ? Math.round(((completedTopic.totalModules - 1) / completedTopic.totalModules) * 100) : 0);
 
-    // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over 2500ms
+    setVisualPercent(startPercent);
+
+    // Phase 1: 300ms empty-state hold, then fill progress bar and AWS arrow to 100% over animationDuration
+    let fillInterval: NodeJS.Timeout;
     const fillTimer = setTimeout(() => {
-      setVisualPercent(100);
+      const duration = animationDuration; // Dynamic: 2500 or 4500
+      const intervalMs = 50;
+      const totalSteps = duration / intervalMs;
+      let currentStep = 0;
+      
+      fillInterval = setInterval(() => {
+        currentStep++;
+        if (currentStep >= totalSteps) {
+          setVisualPercent(100);
+          clearInterval(fillInterval);
+        } else {
+          const ratio = currentStep / totalSteps;
+          const easeOutRatio = 1 - Math.pow(1 - ratio, 2); // Matches the css 'ease-out' transition curve
+          const currentPercent = startPercent + (100 - startPercent) * easeOutRatio;
+          setVisualPercent(Math.round(currentPercent));
+        }
+      }, intervalMs);
     }, 300);
 
-    // Phase 2 (600ms): Once progress reaches 100% at 2800ms, transition color to Success Green
+    const colorDelay = 300 + animationDuration;
+    const transitionDelay = colorDelay + 600;
+    const cleanupDelay = transitionDelay + 3500;
+
+    // Phase 2 (600ms): Once progress reaches 100%, transition color to Success Green
     const colorTimer = setTimeout(() => {
       setIsArrowSuccessVisual(true);
-    }, 2800); // 300ms hold + 2500ms fill
+    }, colorDelay);
 
-    // Phase 3 & 4 (Simultaneous - 500ms crossfades) at 3400ms
+    // Phase 3 & 4 (Simultaneous - 500ms crossfades)
     const transitionTimer = setTimeout(() => {
       setIsCompletedVisual(true);
       setIsNextUnlockedVisual(true);
-    }, 3400); // 2800ms + 600ms color transition
+    }, transitionDelay);
 
-    // Clean up animation states after 6.9 seconds total
+    // Clean up animation states
     const cleanupTimer = setTimeout(() => {
       localStorage.setItem("lastAnimatedCompletionKey", currentSig);
       sessionStorage.removeItem("recentTopicCompletion");
@@ -262,10 +295,11 @@ export default function LearnPrototype2Page() {
       setIsCompletedVisual(false);
       setIsNextUnlockedVisual(false);
       setIsArrowSuccessVisual(false);
-    }, 6900);
+    }, cleanupDelay);
 
     return () => {
       clearTimeout(fillTimer);
+      if (fillInterval) clearInterval(fillInterval);
       clearTimeout(colorTimer);
       clearTimeout(transitionTimer);
       clearTimeout(cleanupTimer);
@@ -295,12 +329,32 @@ export default function LearnPrototype2Page() {
     setIsArrowSuccessVisual(false);
     setIsCompletedVisual(false);
     setIsNextUnlockedVisual(false);
-    setVisualPercent(0);
+    const startPercent = topic5.totalModules > 0 
+      ? Math.round((topic5.completedModules / topic5.totalModules) * 100)
+      : 0;
+    setVisualPercent(startPercent);
     setNextAnimatingTopicId(topic6.id);
 
     // Phase 1: progress bar starts filling at 300ms
+    if (testIntervalRef.current) clearInterval(testIntervalRef.current);
     const fillTimer = setTimeout(() => {
-      setVisualPercent(100);
+      const duration = 4500; // test animation is 4500ms
+      const intervalMs = 50;
+      const totalSteps = duration / intervalMs;
+      let currentStep = 0;
+      
+      testIntervalRef.current = setInterval(() => {
+        currentStep++;
+        if (currentStep >= totalSteps) {
+          setVisualPercent(100);
+          if (testIntervalRef.current) clearInterval(testIntervalRef.current);
+        } else {
+          const ratio = currentStep / totalSteps;
+          const easeOutRatio = 1 - Math.pow(1 - ratio, 2); // Matches the css 'ease-out' transition curve
+          const currentPercent = startPercent + (100 - startPercent) * easeOutRatio;
+          setVisualPercent(Math.round(currentPercent));
+        }
+      }, intervalMs);
     }, 300);
 
     // Phase 2: turns green at 4800ms (300ms + 4500ms duration)
@@ -458,7 +512,7 @@ export default function LearnPrototype2Page() {
   // Auto-scroll current topic and its predecessors into view
   useEffect(() => {
     if (typeof window === 'undefined' || loading) return;
-    
+
     let active = true;
     let frameId1: number;
     let frameId2: number;
@@ -467,7 +521,7 @@ export default function LearnPrototype2Page() {
       if (!active) return;
       const railEl = railRef.current;
       const activeEl = activeCardRef.current;
-      
+
       // Guard against null refs during rapid state transitions, routing, or filtering changes
       if (!railEl || !activeEl) return;
 
@@ -485,11 +539,11 @@ export default function LearnPrototype2Page() {
         // Localized desktop scroll: calculate relative rect sizes only when necessary
         const railRect = railEl.getBoundingClientRect();
         const elRect = activeEl.getBoundingClientRect();
-        
+
         const targetScrollTop = railEl.scrollTop + (elRect.top - railRect.top) - (railRect.height / 2) + (elRect.height / 2);
         const maxScroll = railEl.scrollHeight - railEl.clientHeight;
         const clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScroll));
-        
+
         railEl.scrollTo({
           top: clampedScrollTop,
           behavior: scrollBehavior
@@ -1000,7 +1054,7 @@ export default function LearnPrototype2Page() {
                                             style={{
                                               width: `${(300 * progressPercentToRender) / 100}px`,
                                               transition: topic.id === animatingTopicId
-                                                ? `width ${animationDuration}ms ease-out, fill 600ms ease-in-out`
+                                                ? `width 50ms linear, fill 600ms ease-in-out`
                                                 : 'width 700ms ease-out, fill 700ms ease-out'
                                             }}
                                           />
@@ -1022,7 +1076,7 @@ export default function LearnPrototype2Page() {
                                         style={{
                                           width: `${progressPercentToRender}%`,
                                           transition: topic.id === animatingTopicId
-                                            ? `width ${animationDuration}ms ease-out, background-color 600ms ease-in-out`
+                                            ? `width 50ms linear, background-color 600ms ease-in-out`
                                             : 'width 700ms ease-out, background-color 700ms ease-out'
                                         }}
                                       />
@@ -1124,7 +1178,12 @@ export default function LearnPrototype2Page() {
             {/* Right Column: Description of current Topic */}
             <div className="hidden lg:flex w-full lg:flex-1 flex-shrink-0 flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
               {displayTopic ? (
-                <div className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left">
+                <div className={cn(
+                  "w-full backdrop-blur-[20px] border rounded-2xl p-6 md:p-8 flex flex-col gap-6 text-left transition-all duration-600",
+                  displayTopic.status === 'COMPLETED' || (isAnimatingCompleted && isArrowSuccessVisual)
+                    ? "bg-emerald-500/[0.06] border-emerald-500/20 shadow-[inset_0_0_35px_rgba(16,185,129,0.2),inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
+                    : "bg-white/[0.15] border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
+                )}>
                   <div className="flex items-center gap-3">
                     {/* Book Icon: Turns green on completion */}
                     <div className={cn(
