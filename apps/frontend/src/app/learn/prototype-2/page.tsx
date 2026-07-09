@@ -35,23 +35,23 @@ import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 // Helper to parse topic descriptions into bullet points
 const parseBulletPoints = (text: string): string[] => {
   if (!text) return [];
-  
+
   // Split by double newlines (representing leaving a line/blank line)
   const blocks = text.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
-  
+
   const bulletItems: string[] = [];
-  
+
   for (const block of blocks) {
     const cleanBlock = block
       .replace(/^[\s\-*•+\u2022\u2023\u25E6\u2043]+/, '') // Remove bullet markers from start of block
       .replace(/^\d+\.\s+/, '') // Remove numbered list markers
       .trim();
-      
+
     if (cleanBlock) {
       bulletItems.push(cleanBlock);
     }
   }
-  
+
   return bulletItems.length > 0 ? bulletItems : [text];
 };
 
@@ -82,6 +82,7 @@ export default function LearnPrototype2Page() {
   const [isNextUnlockedVisual, setIsNextUnlockedVisual] = useState(false);
   const [isArrowSuccessVisual, setIsArrowSuccessVisual] = useState(false);
   const [visualPercent, setVisualPercent] = useState(0);
+  const [animationDuration, setAnimationDuration] = useState(2500);
 
   // Exit handler
   const handleExit = () => {
@@ -248,7 +249,7 @@ export default function LearnPrototype2Page() {
       setIsNextUnlockedVisual(true);
     }, 3400); // 2800ms + 600ms color transition
 
-    // Clean up animation states after 3.9 seconds total
+    // Clean up animation states after 6.9 seconds total
     const cleanupTimer = setTimeout(() => {
       localStorage.setItem("lastAnimatedCompletionKey", currentSig);
       sessionStorage.removeItem("recentTopicCompletion");
@@ -258,7 +259,7 @@ export default function LearnPrototype2Page() {
       setIsCompletedVisual(false);
       setIsNextUnlockedVisual(false);
       setIsArrowSuccessVisual(false);
-    }, 3900);
+    }, 6900);
 
     return () => {
       clearTimeout(fillTimer);
@@ -274,6 +275,127 @@ export default function LearnPrototype2Page() {
       console.log("visualPercent updated:", visualPercent);
     }
   }, [visualPercent, animatingTopicId]);
+
+  const handleTestComplete = () => {
+    if (topics.length < 12 || animatingTopicId) return;
+
+    const topic5 = topics[9];
+    const topic6 = topics[10];
+    const index5 = topics.findIndex(t => t.id === topic5.id);
+    const index6 = topics.findIndex(t => t.id === topic6.id);
+
+    // Set animation duration to 4500ms so it fills from 300ms to 4800ms
+    setAnimationDuration(4500);
+
+    // Trigger completion animation states for topic 5
+    setAnimatingTopicId(topic5.id);
+    setIsArrowSuccessVisual(false);
+    setIsCompletedVisual(false);
+    setIsNextUnlockedVisual(false);
+    setVisualPercent(0);
+    setNextAnimatingTopicId(topic6.id);
+
+    // Phase 1: progress bar starts filling at 300ms
+    const fillTimer = setTimeout(() => {
+      setVisualPercent(100);
+    }, 300);
+
+    // Phase 2: turns green at 4800ms (300ms + 4500ms duration)
+    const colorTimer = setTimeout(() => {
+      setIsArrowSuccessVisual(true);
+    }, 4800);
+
+    // Phase 3 & 4: crossfades
+    const transitionTimer = setTimeout(() => {
+      setIsCompletedVisual(true);
+      setIsNextUnlockedVisual(true);
+    }, 6400);
+
+    // Clean up timer: transition to the next topic (Topic 6)
+    const cleanupTimer = setTimeout(() => {
+      // Modify state so Topic 5 is completed and Topic 6 is unlocked/current
+      setTopics(prevTopics => {
+        const updated = [...prevTopics];
+        if (index5 !== -1) {
+          updated[index5] = {
+            ...updated[index5],
+            completedModules: updated[index5].totalModules,
+            status: 'COMPLETED'
+          };
+        }
+        if (index6 !== -1) {
+          updated[index6] = {
+            ...updated[index6],
+            unlocked: true,
+            status: 'IN_PROGRESS'
+          };
+        }
+        return updated;
+      });
+
+      // Update continueModule so Topic 6 is the current mission
+      setContinueModule({
+        topicSlug: topic6.slug,
+        topicName: topic6.name,
+        name: 'Introduction to ' + topic6.name,
+        level: 'BEGINNER',
+        id: `module-${index6 + 1}-start`
+      });
+
+      setAnimatingTopicId(null);
+      setNextAnimatingTopicId(null);
+      setIsCompletedVisual(false);
+      setIsNextUnlockedVisual(false);
+      setIsArrowSuccessVisual(false);
+      setAnimationDuration(2500); // Reset animationDuration back to default
+    }, 6300);
+  };
+
+  const handleTestReset = () => {
+    if (topics.length < 15) return;
+
+    const topic5 = topics[9];
+    const topic6 = topics[10];
+    const index5 = topics.findIndex(t => t.id === topic5.id);
+    const index6 = topics.findIndex(t => t.id === topic6.id);
+
+    setTopics(prevTopics => {
+      const updated = [...prevTopics];
+      if (index5 !== -1) {
+        updated[index5] = {
+          ...updated[index5],
+          completedModules: 0,
+          status: 'IN_PROGRESS',
+          unlocked: true
+        };
+      }
+      if (index6 !== -1) {
+        updated[index6] = {
+          ...updated[index6],
+          completedModules: 0,
+          unlocked: false,
+          status: 'NOT_STARTED'
+        };
+      }
+      return updated;
+    });
+
+    setContinueModule({
+      topicSlug: topic5.slug,
+      topicName: topic5.name,
+      name: 'Introduction to ' + topic5.name,
+      level: 'BEGINNER',
+      id: `module-${index5 + 1}-start`
+    });
+
+    // Make sure animation states are reset
+    setAnimatingTopicId(null);
+    setNextAnimatingTopicId(null);
+    setIsCompletedVisual(false);
+    setIsNextUnlockedVisual(false);
+    setIsArrowSuccessVisual(false);
+    setAnimationDuration(2500);
+  };
 
   // Filter topics based on search query
   const filteredTopics = useMemo(() => {
@@ -320,6 +442,29 @@ export default function LearnPrototype2Page() {
     if (unlocked) return unlocked;
     return topics[0];
   }, [continueModule, topics]);
+
+  const displayTopic = useMemo(() => {
+    if (animatingTopicId) {
+      return topics.find(t => t.id === animatingTopicId) || currentTopic;
+    }
+    return currentTopic;
+  }, [animatingTopicId, topics, currentTopic]);
+
+  const isAnimatingCompleted = animatingTopicId !== null && animatingTopicId === displayTopic?.id;
+
+  // Auto-scroll current topic and its predecessors into view
+  useEffect(() => {
+    if (typeof window === 'undefined' || loading) return;
+    
+    const timer = setTimeout(() => {
+      const currentEl = document.getElementById('current-topic-element');
+      if (currentEl) {
+        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [currentTopic?.id, animatingTopicId, isCompletedVisual, loading]);
 
   // Map display level for continue module
   const continueDisplayLevel = useMemo(() => {
@@ -708,7 +853,11 @@ export default function LearnPrototype2Page() {
                       const currentModuleLabel = `MOD ${Math.min(completedModulesToRender + 1, topic.totalModules)}`;
 
                       return (
-                        <div key={topic.id} className="w-full">
+                        <div
+                          key={topic.id}
+                          className="w-full"
+                          id={statusToRender === 'CURRENT' ? 'current-topic-element' : undefined}
+                        >
                           {isFirstLocked && (
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-heading mt-6 mb-3 self-start pl-2">
                               UPCOMING TOPICS
@@ -802,7 +951,7 @@ export default function LearnPrototype2Page() {
                                             style={{
                                               width: `${(300 * progressPercentToRender) / 100}px`,
                                               transition: topic.id === animatingTopicId
-                                                ? 'width 2500ms ease-out, fill 600ms ease-in-out'
+                                                ? `width ${animationDuration}ms ease-out, fill 600ms ease-in-out`
                                                 : 'width 700ms ease-out, fill 700ms ease-out'
                                             }}
                                           />
@@ -824,7 +973,7 @@ export default function LearnPrototype2Page() {
                                         style={{
                                           width: `${progressPercentToRender}%`,
                                           transition: topic.id === animatingTopicId
-                                            ? 'width 2500ms ease-out, background-color 600ms ease-in-out'
+                                            ? `width ${animationDuration}ms ease-out, background-color 600ms ease-in-out`
                                             : 'width 700ms ease-out, background-color 700ms ease-out'
                                         }}
                                       />
@@ -925,66 +1074,125 @@ export default function LearnPrototype2Page() {
 
             {/* Right Column: Description of current Topic */}
             <div className="w-full lg:flex-1 flex-shrink-0 flex flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
-              <AnimatePresence mode="wait">
-                {currentTopic ? (
-                  <motion.div
-                    key={currentTopic.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-[#FF9900]/10 border border-[#FF9900]/20 text-[#FF9900] rounded-xl flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 stroke-[2]" />
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading">
-                          Current Topic Focus
-                        </span>
-                        <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5">
-                          {currentTopic.name}
-                        </h3>
-                      </div>
+              {displayTopic ? (
+                <div className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] text-left">
+                  <div className="flex items-center gap-3">
+                    {/* Book Icon: Turns green on completion */}
+                    <div className={cn(
+                      "p-2.5 rounded-xl flex items-center justify-center border transition-colors duration-600",
+                      isAnimatingCompleted && isArrowSuccessVisual
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600"
+                        : "bg-[#FF9900]/10 border-[#FF9900]/20 text-[#FF9900]"
+                    )}>
+                      <BookOpen className="w-5 h-5 stroke-[2]" />
                     </div>
 
-                    <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
-                          Description
-                        </span>
-                        {currentTopic.description ? (
-                          <ul className="list-none pl-0 flex flex-col gap-2.5">
-                            {parseBulletPoints(currentTopic.description).map((item, index) => (
-                              <li key={index} className="flex items-start gap-2.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900] flex-shrink-0 mt-1.5" />
-                                <span className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
-                                  {item}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-xs text-slate-400 italic font-medium">
-                            No description provided for this topic.
-                          </p>
-                        )}
-                      </div>
+                    {/* Header text container: Animates on topic change */}
+                    <div className="flex-1 min-w-0">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={displayTopic.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 50 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="flex flex-col"
+                        >
+                          <div className="relative h-3.5 w-full">
+                            <AnimatePresence initial={false}>
+                              {!(isAnimatingCompleted && isArrowSuccessVisual) ? (
+                                <motion.span
+                                  key="focus-title"
+                                  initial={{ clipPath: "inset(0 0 0 0)" }}
+                                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                                  exit={{ clipPath: "inset(0 0 0 100%)" }}
+                                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading whitespace-nowrap"
+                                >
+                                  Current Topic Focus
+                                </motion.span>
+                              ) : (
+                                <motion.span
+                                  key="completed-title"
+                                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 block font-heading whitespace-nowrap"
+                                >
+                                  Completed
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
+                          <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5 truncate">
+                            {displayTopic.name}
+                          </h3>
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="empty-state"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] opacity-80"
-                  >
-                    <BookOpen className="w-10 h-10 text-slate-350 mb-3 stroke-[1.5]" />
-                    <span className="text-xs font-bold text-slate-500">No active topic selected</span>
-                    <span className="text-[10px] text-slate-400 mt-1">Select a topic from the roadmap to view details.</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+
+                  <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
+                    <div className="relative">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
+                        Description
+                      </span>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={displayTopic.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 50 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                        >
+                          {displayTopic.description ? (
+                            <ul className="list-none pl-0 flex flex-col gap-2.5">
+                              {parseBulletPoints(displayTopic.description).map((item, index) => (
+                                <li key={index} className="flex items-start gap-2.5">
+                                  <span className={cn(
+                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 transition-colors duration-600",
+                                    isAnimatingCompleted && isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]"
+                                  )} />
+                                  <span className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
+                                    {item}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-xs text-slate-400 italic font-medium">
+                              No description provided for this topic.
+                            </p>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                  {/* Test Options: Complete / Reset */}
+                  <div className="border-t border-slate-200/50 pt-4 mt-auto flex justify-end gap-2.5">
+                    <button
+                      onClick={handleTestReset}
+                      className="px-3 py-1.5 bg-slate-500/10 hover:bg-slate-500/20 text-slate-650 text-[10px] font-bold rounded-lg border border-slate-500/25 transition-all active:scale-95 cursor-pointer"
+                    >
+                      Reset (Topic 5)
+                    </button>
+                    <button
+                      onClick={handleTestComplete}
+                      disabled={animatingTopicId !== null}
+                      className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-650 disabled:opacity-50 text-[10px] font-bold rounded-lg border border-emerald-500/25 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                    >
+                      Complete Topic 5
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] opacity-80">
+                  <BookOpen className="w-10 h-10 text-slate-350 mb-3 stroke-[1.5]" />
+                  <span className="text-xs font-bold text-slate-500">No active topic selected</span>
+                  <span className="text-[10px] text-slate-400 mt-1">Select a topic from the roadmap to view details.</span>
+                </div>
+              )}
             </div>
           </div>
 
