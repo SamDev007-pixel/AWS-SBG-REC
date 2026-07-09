@@ -612,6 +612,46 @@ async function main() {
   });
   console.log('Seeded news articles');
 
+  console.log('Seeding announcements...');
+  await prisma.announcement.deleteMany({});
+  await prisma.announcement.createMany({
+    data: [
+      {
+        id: 'announcement-seed-001',
+        eventId: 'event-seed-001',
+        title: 'AWS Cloud Day 2026 Registration Open',
+        message: 'Join us for our annual flagship event featuring hands-on labs, expert speaker sessions, and networking opportunities. RSVP today to secure your entry pass!',
+        type: 'UPDATE',
+        targetType: 'EVENT',
+      },
+      {
+        id: 'announcement-seed-002',
+        eventId: 'event-seed-001',
+        title: 'Weekly Hands-on Lab Session: Serverless on AWS',
+        message: 'Get ready to build! This week we are diving deep into AWS Lambda, API Gateway, and DynamoDB. Bring your laptops and pre-configured AWS Sandbox accounts.',
+        type: 'SCHEDULE_CHANGE',
+        targetType: 'EVENT',
+      },
+      {
+        id: 'announcement-seed-003',
+        eventId: 'event-seed-002',
+        title: 'AWS Certifications Bootcamp Starting Soon',
+        message: 'Kickstart your Cloud Practitioner or Solutions Architect Associate journey. Weekly study groups, mock exams, and voucher eligibility trackers are now active.',
+        type: 'REMINDER',
+        targetType: 'EVENT',
+      },
+      {
+        id: 'announcement-seed-004',
+        eventId: 'event-seed-003',
+        title: 'Community Mentorship Program Cohort 3',
+        message: 'Applications for mentors and mentees are now open. Get paired with senior AWS engineers and work on real-world capstone projects. Apply before the deadline.',
+        type: 'INFO',
+        targetType: 'EVENT',
+      },
+    ],
+  });
+  console.log('Seeded announcements');
+
   console.log('Seeding certifications & career pathways...');
   await seedCertificationLevels();
   await seedCertifications();

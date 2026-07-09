@@ -6,6 +6,7 @@ import Gallery from "@/components/Gallery";
 import ReviewsMarquee from "@/components/ReviewsMarquee";
 import ScrollTransitionSection from "@/components/ScrollTransitionSection";
 import ServicesMarquee from "@/components/ServicesMarquee";
+import AnnouncementsSection from "@/components/home/AnnouncementsSection";
 
 import AnimatedCloudBackground from "@/components/home/AnimatedCloudBackground";
 import Footer from "@/components/Footer";
@@ -21,6 +22,7 @@ export default function Home() {
         <ServicesMarquee />
         <Gallery />
         <ReviewsMarquee />
+        <AnnouncementsSection />
         <FacultyCoordinator />
         <OurTeamShowcase />
       </main>

@@ -5,7 +5,7 @@ import { PaginationDto } from '@/common/dto/pagination.dto';
 export class GetTicketsDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filter by Event ID' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   eventId?: string;
 
   @ApiPropertyOptional({ description: 'Filter by ticket status' })

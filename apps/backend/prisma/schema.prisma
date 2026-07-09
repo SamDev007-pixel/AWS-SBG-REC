@@ -85,6 +85,7 @@ model Event {
   updatedAt            DateTime             @updatedAt @map("updated_at")
   endDatetime          DateTime?            @map("end_datetime")
   meetingLink          String?              @map("meeting_link")
+  onSpotEnabled        Boolean              @default(false) @map("on_spot_enabled")
   agendaJson           Json?                @map("agenda")
   speakerDetailsJson   Json?                @map("speaker_details")
   announcements        Announcement[]
@@ -248,15 +249,17 @@ model AuditLog {
 }
 
 model Announcement {
-  id        String   @id @default(uuid())
-  eventId   String
-  title     String
-  message   String
-  type      String   @default("UPDATE")
-  sendEmail Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id                String   @id @default(uuid())
+  eventId           String?
+  title             String
+  message           String
+  type              String   @default("UPDATE")
+  sendEmail         Boolean  @default(false)
+  targetType        String   @default("EVENT")  // "EVENT" | "CREW_ALL" | "CREW_SPECIFIC"
+  targetCrewUserId  String?                      // filled only when targetType = "CREW_SPECIFIC"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  event             Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model SchemaEnumDummy {

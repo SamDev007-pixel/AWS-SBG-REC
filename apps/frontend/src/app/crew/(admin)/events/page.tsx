@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCrewEvents } from '@/lib/hooks';
@@ -20,7 +20,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { cn, getPosterSrcAndPosition } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -161,6 +161,25 @@ export default function AssignedEventsPage() {
 
   const { data: rawEvents, isLoading } = useCrewEvents();
 
+  const dynamicCategories = useMemo(() => {
+    const defaultCategories = ['Technology', 'Workshop', 'Bootcamp', 'DevOps'];
+    const uniqueEventCats = Array.from(
+      new Set(
+        (rawEvents ?? [])
+          .map(e => e.category)
+          .filter((cat): cat is string => !!cat && cat.trim() !== '')
+      )
+    );
+    const merged = [...defaultCategories];
+    uniqueEventCats.forEach(cat => {
+      const clean = cat.trim();
+      if (!merged.some(m => m.toLowerCase() === clean.toLowerCase())) {
+        merged.push(clean);
+      }
+    });
+    return merged;
+  }, [rawEvents]);
+
   const toggleRowExpansion = useCallback((eventId: string) => {
     setExpandedEventIds((prev) => ({
       ...prev,
@@ -190,7 +209,7 @@ export default function AssignedEventsPage() {
   const selectCls = "appearance-none pl-3.5 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-655 cursor-pointer transition-all";
 
   return (
-    <div className="min-h-screen w-full bg-white text-[#1A1C1E] relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen w-full bg-white text-[#1A1C1E] relative pt-20 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* Header Section */}
@@ -230,10 +249,11 @@ export default function AssignedEventsPage() {
         </div>
 
         {/* ── Filters + View Toggle ── */}
-        <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm px-5 py-3.5">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm px-4 py-3 sm:px-5 sm:py-3.5">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center gap-3">
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
                 type="text"
@@ -248,10 +268,9 @@ export default function AssignedEventsPage() {
             <div className="relative shrink-0">
               <select value={category} onChange={(e) => setCategory(e.target.value)} className={selectCls}>
                 <option value="">All Categories</option>
-                <option value="Technology">Technology</option>
-                <option value="Workshop">Workshop</option>
-                <option value="Bootcamp">Bootcamp</option>
-                <option value="DevOps">DevOps</option>
+                {dynamicCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>
@@ -271,25 +290,13 @@ export default function AssignedEventsPage() {
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>
 
-            {/* Mode */}
-            <div className="relative shrink-0">
-              <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)} className={selectCls}>
-                <option value="">All Modes</option>
-                <option value="ONLINE">Online</option>
-                <option value="OFFLINE">Offline</option>
-                <option value="HYBRID">Hybrid</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
-            </div>
-
-            {/* Spacer */}
             <div className="flex-1" />
 
             {/* Clear */}
             {(search || category || statusFilter || modeFilter) && (
               <button onClick={() => { setSearch(''); setCategory(''); setStatusFilter(''); setModeFilter(''); }}
                 className="text-[12px] font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer border-none bg-transparent shrink-0">
-                Clear
+                Clear Filters
               </button>
             )}
 
@@ -302,6 +309,80 @@ export default function AssignedEventsPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="flex flex-col gap-2.5 md:hidden">
+            {/* Search Input with inline clear */}
+            <div className="relative w-full">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[13px] text-slate-700 placeholder-slate-400 transition-all"
+              />
+              {search && (
+                <button 
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 border-none bg-transparent"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Filters Row: Category + Status + View Toggle side-by-side */}
+            <div className="flex items-center gap-2 w-full">
+              {/* Category */}
+              <div className="relative flex-1 min-w-0">
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className={cn(selectCls, "w-full pr-7 pl-2.5 py-1.5 text-[12px]")}>
+                  <option value="">Categories</option>
+                  {dynamicCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-450 pointer-events-none" size={11} />
+              </div>
+
+              {/* Status */}
+              <div className="relative flex-1 min-w-0">
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={cn(selectCls, "w-full pr-7 pl-2.5 py-1.5 text-[12px]")}>
+                  <option value="">Statuses</option>
+                  <option value="DRAFT">Draft</option>
+                  <option value="PUBLISHED">Published</option>
+                  <option value="REGISTRATION_OPEN">Reg. Open</option>
+                  <option value="REGISTRATION_CLOSED">Reg. Closed</option>
+                  <option value="ONGOING">Ongoing</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="ARCHIVED">Archived</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-455 pointer-events-none" size={11} />
+              </div>
+
+              {/* View toggle */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-[6px] border border-slate-200 shrink-0">
+                {([['grid', LayoutGrid], ['list', List]] as const).map(([mode, Icon]) => (
+                  <button key={mode} onClick={() => setViewMode(mode)} title={`${mode} view`}
+                    className={`p-1.5 rounded-[4px] transition-all cursor-pointer border-none ${viewMode === mode ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-655 bg-transparent'}`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear Button (only displays below options row when options are active) */}
+            {(category || statusFilter || modeFilter) && (
+              <button 
+                onClick={() => { setCategory(''); setStatusFilter(''); setModeFilter(''); }}
+                className="text-[11.5px] font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer border-none bg-transparent text-left py-0.5 px-0.5"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 
@@ -430,227 +511,342 @@ export default function AssignedEventsPage() {
         ) : (
 
           /* ── List View ── */
-          <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="min-w-[960px] divide-y divide-slate-200">
-                {/* Header Row */}
-                <div className="grid grid-cols-12 gap-4 bg-slate-50/80 px-5 py-3.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 items-center">
-                  <div className="col-span-3">Event</div>
-                  <div className="col-span-2">Date</div>
-                  <div className="col-span-3">Venue</div>
-                  <div className="col-span-2">Status</div>
-                  <div className="col-span-1">Registered</div>
-                  <div className="col-span-1 text-right"></div>
-                </div>
+          <div className="w-full">
+            {/* Desktop List View (hidden on mobile) */}
+            <div className="hidden md:block bg-white border border-slate-200 rounded-[6px] shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <div className="min-w-[960px] divide-y divide-slate-200">
+                  {/* Header Row */}
+                  <div className="grid grid-cols-12 gap-4 bg-slate-50/80 px-5 py-3.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 items-center">
+                    <div className="col-span-3">Event</div>
+                    <div className="col-span-2">Date</div>
+                    <div className="col-span-3">Venue</div>
+                    <div className="col-span-2">Status</div>
+                    <div className="col-span-1">Registered</div>
+                    <div className="col-span-1 text-right"></div>
+                  </div>
 
-                {/* Rows */}
-                {paginatedEvents.map((event) => {
-                  const sc = statusConfig(event.status as EventStatus);
-                  const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
-                  const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
-                  return (
-                    <div
-                      key={event.id}
-                      className={`group border-b border-slate-200 last:border-b-0 transition-all duration-300 ${
-                        expandedEventIds[event.id] ? 'bg-slate-50/55' : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      {/* Main Column Grid */}
-                      <div 
-                        onClick={() => toggleRowExpansion(event.id)}
-                        className="grid grid-cols-12 gap-4 items-center px-5 py-4 cursor-pointer"
+                  {/* Rows */}
+                  {paginatedEvents.map((event) => {
+                    const sc = statusConfig(event.status as EventStatus);
+                    const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
+                    const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
+                    return (
+                      <div
+                        key={event.id}
+                        className={`group border-b border-slate-200 last:border-b-0 transition-all duration-300 ${
+                          expandedEventIds[event.id] ? 'bg-slate-50/55' : 'hover:bg-slate-50'
+                        }`}
                       >
-                        {/* Event Info */}
-                        <div className="col-span-3 flex items-center gap-3 min-w-0">
-                          <div className="h-10 w-10 rounded-[6px] bg-slate-900 shrink-0 overflow-hidden border border-slate-200/50 shadow-sm relative group-hover:scale-102 transition-transform duration-300">
-                            <img src={imgPosterSrc} alt={event.title} className="w-full h-full object-cover" style={{ objectPosition: imgPosterPosition }} />
+                        {/* Main Column Grid */}
+                        <div 
+                          onClick={() => toggleRowExpansion(event.id)}
+                          className="grid grid-cols-12 gap-4 items-center px-5 py-4 cursor-pointer"
+                        >
+                          {/* Event Info */}
+                          <div className="col-span-3 flex items-center gap-3 min-w-0">
+                            <div className="h-10 w-10 rounded-[6px] bg-slate-900 shrink-0 overflow-hidden border border-slate-200/50 shadow-sm relative group-hover:scale-102 transition-transform duration-300">
+                              <img src={imgPosterSrc} alt={event.title} className="w-full h-full object-cover" style={{ objectPosition: imgPosterPosition }} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-slate-800 text-[13px] group-hover:text-[#FF9900] transition-colors truncate" title={event.title}>{event.title}</p>
+                              {event.category && (() => {
+                                const cat = categoryConfig(event.category);
+                                return (
+                                  <span className={`inline-block rounded-[4px] px-1.5 py-0.5 text-[9px] font-semibold uppercase mt-0.5 tracking-wider border ${cat.className}`}>
+                                    {cat.label}
+                                  </span>
+                                );
+                              })()}
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-slate-800 text-[13px] group-hover:text-[#FF9900] transition-colors truncate" title={event.title}>{event.title}</p>
+
+                          {/* Date */}
+                          <div className="col-span-2 min-w-0">
+                            {event.date ? (
+                              <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
+                                  <Calendar size={11.5} />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-semibold text-slate-700 text-[12px] truncate">{formatDate(event.date)}</span>
+                                  <span className="text-slate-400 text-[10.5px] truncate">{event.time || '09:30 AM'}</span>
+                                </div>
+                              </div>
+                            ) : '—'}
+                          </div>
+
+                          {/* Venue */}
+                          <div className="col-span-3 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
+                                <MapPin size={11.5} />
+                              </div>
+                              <span className="text-[12px] text-slate-600 font-semibold truncate" title={event.venue}>{event.venue || '—'}</span>
+                            </div>
+                          </div>
+
+                          {/* Status / Mode / Assigned Role */}
+                          <div className="col-span-2 flex flex-col gap-1">
+                            <div className="flex flex-wrap gap-1">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ${sc.className}`}>{sc.label}</span>
+                            </div>
+                          </div>
+
+                          {/* Registered */}
+                          <div className="col-span-1 min-w-0">
+                            <div className="flex flex-col gap-1 inline-flex w-full">
+                              <div className="flex items-center gap-1.5">
+                                <Users size={12} className="text-slate-400" />
+                                <span className="text-[12.5px] font-bold text-slate-705">{regCount}</span>
+                                {event.capacity && (
+                                  <span className="text-slate-400 text-[11px] font-normal">/ {event.capacity}</span>
+                                )}
+                              </div>
+                              {event.capacity && event.capacity > 0 && (
+                                <div className="w-20 h-1 bg-slate-100 rounded-[2px] overflow-hidden">
+                                  <div 
+                                    className="h-full bg-[#FF9900] rounded-[2px] transition-all duration-300" 
+                                    style={{ width: `${Math.min((regCount / event.capacity) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="col-span-1">
+                            <div className="flex items-center gap-1.5 justify-end" onClick={(e) => e.stopPropagation()}>
+                              <Link 
+                                href={`/crew/events/${event.id}`}
+                                className="p-1.5 text-slate-500 hover:text-[#FF9900] hover:bg-slate-50 rounded-[6px] border border-slate-200 transition-all cursor-pointer"
+                                title="Details"
+                              >
+                                <ChevronRight size={13.5} />
+                              </Link>
+                              <Link 
+                                href={`/crew/scanner?eventId=${event.id}`}
+                                className="p-1.5 text-slate-500 hover:text-[#FF9900] hover:bg-slate-50 rounded-[6px] border border-slate-200 transition-all cursor-pointer"
+                                title="Scanner"
+                              >
+                                <QrCode size={13.5} />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expandable Details Container */}
+                        <div 
+                          className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedEventIds[event.id] 
+                              ? 'grid-rows-[1fr] opacity-100' 
+                              : 'grid-rows-[0fr] opacity-0'
+                          }`}
+                        >
+                          <div className="min-h-0">
+                            <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/30 text-slate-605">
+                              <div className="grid grid-cols-12 gap-6 text-[12.5px]">
+                                {/* Left column: Overview / Details */}
+                                <div className="col-span-7 space-y-3">
+                                  <div>
+                                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                      <ClipboardList size={12} className="text-[#FF9900]" />
+                                      About the Event
+                                    </h4>
+                                    <p className="text-slate-605 leading-relaxed font-normal">
+                                      {event.description || event.shortDescription || 'No detailed description provided for this event.'}
+                                    </p>
+                                  </div>
+                                  
+                                  {event.speakers && event.speakers.length > 0 && (
+                                    <div>
+                                      <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5">Speakers</h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {event.speakers.map((speaker: any, idx: number) => (
+                                          <div key={idx} className="flex items-center gap-2 bg-white border border-slate-200 rounded-[6px] px-2.5 py-1">
+                                            {speaker.photo ? (
+                                              <img src={speaker.photo} alt={speaker.name} className="w-5 h-5 rounded-[4px] object-cover" />
+                                            ) : (
+                                              <div className="w-5 h-5 rounded-[4px] bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                                {speaker.name[0]}
+                                              </div>
+                                            )}
+                                            <div className="leading-none">
+                                              <span className="font-semibold text-slate-700 text-[11.5px]">{speaker.name}</span>
+                                              {speaker.role && (
+                                                <span className="text-slate-400 text-[10px] ml-1.5">({speaker.role})</span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Center column: Agenda / Event flow if exists */}
+                                <div className="col-span-5 border-l border-slate-200/80 pl-6 flex flex-col justify-between">
+                                  <div className="space-y-4">
+                                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                                      <Calendar size={12} className="text-[#FF9900]" />
+                                      Event Settings
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[12px]">
+                                      <div>
+                                        <span className="block text-slate-400 text-[10.5px]">Attendance Mode</span>
+                                        <span className={`inline-block font-semibold text-[11px] px-2 py-0.5 rounded-[4px] border mt-0.5 ${modeConfig(event.mode).className}`}>
+                                          {modeConfig(event.mode).label}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="block text-slate-400 text-[10.5px]">Registration Form</span>
+                                        <span className="font-bold text-slate-705 mt-0.5 inline-block capitalize">{event.registrationFormType?.toLowerCase() || '—'}</span>
+                                      </div>
+                                      {event.registrationDeadline && (
+                                        <div className="col-span-2">
+                                          <span className="block text-slate-400 text-[10.5px]">Registration Deadline</span>
+                                          <span className="font-semibold text-slate-700 mt-0.5 inline-block">
+                                            {formatDate(event.registrationDeadline)} at {new Date(event.registrationDeadline).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
+                                    <Link href={`/crew/events/${event.id}`}
+                                      className="group flex-1 h-8 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
+                                      <span>View Details</span>
+                                      <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                                    </Link>
+                                    <Link href={`/crew/scanner?eventId=${event.id}`}
+                                      className="flex-1 h-8 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                                      <QrCode className="h-3.5 w-3.5" />
+                                      <span>Scanner</span>
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile List View (hidden on desktop) */}
+            <div className="flex flex-col gap-2.5 md:hidden">
+              {paginatedEvents.map((event) => {
+                const sc = statusConfig(event.status as EventStatus);
+                const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
+                const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
+                const isExpanded = !!expandedEventIds[event.id];
+                return (
+                  <div 
+                    key={event.id}
+                    className={cn(
+                      "bg-white border rounded-lg transition-all duration-200 shadow-sm overflow-hidden",
+                      isExpanded ? "border-[#FF9900]/60 ring-2 ring-[#FF9900]/5 bg-slate-50/20" : "border-slate-200 hover:bg-slate-50/50"
+                    )}
+                  >
+                    {/* Summary Header (Clickable to Expand) */}
+                    <div 
+                      onClick={() => toggleRowExpansion(event.id)}
+                      className="flex items-center justify-between gap-3 p-3.5 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="h-11 w-11 rounded-[6px] bg-slate-900 shrink-0 overflow-hidden border border-slate-200/50 shadow-sm relative">
+                          <img src={imgPosterSrc} alt={event.title} className="w-full h-full object-cover" style={{ objectPosition: imgPosterPosition }} />
+                        </div>
+                        <div className="min-w-0 flex-1 flex flex-col gap-1">
+                          <p className="font-semibold text-slate-800 text-[13px] leading-snug truncate" title={event.title}>{event.title}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
                             {event.category && (() => {
                               const cat = categoryConfig(event.category);
                               return (
-                                <span className={`inline-block rounded-[4px] px-1.5 py-0.5 text-[9px] font-semibold uppercase mt-0.5 tracking-wider border ${cat.className}`}>
+                                <span className={`inline-block rounded-[4px] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider border ${cat.className}`}>
                                   {cat.label}
                                 </span>
                               );
                             })()}
-                          </div>
-                        </div>
-
-                        {/* Date */}
-                        <div className="col-span-2 min-w-0">
-                          {event.date ? (
-                            <div className="flex items-center gap-2.5">
-                              <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
-                                <Calendar size={11.5} />
-                              </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="font-semibold text-slate-700 text-[12px] truncate">{formatDate(event.date)}</span>
-                                <span className="text-slate-400 text-[10.5px] truncate">{event.time || '09:30 AM'}</span>
-                              </div>
-                            </div>
-                          ) : '—'}
-                        </div>
-
-                        {/* Venue */}
-                        <div className="col-span-3 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
-                              <MapPin size={11.5} />
-                            </div>
-                            <span className="text-[12px] text-slate-600 font-semibold truncate" title={event.venue}>{event.venue || '—'}</span>
-                          </div>
-                        </div>
-
-                        {/* Status / Mode / Assigned Role */}
-                        <div className="col-span-2 flex flex-col gap-1">
-                          <div className="flex flex-wrap gap-1">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ${sc.className}`}>{sc.label}</span>
-                          </div>
-                        </div>
-
-                        {/* Registered */}
-                        <div className="col-span-1 min-w-0">
-                          <div className="flex flex-col gap-1 inline-flex w-full">
-                            <div className="flex items-center gap-1.5">
-                              <Users size={12} className="text-slate-400" />
-                              <span className="text-[12.5px] font-bold text-slate-705">{regCount}</span>
-                              {event.capacity && (
-                                <span className="text-slate-400 text-[11px] font-normal">/ {event.capacity}</span>
-                              )}
-                            </div>
-                            {event.capacity && event.capacity > 0 && (
-                              <div className="w-20 h-1 bg-slate-100 rounded-[2px] overflow-hidden">
-                                <div 
-                                  className="h-full bg-[#FF9900] rounded-[2px] transition-all duration-300" 
-                                  style={{ width: `${Math.min((regCount / event.capacity) * 100, 100)}%` }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="col-span-1">
-                          <div className="flex items-center gap-1.5 justify-end" onClick={(e) => e.stopPropagation()}>
-                            <Link 
-                              href={`/crew/events/${event.id}`}
-                              className="p-1.5 text-slate-500 hover:text-[#FF9900] hover:bg-slate-50 rounded-[6px] border border-slate-200 transition-all cursor-pointer"
-                              title="Details"
-                            >
-                              <ChevronRight size={13.5} />
-                            </Link>
-                            <Link 
-                              href={`/crew/scanner?eventId=${event.id}`}
-                              className="p-1.5 text-slate-500 hover:text-[#FF9900] hover:bg-slate-50 rounded-[6px] border border-slate-200 transition-all cursor-pointer"
-                              title="Scanner"
-                            >
-                              <QrCode size={13.5} />
-                            </Link>
+                            <span className={`inline-block rounded-[4px] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider border ${sc.className}`}>
+                              {sc.label}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Expandable Details Container */}
-                      <div 
-                        className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedEventIds[event.id] 
-                            ? 'grid-rows-[1fr] opacity-100' 
-                            : 'grid-rows-[0fr] opacity-0'
-                        }`}
-                      >
-                        <div className="min-h-0">
-                          <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/30 text-slate-605">
-                            <div className="grid grid-cols-12 gap-6 text-[12.5px]">
-                              {/* Left column: Overview / Details */}
-                              <div className="col-span-7 space-y-3">
-                                <div>
-                                  <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                    <ClipboardList size={12} className="text-[#FF9900]" />
-                                    About the Event
-                                  </h4>
-                                  <p className="text-slate-605 leading-relaxed font-normal">
-                                    {event.description || event.shortDescription || 'No detailed description provided for this event.'}
-                                  </p>
-                                </div>
-                                
-                                {event.speakers && event.speakers.length > 0 && (
-                                  <div>
-                                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5">Speakers</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                      {event.speakers.map((speaker: any, idx: number) => (
-                                        <div key={idx} className="flex items-center gap-2 bg-white border border-slate-200 rounded-[6px] px-2.5 py-1">
-                                          {speaker.photo ? (
-                                            <img src={speaker.photo} alt={speaker.name} className="w-5 h-5 rounded-[4px] object-cover" />
-                                          ) : (
-                                            <div className="w-5 h-5 rounded-[4px] bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                              {speaker.name[0]}
-                                            </div>
-                                          )}
-                                          <div className="leading-none">
-                                            <span className="font-semibold text-slate-700 text-[11.5px]">{speaker.name}</span>
-                                            {speaker.role && (
-                                              <span className="text-slate-400 text-[10px] ml-1.5">({speaker.role})</span>
-                                            )}
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Center column: Agenda / Event flow if exists */}
-                              <div className="col-span-5 border-l border-slate-200/80 pl-6 flex flex-col justify-between">
-                                <div className="space-y-4">
-                                  <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                                    <Calendar size={12} className="text-[#FF9900]" />
-                                    Event Settings
-                                  </h4>
-                                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[12px]">
-                                    <div>
-                                      <span className="block text-slate-400 text-[10.5px]">Attendance Mode</span>
-                                      <span className={`inline-block font-semibold text-[11px] px-2 py-0.5 rounded-[4px] border mt-0.5 ${modeConfig(event.mode).className}`}>
-                                        {modeConfig(event.mode).label}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <span className="block text-slate-400 text-[10.5px]">Registration Form</span>
-                                      <span className="font-bold text-slate-705 mt-0.5 inline-block capitalize">{event.registrationFormType?.toLowerCase() || '—'}</span>
-                                    </div>
-                                    {event.registrationDeadline && (
-                                      <div className="col-span-2">
-                                        <span className="block text-slate-400 text-[10.5px]">Registration Deadline</span>
-                                        <span className="font-semibold text-slate-700 mt-0.5 inline-block">
-                                          {formatDate(event.registrationDeadline)} at {new Date(event.registrationDeadline).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
-                                  <Link href={`/crew/events/${event.id}`}
-                                    className="group flex-1 h-8 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
-                                    <span>View Details</span>
-                                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                                  </Link>
-                                  <Link href={`/crew/scanner?eventId=${event.id}`}
-                                    className="flex-1 h-8 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
-                                    <QrCode className="h-3.5 w-3.5" />
-                                    <span>Scanner</span>
-                                  </Link>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="flex items-center shrink-0 text-slate-400">
+                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isExpanded ? "rotate-180" : "")} />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {/* Collapsible Mobile Details Drawer */}
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-3 border-t border-slate-100 bg-slate-50/40 text-[12.5px] space-y-3.5">
+                        {/* Date & Time */}
+                        {event.date && (
+                          <div>
+                            <span className="block text-slate-400 text-[9.5px] font-bold uppercase tracking-wide mb-1">Date & Time</span>
+                            <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                              <Calendar size={13} className="text-[#FF9900]/80" />
+                              <span>{formatDate(event.date)} at {event.time || '09:30 AM'}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Venue */}
+                        {event.venue && (
+                          <div>
+                            <span className="block text-slate-400 text-[9.5px] font-bold uppercase tracking-wide mb-1">Venue</span>
+                            <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                              <MapPin size={13} className="text-[#FF9900]/80" />
+                              <span>{event.venue}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Registrations */}
+                        <div>
+                          <span className="block text-slate-400 text-[9.5px] font-bold uppercase tracking-wide mb-1">Capacity & Registrations</span>
+                          <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                            <Users size={13} className="text-[#FF9900]/80" />
+                            <span>{regCount} {event.capacity ? `/ ${event.capacity} registered` : 'attendees'}</span>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        {(event.description || event.shortDescription) && (
+                          <div>
+                            <span className="block text-slate-400 text-[9.5px] font-bold uppercase tracking-wide mb-1">About</span>
+                            <p className="text-slate-600 font-normal leading-relaxed text-[12px]">
+                              {event.description || event.shortDescription}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2.5 pt-3 border-t border-slate-200/50">
+                          <Link href={`/crew/events/${event.id}`}
+                            className="group flex-1 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-350 text-slate-700 font-semibold text-[12px] rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm">
+                            <span>Details</span>
+                            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                          
+                          <Link href={`/crew/scanner?eventId=${event.id}`}
+                            className="flex-1 h-9 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[12px] rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md">
+                            <QrCode className="h-3.5 w-3.5" />
+                            <span>Scanner</span>
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

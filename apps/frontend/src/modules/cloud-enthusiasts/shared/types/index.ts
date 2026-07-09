@@ -54,6 +54,8 @@ export interface Event {
   guidelines?: string[];
   resources?: ResourceLink[];
   rules?: string[];
+  registration_form_type?: 'DEFAULT' | 'CUSTOM';
+  onSpotEnabled?: boolean;
 }
 
 export interface Registration {

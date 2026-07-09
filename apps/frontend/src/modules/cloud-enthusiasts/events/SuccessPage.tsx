@@ -54,7 +54,7 @@ export default function SuccessPage() {
         <div className="w-full max-w-lg">
           <ErrorAlert message="Registration completed, but could not load success event summary details." />
           <div className="text-center mt-4">
-            <Link href="/events" className="bg-[#232F3E] text-white px-4.5 py-2 rounded-[8px] font-medium text-xs inline-block">
+            <Link href="/events" className="bg-[#232F3E] text-white px-5 py-2.5 rounded-lg font-semibold text-xs inline-block shadow-sm transition-all active:scale-[0.98] cursor-pointer">
               Browse Events
             </Link>
           </div>
@@ -127,7 +127,12 @@ export default function SuccessPage() {
             <div className="grid grid-cols-2 gap-5 text-xs">
               <div>
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Registration Reference</p>
-                <p className="font-bold text-sm text-slate-800 mt-1">{regId || 'PENDING_REG'}</p>
+                <span 
+                  title={regId || ''}
+                  className="font-mono text-[11px] font-semibold text-slate-700 bg-slate-50 border border-slate-200/60 px-2.5 py-1 rounded-lg mt-1.5 select-all truncate block max-w-full"
+                >
+                  {regId || 'PENDING_REG'}
+                </span>
               </div>
               
               <div>
@@ -188,7 +193,7 @@ export default function SuccessPage() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/events"
-            className="flex items-center justify-center gap-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-5 rounded-xl text-xs transition-all duration-200 hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer shadow-sm hover:shadow"
+            className="flex items-center justify-center gap-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-5 rounded-lg text-xs transition-all duration-200 hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer shadow-sm hover:shadow"
           >
             <Home className="w-4 h-4 text-slate-500" />
             <span>Return to Events</span>
@@ -196,7 +201,7 @@ export default function SuccessPage() {
           
           <Link
             href={`/events/${eventId}?showTicket=true`}
-            className="flex items-center justify-center gap-2 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg text-xs transition-all duration-200 hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+            className="flex items-center justify-center gap-2 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg text-xs transition-all duration-200 hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
           >
             <span>View Ticket on Details</span>
             <ArrowRight className="w-4 h-4" />

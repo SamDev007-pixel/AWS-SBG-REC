@@ -9,7 +9,7 @@ import { EC2ConsoleLoader, AnimatedEmptyState, ErrorAlert } from '../shared/comp
 import {
   Search, Filter, Users, Calendar, MapPin,
   LayoutGrid, List, Clock, ArrowRight,
-  HelpCircle, ChevronDown
+  HelpCircle, ChevronDown, QrCode
 } from 'lucide-react';
 import { EVENT_CATEGORIES, AVAILABILITY_FILTERS } from '../../../context/mockData';
 import { getPosterSrcAndPosition } from '@/lib/utils';
@@ -141,7 +141,12 @@ export default function EventsPage() {
     return [...upcoming, ...ended];
   }, [events]);
 
-  const selectCls = "appearance-none pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all";
+  const showScannerButton = useMemo(() => {
+    if (!events) return false;
+    return events.some(ev => ev.onSpotEnabled);
+  }, [events]);
+
+  const selectCls = "appearance-none pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-650 cursor-pointer transition-all";
 
   return (
     <section className="w-full min-h-screen py-6 px-4 sm:py-8 sm:px-8 bg-[#F8F9FA] flex flex-col items-center">
@@ -170,6 +175,16 @@ export default function EventsPage() {
               Browse active cloud bootcamps, security workshops, and expert sessions. Reserve your seat instantly.
             </p>
           </div>
+
+          {showScannerButton && (
+            <Link
+              href="/events/on-spot-scanner"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm cursor-pointer"
+            >
+              <QrCode size={14} className="text-[#FF9900] stroke-[2.5]" />
+              On-Spot Scanner
+            </Link>
+          )}
         </div>
 
         {/* ── Filters + View Toggle ── */}

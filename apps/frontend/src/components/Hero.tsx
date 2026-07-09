@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Play } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const FRAME_COUNT = 182;
 
@@ -48,6 +49,7 @@ const DecorativeGrid = ({
 };
 
 export default function Hero() {
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(800);
@@ -239,7 +241,7 @@ export default function Hero() {
     return (
       <div
         style={{
-          width: "100vw",
+          width: "100%",
           height: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -287,7 +289,7 @@ export default function Hero() {
       <section
         id="home"
         style={{
-          width: "100vw",
+          width: "100%",
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
@@ -400,6 +402,7 @@ export default function Hero() {
             >
               {/* Join Community slanted orange button */}
               <button
+                onClick={() => router.push("/signup")}
                 style={{
                   width: "100%",
                   padding: "16px 36px",
@@ -420,6 +423,7 @@ export default function Hero() {
 
               {/* Explore Roadmap button */}
               <motion.button
+                onClick={() => router.push("/roadmap")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 style={{
@@ -666,6 +670,7 @@ export default function Hero() {
             >
               {/* Join Community slanted orange button */}
               <button
+                onClick={() => router.push("/signup")}
                 style={{
                   width: "auto",
                   padding: "15px 36px",
@@ -698,6 +703,7 @@ export default function Hero() {
 
               {/* Explore Roadmap button */}
               <motion.button
+                onClick={() => router.push("/roadmap")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 style={{

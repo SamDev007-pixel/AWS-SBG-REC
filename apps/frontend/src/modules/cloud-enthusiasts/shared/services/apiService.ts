@@ -6,6 +6,7 @@ export interface RegisterPayload {
   department: string;
   email: string;
   responses: Record<string, string>;
+  onSpot?: boolean;
 }
 
 // ── Mapper Functions ─────────────────────────────────────────────────────────
@@ -37,6 +38,8 @@ function mapBackendEventToFrontend(e: any): Event {
       avatar_url: s.photo || s.avatar_url,
       linkedin_url: s.linkedinUrl || s.linkedin_url || '',
     })),
+    registration_form_type: e.registrationFormType,
+    onSpotEnabled: e.onSpotEnabled || false,
   };
 }
 
@@ -174,6 +177,8 @@ export const apiService = {
         }
       }
 
+      let dbTickets: Ticket[] = [];
+
       if (loggedInUser && loggedInUser.id) {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
@@ -188,28 +193,43 @@ export const apiService = {
           // Extract data array from PaginatedResponseDto wrapped in success wrapper
           const backendData = resJson.data?.data || resJson.data || [];
           const ticketsArray = Array.isArray(backendData) ? backendData : [];
-          return ticketsArray.map(mapBackendTicketToFrontend);
+          dbTickets = ticketsArray.map(mapBackendTicketToFrontend);
         } else {
           console.warn('[apiService.getMyTickets] Backend fetch failed, falling back to local storage.');
         }
       }
 
-      // Fallback: For guests or when backend fetch fails, rely on local storage
+      // Read local storage tickets
       const rawTickets = typeof window !== 'undefined' ? (localStorage.getItem('cloud_enthusiasts_tickets') || localStorage.getItem('aws_sgb_rec_tickets')) : null;
       const localTickets = rawTickets ? JSON.parse(rawTickets) : [];
-      return localTickets.map((t: any) => ({
-        ticket_id: t.ticketId,
-        registration_id: t.regId,
-        event_id: t.eventId,
-        ticket_status: 'Ticket Available',
-        ticket_code: t.ticketId.split('-')[0].toUpperCase(),
-        event_title: t.eventTitle,
-        event_date: t.date,
-        event_time: t.time,
-        user_name: t.name,
-        user_email: t.email,
-        qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${t.ticketId}`,
+      const formattedLocalTickets: Ticket[] = localTickets.map((t: any) => ({
+        ticket_id: t.ticketId || t.ticket_id,
+        registration_id: t.regId || t.registration_id,
+        event_id: t.eventId || t.event_id,
+        ticket_status: t.ticket_status || 'Ticket Available',
+        ticket_code: t.ticketCode || t.ticket_code || (t.ticketId || '').split('-')[0].toUpperCase(),
+        event_title: t.eventTitle || t.event_title,
+        event_date: t.date || t.event_date,
+        event_time: t.time || t.event_time,
+        user_name: t.name || t.user_name,
+        user_email: t.email || t.user_email,
+        qr_code_url: t.qrCodeUrl || t.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${t.ticketId}`,
       }));
+
+      // Combine both lists, prioritizing database records
+      const combinedMap = new Map<string, Ticket>();
+      
+      // Add local tickets first
+      formattedLocalTickets.forEach(t => {
+        if (t.ticket_id) combinedMap.set(t.ticket_id, t);
+      });
+      
+      // Overwrite/add database tickets (since they are more authoritative)
+      dbTickets.forEach(t => {
+        if (t.ticket_id) combinedMap.set(t.ticket_id, t);
+      });
+
+      return Array.from(combinedMap.values());
     } catch (error) {
       console.error('Failed to get tickets:', error);
       return [];
@@ -224,6 +244,13 @@ export const apiService = {
     error?: string;
   }> {
     const res = await fetch(`/api/tickets/${ticketId}`);
+    if (res.status === 404) {
+      return {
+        success: false,
+        status: 'Invalid Ticket',
+        error: 'Ticket not found in the database.'
+      };
+    }
     if (!res.ok) throw new Error('Failed to verify ticket');
     const data = await res.json();
     

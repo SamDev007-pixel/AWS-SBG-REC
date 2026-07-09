@@ -161,17 +161,34 @@ export default function SidebarLayout({
 
   return (
     <div className="h-screen w-full bg-[#F9FAFB] overflow-hidden flex">
-      {/* Mobile hamburger — outside sidebar so it shows even when drawer is closed */}
-      {isMobile && !isMobileOpen && !isRoadmapPage && (
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="fixed top-4 left-4 z-50 flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-md"
-          aria-label="Open menu"
+      {/* Premium Light Mobile Header Navbar */}
+      {isMobile && !isRoadmapPage && (
+        <header
+          className="fixed top-0 left-0 right-0 z-30 h-14 flex items-center justify-between px-4 border-b border-slate-200/40 backdrop-blur-md"
+          style={{
+            background: "rgba(249, 250, 251, 0.90)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03)",
+          }}
         >
-          <svg className="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+          {/* Left: Brand Identity */}
+          <span 
+            className="text-[14.5px] font-black text-slate-800 tracking-wider font-display uppercase ml-1"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
+            AWS <span className="text-[#FF9900]">SBG</span> REC
+          </span>
+
+          {/* Right: Menu Trigger */}
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-700 transition-all cursor-pointer active:scale-95 shadow-sm"
+            aria-label="Open menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </header>
       )}
 
       {!isRoadmapPage && (
@@ -205,7 +222,7 @@ export default function SidebarLayout({
         }}
       >
         {shouldShowBack() && (
-          <div className="absolute top-6 left-6 lg:left-8 z-30">
+          <div className="absolute top-18 md:top-6 left-6 lg:left-8 z-30">
             <button
               onClick={handleBack}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#FF9900] transition-colors cursor-pointer group"
@@ -217,8 +234,8 @@ export default function SidebarLayout({
         )}
         <div className={
           pathname && pathname.includes('/chat')
-            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : "h-full overflow-hidden")
-            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden")
+            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : (isMobile ? "h-full pt-14 overflow-hidden" : "h-full overflow-hidden"))
+            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
         }>
           {children}
         </div>

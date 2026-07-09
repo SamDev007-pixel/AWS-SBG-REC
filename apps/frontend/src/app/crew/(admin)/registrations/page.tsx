@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
+import OnSpotRegistrationModal from '@/components/OnSpotRegistrationModal';
+import { Plus } from 'lucide-react';
+
 
 /* ─── Loading Skeleton ──────────────────────────────────────────────── */
 function LoadingSkeleton() {
@@ -85,6 +88,8 @@ export default function RegistrationsPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
+  const [showOnSpotModal, setShowOnSpotModal] = useState(false);
+
 
   const { data: eventsData } = useEvents({ limit: 200 });
   const events = eventsData?.data ?? [];
@@ -159,13 +164,24 @@ export default function RegistrationsPage() {
               </p>
             </div>
             
-            <button
-              onClick={handleExportCsv}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all shadow-md hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
-            >
-              <Download size={14} />
-              Export CSV
-            </button>
+            <div className="flex gap-2.5 shrink-0">
+              {eventFilter && (
+                <button
+                  onClick={() => setShowOnSpotModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm uppercase tracking-wider cursor-pointer"
+                >
+                  <Plus size={14} className="text-[#232F3E] stroke-[2.5]" />
+                  On-Spot Registration
+                </button>
+              )}
+              <button
+                onClick={handleExportCsv}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all shadow-md hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+              >
+                <Download size={14} />
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
 
@@ -440,6 +456,14 @@ export default function RegistrationsPage() {
           </div>
         )}
       </div>
+      {showOnSpotModal && (
+        <OnSpotRegistrationModal
+          isOpen={showOnSpotModal}
+          onClose={() => setShowOnSpotModal(false)}
+          defaultEventId={eventFilter}
+          brandColor="navy"
+        />
+      )}
     </div>
   );
 }

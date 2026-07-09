@@ -736,7 +736,7 @@ export default function ContentEditorPage() {
               <button
                 disabled={activeSlideIndex === 0}
                 onClick={() => setActiveSlideIndex(prev => Math.max(0, prev - 1))}
-                className="px-4.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
+                className="px-4.5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
               >
                 <Icons.ArrowLeft className="w-3.5 h-3.5" />
                 Previous
@@ -745,7 +745,7 @@ export default function ContentEditorPage() {
               <button
                 disabled={activeSlideIndex === slides.length - 1}
                 onClick={() => setActiveSlideIndex(prev => Math.min(slides.length - 1, prev + 1))}
-                className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
+                className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
               >
                 Next Slide
                 <Icons.ArrowRight className="w-3.5 h-3.5" />

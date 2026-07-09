@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -18,24 +18,19 @@ import {
   progressService,
   type TopicSummary,
 } from "@/services/roadmap.api";
+import { cn } from "@/lib/utils";
 
 const statusConfig = {
   COMPLETED: {
-    icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
-    badge: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    bar: "from-emerald-400 to-emerald-500",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200/30",
     label: "Completed",
   },
   IN_PROGRESS: {
-    icon: <Clock className="h-5 w-5 text-amber-500" />,
-    badge: "bg-amber-50 text-amber-700 border border-amber-200",
-    bar: "from-amber-400 to-orange-400",
+    badge: "bg-amber-50 text-amber-700 border-amber-200/30",
     label: "In Progress",
   },
   NOT_STARTED: {
-    icon: <Lock className="h-5 w-5 text-slate-400" />,
-    badge: "bg-slate-100 text-slate-500 border border-slate-200",
-    bar: "from-slate-300 to-slate-300",
+    badge: "bg-slate-50 text-slate-500 border-slate-200/50",
     label: "Not Started",
   },
 };
@@ -103,20 +98,37 @@ export default function RoadmapProgress() {
     ? Math.round((completedModules / totalModules) * 100)
     : 0;
 
+  const visibleTopics = useMemo(() => {
+    if (!topics || topics.length === 0) return [];
+    let ongoingIndex = topics.findIndex(t => continueModule?.topicSlug === t.slug || t.status === 'IN_PROGRESS');
+    if (ongoingIndex === -1) {
+      ongoingIndex = topics.findIndex(t => t.status === 'NOT_STARTED');
+    }
+    if (ongoingIndex === -1) {
+      ongoingIndex = 0;
+    }
+    return topics.slice(ongoingIndex, ongoingIndex + 2);
+  }, [topics, continueModule]);
+
   return (
     <div className="flex flex-col h-full select-none gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Map className="w-4 h-4 text-amber-500" />
-          <h2 className="text-base font-bold text-foreground tracking-tight">
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100/80 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 flex items-center justify-center text-[#FF9900]">
+            <Map className="w-4 h-4" />
+          </div>
+          <h2 
+            className="text-[16px] font-bold text-slate-800 tracking-tight"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
             My Roadmap Progress
           </h2>
         </div>
         {!loading && !error && (
-          <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1">
+          <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-0.5">
             <Zap className="w-3 h-3 text-amber-500 fill-current" />
-            <span className="text-[11px] font-black text-amber-700">{xp} XP</span>
+            <span className="text-[10px] font-black text-amber-700">{xp} XP</span>
           </div>
         )}
       </div>
@@ -126,7 +138,7 @@ export default function RoadmapProgress() {
         <div className="flex-1 flex items-center justify-center gap-3 py-10">
           <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
           <span className="text-xs text-slate-400 font-semibold animate-pulse">
-            Loading your progress...
+            Loading progress...
           </span>
         </div>
       )}
@@ -141,40 +153,43 @@ export default function RoadmapProgress() {
       {/* Content */}
       {!loading && !error && (
         <>
-          {/* Overall progress bar */}
+          {/* Overall progress bar (Sleek Inline) */}
           {totalModules > 0 && (
-            <div className="bg-white/40 backdrop-blur-sm border border-white/30 rounded-2xl p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-slate-600">
+            <div className="flex flex-col gap-2 mb-2 px-1 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <span 
+                  className="text-[11px] font-bold text-slate-700 uppercase tracking-wider"
+                  style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                >
                   Overall Progress
                 </span>
-                <span className="text-xs font-black text-slate-800">
-                  {completedModules} / {totalModules} Modules
+                <span 
+                  className="text-[12px] font-bold text-slate-900"
+                  style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                >
+                  {completedModules} / {totalModules} Modules ({overallPercent}%)
                 </span>
               </div>
-              <div className="h-2.5 w-full rounded-full bg-black/[0.06] overflow-hidden">
+              <div className="h-2 w-full rounded-full bg-white/60 border border-white/40 shadow-inner overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-[#FF9900] transition-all duration-700"
                   style={{ width: `${overallPercent}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-[11px] font-semibold text-slate-500">
-                {overallPercent}% Complete
-              </p>
             </div>
           )}
 
-          {/* Topic cards */}
-          <div className="flex flex-col gap-3 flex-1">
-            {topics.length === 0 ? (
+          {/* Topic timeline connecting list */}
+          <div className="flex flex-col gap-4 flex-1 relative my-1">
+            {visibleTopics.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
-                <BookOpen className="w-8 h-8 text-slate-300" />
+                <BookOpen className="w-8 h-8 text-slate-350" />
                 <p className="text-xs font-semibold text-slate-400">
                   No topics available yet.
                 </p>
               </div>
             ) : (
-              topics.map((topic) => {
+              visibleTopics.map((topic, index) => {
                 const cfg =
                   statusConfig[topic.status] ?? statusConfig.NOT_STARTED;
                 const pct =
@@ -187,88 +202,105 @@ export default function RoadmapProgress() {
                   continueModule?.topicSlug === topic.slug;
 
                 return (
-                  <div
-                    key={topic.id}
-                    className={`flex items-center gap-4 rounded-2xl p-4 border transition-all ${
-                      isActive
-                        ? "bg-white/60 border-amber-300/50 shadow-md shadow-amber-500/5"
-                        : "bg-white/30 border-white/30"
-                    }`}
-                  >
-                    {/* Status icon */}
-                    <div className="flex-shrink-0">{cfg.icon}</div>
+                  <div key={topic.id} className="relative flex gap-4 pl-1 items-start pt-1.5 group">
+                    {/* Perfect absolute connecting line between node centers */}
+                    {index < visibleTopics.length - 1 && (
+                      <div className="absolute left-[17px] top-[20px] h-[calc(100%+16px)] w-[2px] bg-slate-300/80 z-0" />
+                    )}
 
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <p className="text-sm font-bold text-slate-800 truncate">
-                          {topic.name}
-                        </p>
-                        <span
-                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${cfg.badge}`}
-                        >
-                          {cfg.label}
-                        </span>
-                        {isActive && (
-                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-white whitespace-nowrap flex-shrink-0 animate-pulse">
-                            CURRENT
-                          </span>
+                    {/* Left Timeline Node (Compact) */}
+                    <div className="flex flex-col items-center flex-shrink-0 relative z-10 pt-0.5">
+                      <div className={cn(
+                        "w-7 h-7 rounded-full border flex items-center justify-center transition-all bg-white shadow-sm",
+                        isActive 
+                          ? "border-[#FF9900] text-[#FF9900] ring-4 ring-[#FF9900]/10" 
+                          : topic.status === 'COMPLETED'
+                            ? "border-emerald-250/60 text-emerald-600 bg-emerald-50/50"
+                            : "border-slate-300 text-slate-500"
+                      )}>
+                        {topic.status === 'COMPLETED' ? (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        ) : topic.status === 'IN_PROGRESS' ? (
+                          <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" style={{ animationDuration: '4s' }} />
+                        ) : (
+                          <Lock className="w-3 h-3 text-slate-450" />
                         )}
-                      </div>
-
-                      {/* Progress bar */}
-                      <div className="h-2 w-full rounded-full bg-black/[0.06] overflow-hidden">
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${cfg.bar} transition-all duration-700`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between mt-1.5">
-                        <p className="text-[10px] font-semibold text-slate-500">
-                          {topic.completedModules} / {topic.totalModules} modules
-                        </p>
-                        <p className="text-[10px] font-bold text-slate-600">
-                          {pct}%
-                        </p>
                       </div>
                     </div>
 
-                    {/* Go arrow */}
-                    {topic.unlocked && (
-                      <Link
-                        href={hasRoadmapAccess ? `/core/topics/${topic.id}/roadmap` : `/learn/${topic.slug}`}
-                        className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-amber-500 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-200 cursor-pointer"
-                        title={hasRoadmapAccess ? `Edit ${topic.name}` : `Go to ${topic.name}`}
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    )}
+                    {/* Content Item Row (Borderless) */}
+                    <div className={cn(
+                      "flex-1 flex justify-between gap-3 rounded-lg px-2.5 py-1.5 transition-all duration-150 min-w-0",
+                      isActive
+                        ? "bg-white/30"
+                        : "hover:bg-white/20"
+                    )}>
+                      {/* Left Column: Title + Subtitle */}
+                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        {/* Title Row */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p 
+                            className="text-[14px] font-bold text-slate-800 truncate"
+                            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                          >
+                            {topic.name}
+                          </p>
+                          {isActive && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-[#FF9900] text-white rounded-md uppercase tracking-wider whitespace-nowrap shadow-sm">
+                              CURRENT
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Subtitle Row (Progress Text only) */}
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span 
+                            className="text-[11.5px] font-bold text-slate-500 whitespace-nowrap"
+                            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                          >
+                            {topic.completedModules}/{topic.totalModules} modules ({pct}%)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right Column: Link Arrow */}
+                      {topic.unlocked && (
+                        <div className="flex items-center flex-shrink-0">
+                          <Link
+                            href={hasRoadmapAccess ? `/core/topics/${topic.id}/roadmap` : `/learn/${topic.slug}`}
+                            className="w-7 h-7 rounded-full bg-slate-50 hover:bg-[#FF9900] hover:text-white border border-slate-200/50 text-slate-450 hover:border-transparent flex items-center justify-center transition-all duration-150 cursor-pointer shadow-sm active:scale-95"
+                            title={hasRoadmapAccess ? `Edit ${topic.name}` : `Go to ${topic.name}`}
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })
             )}
           </div>
 
-          {/* Bottom CTA */}
+          {/* Bottom continue CTA (Borderless Text Link) */}
           {continueModule && (
-            <div className="mt-auto pt-3">
+            <div className="mt-auto pt-4 flex-shrink-0">
               <Link
                 href={hasRoadmapAccess ? `/core/topics` : `/learn/${continueModule.topicSlug}`}
-                className="flex items-center justify-between w-full bg-white/70 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-3.5 group cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
+                className="flex items-center justify-between w-full px-2 group cursor-pointer transition-all duration-200"
               >
-                <div className="flex items-center gap-3">
-                  <Trophy className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                  <div>
-                    <p className="text-[10px] font-semibold text-slate-400 leading-none mb-0.5 uppercase tracking-wide">
-                      {hasRoadmapAccess ? "Manage Roadmaps" : "Continue learning"}
-                    </p>
-                    <p className="text-sm font-bold text-slate-800 leading-tight">
-                      {hasRoadmapAccess ? "Roadmap Builder" : continueModule.name}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-[#FF9900]" />
+                  <span 
+                    className="text-[14px] font-bold text-slate-800 group-hover:text-[#FF9900] leading-none transition-colors"
+                    style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                  >
+                    {hasRoadmapAccess ? "Manage Roadmaps" : `Continue: ${continueModule.name}`}
+                  </span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0" />
+                <div className="flex items-center text-slate-500 group-hover:text-[#FF9900] transition-colors">
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-150" />
+                </div>
               </Link>
             </div>
           )}
