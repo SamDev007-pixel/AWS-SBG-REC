@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 
 const FRAME_COUNT = 182;
 
@@ -48,7 +49,16 @@ const DecorativeGrid = ({
   );
 };
 
-export default function Hero() {
+interface HeroProps {
+  previewData?: {
+    badge: string;
+    titleHighlight: string;
+    subtitle: string;
+  };
+  forceMobile?: boolean;
+}
+
+export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
@@ -56,15 +66,40 @@ export default function Hero() {
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  const [heroData, setHeroData] = useState(previewData || {
+    badge: "Rajalakshmi Engineering College",
+    titleHighlight: "AWS SBG REC",
+    subtitle: "Learn cloud computing through structured roadmaps, industry-recognized certifications, hands-on projects, workshops, and a thriving builder community.",
+  });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportHeightRef = useRef(800);
 
+  useEffect(() => {
+    if (previewData) {
+      setHeroData(previewData);
+    }
+  }, [previewData]);
+
+  useEffect(() => {
+    if (previewData) return;
+    let active = true;
+    api.get<any>("/homepage/hero")
+      .then((res) => {
+        if (active && res) {
+          setHeroData(res);
+        }
+      })
+      .catch((err) => console.error("Hero dynamic fetch error:", err));
+    return () => { active = false; };
+  }, [previewData]);
+
   // Check mobile viewport size, width, and height
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
+      setIsMobile(!!forceMobile || window.innerWidth < 1024);
       setWindowWidth(window.innerWidth);
       setViewportHeight(window.innerHeight);
       viewportHeightRef.current = window.innerHeight;
@@ -72,11 +107,11 @@ export default function Hero() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [forceMobile]);
 
   // Preload the 182 WebP frames
   useEffect(() => {
-    if (isMobile) {
+    if (isMobile || !!previewData) {
       setLoading(false);
       return;
     }
@@ -290,17 +325,151 @@ export default function Hero() {
         id="home"
         style={{
           width: "100%",
-          minHeight: "100vh",
+          minHeight: previewData ? "400px" : "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "transparent",
+          backgroundColor: "#ffffff",
+          backgroundImage: previewData
+            ? "linear-gradient(to bottom, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.97) 100%), url('/assets/hero-sequence/0.webp')"
+            : "linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.95) 75%, #ffffff 100%), url('/assets/hero-sequence/0.webp')",
+          backgroundSize: "200% auto",
+          backgroundPosition: "center 85%",
+          backgroundRepeat: "no-repeat",
           position: "relative",
           overflow: "hidden",
-          padding: "100px 16px 60px",
+          padding: previewData ? "20px 12px" : "72px 16px 40px",
           zIndex: 2,
         }}
       >
+        {/* Technical Grid Pattern Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: "36px 36px",
+            maskImage: "radial-gradient(circle at center, black 50%, transparent 95%)",
+            WebkitMaskImage: "radial-gradient(circle at center, black 50%, transparent 95%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Decorative Grid Ornaments for Mobile */}
+        {!previewData && (
+          <>
+            <DecorativeGrid rows={3} cols={5} activeDot={{ r: 0, c: 3 }} style={{ top: "120px", left: "6%" }} />
+            <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ bottom: "140px", right: "6%" }} />
+
+            {/* Top Right Circuit Graphic - Scaled for Mobile */}
+            <div 
+              style={{ 
+                position: "absolute",
+                top: "110px", 
+                right: "12px",
+                width: "130px",
+                zIndex: 10,
+                pointerEvents: "none",
+              }}
+            >
+              <svg 
+                viewBox="0 0 240 70" 
+                width="100%" 
+                height="auto" 
+                style={{ 
+                  opacity: 0.95,
+                  display: "block"
+                }}
+              >
+                <path 
+                  d="M 100 20 L 125 40 L 165 40 L 190 20 L 240 20" 
+                  stroke="#475569" 
+                  strokeWidth="1.0"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  fill="none" 
+                />
+                <path 
+                  d="M 180 50 a 6 6 0 0 1 3 -11 a 9 9 0 0 1 15 -3 a 6 6 0 0 1 9 5 a 5 5 0 0 1 1 9 z" 
+                  stroke="#cbd5e1" 
+                  strokeWidth="1.0" 
+                  fill="#ffffff" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <circle cx="100" cy="20" r="1.8" fill="#0f172a" />
+                <rect x="142" y="37" width="6" height="6" transform="rotate(45 145 40)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
+                <circle cx="145" cy="40" r="1.0" fill="#ffffff" />
+              </svg>
+            </div>
+
+            {/* Bottom Left Circuit Graphic - Scaled for Mobile */}
+            <div 
+              style={{ 
+                position: "absolute",
+                bottom: "64px",
+                left: "24px",
+                width: "160px",
+                zIndex: 10,
+                pointerEvents: "none",
+              }}
+            >
+              <svg 
+                viewBox="0 0 500 130" 
+                width="100%" 
+                height="auto" 
+                style={{ 
+                  opacity: 0.95,
+                  display: "block"
+                }}
+              >
+                {/* Grid Dots */}
+                {Array.from({ length: 4 }).map((_, rIndex) => 
+                  Array.from({ length: 9 }).map((_, cIndex) => {
+                    const cx = 350 + cIndex * 15;
+                    const cy = 35 + rIndex * 10;
+                    const isOrange = rIndex === 0 && cIndex === 0;
+                    return (
+                      <circle 
+                        key={`mobile-dot-${rIndex}-${cIndex}`} 
+                        cx={cx} 
+                        cy={cy} 
+                        r="0.8"
+                        fill={isOrange ? "#E68A00" : "#cbd5e1"} 
+                      />
+                    );
+                  })
+                )}
+                <path 
+                  d="M 0 25 L 25 25 L 65 65 L 250 65 L 270 45 L 410 45" 
+                  stroke="#475569" 
+                  strokeWidth="1.0"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  fill="none" 
+                />
+                <path 
+                  d="M 65 35 a 10 10 0 0 1 5 -18 a 15 15 0 0 1 25 -5 a 10 10 0 0 1 15 8 a 8 8 0 0 1 2 15 z" 
+                  stroke="#cbd5e1" 
+                  strokeWidth="1.0"
+                  fill="#ffffff" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <rect x="22" y="22" width="6" height="6" transform="rotate(45 25 25)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
+                <circle cx="25" cy="25" r="1.0" fill="#ffffff" />
+                <rect x="317" y="42" width="6" height="6" transform="rotate(45 320 45)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
+                <circle cx="320" cy="45" r="1.0" fill="#ffffff" />
+                <circle cx="410" cy="45" r="1.8" fill="#0f172a" />
+              </svg>
+            </div>
+          </>
+        )}
+
         {/* Premium Gradient Blobs */}
         <div
           style={{
@@ -360,33 +529,34 @@ export default function Hero() {
             {/* Main Title */}
             <h1
               style={{
-                fontSize: "36px",
-                lineHeight: 1.15,
+                fontSize: previewData ? "20px" : "36px",
+                lineHeight: 1.2,
                 fontWeight: 800,
                 color: "#0F172A",
                 letterSpacing: "-0.01em",
-                marginBottom: "16px",
+                marginBottom: previewData ? "8px" : "16px",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
               }}
             >
               Build Your Cloud Future
               <br />
-              With <span style={{ color: "#FF9900", fontWeight: 800 }}>AWS SBG REC</span>
+              With <span style={{ color: "#E68A00", fontWeight: 800 }}>{heroData.titleHighlight}</span>
             </h1>
 
             <p
               style={{
-                fontSize: "16px",
-                lineHeight: 1.6,
-                color: "#475569",
-                fontWeight: 500,
-                marginBottom: "32px",
+                fontSize: previewData ? "12px" : "16px",
+                lineHeight: 1.5,
+                color: "#334155",
+                fontWeight: 600,
+                marginBottom: previewData ? "14px" : "20px",
                 maxWidth: "680px",
-                margin: "0 auto 32px auto",
+                margin: previewData ? "0 auto 14px auto" : "0 auto 20px auto",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                textShadow: "0 1px 10px rgba(255, 255, 255, 0.95)",
               }}
             >
-              Learn cloud computing through structured roadmaps,<br /> industry-recognized certifications, hands-on projects,<br /> workshops, and a thriving builder community.
+              {heroData.subtitle}
             </p>
 
             {/* Buttons */}
@@ -396,7 +566,7 @@ export default function Hero() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "24px",
+                gap: previewData ? "8px" : "12px",
                 width: "100%",
               }}
             >
@@ -405,12 +575,12 @@ export default function Hero() {
                 onClick={() => router.push("/signup")}
                 style={{
                   width: "100%",
-                  padding: "16px 36px",
+                  padding: previewData ? "10px 24px" : "16px 36px",
                   background: "#FF9900",
                   color: "#ffffff",
                   border: "none",
                   fontWeight: 700,
-                  fontSize: "18px",
+                  fontSize: previewData ? "14px" : "18px",
                   cursor: "pointer",
                   fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                   borderRadius: "12px",
@@ -431,13 +601,13 @@ export default function Hero() {
                   background: "transparent",
                   border: "none",
                   color: "#0F172A",
-                  fontSize: "18px",
+                  fontSize: previewData ? "14px" : "18px",
                   fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "12px",
+                  gap: previewData ? "8px" : "12px",
                   padding: "10px 16px",
                   fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                   outline: "none",
@@ -445,8 +615,8 @@ export default function Hero() {
               >
                 <div
                   style={{
-                    width: "48px",
-                    height: "48px",
+                    width: previewData ? "32px" : "48px",
+                    height: previewData ? "32px" : "48px",
                     borderRadius: "50%",
                     border: "2px solid #FF9900",
                     display: "flex",
@@ -474,73 +644,76 @@ export default function Hero() {
       ref={containerRef}
       style={{
         position: "relative",
-        height: "300vh", // scrolling track
+        height: previewData ? "450px" : "300vh", // scrolling track
         width: "100%",
       }}
     >
       <motion.div
         style={{
-          position: "fixed",
+          position: previewData ? "absolute" : "fixed",
           top: 0,
           left: 0,
           right: 0,
-          height: "100vh",
+          bottom: previewData ? 0 : undefined,
+          height: previewData ? "100%" : "100vh",
           overflow: "hidden",
           backgroundColor: "#ffffff", // Solid white background to serve as the backdrop for multiply blending
-          opacity,
-          y,
-          pointerEvents,
+          opacity: previewData ? 1 : opacity,
+          y: previewData ? 0 : y,
+          pointerEvents: previewData ? "auto" : pointerEvents,
           zIndex: 5,
         }}
       >
         {/* Top Right Circuit Graphic - Positioned under the navbar Join Us button */}
-        <div 
-          style={{ 
-            position: "absolute",
-            top: "80px", 
-            right: 0,
-            width: "240px",
-            zIndex: 10,
-            pointerEvents: "none",
-          }}
-        >
-          <svg 
-            viewBox="0 0 240 70" 
-            width="100%" 
-            height="auto" 
+        {!previewData && (
+          <div 
             style={{ 
-              opacity: 0.95,
-              display: "block"
+              position: "absolute",
+              top: "80px", 
+              right: 0,
+              width: "240px",
+              zIndex: 10,
+              pointerEvents: "none",
             }}
           >
-            {/* Circuit Line */}
-            <path 
-              d="M 100 20 L 125 40 L 165 40 L 190 20 L 240 20" 
-              stroke="#475569" 
-              strokeWidth="1.0"
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              fill="none" 
-            />
+            <svg 
+              viewBox="0 0 240 70" 
+              width="100%" 
+              height="auto" 
+              style={{ 
+                opacity: 0.95,
+                display: "block"
+              }}
+            >
+              {/* Circuit Line */}
+              <path 
+                d="M 100 20 L 125 40 L 165 40 L 190 20 L 240 20" 
+                stroke="#475569" 
+                strokeWidth="1.0"
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                fill="none" 
+              />
 
-            {/* Floating Cloud Outline */}
-            <path 
-              d="M 180 50 a 6 6 0 0 1 3 -11 a 9 9 0 0 1 15 -3 a 6 6 0 0 1 9 5 a 5 5 0 0 1 1 9 z" 
-              stroke="#cbd5e1" 
-              strokeWidth="1.0" 
-              fill="#ffffff" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-            />
+              {/* Floating Cloud Outline */}
+              <path 
+                d="M 180 50 a 6 6 0 0 1 3 -11 a 9 9 0 0 1 15 -3 a 6 6 0 0 1 9 5 a 5 5 0 0 1 1 9 z" 
+                stroke="#cbd5e1" 
+                strokeWidth="1.0" 
+                fill="#ffffff" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+              />
 
-            {/* Starting Terminal Dot */}
-            <circle cx="100" cy="20" r="1.8" fill="#0f172a" />
+              {/* Starting Terminal Dot */}
+              <circle cx="100" cy="20" r="1.8" fill="#0f172a" />
 
-            {/* Node (Orange Diamond) */}
-            <rect x="142" y="37" width="6" height="6" transform="rotate(45 145 40)" fill="#FF9900" stroke="#475569" strokeWidth="1.0" rx="1" />
-            <circle cx="145" cy="40" r="1.0" fill="#ffffff" />
-          </svg>
-        </div>
+              {/* Node (Orange Diamond) */}
+              <rect x="142" y="37" width="6" height="6" transform="rotate(45 145 40)" fill="#FF9900" stroke="#475569" strokeWidth="1.0" rx="1" />
+              <circle cx="145" cy="40" r="1.0" fill="#ffffff" />
+            </svg>
+          </div>
+        )}
 
         {/* Radial-Masked Grid Background Pattern inside the same stacking context */}
         <div
@@ -560,27 +733,33 @@ export default function Hero() {
         />
 
         {/* Decorative Grid Ornaments */}
-        <DecorativeGrid rows={3} cols={5} activeDot={{ r: 0, c: 3 }} style={{ top: "14vh", left: "6%" }} />
-        <DecorativeGrid rows={6} cols={3} dotColor="#FF9900" style={{ top: "48vh", left: "3%" }} />
-        <DecorativeGrid rows={4} cols={4} activeDot={{ r: 2, c: 1 }} style={{ top: "16vh", right: "26%" }} />
-        <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ top: "52vh", right: "4%" }} />
-        <DecorativeGrid rows={3} cols={6} style={{ bottom: "24vh", left: "8%" }} />
-        {/* Center Blank Space Fillers */}
-        <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ top: "40vh", left: "46%" }} />
+        {!previewData && (
+          <>
+            <DecorativeGrid rows={3} cols={5} activeDot={{ r: 0, c: 3 }} style={{ top: "14vh", left: "6%" }} />
+            <DecorativeGrid rows={6} cols={3} dotColor="#FF9900" style={{ top: "48vh", left: "3%" }} />
+            <DecorativeGrid rows={4} cols={4} activeDot={{ r: 2, c: 1 }} style={{ top: "16vh", right: "26%" }} />
+            <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ top: "52vh", right: "4%" }} />
+            <DecorativeGrid rows={3} cols={6} style={{ bottom: "24vh", left: "8%" }} />
+            {/* Center Blank Space Fillers */}
+            <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ top: "40vh", left: "46%" }} />
+          </>
+        )}
 
-        {/* Canvas Background Frame Playback */}
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 1,
-            pointerEvents: "none",
-            mixBlendMode: "multiply", // Blends frame white background with the grid pattern underneath
-          }}
-        />
+        {/* Canvas Background Frame Playback (only when not in preview mode) */}
+        {!previewData && (
+          <canvas
+            ref={canvasRef}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 1,
+              pointerEvents: "none",
+              mixBlendMode: "multiply", // Blends frame white background with the grid pattern underneath
+            }}
+          />
+        )}
 
         {/* Content Overlay */}
         <div
@@ -613,7 +792,7 @@ export default function Hero() {
             <div
               style={{
                 width: "100%",
-                maxWidth: windowWidth > 1280 ? "560px" : windowWidth > 1100 ? "480px" : "400px",
+                maxWidth: previewData ? "100%" : (windowWidth > 1280 ? "560px" : windowWidth > 1100 ? "480px" : "400px"),
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",    // Left-aligned items
@@ -624,12 +803,12 @@ export default function Hero() {
             {/* Main Title */}
             <h1
               style={{
-                fontSize: "clamp(36px, 4.0vw, 54px)",
-                lineHeight: 1.15,
+                fontSize: previewData ? "26px" : "clamp(36px, 4.0vw, 54px)",
+                lineHeight: previewData ? 1.25 : 1.15,
                 fontWeight: 800,
                 color: "#0F172A",
                 letterSpacing: "-0.015em",
-                marginBottom: "20px",
+                marginBottom: previewData ? "10px" : "20px",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                 textShadow: "0 2px 20px rgba(255, 255, 255, 0.85)",
               }}
@@ -638,23 +817,23 @@ export default function Hero() {
               <br />
               Cloud Future
               <br />
-              With <span style={{ color: "#FF9900", fontWeight: 800 }}>AWS SBG REC</span>
+              With <span style={{ color: "#E68A00", fontWeight: 800 }}>{heroData.titleHighlight}</span>
             </h1>
 
             <p
               style={{
-                fontSize: "clamp(15px, 1.3vw, 18px)",
-                lineHeight: 1.6,
+                fontSize: previewData ? "13px" : "clamp(15px, 1.3vw, 18px)",
+                lineHeight: previewData ? 1.5 : 1.6,
                 color: "#334155",
                 fontWeight: 600,
-                marginBottom: "40px",
+                marginBottom: previewData ? "16px" : "40px",
                 maxWidth: "680px",
-                margin: "0 0 40px 0",
+                margin: previewData ? "0 0 16px 0" : "0 0 40px 0",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                 textShadow: "0 1px 12px rgba(255, 255, 255, 0.85)",
               }}
             >
-              Learn cloud computing through structured roadmaps,<br /> industry-recognized certifications, hands-on projects,<br /> workshops, and a thriving builder community.
+              {heroData.subtitle}
             </p>
 
             {/* Buttons */}
@@ -664,7 +843,7 @@ export default function Hero() {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "flex-start",
-                gap: "24px",
+                gap: previewData ? "16px" : "24px",
                 width: "auto",
               }}
             >
@@ -673,12 +852,12 @@ export default function Hero() {
                 onClick={() => router.push("/signup")}
                 style={{
                   width: "auto",
-                  padding: "15px 36px",
+                  padding: previewData ? "10px 24px" : "15px 36px",
                   background: "#FF9900",
                   color: "#ffffff",
                   border: "none",
                   fontWeight: 700,
-                  fontSize: "17px",
+                  fontSize: previewData ? "14px" : "17px",
                   cursor: "pointer",
                   fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                   transform: "skewX(-20deg) scale(1)",
@@ -711,13 +890,13 @@ export default function Hero() {
                   background: "transparent",
                   border: "none",
                   color: "#0F172A",
-                  fontSize: "17px",
+                  fontSize: previewData ? "14px" : "17px",
                   fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "11px",
+                  gap: previewData ? "8px" : "11px",
                   padding: "10px 16px",
                   fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                   outline: "none",
@@ -725,8 +904,8 @@ export default function Hero() {
               >
                 <div
                   style={{
-                    width: "48px",
-                    height: "48px",
+                    width: previewData ? "36px" : "48px",
+                    height: previewData ? "36px" : "48px",
                     borderRadius: "50%",
                     border: "2px solid #FF9900",
                     display: "flex",
@@ -737,7 +916,7 @@ export default function Hero() {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  <Play size={16} fill="#FF9900" style={{ marginLeft: "4px" }} />
+                  <Play size={previewData ? 12 : 16} fill="#FF9900" style={{ marginLeft: "4px" }} />
                 </div>
                 Explore Roadmap
               </motion.button>
@@ -745,16 +924,17 @@ export default function Hero() {
             </div> {/* closes Left-Aligned Content Wrapper */}
 
             {/* Bottom Left Circuit Graphic */}
-            <div 
-              style={{ 
-                position: "absolute",
-                bottom: "5vh",
-                left: "40px",
-                width: "100%", 
-                maxWidth: "320px",
-                zIndex: 10,
-              }}
-            >
+            {!previewData && (
+              <div 
+                style={{ 
+                  position: "absolute",
+                  bottom: "5vh",
+                  left: "40px",
+                  width: "100%", 
+                  maxWidth: "320px",
+                  zIndex: 10,
+                }}
+              >
               <svg 
                 viewBox="0 0 500 130" 
                 width="100%" 
@@ -815,7 +995,36 @@ export default function Hero() {
                 <circle cx="410" cy="45" r="1.8" fill="#0f172a" />
               </svg>
             </div>
-          </div> {/* closes 50% Left Half Container */}
+          )}
+        </div> {/* closes 50% Left Half Container */}
+
+        {/* Right half container for 3D building (only in previewData mode) */}
+        {previewData && (
+          <div
+            style={{
+              width: "50%",
+              height: "100%",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src="/assets/hero-sequence/0.webp"
+              alt="3D Building Preview"
+              style={{
+                height: "100%",
+                aspectRatio: "1920/1080",
+                objectFit: "cover",
+                objectPosition: "center",
+                mixBlendMode: "multiply",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
+        )}
       </div> {/* closes Content Overlay */}
       </motion.div>
     </div>

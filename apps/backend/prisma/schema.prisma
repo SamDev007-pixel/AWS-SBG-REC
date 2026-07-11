@@ -1157,3 +1157,70 @@ model ChatReport {
   @@index([status])
   @@map("chat_reports")
 }
+
+model HomepageHero {
+  id              String   @id @default(uuid())
+  badge           String
+  titleHighlight  String
+  subtitle        String
+  updatedAt       DateTime @updatedAt
+
+  @@map("homepage_hero")
+}
+
+model HomepageCoordinator {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  department  String
+  image       String
+  bio         String   @db.Text
+  linkedin    String
+  updatedAt   DateTime @updatedAt
+
+  @@map("homepage_coordinator")
+}
+
+model HomepageJourney {
+  id          String   @id @default(uuid())
+  label       String
+  sublabel    String
+  image       String
+  description String   @db.Text
+  gradient    String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("homepage_journeys")
+}
+
+model HomepageTestimonial {
+  id        String   @id @default(uuid())
+  name      String
+  role      String
+  rating    Int
+  text      String   @db.Text
+  type      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_testimonials")
+}
+
+model HomepageTeam {
+  id         String   @id @default(uuid())
+  name       String
+  role       String
+  department String
+  image      String
+  accent     String
+  type       String   // "core" | "crew"
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("homepage_team")
+}
+

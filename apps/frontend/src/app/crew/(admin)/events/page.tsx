@@ -209,7 +209,7 @@ export default function AssignedEventsPage() {
   const selectCls = "appearance-none pl-3.5 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-655 cursor-pointer transition-all";
 
   return (
-    <div className="min-h-screen w-full bg-white text-[#1A1C1E] relative pt-20 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen w-full bg-white text-[#1A1C1E] relative pt-4 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* Header Section */}

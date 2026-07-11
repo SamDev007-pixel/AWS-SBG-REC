@@ -71,7 +71,7 @@ export default function TopicRoadmapPage() {
   if (loading) {
     return (
       <LayoutShell>
-        <div className="h-full w-full min-h-[500px] bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+        <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center overflow-hidden font-sans select-none z-50">
           <SkyBackground />
           <div className="relative z-10 flex flex-col items-center gap-4">
             <div className="relative flex items-center justify-center">

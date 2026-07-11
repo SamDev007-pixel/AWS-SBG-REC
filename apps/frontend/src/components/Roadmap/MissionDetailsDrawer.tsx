@@ -91,7 +91,7 @@ export const MissionDetailsDrawer: React.FC<MissionDetailsDrawerProps> = ({
 
           {/* Drawer Panel */}
           <motion.div
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-white border-l border-slate-200 text-slate-900 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 z-50 w-full sm:max-w-sm bg-white border-l border-slate-200 text-slate-900 flex flex-col shadow-2xl"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -190,8 +190,8 @@ export const MissionDetailsDrawer: React.FC<MissionDetailsDrawerProps> = ({
               ) : status === 'current' ? (
                 <button
                   onClick={() => handleStartLearning('reading')}
-                  className="relative w-full overflow-hidden font-black py-3.5 px-6 rounded-xl text-sm tracking-wide transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 font-outfit cursor-pointer text-white group shadow-[0_4px_20px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)] hover:-translate-y-0.5"
-                  style={{ background: 'linear-gradient(135deg, #1e3b8a 0%, #2563eb 45%, #3b82f6 100%)' }}
+                  className="relative w-full overflow-hidden font-black py-3.5 px-6 rounded-xl text-sm tracking-wide transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 font-outfit cursor-pointer text-white group shadow-[0_4px_20px_rgba(255,153,0,0.3)] hover:shadow-[0_6px_28px_rgba(255,153,0,0.4)] hover:-translate-y-0.5"
+                  style={{ background: 'linear-gradient(135deg, #FFB03A 0%, #FF9900 45%, #FF7A00 100%)' }}
                 >
                   {/* Subtle shimmer on hover */}
                   <span className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-white rounded-xl" />

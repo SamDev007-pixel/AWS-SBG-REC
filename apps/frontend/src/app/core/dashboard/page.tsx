@@ -24,6 +24,7 @@ import {
   CheckCircle,
   Eye,
   Sliders,
+  Home,
   ChevronRight,
   RotateCcw,
 } from 'lucide-react';
@@ -577,6 +578,7 @@ export default function DashboardPage() {
   }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation, revertMutation]);
 
   const adminActions = [
+    { label: 'Manage Homepage', href: '/core/manage-homepage', icon: Home, color: 'text-orange-500 bg-orange-50/60 border border-orange-100/50' },
     { label: 'Scanner Panel', href: '/core/attendance', icon: UserCheck, color: 'text-indigo-600 bg-indigo-50 border border-indigo-100' },
     { label: 'Generate Report', href: '/core/analytics', icon: BarChart3, color: 'text-teal-600 bg-teal-50 border border-teal-100' },
   ];

@@ -63,7 +63,7 @@ export function NewsFeedPage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-background px-4 pt-20 pb-4 sm:pt-6 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-background px-4 pt-4 pb-4 sm:pt-6 sm:px-6 lg:px-8">
       <h1 className="sr-only">AWS Community Newsroom</h1>
 
       <div className="mx-auto max-w-[1440px]">

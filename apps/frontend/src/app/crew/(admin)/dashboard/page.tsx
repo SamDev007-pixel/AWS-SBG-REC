@@ -27,7 +27,7 @@ export default function CrewDashboardPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-20 md:pt-6 pb-12 relative overflow-hidden">
+    <div className="min-h-screen bg-[#FFFFFF] pt-4 md:pt-6 pb-12 relative overflow-hidden">
       <div className="relative z-10 space-y-6 px-4 md:px-5">
         {/* Section 1 — Hero Banner */}
         <HeroBanner />

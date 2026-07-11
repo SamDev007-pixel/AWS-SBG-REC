@@ -339,7 +339,7 @@ function TicketScannerPageContent() {
   const hasFilter = !!(eventFilter || dateFilter || statusFilter);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative pt-20 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative pt-4 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* ── Header Section ── */}

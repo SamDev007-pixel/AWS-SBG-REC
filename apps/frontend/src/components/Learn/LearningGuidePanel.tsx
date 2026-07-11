@@ -113,24 +113,7 @@ const COLOR_MAP: Record<string, { glow: string; border: string; iconBg: string; 
 
 export const LearningGuidePanel: React.FC = () => {
   return (
-    <div className="rounded-2xl bg-white/[0.08] backdrop-blur-[20px] border border-white/20 shadow-[inset_0_1.5px_0_rgba(255,255,255,0.3),0_12px_36px_rgba(0,0,0,0.05)] p-5 flex flex-col gap-5 select-none w-full min-h-full">
-      {/* Guidelines Header */}
-      <div className="flex flex-col gap-1 pb-3 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center border border-amber-500/20">
-            <Lightbulb className="w-4 h-4 text-amber-600" />
-          </div>
-          <h2 className="text-[12px] font-black text-slate-800 uppercase tracking-widest font-heading">
-            GUIDELINES
-          </h2>
-        </div>
-        <p className="text-[10px] text-slate-500 font-semibold tracking-tight pl-10 -mt-1 leading-normal">
-          Platform learning rules and progression guidelines
-        </p>
-      </div>
-
-      {/* Guidelines Cards Stack */}
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 select-none w-full">
         {SECTIONS.filter(section => 'type' in section ? section.type !== 'divider' : true).map((section, i) => {
           // Render example scoring card
           if ('type' in section && section.type === 'example') {
@@ -230,7 +213,6 @@ export const LearningGuidePanel: React.FC = () => {
             </div>
           );
         })}
-      </div>
     </div>
   );
 };

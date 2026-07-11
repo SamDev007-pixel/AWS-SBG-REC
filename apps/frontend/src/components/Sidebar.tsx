@@ -68,7 +68,7 @@ export default function Sidebar({
       {/* Mobile overlay */}
       {isMobile && isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          className="fixed inset-0 z-[1400] bg-black/40 md:hidden"
           onClick={onMobileClose}
         />
       )}
@@ -76,7 +76,7 @@ export default function Sidebar({
       {/* Sidebar — CSS transitions only, no Framer Motion */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full z-50 flex flex-col overflow-hidden font-sans",
+          "fixed left-0 top-0 h-full z-[1500] flex flex-col overflow-hidden font-sans",
           // CSS transition on width and transform
           "transition-[width,transform] duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         )}

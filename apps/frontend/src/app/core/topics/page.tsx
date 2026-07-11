@@ -162,25 +162,25 @@ export default function TopicsDirectoryPage() {
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
-        <div className="flex items-center gap-6 h-full text-xs font-bold">
+      <header className="min-h-[56px] md:h-14 bg-white border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between px-6 md:px-8 py-3.5 md:py-0 gap-3 md:gap-0 flex-shrink-0 select-none">
+        <div className="flex items-center gap-6 text-[13.5px] font-bold overflow-x-auto scrollbar-none whitespace-nowrap w-full md:w-auto border-b border-slate-100 md:border-b-0 pb-2.5 md:pb-0 md:h-full">
           <Link
             href="/core/topics"
-            className="transition-all duration-150 h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600"
+            className="transition-all duration-150 py-1 md:py-0 md:h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600 shrink-0"
           >
             Roadmap Builder
           </Link>
           <Link
             href="/core/learners"
-            className="transition-all duration-150 h-full flex items-center px-1 text-slate-500 hover:text-indigo-600 hover:border-b-2 hover:border-indigo-300 border-b-2 border-transparent"
+            className="transition-all duration-150 py-1 md:py-0 md:h-full flex items-center px-1 text-slate-500 hover:text-indigo-600 hover:border-b-2 hover:border-indigo-300 border-b-2 border-transparent shrink-0"
           >
             Learners Directory
           </Link>
         </div>
-        <div className="flex items-center flex-shrink-0">
+        <div className="flex items-center w-full md:w-auto shrink-0">
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
+            className="w-full md:w-auto justify-center bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
           >
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
             Create Topic

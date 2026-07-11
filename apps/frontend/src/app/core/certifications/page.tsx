@@ -454,12 +454,10 @@ function CertificationsPageContent() {
       <div className="max-w-[1440px] w-full mx-auto flex flex-col gap-6 z-10 relative">
       {/* Header Banner */}
       <section
+        className="rounded-2xl lg:rounded-3xl p-5 sm:p-6 lg:p-8 border border-[#FFF0E0]/50 relative overflow-hidden"
         style={{
           background: 'radial-gradient(ellipse at 95% 5%, rgba(255,153,0,0.18) 0%, rgba(255,153,0,0.08) 35%, rgba(255,255,255,0) 65%)',
-          borderRadius: '24px',
-          padding: '24px'
         }}
-        className="border border-[#FFF0E0]/50"
       >
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="max-w-3xl">

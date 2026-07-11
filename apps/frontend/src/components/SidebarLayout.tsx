@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Menu } from "lucide-react";
 import Sidebar, { type NavItem, type SidebarUser } from "./Sidebar";
 import { clearSessionCache } from "./AuthWrapper";
 
@@ -164,11 +164,8 @@ export default function SidebarLayout({
       {/* Premium Light Mobile Header Navbar */}
       {isMobile && !isRoadmapPage && (
         <header
-          className="fixed top-0 left-0 right-0 z-30 h-14 flex items-center justify-between px-4 border-b border-slate-200/40 backdrop-blur-md"
-          style={{
-            background: "rgba(249, 250, 251, 0.90)",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03)",
-          }}
+          className="fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-5 border-b border-slate-200/40 backdrop-blur-md bg-white/95"
+          style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}
         >
           {/* Left: Brand Identity */}
           <span 
@@ -181,12 +178,10 @@ export default function SidebarLayout({
           {/* Right: Menu Trigger */}
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-slate-200/60 hover:bg-slate-50 text-slate-700 transition-all cursor-pointer active:scale-95 shadow-sm"
+            className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-100/80 text-slate-700 transition-all cursor-pointer active:scale-95 select-none"
             aria-label="Open menu"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu size={20} strokeWidth={2.2} className="shrink-0" />
           </button>
         </header>
       )}
@@ -232,11 +227,11 @@ export default function SidebarLayout({
             </button>
           </div>
         )}
-        <div className={
+        <div className={`${
           pathname && pathname.includes('/chat')
-            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : (isMobile ? "h-full pt-14 overflow-hidden" : "h-full overflow-hidden"))
-            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
-        }>
+            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-hidden" : "h-full overflow-hidden"))
+            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
+        } custom-scrollbar`}>
           {children}
         </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { SendHorizontal, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User } from "lucide-react";
+import { SendHorizontal, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User, Mic, MicOff } from "lucide-react";
 
 const COLORS = {
   bg: "#F8FAFC",
@@ -161,11 +161,70 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [userPhotos, setUserPhotos] = useState<Record<string, string>>({});
+  const [isListening, setIsListening] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleSpeechToText = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Please try Google Chrome or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.error("Failed to abort speech recognition:", e);
+        }
+        recognitionRef.current = null;
+      }
+      setIsListening(false);
+    } else {
+      setIsListening(true);
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = 'en-US';
+
+      rec.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInputText((prev) => {
+            const trimmed = prev.trim();
+            const newText = trimmed ? `${trimmed} ${transcript}` : transcript;
+            
+            setTimeout(() => {
+              if (inputRef.current) {
+                inputRef.current.style.height = "auto";
+                inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+              }
+            }, 50);
+
+            return newText;
+          });
+        }
+      };
+
+      rec.onerror = (err: any) => {
+        console.error("Speech recognition error:", err);
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+      rec.start();
+    }
+  };
 
   const fetchMessages = async () => {
     try {
@@ -399,6 +458,18 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
         .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
+        .premium-scrollbar::-webkit-scrollbar-button { display: none; }
+        @keyframes soundwave-pulse {
+          0%, 100% { height: 4px; }
+          50% { height: 16px; }
+        }
+        .wave-bar {
+          display: inline-block;
+          width: 3px;
+          background-color: #FF9900;
+          border-radius: 99px;
+          animation: soundwave-pulse 0.8s ease-in-out infinite;
+        }
       `}</style>
 
       {/* Chat body */}
@@ -560,16 +631,19 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       {/* Input bar */}
       <form
         onSubmit={handleSend}
-        className="p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex items-center gap-3.5 shrink-0"
+        className="relative p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex items-center gap-3.5 shrink-0"
       >
-        <Avatar
-          initials={user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-          color={user.role?.toLowerCase() === "core" ? getAvatarColor(user.fullName) : "#232F3E"}
-          photo={user.avatar}
-          size={34}
-          role={user.role}
-        />
-
+        {isListening && (
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#232F3E] text-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2.5 border border-slate-700/50 z-50 animate-bounce">
+            <span className="flex gap-1 items-end justify-center h-4 w-6 mb-0.5">
+              <span className="wave-bar" style={{ animationDelay: "0s" }}></span>
+              <span className="wave-bar" style={{ animationDelay: "0.15s" }}></span>
+              <span className="wave-bar" style={{ animationDelay: "0.3s" }}></span>
+              <span className="wave-bar" style={{ animationDelay: "0.45s" }}></span>
+            </span>
+            <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-200">Listening... Speak now</span>
+          </div>
+        )}
         {/* Attachment Button */}
         <button
           type="button"
@@ -587,15 +661,32 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
           className="hidden"
         />
 
-        <textarea
-          ref={inputRef}
-          value={inputText}
-          onChange={handleTextareaChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          rows={1}
-          className="flex-1 bg-white border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-[#232F3E] placeholder-slate-400 shadow-inner focus:outline-none resize-none max-h-36 leading-relaxed transition-all"
-        />
+        {/* Speech to Text Toggle Button */}
+        <button
+          type="button"
+          onClick={toggleSpeechToText}
+          className={cn(
+            "p-2 rounded-xl transition-all duration-150 shrink-0 cursor-pointer flex items-center justify-center border",
+            isListening 
+              ? "bg-[#FF9900]/10 border-[#FF9900]/40 text-[#FF9900] animate-pulse" 
+              : "text-slate-400 hover:text-[#FF9900] bg-transparent hover:bg-slate-100/50 border-transparent"
+          )}
+          title={isListening ? "Listening... Click to stop" : "Voice dictation (speech-to-text)"}
+        >
+          <Mic className={cn("w-4.5 h-4.5", isListening && "animate-bounce")} />
+        </button>
+
+        <div className="flex-1 bg-white border border-slate-200 hover:border-slate-350 focus-within:border-[#FF9900] focus-within:ring-2 focus-within:ring-[#FF9900]/10 rounded-xl px-3 py-2 transition-all shadow-inner flex items-center min-w-0">
+          <textarea
+            ref={inputRef}
+            value={inputText}
+            onChange={handleTextareaChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            rows={1}
+            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none resize-none max-h-36 leading-relaxed text-xs sm:text-[13px] text-[#232F3E] placeholder-slate-400 premium-scrollbar custom-scrollbar pr-1 py-0.5"
+          />
+        </div>
 
         <button
           type="submit"

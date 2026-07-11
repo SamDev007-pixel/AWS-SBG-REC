@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useCrewEvents, useCrewIncidents, useCreateCrewIncident } from '@/lib/hooks';
-import { AlertOctagon, AlertTriangle, Info, Clock, Paperclip, CheckCircle2 } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, Info, Clock, Paperclip, CheckCircle2, Camera, Loader2, X } from 'lucide-react';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -55,19 +55,64 @@ export default function IncidentReportingPage() {
   const [eventId, setEventId] = useState('');
   const [attachmentUrl, setAttachmentUrl] = useState('');
   const [formSuccess, setFormSuccess] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image exceeds the 5MB limit.");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const json = await res.json();
+      const imageUrl = json.url || json.data?.url;
+      if (imageUrl) {
+        setAttachmentUrl(imageUrl);
+      } else {
+        throw new Error('No URL returned from upload');
+      }
+    } catch (err: any) {
+      setUploadError(err.message || 'Image upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   function handleReportSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !description.trim() || !eventId) return;
+    if (!title.trim() || !description.trim()) return;
 
     setFormSuccess(false);
+
+    // Prisma DB requires eventId. If user hasn't explicitly selected one, fall back to first event in DB
+    const resolvedEventId = eventId || (events && events[0]?.id) || "";
 
     createIncidentMutation.mutate(
       {
         title: title.trim(),
         description: description.trim(),
         priority,
-        eventId,
+        eventId: resolvedEventId,
         attachmentUrl: attachmentUrl.trim() || undefined,
       },
       {
@@ -87,7 +132,7 @@ export default function IncidentReportingPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4.5rem)] flex flex-col space-y-4 py-4 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="h-auto min-h-full lg:h-[calc(100vh-4.5rem)] flex flex-col space-y-4 py-4 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden">
       {/* Header Row */}
       <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)" }} className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[20px] border border-white/50 p-5 shadow-sm">
         <div className="flex items-start gap-4">
@@ -102,25 +147,24 @@ export default function IncidentReportingPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 flex-1 min-h-0">
+      <div className="grid gap-4 md:grid-cols-3 flex-1 lg:min-h-0 min-h-auto">
         {/* Incident Report Form */}
-        <div className="md:col-span-2 flex flex-col min-h-0">
-          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 min-h-0">
+        <div className="md:col-span-2 flex flex-col lg:min-h-0 min-h-auto">
+          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 lg:min-h-0 min-h-auto">
             <h2 className="shrink-0 text-sm font-bold text-[#232F3E] flex items-center gap-2 mb-4">
               <AlertOctagon className="h-4 w-4 text-brand-orange" /> Submit New Incident Report
             </h2>
 
             <form onSubmit={handleReportSubmit} className="flex-1 flex flex-col gap-4 pb-1">
               {/* Event & Title Row */}
-              <div className="grid grid-cols-2 gap-3 shrink-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                    Associated Event *
+                    Associated Event
                   </label>
                   <select
                     value={eventId}
                     onChange={(e) => setEventId(e.target.value)}
-                    required
                     className="w-full bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm"
                   >
                     <option value="">Select event...</option>
@@ -157,7 +201,7 @@ export default function IncidentReportingPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   placeholder="Explain what happened, potential impacts, and steps taken so far..."
-                  className="w-full flex-1 bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm resize-none"
+                  className="w-full min-h-[100px] flex-1 bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm resize-none"
                 />
               </div>
 
@@ -184,18 +228,55 @@ export default function IncidentReportingPage() {
                 </div>
               </div>
 
-              {/* Attachment URL */}
+              {/* Attachment Image Upload */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Attachment URL (Optional)
+                  Attachment Image (Optional)
                 </label>
-                <input
-                  type="text"
-                  value={attachmentUrl}
-                  onChange={(e) => setAttachmentUrl(e.target.value)}
-                  placeholder="Cloud storage link to photo/log files..."
-                  className="w-full bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm"
-                />
+                <div className="flex items-center gap-3">
+                  {attachmentUrl ? (
+                    <div className="relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                      <img src={attachmentUrl} alt="Attachment Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setAttachmentUrl('')}
+                        className="absolute top-1 right-1 bg-slate-900/60 hover:bg-slate-900/80 text-white rounded-lg p-1 w-5 h-5 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-90"
+                        aria-label="Remove image"
+                      >
+                        <X size={10} strokeWidth={3} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 border border-dashed border-slate-300 hover:border-brand-orange hover:bg-slate-50/50 rounded-lg px-4 py-2.5 cursor-pointer text-slate-500 hover:text-brand-orange transition-all active:scale-98 min-h-[42px] w-full bg-white text-xs font-semibold"
+                    >
+                      {isUploading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 size={14} className="animate-spin text-brand-orange" />
+                          <span>Uploading image...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <Camera size={14} />
+                          <span>Attach Image</span>
+                        </div>
+                      )}
+                    </button>
+                  )}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+                {uploadError && (
+                  <p className="text-[10px] text-red-500 font-semibold ml-1 mt-0.5">{uploadError}</p>
+                )}
               </div>
 
               {/* Submit button */}
@@ -207,7 +288,7 @@ export default function IncidentReportingPage() {
                     createIncidentMutation.isPending ||
                     !title.trim() ||
                     !description.trim() ||
-                    !eventId
+                    isUploading
                   }
                   className="w-full sm:w-auto bg-brand-orange text-black hover:bg-brand-orange/95 rounded-[10px] font-bold px-6 py-2.5 shadow-md shadow-brand-orange/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-xs"
                 >
@@ -230,11 +311,11 @@ export default function IncidentReportingPage() {
         </div>
 
         {/* Incident History List */}
-        <div className="flex flex-col min-h-0">
-          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 min-h-0">
+        <div className="flex flex-col lg:min-h-0 min-h-auto">
+          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 lg:min-h-0 min-h-auto">
             <h2 className="shrink-0 text-sm font-bold text-[#232F3E] mb-4">Submitted Reports</h2>
 
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+            <div className="flex-1 lg:overflow-y-auto pr-2 space-y-3 custom-scrollbar">
               {incidentsLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <div
@@ -246,7 +327,7 @@ export default function IncidentReportingPage() {
                   </div>
                 ))
               ) : !incidents || incidents.length === 0 ? (
-                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border-2 border-dashed border-slate-300 rounded-[14px] min-h-[120px] flex flex-col items-center justify-center p-4 text-center">
+                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.03), rgba(35, 47, 62, 0.015))" }} className="border border-dashed border-slate-200 rounded-[14px] min-h-[120px] flex flex-col items-center justify-center p-4 text-center">
                   <p className="text-xs font-medium text-slate-500">No incident reports recorded.</p>
                 </div>
               ) : (
