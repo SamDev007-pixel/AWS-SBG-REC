@@ -11,12 +11,17 @@ import { getAuthSession } from '@/lib/authHelper';
 import { learningService } from '@/services/roadmap.api';
 import { Loader2 } from 'lucide-react';
 import { SkyBackground } from '@/components/Roadmap/SkyBackground';
+import { LearningPageError, categorizeError } from '../error-types';
+import { logError } from '../error-logger';
+import LearningErrorView from '@/components/Learn/LearningErrorView';
 
 export default function TopicRoadmapPage() {
   const router = useRouter();
   const params = useParams();
   const topicSlug = params.topicSlug as string;
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<LearningPageError | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   const [mounted, setMounted] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(() => {
@@ -58,15 +63,27 @@ export default function TopicRoadmapPage() {
           return;
         }
         setLoading(false);
-      } catch {
+      } catch (err: any) {
         if (!active) return;
+        logError(err, 'topic-page-check-access');
+        setError(categorizeError(err));
         setLoading(false);
       }
     };
 
     checkAccess();
     return () => { active = false; };
-  }, [router, topicSlug]);
+  }, [router, topicSlug, retryTrigger]);
+
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    setRetryTrigger((prev) => prev + 1);
+  };
+
+  if (error) {
+    return <LearningErrorView error={error} reset={handleRetry} />;
+  }
 
   if (loading) {
     return (
