@@ -35,19 +35,7 @@ import { LearningPageError, categorizeError } from './error-types';
 import { logError } from './error-logger';
 import LearningErrorView from '@/components/Learn/LearningErrorView';
 
-if (typeof window !== 'undefined') {
-  if (!(window as any).timelineLogs) {
-    (window as any).timelineLogs = [];
-    const origLog = console.log;
-    console.log = (...args) => {
-      origLog(...args);
-      (window as any).timelineLogs.push({
-        time: new Date().toISOString(),
-        text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
-      });
-    };
-  }
-}
+
 
 // Helper to parse topic descriptions into bullet points
 const parseBulletPoints = (text: string): string[] => {
@@ -79,11 +67,7 @@ export default function LearnPage() {
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("[TIMELINE] [LearnPage Render Frame]", {
-    loading,
-    topicsCount: topics.length,
-    mounted
-  });
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const [error, setError] = useState<LearningPageError | null>(null);
@@ -158,7 +142,7 @@ export default function LearnPage() {
     let active = true;
     const fetchTopics = async () => {
       try {
-        console.log("[TIMELINE] [fetchTopics Start]");
+
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -167,28 +151,19 @@ export default function LearnPage() {
         ]);
         if (!active) return;
 
-        console.log("[TIMELINE] [fetchTopics Success API returned]", {
-          topicsCount: data.length,
-        });
+
 
         // Proactively detect completion animation on initial fetch to avoid first-render flash
         const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
-        console.log("[TIMELINE] [fetchTopics Proactive Check]", { recentTopicId });
         if (recentTopicId) {
           const completedTopicIndex = data.findIndex(t => t.id === recentTopicId);
           if (completedTopicIndex !== -1) {
             const completedTopic = data[completedTopicIndex];
-            console.log("[TIMELINE] [fetchTopics Found completed topic in API data]", {
-              completedTopicId: completedTopic.id,
-              completedModules: completedTopic.completedModules,
-              totalModules: completedTopic.totalModules
-            });
+
             if (completedTopic.completedModules === completedTopic.totalModules) {
               const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
               const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
-              console.log("[TIMELINE] [fetchTopics Comparing signatures]", { currentSig, lastSig });
               if (currentSig !== lastSig) {
-                console.log("[TIMELINE] [fetchTopics Setting Animating States Proactively]");
                 setAnimatingTopicId(completedTopic.id);
                 const startPercent = 0;
                 setVisualPercent(startPercent);
@@ -207,7 +182,6 @@ export default function LearnPage() {
           }
         }
 
-        console.log("[TIMELINE] [fetchTopics Setting States in Component]");
         setTopics(data);
         setContinueModule(continueData.module);
         setUserXP(progressData.currentXP);
@@ -217,7 +191,6 @@ export default function LearnPage() {
         setError(categorizeError(err));
       } finally {
         if (active) {
-          console.log("[TIMELINE] [fetchTopics Finally Setting Loading to false]");
           setLoading(false);
         }
       }
@@ -229,45 +202,34 @@ export default function LearnPage() {
 
   // Topic completion animation trigger
   useEffect(() => {
-    console.log("[TIMELINE] [Animation Trigger useEffect Run]", {
-      loading,
-      topicsLength: topics.length,
-      recentTopicId: typeof window !== 'undefined' ? sessionStorage.getItem("recentTopicCompletion") : null
-    });
     if (loading || topics.length === 0) return;
 
     if (typeof window === 'undefined') return;
 
     const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
     if (!recentTopicId) {
-      console.log("[TIMELINE] [Animation Trigger Check: No recentTopicCompletion in storage]");
       return;
     }
 
     const completedTopicIndex = topics.findIndex(t => t.id === recentTopicId);
     if (completedTopicIndex === -1) {
-      console.log("[TIMELINE] [Animation Trigger Check: completedTopicIndex is -1]");
       return;
     }
 
     const completedTopic = topics[completedTopicIndex];
-    console.log("[TIMELINE] [Animation Trigger Check: completedTopic found]", {
-      completedModules: completedTopic.completedModules,
-      totalModules: completedTopic.totalModules
-    });
+
     if (completedTopic.completedModules !== completedTopic.totalModules) return;
 
     const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
     const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
-    console.log("[TIMELINE] [Animation Trigger Check: comparing signatures]", { currentSig, lastSig });
+
 
     if (currentSig === lastSig) {
-      console.log("[TIMELINE] [Animation Trigger Check: signature matches lastSig, removing completion key]");
       sessionStorage.removeItem("recentTopicCompletion");
       return;
     }
 
-    console.log("[TIMELINE] [Animation Trigger Check: New completion animation STARTING!]");
+
     // New completion found!
     setAnimatingTopicId(completedTopic.id);
     setIsCompletedVisual(false);
@@ -339,12 +301,7 @@ export default function LearnPage() {
     };
   }, [loading, topics]);
 
-  // Temporary logging to verify visualPercent transitions
-  useEffect(() => {
-    if (animatingTopicId) {
-      console.log("visualPercent updated:", visualPercent);
-    }
-  }, [visualPercent, animatingTopicId]);
+
 
 
 
@@ -594,7 +551,6 @@ export default function LearnPage() {
 
   // Main UI Load/Error views
   if (loading) {
-    console.log("[TIMELINE] [Render: SkyBackgroundLoader (Page is loading)]");
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
@@ -626,13 +582,7 @@ export default function LearnPage() {
     return <LearningErrorView error={error} reset={handleRetry} />;
   }
 
-  console.log("[TIMELINE] [Render: Main page layout (Page is ready)]", {
-    animatingTopicId,
-    displayTopicId: displayTopic?.id,
-    displayTopicCompletedModules: displayTopic?.completedModules,
-    displayTopicStatus: displayTopic?.status,
-    visualPercent
-  });
+
 
   return renderWithSidebar(
     <AppLayout>
@@ -784,7 +734,7 @@ export default function LearnPage() {
               </div>
 
               {/* Level badge */}
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 items-center gap-1.5 sm:gap-2">
                 <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <div>
                   <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
