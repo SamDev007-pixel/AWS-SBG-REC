@@ -232,28 +232,29 @@ export default function CrewLearnersDirectoryPage() {
                 <tr className="border-b border-slate-200 text-[10px] uppercase font-black tracking-wider text-slate-450 bg-slate-50/50">
                   <th className="py-4 px-6">Learner Account</th>
                   <th className="py-4 px-6 text-center">XP</th>
-                  <th className="py-4 px-6">Current Topic</th>
-                  <th className="py-4 px-6 text-center">Current Level</th>
-                  <th className="py-4 px-6 text-center">Current Module</th>
+                  <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
+                  <th className="py-4 px-6 text-center">Topic #</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
                   <th className="py-4 px-6 text-center">Progress</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       Loading learners...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-rose-450 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-rose-450 text-xs italic">
                       {error}
                     </td>
                   </tr>
                 ) : filteredLearners.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       No matching learners found.
                     </td>
                   </tr>
@@ -321,14 +322,25 @@ export default function CrewLearnersDirectoryPage() {
                         </td>
 
                         {/* Current Topic */}
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-6 hidden md:table-cell">
                           <span className="text-slate-655 font-semibold text-slate-600">
                             {learner.currentTopic ?? '—'}
                           </span>
                         </td>
 
-                        {/* Current Level */}
+                        {/* Topic Number */}
                         <td className="py-4 px-6 text-center">
+                          {learner.currentTopicNumber ? (
+                            <span className="text-slate-600 font-bold">
+                              {learner.currentTopicNumber}/{learner.totalTopicsCount}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 font-bold">—</span>
+                          )}
+                        </td>
+
+                        {/* Current Level */}
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           {learner.currentLevel ? (
                             <span className={cn(
                               "px-2.5 py-1 rounded-xl text-[9px] font-black border uppercase tracking-wider whitespace-nowrap",
@@ -346,7 +358,7 @@ export default function CrewLearnersDirectoryPage() {
                         </td>
 
                         {/* Current Module */}
-                        <td className="py-4 px-6 text-center">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           <span className="text-slate-600 font-semibold">
                             {learner.currentModuleName ?? (isComplete ? 'Completed' : '—')}
                           </span>

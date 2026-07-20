@@ -404,6 +404,7 @@ export interface LearnerSummary {
   role: string;
   xp: number;
   currentTopic: string | null;
+  currentTopicNumber: number | null;
   currentLevel: string | null;
   currentModuleName: string | null;
   currentModuleOrder: number | null;

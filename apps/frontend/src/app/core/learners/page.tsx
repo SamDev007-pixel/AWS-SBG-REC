@@ -27,6 +27,11 @@ export default function CoreLearnersDirectoryPage() {
   const [roleFilter, setRoleFilter] = useState<'all' | 'CREW' | 'ENTHUSIAST'>('all');
   const [moduleFilterType, setModuleFilterType] = useState<'all' | 'above' | 'below'>('all');
   const [moduleFilterValue, setModuleFilterValue] = useState<number>(3);
+  const [expandedLearnerId, setExpandedLearnerId] = useState<string | null>(null);
+
+  const handleToggleExpand = (learnerId: string) => {
+    setExpandedLearnerId((prev) => (prev === learnerId ? null : learnerId));
+  };
 
   useEffect(() => {
     const fetchLearners = async () => {
@@ -71,7 +76,7 @@ export default function CoreLearnersDirectoryPage() {
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
       {/* HEADER */}
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-center md:justify-between px-8 flex-shrink-0 select-none">
         <div className="flex items-center gap-6 h-full text-xs font-bold">
           <Link
             href="/core/topics"
@@ -87,7 +92,7 @@ export default function CoreLearnersDirectoryPage() {
           </Link>
         </div>
 
-        <div className="relative w-72 flex-shrink-0">
+        <div className="hidden md:block relative w-72 flex-shrink-0">
           <input
             type="text"
             placeholder="Search learner name or email..."
@@ -100,7 +105,7 @@ export default function CoreLearnersDirectoryPage() {
       </header>
 
       {/* CONTENT */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 space-y-6 w-full max-w-full">
 
         {/* FILTERS */}
         <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
@@ -149,7 +154,7 @@ export default function CoreLearnersDirectoryPage() {
               })}
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-semibold">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 text-xs font-semibold">
               <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading">
                 Module Completion:
               </span>
@@ -182,6 +187,18 @@ export default function CoreLearnersDirectoryPage() {
           </div>
         </div>
 
+        {/* Mobile Search Bar */}
+        <div className="block md:hidden relative w-full">
+          <input
+            type="text"
+            placeholder="Search learner name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-sm"
+          />
+          <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
+        </div>
+
         {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -203,36 +220,37 @@ export default function CoreLearnersDirectoryPage() {
           ))}
         </div>
 
-        {/* TABLE */}
-        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        {/* TABLE (Desktop View) */}
+        <div className="hidden md:block bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 text-[10px] uppercase font-black tracking-wider text-slate-450 bg-slate-50/50">
                   <th className="py-4 px-6">Learner Account</th>
-                  <th className="py-4 px-6 text-center">XP</th>
-                  <th className="py-4 px-6">Current Topic</th>
-                  <th className="py-4 px-6 text-center">Current Level</th>
-                  <th className="py-4 px-6 text-center">Current Module</th>
-                  <th className="py-4 px-6 text-center">Progress</th>
+                  <th className="py-4 pl-6 pr-12 text-right md:px-6 md:text-center">XP</th>
+                  <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Topic #</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Progress</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       Loading learners...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-rose-450 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-rose-450 text-xs italic">
                       {error}
                     </td>
                   </tr>
                 ) : filteredLearners.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       No matching learners found.
                     </td>
                   </tr>
@@ -293,21 +311,32 @@ export default function CoreLearnersDirectoryPage() {
                         </td>
 
                         {/* XP */}
-                        <td className="py-4 px-6 text-center">
+                        <td className="py-4 pl-6 pr-12 text-right md:px-6 md:text-center">
                           <span className="text-amber-600 font-black">
                             {learner.xp}
                           </span>
                         </td>
 
                         {/* Current Topic */}
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-6 hidden md:table-cell">
                           <span className="text-slate-600 font-semibold">
                             {learner.currentTopic ?? '—'}
                           </span>
                         </td>
 
+                        {/* Topic Number */}
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
+                          {learner.currentTopicNumber ? (
+                            <span className="text-slate-600 font-bold">
+                              {learner.currentTopicNumber}/{learner.totalTopicsCount}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 font-bold">—</span>
+                          )}
+                        </td>
+
                         {/* Current Level */}
-                        <td className="py-4 px-6 text-center">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           {learner.currentLevel ? (
                             <span className={cn(
                               "px-2.5 py-1 rounded-xl text-[9px] font-black border uppercase tracking-wider whitespace-nowrap",
@@ -325,7 +354,7 @@ export default function CoreLearnersDirectoryPage() {
                         </td>
 
                         {/* Current Module */}
-                        <td className="py-4 px-6 text-center">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           <span className="text-slate-655 font-semibold text-slate-600">
                             {learner.currentModuleName ?? (isComplete ? 'Completed' : '—')}
                           </span>
@@ -337,7 +366,7 @@ export default function CoreLearnersDirectoryPage() {
                         </td>
 
                         {/* Progress */}
-                        <td className="py-4 px-6 text-center">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           <span className={cn(
                             "font-black",
                             isComplete ? "text-emerald-600" : "text-slate-600"
@@ -357,6 +386,170 @@ export default function CoreLearnersDirectoryPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* MOBILE VIEW LIST */}
+        <div className="block md:hidden bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+          {/* Mobile Header Row */}
+          <div className="border-b border-slate-200 text-xs font-semibold tracking-wider text-slate-550 text-slate-500 bg-slate-50/50 flex justify-between items-center py-3.5 px-8 select-none">
+            <span>Learner</span>
+            <span className="text-right pr-4">XP</span>
+          </div>
+          {loading ? (
+            <div className="text-center py-10 text-slate-400 text-xs italic">
+              Loading learners...
+            </div>
+          ) : error ? (
+            <div className="text-center py-10 text-rose-450 text-xs italic">
+              {error}
+            </div>
+          ) : filteredLearners.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 text-xs italic">
+              No matching learners found.
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {filteredLearners.map((learner) => {
+                const isCrewLearner = learner.role === 'CREW';
+                const isComplete = learner.isPlatformComplete;
+
+                const rowBg = isComplete
+                  ? "bg-emerald-50/60 hover:bg-emerald-50"
+                  : isCrewLearner
+                    ? "bg-amber-50/40 hover:bg-amber-50/70"
+                    : "hover:bg-slate-55 bg-white hover:bg-slate-50";
+
+                const avatarBg = isComplete
+                  ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                  : isCrewLearner
+                    ? "bg-amber-100 text-amber-700 border-amber-200"
+                    : "bg-indigo-50 text-indigo-650 border-indigo-100";
+
+                const nameColor = isComplete
+                  ? "text-emerald-800"
+                  : "text-slate-800";
+
+                const expanded = expandedLearnerId === learner.id;
+
+                return (
+                  <div
+                    key={learner.id}
+                    onClick={() => handleToggleExpand(learner.id)}
+                    className={cn("flex flex-col cursor-pointer transition-colors", rowBg)}
+                  >
+                    <div className="flex items-start gap-3 py-3.5 px-4">
+                      {/* Avatar */}
+                      <div className={cn(
+                        "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs border flex-shrink-0 mt-0.5",
+                        avatarBg
+                      )}>
+                        {getInitials(learner.name)}
+                      </div>
+
+                      {/* Content Area */}
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        {/* Name & XP Line */}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={cn("font-extrabold text-xs truncate", nameColor)}>
+                            {learner.name}
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0 pr-4">
+                            <span className="text-amber-600 font-black text-xs">
+                              {learner.xp} XP
+                            </span>
+                            {expanded ? (
+                              <Icons.ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                            ) : (
+                              <Icons.ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Email */}
+                        <span className="text-slate-400 text-[10px] font-bold truncate mt-0.5">
+                          {learner.email}
+                        </span>
+
+                        {/* Role Badge */}
+                        {isCrewLearner && (
+                          <div className="mt-1 flex">
+                            <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black bg-amber-100 text-amber-700 border border-amber-200 uppercase leading-none">
+                              Crew
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {expanded && (
+                      <div className="px-4 pb-4 pt-1">
+                        <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-2.5 text-[11px] text-slate-700 shadow-inner">
+                          {/* Current Topic */}
+                          <div className="flex justify-between items-center py-1.5 border-b border-slate-100/50">
+                            <span className="text-slate-400 font-bold">Current Topic</span>
+                            <span className="text-slate-750 font-bold">{learner.currentTopic ?? '—'}</span>
+                          </div>
+
+                          {/* Topic # */}
+                          <div className="flex justify-between items-center py-1.5 border-b border-slate-100/50">
+                            <span className="text-slate-400 font-bold">Topic #</span>
+                            <span className="text-slate-750 font-bold">
+                              {learner.currentTopicNumber ? `${learner.currentTopicNumber}/${learner.totalTopicsCount}` : '—'}
+                            </span>
+                          </div>
+
+                          {/* Current Level */}
+                          <div className="flex justify-between items-center py-1.5 border-b border-slate-100/50">
+                            <span className="text-slate-400 font-bold">Current Level</span>
+                            {learner.currentLevel ? (
+                              <span className={cn(
+                                "px-2.5 py-0.5 rounded-lg text-[9px] font-black border uppercase tracking-wider",
+                                learner.currentLevel === 'BEGINNER'
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                  : learner.currentLevel === 'INTERMEDIATE'
+                                    ? "bg-cyan-50 text-cyan-600 border-cyan-100"
+                                    : "bg-indigo-50 text-indigo-650 border-indigo-100"
+                              )}>
+                                {learner.currentLevel}
+                              </span>
+                            ) : (
+                              <span className="text-slate-300 font-bold">—</span>
+                            )}
+                          </div>
+
+                          {/* Current Module */}
+                          <div className="flex justify-between items-center py-1.5 border-b border-slate-100/50">
+                            <span className="text-slate-400 font-bold">Current Module</span>
+                            <div className="text-right font-bold">
+                              <span className="text-slate-750 block">{learner.currentModuleName ?? (isComplete ? 'Completed' : '—')}</span>
+                              {learner.currentModuleOrder !== null && (
+                                <span className="text-slate-400 text-[9px] font-bold block mt-0.5">#{learner.currentModuleOrder + 1}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Progress */}
+                          <div className="flex justify-between items-center py-1.5 last:border-0">
+                            <span className="text-slate-400 font-bold">Progress</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className={cn("font-black text-xs", isComplete ? "text-emerald-600" : "text-slate-700")}>
+                                {learner.completedModulesCount} / {learner.totalModulesCount}
+                              </span>
+                              {isComplete && (
+                                <span className="text-[8px] font-black text-emerald-600 bg-emerald-100 border border-emerald-200 rounded-md px-1.5 py-0.5 uppercase leading-none">
+                                  Complete
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </div>
