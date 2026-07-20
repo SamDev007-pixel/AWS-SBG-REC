@@ -160,6 +160,7 @@ async function main() {
   // Create Users with new credentials
   const coreHashedPassword = await bcrypt.hash('pranav123', 10);
   const crewHashedPassword = await bcrypt.hash('sam123', 10);
+  const enthusiastHashedPassword = await bcrypt.hash('enthusiast123', 10);
 
   const coreUser = await prisma.user.upsert({
     where: { email: 'pranavranjan@rajalakshmi.edu.in' },
@@ -197,13 +198,32 @@ async function main() {
     },
   });
 
-  console.log('Created core and crew users');
+  const enthusiastUser = await prisma.user.upsert({
+    where: { email: 'enthusiast@rajalakshmi.edu.in' },
+    update: {
+      password: enthusiastHashedPassword,
+      firstName: 'Cloud',
+      lastName: 'Enthusiast',
+      isActive: true,
+    },
+    create: {
+      email: 'enthusiast@rajalakshmi.edu.in',
+      password: enthusiastHashedPassword,
+      firstName: 'Cloud',
+      lastName: 'Enthusiast',
+      phone: '+1234567892',
+      isActive: true,
+    },
+  });
+
+  console.log('Created core, crew, and enthusiast users');
 
   // Assign Roles to Users
   const superAdminRole = roles.find((r) => r.name === ROLES.SUPER_ADMIN)!;
   const adminRole = roles.find((r) => r.name === ROLES.ADMIN)!;
   const organizerRole = roles.find((r) => r.name === ROLES.ORGANIZER)!;
   const scannerRole = roles.find((r) => r.name === ROLES.SCANNER)!;
+  const enthusiastRole = roles.find((r) => r.name === ROLES.ENTHUSIAST)!;
 
   await Promise.all([
     prisma.userRole.upsert({
@@ -225,6 +245,11 @@ async function main() {
       where: { userId_roleId: { userId: crewUser.id, roleId: scannerRole.id } },
       update: {},
       create: { userId: crewUser.id, roleId: scannerRole.id },
+    }),
+    prisma.userRole.upsert({
+      where: { userId_roleId: { userId: enthusiastUser.id, roleId: enthusiastRole.id } },
+      update: {},
+      create: { userId: enthusiastUser.id, roleId: enthusiastRole.id },
     }),
   ]);
 
