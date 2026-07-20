@@ -211,7 +211,7 @@ function RegistrationsPageContent() {
             </p>
           </div>
           
-          <div className="flex items-center gap-2.5 shrink-0 relative">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 relative">
             {/* Specific Event View actions */}
             {(eventFilter || initialEventId) ? (
               <>
@@ -225,40 +225,40 @@ function RegistrationsPageContent() {
                     }
                   }}
                   disabled={toggleMutation.isPending}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 h-9 border rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0 ${
                     currentEvent?.onSpotEnabled
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100/70'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${currentEvent?.onSpotEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-350'}`} />
-                  {currentEvent?.onSpotEnabled ? 'On-Spot Active (QR)' : 'Enable On-Spot (QR)'}
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${currentEvent?.onSpotEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-350'}`} />
+                  <span>{currentEvent?.onSpotEnabled ? 'On-Spot Active (QR)' : 'Enable On-Spot (QR)'}</span>
                 </button>
                 {currentEvent?.onSpotEnabled && (
                   <button
                     onClick={() => setShowQrModal(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
-                    <QrCode size={13} className="text-[#FF9900]" />
-                    View QR
+                    <QrCode size={13} className="text-[#FF9900] shrink-0" />
+                    <span>View QR</span>
                   </button>
                 )}
                 <button
                   onClick={() => handleOpenGenerateModal(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Ticket size={13} />
-                  Release Event Passes
+                  <Ticket size={13} className="shrink-0" />
+                  <span>Release Event Passes</span>
                 </button>
 
                 {/* More Actions Dropdown */}
-                <div className="relative">
+                <div className="relative shrink-0">
                   <button
                     onClick={() => setShowActionsDropdown(!showActionsDropdown)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
-                    Actions
-                    <ChevronDown size={13} className={`text-slate-500 transition-transform duration-200 ${showActionsDropdown ? 'rotate-180' : ''}`} />
+                    <span>Actions</span>
+                    <ChevronDown size={13} className={`text-slate-500 transition-transform duration-200 shrink-0 ${showActionsDropdown ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showActionsDropdown && (
@@ -272,8 +272,8 @@ function RegistrationsPageContent() {
                           onClick={() => setShowActionsDropdown(false)}
                           className="group flex items-center gap-2.5 px-3 py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all duration-150 w-full text-left"
                         >
-                          <Eye size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150" />
-                          View Tickets
+                          <Eye size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150 shrink-0" />
+                          <span>View Tickets</span>
                         </Link>
                         
                         <div className="h-px bg-slate-100/70 my-1 mx-1" />
@@ -285,8 +285,8 @@ function RegistrationsPageContent() {
                           }}
                           className="group flex items-center gap-2.5 px-3 py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all duration-150 w-full text-left cursor-pointer border-none bg-transparent"
                         >
-                          <Download size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150" />
-                          Export CSV
+                          <Download size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150 shrink-0" />
+                          <span>Export CSV</span>
                         </button>
                       </div>
                     </>
@@ -298,17 +298,17 @@ function RegistrationsPageContent() {
                  {/* Overall Registrations View actions */}
                 <Link
                   href="/core/attendance"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <ClipboardList size={13} className="text-slate-500" />
-                  Attendance
+                  <ClipboardList size={13} className="text-slate-500 shrink-0" />
+                  <span>Attendance</span>
                 </Link>
                 <button
                   onClick={handleExportCsv}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Download size={13} />
-                  Export CSV
+                  <Download size={13} className="shrink-0" />
+                  <span>Export CSV</span>
                 </button>
               </>
             )}

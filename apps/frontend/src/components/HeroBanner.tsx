@@ -132,7 +132,7 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
           </div>
 
           {/* Right Side Visual Panel */}
-          <div className="relative z-10 flex-shrink-0 w-full md:w-auto flex justify-center items-center md:px-4">
+          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-4">
             <div className="relative w-56 h-56 flex items-center justify-center">
               {/* Animated floating circles / orbits */}
               <div className="absolute w-[172px] h-[172px] border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />

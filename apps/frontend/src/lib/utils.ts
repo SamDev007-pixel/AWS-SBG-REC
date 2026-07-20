@@ -66,12 +66,12 @@ export function getDelayText(dueDate: string | Date, completedAt?: string | Date
 }
 
 export function getPosterSrcAndPosition(posterImage: string | null | undefined): { src: string; position: string } {
-  if (!posterImage) return { src: '/default-event-poster.png', position: '50% 50%' };
+  if (!posterImage) return { src: '/default-event-poster.png', position: '50% 25%' };
   const hashIndex = posterImage.lastIndexOf('#pos=');
   if (hashIndex !== -1) {
     const src = posterImage.substring(0, hashIndex);
     const pos = posterImage.substring(hashIndex + 5);
     return { src, position: `50% ${pos}%` };
   }
-  return { src: posterImage, position: '50% 50%' };
+  return { src: posterImage, position: '50% 25%' };
 }
