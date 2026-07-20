@@ -23,6 +23,9 @@ import { QuizReview, QuizReviewData } from '@/components/Roadmap/QuizReview';
 import { ModuleCompletionBanner } from '@/components/Roadmap/ModuleCompletionBanner';
 import { QuizSubmitModal } from '@/components/Roadmap/QuizSubmitModal';
 import { SkyBackground } from '@/components/Roadmap/SkyBackground';
+import { LearningPageError, categorizeError } from '../../error-types';
+import { logError } from '../../error-logger';
+import LearningErrorView from '@/components/Learn/LearningErrorView';
 
 interface Confetti {
   x: number;
@@ -97,7 +100,8 @@ export default function ModuleLearningPage() {
   const [step, setStep] = useState<'reading' | 'quiz-unlock' | 'quiz' | 'review'>('reading');
   const [slideIndex, setSlideIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LearningPageError | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
   const [securityError, setSecurityError] = useState(false);
   const [isCompletedModule, setIsCompletedModule] = useState(false);
 
@@ -117,14 +121,8 @@ export default function ModuleLearningPage() {
   const confettiParticles = useRef<Confetti[]>([]);
 
   const handleApiError = (err: any) => {
-    if (err?.status === 401) {
-      authService.logout();
-      router.push('/login');
-    } else if (err?.status === 403) {
-      alert('Permission Denied: You do not have permission to access these roadmap services.');
-    } else {
-      alert(err?.message || 'An unexpected error occurred.');
-    }
+    logError(err, 'module-player-api-error');
+    setError(categorizeError(err));
   };
 
   useEffect(() => {
@@ -231,13 +229,8 @@ export default function ModuleLearningPage() {
           setStep('reading');
         }
       } catch (err: any) {
-        console.error('Failed to load module player data:', {
-          message: err.message,
-          status: err.status,
-          errors: err.errors,
-          stack: err.stack,
-        });
-        setError(err.message || 'An error occurred loading the learning module.');
+        logError(err, 'module-player-load-data');
+        setError(categorizeError(err));
       } finally {
         setLoading(false);
       }
@@ -245,7 +238,7 @@ export default function ModuleLearningPage() {
 
     loadModuleData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moduleSlug, initialMode, router]);
+  }, [moduleSlug, initialMode, router, retryTrigger]);
 
   // Confetti animation loop
   useEffect(() => {
@@ -356,30 +349,14 @@ export default function ModuleLearningPage() {
   }
 
   // ─── Error State ──────────────────────────────────────────────────────────
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    setRetryTrigger((prev) => prev + 1);
+  };
+
   if (error) {
-    return (
-      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
-        <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
-            <Icons.AlertTriangle className="w-9 h-9" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">
-              Failed to load module
-            </h2>
-            <p className="text-xs text-rose-400 leading-relaxed max-w-md mx-auto">
-              {error}
-            </p>
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading"
-          >
-            Retry Connection
-          </button>
-        </div>
-      </div>
-    );
+    return <LearningErrorView error={error} reset={handleRetry} />;
   }
 
   if (!module || slides.length === 0) return null;
