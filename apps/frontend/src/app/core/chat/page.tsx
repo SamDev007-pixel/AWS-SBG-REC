@@ -3,12 +3,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import GroupChatPanel from "@/components/chat/GroupChatPanel";
+import { clsx } from "clsx";
 import {
   MessageSquare, Users, Database, Zap,
   Search, Clock, CheckCircle2, XCircle, AlertCircle,
   BookOpen, Trash2, Plus, X, ChevronDown, ArrowLeft,
   UserCog, UserPlus, Ban, RefreshCw, SlidersHorizontal,
 } from "lucide-react";
+
+const cn = (...args: Parameters<typeof clsx>) => clsx(...args);
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const T = {
