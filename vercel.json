@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": "apps/frontend",
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install"
