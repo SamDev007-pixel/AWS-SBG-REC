@@ -158,41 +158,41 @@ async function main() {
   }
 
   // Create Users with new credentials
-  const coreHashedPassword = await bcrypt.hash('pranav123', 10);
-  const crewHashedPassword = await bcrypt.hash('sam123', 10);
+  const coreHashedPassword = await bcrypt.hash('core123', 10);
+  const crewHashedPassword = await bcrypt.hash('crew123', 10);
   const enthusiastHashedPassword = await bcrypt.hash('enthusiast123', 10);
 
   const coreUser = await prisma.user.upsert({
-    where: { email: 'pranavranjan@rajalakshmi.edu.in' },
+    where: { email: 'core@rajalakshmi.edu.in' },
     update: {
       password: coreHashedPassword,
-      firstName: 'Pranav',
-      lastName: 'Ranjan',
+      firstName: 'Core',
+      lastName: 'Admin',
       isActive: true,
     },
     create: {
-      email: 'pranavranjan@rajalakshmi.edu.in',
+      email: 'core@rajalakshmi.edu.in',
       password: coreHashedPassword,
-      firstName: 'Pranav',
-      lastName: 'Ranjan',
+      firstName: 'Core',
+      lastName: 'Admin',
       phone: '+1234567890',
       isActive: true,
     },
   });
 
   const crewUser = await prisma.user.upsert({
-    where: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in' },
+    where: { email: 'crew@rajalakshmi.edu.in' },
     update: {
       password: crewHashedPassword,
-      firstName: 'Sam',
-      lastName: 'Devaraja',
+      firstName: 'Crew',
+      lastName: 'Member',
       isActive: true,
     },
     create: {
-      email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in',
+      email: 'crew@rajalakshmi.edu.in',
       password: crewHashedPassword,
-      firstName: 'Sam',
-      lastName: 'Devaraja',
+      firstName: 'Crew',
+      lastName: 'Member',
       phone: '+1234567891',
       isActive: true,
     },
@@ -214,6 +214,20 @@ async function main() {
       phone: '+1234567892',
       isActive: true,
     },
+  });
+
+  // Also preserve pranav & sam accounts
+  const pranavHashed = await bcrypt.hash('pranav123', 10);
+  const samHashed = await bcrypt.hash('sam123', 10);
+  const pranavUser = await prisma.user.upsert({
+    where: { email: 'pranavranjan@rajalakshmi.edu.in' },
+    update: { password: pranavHashed, isActive: true },
+    create: { email: 'pranavranjan@rajalakshmi.edu.in', password: pranavHashed, firstName: 'Pranav', lastName: 'Ranjan', isActive: true },
+  });
+  const samUser = await prisma.user.upsert({
+    where: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in' },
+    update: { password: samHashed, isActive: true },
+    create: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in', password: samHashed, firstName: 'Sam', lastName: 'Devaraja', isActive: true },
   });
 
   console.log('Created core, crew, and enthusiast users');
@@ -242,9 +256,19 @@ async function main() {
       create: { userId: coreUser.id, roleId: organizerRole.id },
     }),
     prisma.userRole.upsert({
+      where: { userId_roleId: { userId: pranavUser.id, roleId: superAdminRole.id } },
+      update: {},
+      create: { userId: pranavUser.id, roleId: superAdminRole.id },
+    }),
+    prisma.userRole.upsert({
       where: { userId_roleId: { userId: crewUser.id, roleId: scannerRole.id } },
       update: {},
       create: { userId: crewUser.id, roleId: scannerRole.id },
+    }),
+    prisma.userRole.upsert({
+      where: { userId_roleId: { userId: samUser.id, roleId: scannerRole.id } },
+      update: {},
+      create: { userId: samUser.id, roleId: scannerRole.id },
     }),
     prisma.userRole.upsert({
       where: { userId_roleId: { userId: enthusiastUser.id, roleId: enthusiastRole.id } },
