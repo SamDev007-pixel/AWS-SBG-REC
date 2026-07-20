@@ -6,7 +6,7 @@ import GroupChatPanel from "@/components/chat/GroupChatPanel";
 import {
   MessageSquare, Users, Database, Zap,
   Search, Clock, CheckCircle2, XCircle, AlertCircle,
-  BookOpen, Trash2, Plus, X, ChevronDown,
+  BookOpen, Trash2, Plus, X, ChevronDown, ArrowLeft,
   UserCog, UserPlus, Ban, RefreshCw, SlidersHorizontal,
 } from "lucide-react";
 
@@ -99,36 +99,49 @@ interface Query {
 // ─── Query Row ────────────────────────────────────────────────────────────────
 const QueryRow = ({ q, isSelected, onSelect }: { q: Query; isSelected: boolean; onSelect: (q: Query) => void }) => {
   const { color, icon, label } = statusMeta(q.status);
+  const simVal = Math.round((q.bestSimilarity ?? 0) * 100);
+
   return (
     <div
       onClick={() => onSelect(q)}
-      style={{
-        cursor: "pointer",
-        background: isSelected ? `${T.accent}0d` : "transparent",
-        borderBottom: `1px solid ${T.border}`,
-        padding: "0 32px",
-        height: "48px",
-        display: "grid",
-        gridTemplateColumns: "48px 1fr 64px 64px 90px",
-        alignItems: "center",
-        gap: 12,
-        transition: "background .15s",
-        borderLeft: isSelected ? `4px solid ${T.accent}` : "4px solid transparent",
-      }}
-      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = T.surface2; }}
-      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+      className={`cursor-pointer transition-all border-b border-slate-200/80 p-3.5 sm:px-6 md:px-8 md:h-12 flex flex-col md:grid md:grid-cols-[50px_1fr_70px_70px_100px] md:items-center gap-2.5 md:gap-3 ${
+        isSelected ? "bg-orange-50/80 border-l-4 border-l-[#FF9900]" : "bg-white hover:bg-slate-50 border-l-4 border-l-transparent"
+      }`}
     >
-      <span style={{ fontSize: 10, color: T.muted, fontFamily: "monospace" }}>#{q.id.slice(-4)}</span>
-      <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 13, color: T.text, fontWeight: 500 }} title={q.message}>
+      {/* Mobile Top Row / Desktop Col 1 & 4 */}
+      <div className="flex items-center justify-between md:contents">
+        <span className="text-[10.5px] font-bold font-mono text-slate-600 bg-slate-100 border border-slate-200/90 px-2 py-0.5 rounded-md shadow-2xs">
+          #{q.id.slice(-4)}
+        </span>
+        <span className="md:hidden text-[11px] font-medium text-slate-400">
+          {relativeTime(q.timestamp)}
+        </span>
+      </div>
+
+      {/* Message Text / Desktop Col 2 */}
+      <div className="text-[13.5px] font-bold text-slate-800 leading-snug line-clamp-2 md:line-clamp-1 md:truncate" title={q.message}>
         {q.message}
       </div>
-      <span style={{ padding: "2px 7px", borderRadius: 99, background: `${T.accent}12`, border: `1px solid ${T.accent}25`, color: T.accent, fontSize: 10, fontWeight: 700, textAlign: "center" }}>
-        {simPct(q.bestSimilarity)}
-      </span>
-      <span style={{ fontSize: 10, color: T.muted, whiteSpace: "nowrap" }}>{relativeTime(q.timestamp)}</span>
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "3px 8px", borderRadius: 99, background: `${color}12`, border: `1px solid ${color}20`, color, fontSize: 10, fontWeight: 700 }}>
-        {icon} {label}
-      </span>
+
+      {/* Mobile Bottom Row / Desktop Col 3, 4, 5 */}
+      <div className="flex items-center justify-between md:contents pt-1 md:pt-0">
+        <span className={cn(
+          "inline-flex items-center justify-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border",
+          simVal >= 50
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : simVal >= 20
+            ? "bg-amber-50 text-amber-700 border-amber-200"
+            : "bg-slate-100 text-slate-500 border-slate-200"
+        )}>
+          {simPct(q.bestSimilarity)}
+        </span>
+        <span className="hidden md:inline text-[10px] font-medium text-slate-400 whitespace-nowrap">
+          {relativeTime(q.timestamp)}
+        </span>
+        <span className="inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border" style={{ backgroundColor: `${color}12`, borderColor: `${color}25`, color }}>
+          {icon} {label}
+        </span>
+      </div>
     </div>
   );
 };
@@ -183,10 +196,10 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
   };
 
   return (
-    <div style={{ display: "flex", gap: "24px", width: "100%", height: "100%", alignItems: "stretch", minHeight: 0 }}>
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-full min-h-0 items-stretch">
       {/* FAQ list */}
-      <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-        <div style={{ padding: "16px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }}>
+      <div className="w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden">
+        <div style={{ padding: "16px 24px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }} className="sm:px-8">
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <BookOpen size={14} color={T.accent} />
             <div>
@@ -196,7 +209,7 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
           </div>
           <span style={{ fontSize: 10, padding: "3px 8px", background: T.accentLow, color: T.accent, borderRadius: 99, fontWeight: 700 }}>{chips.length} chips</span>
         </div>
-        <div style={{ padding: "8px 32px", overflowY: "auto", flex: 1 }}>
+        <div style={{ padding: "8px 24px", overflowY: "auto", flex: 1 }} className="sm:px-8">
           {loading ? (
             <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading FAQ chips…</div>
           ) : chips.length === 0 ? (
@@ -238,7 +251,7 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
       </div>
 
       {/* Add form */}
-      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "28px 32px", display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
+      <div className="w-full lg:w-2/5 bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col gap-6 overflow-y-auto">
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Plus size={16} color={T.accent} />
@@ -293,7 +306,7 @@ function Avatar({ initials, color, photo, size = 36 }: { initials: string; color
 }
 
 // ─── CMS Panel ────────────────────────────────────────────────────────────────
-function CMSPanel({ query, onSaved, onDismissed, showToast, user }: { query: Query | null; onSaved: (id: string) => void; onDismissed: (id: string) => void; showToast: (t: any) => void; user: any }) {
+function CMSPanel({ query, onSaved, onDismissed, showToast, user, onBack }: { query: Query | null; onSaved: (id: string) => void; onDismissed: (id: string) => void; showToast: (t: any) => void; user: any; onBack?: () => void }) {
   const [answer, setAnswer] = useState("");
   const [saving, setSaving] = useState("");
   const [saveResult, setSaveResult] = useState<{ doc_id: string; total: number } | null>(null);
@@ -347,7 +360,17 @@ function CMSPanel({ query, onSaved, onDismissed, showToast, user }: { query: Que
   const { color: stColor, label: stLabel } = statusMeta(query.status);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24, background: T.surface, padding: "28px 32px", flex: 1, minHeight: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, background: T.surface, padding: "20px 20px", flex: 1, minHeight: 0 }} className="sm:p-7">
+      {/* Mobile Back button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition w-fit cursor-pointer shadow-sm"
+        >
+          <ArrowLeft size={14} />
+          <span>Back to Queries List</span>
+        </button>
+      )}
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -419,12 +442,12 @@ function CMSPanel({ query, onSaved, onDismissed, showToast, user }: { query: Que
             rows={6} disabled={saving !== ""}
             className="faq-textarea"
           />
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
             {query.status === "live" && (
               <button 
                 onClick={handleDismiss} 
                 disabled={saving !== ""}
-                className="btn-danger-outline"
+                className="btn-danger-outline w-full sm:w-auto justify-center"
               >
                 <XCircle size={13} /> {saving === "dismissing" ? "Dismissing…" : "Dismiss"}
               </button>
@@ -432,7 +455,7 @@ function CMSPanel({ query, onSaved, onDismissed, showToast, user }: { query: Que
             <button 
               onClick={handleSave} 
               disabled={saving !== "" || !answer.trim()}
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto justify-center"
             >
               <Database size={13} /> {saving === "saving" ? "Saving…" : "Save to KB"}
             </button>
@@ -519,9 +542,9 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
   };
 
   return (
-    <div style={{ display: "flex", gap: "24px", width: "100%", height: "100%", alignItems: "stretch", minHeight: 0 }}>
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-full min-h-0 items-stretch">
       {/* Members list */}
-      <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <div className="w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden">
         <div style={{ padding: "16px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Users size={14} color={T.accent} />
@@ -539,7 +562,7 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
             ))}
           </div>
         </div>
-        <div style={{ padding: "8px 32px", overflowY: "auto", flex: 1 }}>
+        <div style={{ padding: "8px 0", overflowY: "auto", flex: 1 }}>
           {loading ? (
             <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading users…</div>
           ) : activeSubTab === "members" ? (
@@ -547,19 +570,23 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
               <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No active members.</div>
             ) : (
               members.filter(m => !m.banned).map(m => (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
-                  <Avatar initials={m.avatar?.initials || m.name.slice(0, 2).toUpperCase()} color={m.avatar?.color || T.accent} photo={m.avatar?.photo} size={36} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
-                    <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</div>
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3 px-4 sm:px-8 border-b border-slate-200">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <Avatar initials={m.avatar?.initials || m.name.slice(0, 2).toUpperCase()} color={m.avatar?.color || T.accent} photo={m.avatar?.photo} size={36} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
+                      <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</div>
+                    </div>
                   </div>
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: m.role === "core" ? T.accentLow : `${T.muted}15`, color: m.role === "core" ? T.accent : T.muted2, textTransform: "uppercase" }}>{m.role}</span>
-                  <button onClick={() => handleBan(m.id, m.name)} style={{ background: "none", border: `1px solid ${T.danger}30`, borderRadius: 6, color: T.danger, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
-                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
-                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
-                  >
-                    <Ban size={10} /> Deactivate
-                  </button>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: m.role === "core" ? T.accentLow : `${T.muted}15`, color: m.role === "core" ? T.accent : T.muted2, textTransform: "uppercase" }}>{m.role}</span>
+                    <button onClick={() => handleBan(m.id, m.name)} style={{ background: "none", border: `1px solid ${T.danger}30`, borderRadius: 6, color: T.danger, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
+                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
+                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+                    >
+                      <Ban size={10} /> Deactivate
+                    </button>
+                  </div>
                 </div>
               ))
             )
@@ -568,18 +595,22 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
               <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No deactivated members.</div>
             ) : (
               banLog.map(m => (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.surface2, display: "flex", alignItems: "center", justifyContent: "center", color: T.muted, fontWeight: 700, fontSize: 13 }}>{m.userName.slice(0, 2).toUpperCase()}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>{m.userName}</div>
-                    <div style={{ fontSize: 11, color: T.muted }}>{m.userEmail}</div>
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3 px-4 sm:px-8 border-b border-slate-200">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.surface2, display: "flex", alignItems: "center", justifyContent: "center", color: T.muted, fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{m.userName.slice(0, 2).toUpperCase()}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.userName}</div>
+                      <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.userEmail}</div>
+                    </div>
                   </div>
-                  <button onClick={() => handleUnban(m.userId, m.userName)} style={{ background: "none", border: `1px solid ${T.success}30`, borderRadius: 6, color: T.success, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
-                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.success}0d`}
-                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
-                  >
-                    <CheckCircle2 size={10} /> Activate
-                  </button>
+                  <div className="flex items-center justify-end gap-3 shrink-0 pt-1 sm:pt-0">
+                    <button onClick={() => handleUnban(m.userId, m.userName)} style={{ background: "none", border: `1px solid ${T.success}30`, borderRadius: 6, color: T.success, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
+                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.success}0d`}
+                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+                    >
+                      <CheckCircle2 size={10} /> Activate
+                    </button>
+                  </div>
                 </div>
               ))
             )
@@ -588,7 +619,7 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
       </div>
 
       {/* Register form */}
-      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, overflowY: "auto" }}>
+      <div className="w-full lg:w-2/5 bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col gap-5 overflow-y-auto">
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <UserPlus size={16} color={T.accent} />
           <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Register New Account</span>
@@ -726,7 +757,7 @@ export default function CoreChatPage() {
   if (!authorized) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", color: T.text, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: "border-box", overflow: "hidden", background: T.bg }}>
+    <div className="w-full h-[calc(100vh-64px)] lg:h-screen bg-slate-50 text-slate-900 font-sans flex flex-col select-none p-2 sm:p-5 gap-2 sm:gap-4 overflow-hidden">
       <style>{`
         @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -901,24 +932,24 @@ export default function CoreChatPage() {
       `}</style>
 
       {/* ── Header ── */}
-      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "16px 32px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", margin: "24px 24px 0 24px" }}>
+      <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:px-6 sm:py-4 flex-shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <MessageSquare size={18} color={T.accent} />
           </div>
           <div>
-            <div style={{ fontSize: "16px", fontWeight: 700, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.2 }}>Chat Administration</div>
-            <div style={{ fontSize: 11, color: T.muted }}>AWS Club Operations Center</div>
+            <div style={{ fontSize: "15px", fontWeight: 800, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.2 }}>Chat Administration</div>
+            <div style={{ fontSize: 10.5, color: T.muted }}>AWS Club Operations Center</div>
           </div>
         </div>
 
-        {/* View Switcher */}
-        <div style={{ display: "flex", gap: 6, background: T.surface2, padding: "5px 6px", borderRadius: 12, border: `1px solid ${T.border}`, boxShadow: "inset 0 1px 2px rgba(15,23,42,0.03)" }}>
+        {/* View Switcher Tabs */}
+        <div className="flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 shrink-0 overflow-x-auto max-w-full no-scrollbar w-full sm:w-auto">
           {[
-            { key: "queries",      label: "Queries",        icon: <MessageSquare size={14} /> },
-            { key: "kb",           label: "Knowledge Base", icon: <BookOpen size={14} /> },
-            { key: "crew_chats",   label: "Crew Chat",      icon: <Users size={14} /> },
-            ...(user?.role === "core" ? [{ key: "manage_users", label: "Members", icon: <UserCog size={14} /> }] : []),
+            { key: "queries",      label: "Queries",        icon: <MessageSquare size={13} /> },
+            { key: "kb",           label: "Knowledge Base", icon: <BookOpen size={13} /> },
+            { key: "crew_chats",   label: "Crew Chat",      icon: <Users size={13} /> },
+            ...(user?.role === "core" ? [{ key: "manage_users", label: "Members", icon: <UserCog size={13} /> }] : []),
           ].map(v => {
             const isActive = activeView === v.key;
             return (
@@ -926,20 +957,11 @@ export default function CoreChatPage() {
                 setActiveView(v.key as any);
                 if (v.key !== "queries") setSelectedQuery(null);
               }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).style.background = T.surface3;
-                    (e.currentTarget as HTMLButtonElement).style.color = T.text;
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-                    (e.currentTarget as HTMLButtonElement).style.color = T.muted;
-                  }
-                }}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 8, border: "none", background: isActive ? T.surface : "transparent", color: isActive ? T.accent : T.muted, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: "all .2s cubic-bezier(0.4, 0, 0.2, 1)", whiteSpace: "nowrap", boxShadow: isActive ? "0 4px 12px rgba(255, 153, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.02)" : "none" }}>
-                {v.icon} {v.label}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  isActive ? "bg-white text-[#FF9900] shadow-xs" : "bg-transparent text-slate-500 hover:text-slate-900"
+                }`}>
+                {v.icon}
+                <span>{v.label}</span>
               </button>
             );
           })}
@@ -947,24 +969,22 @@ export default function CoreChatPage() {
       </div>
 
       {/* ── Content ── */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden", padding: "20px 24px 24px 24px" }}>
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {activeView === "crew_chats" ? (
-          <div style={{ display: "flex", flexDirection: "column", height: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflow: "hidden" }}>
-            <div style={{ background: T.surface, color: T.text, padding: "16px 28px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Users size={15} color={T.accent} />
+          <div className="flex flex-col h-full bg-white border border-slate-200 rounded-xl overflow-hidden min-h-0">
+            <div style={{ background: T.surface, color: T.text, padding: "12px 20px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }} className="shrink-0">
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Users size={14} color={T.accent} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: "14px", fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>AWS Club · Core–Crew Chat</span>
-                  </div>
-                  <span style={{ fontSize: 10, color: T.muted, fontWeight: 500 }}>Private communication channel for club operations</span>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>AWS Club · Core–Crew Chat</span>
+                  <span style={{ fontSize: 10, color: T.muted, fontWeight: 500 }}>Private communication channel</span>
                 </div>
               </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, background: T.surface2, padding: "3px 8px", borderRadius: 6, textTransform: "uppercase", letterSpacing: "0.03em", userSelect: "none" }}>Operations</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, background: T.surface2, padding: "2px 7px", borderRadius: 6, textTransform: "uppercase" }}>Operations</span>
             </div>
-            <div style={{ flex: 1, overflow: "hidden" }}>
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
               <GroupChatPanel user={user} />
             </div>
           </div>
@@ -978,40 +998,49 @@ export default function CoreChatPage() {
           </div>
         ) : (
           /* ── Queries & CMS ── */
-          <div style={{ display: "flex", gap: "24px", alignItems: "stretch", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch flex-1 min-h-0 h-full overflow-hidden">
             {/* Left: Query list */}
-            <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden" }}>
+            <div className={`w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full min-h-0 overflow-hidden ${selectedQuery ? "hidden lg:flex" : "flex"}`}>
               {/* List header */}
-              <div style={{ padding: "12px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, flexShrink: 0, background: T.surface2 }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Unhandled Queries</div>
-                  <div style={{ fontSize: 11, color: T.muted }}>{visible.length} showing</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 10px" }}>
-                    <Search size={12} color={T.muted} />
-                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search queries…"
-                      style={{ background: "transparent", border: "none", fontSize: 12, outline: "none", color: T.text, width: 140 }} />
+              <div className="px-4 py-3 sm:px-8 border-b border-slate-200 bg-slate-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center justify-between w-full sm:w-auto">
+                  <div>
+                    <div className="text-[13px] font-bold text-slate-900">Unhandled Queries</div>
+                    <div className="text-[11px] text-slate-500">{visible.length} showing</div>
                   </div>
-                  <button onClick={fetchData} style={{ background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 8px", color: T.muted, cursor: "pointer", display: "flex", alignItems: "center", transition: "background .15s" }}
-                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = T.surface2}
-                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF"}
-                  >
-                    <RefreshCw size={12} />
+                  <button onClick={fetchData} className="sm:hidden bg-white border border-slate-200 rounded-lg p-2 text-slate-500 hover:bg-slate-50 transition cursor-pointer">
+                    <RefreshCw size={13} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs w-full sm:w-48 shadow-sm">
+                    <Search size={13} className="text-slate-400 shrink-0" />
+                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search queries…"
+                      className="bg-transparent border-none outline-none text-slate-800 text-xs w-full placeholder-slate-400" />
+                  </div>
+                  <button onClick={fetchData} className="hidden sm:flex bg-white border border-slate-200 rounded-lg p-2 text-slate-500 hover:bg-slate-50 transition cursor-pointer shrink-0">
+                    <RefreshCw size={13} />
                   </button>
                 </div>
               </div>
 
-              {/* Filter tabs */}
-              <div style={{ display: "flex", borderBottom: `1px solid ${T.border}`, overflowX: "auto", flexShrink: 0, background: "#FFFFFF", paddingLeft: 12 }}>
+              {/* Filter tabs - Segmented control on mobile */}
+              <div className="grid grid-cols-4 md:flex items-center gap-1.5 p-1.5 bg-slate-100/90 border-b border-slate-200 shrink-0">
                 {TABS.map(tab => {
                   const isActive = filterTab === tab.key;
                   const count = queries.filter(q => tab.key === "all" ? true : tab.key === "live" ? (q.status === "live" || q.status === "pending") : tab.key === "resolved" ? (q.status === "resolved" || q.status === "replied") : q.status === tab.key).length;
                   return (
                     <button key={tab.key} onClick={() => setFilterTab(tab.key as any)}
-                      style={{ padding: "12px 20px", border: "none", background: "transparent", cursor: "pointer", fontWeight: 600, fontSize: 12, color: isActive ? T.text : T.muted, borderBottom: `2px solid ${isActive ? T.accent : "transparent"}`, display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap", transition: "color .15s, border-color .15s" }}>
-                      {tab.icon} {tab.label}
-                      <span style={{ fontSize: 10, background: isActive ? T.accentLow : T.surface2, color: isActive ? T.accent : T.muted, padding: "1px 6px", borderRadius: 99, fontWeight: 700 }}>
+                      className={`flex items-center justify-center gap-1.5 py-2 px-2 md:px-4 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${
+                        isActive
+                          ? "bg-white text-slate-900 font-extrabold shadow-2xs border border-slate-200/80"
+                          : "bg-transparent text-slate-500 font-semibold hover:text-slate-800"
+                      }`}>
+                      {tab.icon}
+                      <span>{tab.label}</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        isActive ? "bg-orange-50 text-[#FF9900]" : "bg-slate-200/70 text-slate-500"
+                      }`}>
                         {count}
                       </span>
                     </button>
@@ -1020,14 +1049,14 @@ export default function CoreChatPage() {
               </div>
 
               {/* Column headers */}
-              <div style={{ display: "grid", gridTemplateColumns: "48px 1fr 64px 64px 90px", gap: 12, padding: "8px 32px", background: T.surface2, borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
+              <div className="hidden md:grid grid-cols-[50px_1fr_70px_70px_100px] gap-3 px-8 py-2 bg-slate-100/70 border-b border-slate-200 shrink-0">
                 {["ID", "Message", "Match", "Time", "Status"].map(h => (
-                  <span key={h} style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</span>
+                  <span key={h} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</span>
                 ))}
               </div>
 
               {/* List body */}
-              <div style={{ overflowY: "auto", flex: 1, background: "#FFFFFF", maxHeight: "480px" }}>
+              <div style={{ overflowY: "auto", flex: 1, background: "#FFFFFF" }}>
                 {visible.length === 0 ? (
                   <div style={{ 
                     display: "flex", 
@@ -1060,8 +1089,8 @@ export default function CoreChatPage() {
             </div>
 
             {/* Right: CMS Panel Only */}
-            <div style={{ flex: "1 1 40%", display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", minHeight: 0, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflowX: "hidden", overflowY: "auto" }}>
-              <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} user={user} />
+            <div className={`w-full lg:w-2/5 flex flex-col h-full max-h-full min-h-0 bg-white border border-slate-200 rounded-xl overflow-x-hidden overflow-y-auto ${!selectedQuery ? "hidden lg:flex" : "flex"}`}>
+              <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} user={user} onBack={() => setSelectedQuery(null)} />
             </div>
           </div>
         )}

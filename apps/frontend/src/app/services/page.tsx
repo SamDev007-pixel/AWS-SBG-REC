@@ -248,25 +248,25 @@ export default function Home() {
             </div>
 
             {/* Top Header */}
-            <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 pt-8 pb-2 lg:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-auto lg:pointer-events-none">
+            <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 sm:px-10 pt-6 sm:pt-8 pb-2 lg:pt-10 lg:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto lg:pointer-events-none">
               <div className="flex items-center gap-4 pointer-events-auto w-full sm:w-auto">
                 <div>
-                  <h1 className="text-[24px] sm:text-[32px] font-bold tracking-tight leading-tight text-[#1A1C1E]" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-slate-900 m-0" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
                     AWS Region Intelligence
                   </h1>
-                  <p className="text-slate-500 text-[10px] font-medium tracking-[0.05em] uppercase mt-2 leading-relaxed">
+                  <p className="text-slate-400 text-[10px] sm:text-xs font-medium tracking-wider uppercase mt-1.5 leading-relaxed m-0">
                     Interactive 3D explorer visualizing global cloud infrastructure partitions
                   </p>
                 </div>
               </div>
               {userRole === "core" && (
-                <div className="pointer-events-auto w-full sm:w-auto mt-1 sm:mt-0 flex justify-start sm:justify-end">
+                <div className="pointer-events-auto shrink-0 mt-1 sm:mt-0">
                   <Link
                     href="/core/manage-regions"
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer uppercase tracking-wider"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold transition-all shadow-xs hover:-translate-y-0.5 cursor-pointer uppercase tracking-wider"
                   >
-                    <Settings2 size={12} className="text-[#FF9900]" />
-                    Manage Regions
+                    <Settings2 size={13} className="text-[#FF9900]" />
+                    <span>Manage Regions</span>
                   </Link>
                 </div>
               )}

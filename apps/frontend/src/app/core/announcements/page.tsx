@@ -171,24 +171,27 @@ export default function AnnouncementsPage() {
       <div className="w-full max-w-[1400px] mx-auto space-y-6">
 
         {/* ── Page Header ── */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 mb-1">
               <span>Admin</span>
               <span>/</span>
               <span className="text-[#FF9900] font-semibold">Announcements</span>
             </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Announcements</h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight m-0">Announcements</h1>
+            <p className="text-xs text-slate-500 mt-0.5 m-0 leading-relaxed">
               Broadcast updates to event registrants or crew members.
             </p>
           </div>
           <button
             onClick={() => setFormOpen((v) => !v)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#232F3E] hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#232F3E] hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer whitespace-nowrap shrink-0 shadow-xs"
           >
             {formOpen ? 'Cancel' : (
-              <><PlusCircle size={13} /> New Announcement</>
+              <>
+                <PlusCircle size={14} className="shrink-0 text-[#FF9900]" />
+                <span>New Announcement</span>
+              </>
             )}
           </button>
         </div>
@@ -357,28 +360,28 @@ export default function AnnouncementsPage() {
         )}
 
         {/* ── Feed ── */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           {/* Tab bar + filter */}
-          <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 border-b border-slate-100">
             {/* Tabs */}
-            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+            <div className="flex items-center gap-1 bg-slate-100/80 rounded-xl p-1 w-full sm:w-auto">
               <button
                 onClick={() => setFeedTab('event')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer ${feedTab === 'event' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${feedTab === 'event' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                <CalendarDays size={11} />
-                Event Feed
-                <span className="inline-flex items-center justify-center bg-slate-200 text-slate-600 rounded-full px-1.5 py-0.5 text-[9px] font-bold">
+                <CalendarDays size={13} className="shrink-0 text-[#FF9900]" />
+                <span>Event Feed</span>
+                <span className="inline-flex items-center justify-center bg-slate-200/80 text-slate-700 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold">
                   {sortedEventAnnouncements.length}
                 </span>
               </button>
               <button
                 onClick={() => setFeedTab('crew')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer ${feedTab === 'crew' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${feedTab === 'crew' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                <Users size={11} />
-                Crew Feed
-                <span className="inline-flex items-center justify-center bg-slate-200 text-slate-600 rounded-full px-1.5 py-0.5 text-[9px] font-bold">
+                <Users size={13} className="shrink-0 text-slate-500" />
+                <span>Crew Feed</span>
+                <span className="inline-flex items-center justify-center bg-slate-200/80 text-slate-700 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold">
                   {sortedCrewAnnouncements.length}
                 </span>
               </button>
@@ -386,20 +389,20 @@ export default function AnnouncementsPage() {
 
             {/* Filter (only for event tab) */}
             {feedTab === 'event' && (
-              <div className="flex items-center gap-2">
-                <Filter size={12} className="text-slate-400" />
-                <div className="relative">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <Filter size={13} className="text-slate-400 shrink-0" />
+                <div className="relative w-full sm:w-auto min-w-[140px] max-w-full sm:max-w-xs">
                   <select
                     value={filterEventId}
                     onChange={(e) => setFilterEventId(e.target.value)}
-                    className="appearance-none bg-slate-50 border border-slate-200 rounded-lg text-xs pl-3 pr-7 py-2 text-slate-600 focus:outline-none focus:border-[#FF9900] transition cursor-pointer font-medium"
+                    className="w-full appearance-none bg-slate-50 border border-slate-200/80 rounded-xl text-xs pl-3 pr-8 py-2 text-slate-700 focus:outline-none focus:border-[#FF9900] transition cursor-pointer font-semibold truncate"
                   >
                     <option value="">All Events</option>
                     {events.map((ev) => (
                       <option key={ev.id} value={ev.id}>{ev.title}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                 </div>
               </div>
             )}

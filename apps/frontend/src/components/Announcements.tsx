@@ -46,11 +46,13 @@ export default function Announcements() {
   const [headerHovered, setHeaderHovered] = useState(false);
 
   return (
-    <GlassCard
-      className="flex flex-col h-full border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[22px] !p-5 min-h-[400px]"
-      hoverEffect={false}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col h-full rounded-[22px] p-5 overflow-hidden select-none min-h-[400px] border border-amber-500/20 shadow-[0_8px_30px_rgba(255,153,0,0.04)]"
       style={{
-        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.07) 0%, rgba(255, 255, 255, 0.75) 50%, rgba(35, 47, 62, 0.05) 100%)"
+        background: "linear-gradient(135deg, rgba(255, 248, 240, 0.95) 0%, rgba(255, 243, 228, 0.85) 50%, rgba(255, 248, 240, 0.95) 100%)"
       }}
     >
       {/* Panel Header */}
@@ -67,73 +69,71 @@ export default function Announcements() {
           >
             <Bell className="w-4 h-4" />
           </motion.div>
-          <h3 
-            className="text-[16px] font-bold text-slate-800 tracking-tight"
-            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-          >
-            Community Announcements
-          </h3>
+          <div>
+            <h3 
+              className="font-bold text-[14.5px] text-slate-800 tracking-tight leading-none"
+              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+            >
+              Community Announcements
+            </h3>
+          </div>
         </div>
-        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-slate-50 border border-slate-200/50 px-2 py-0.5 rounded-[4px]">
-          {announcements.length} {announcements.length === 1 ? "update" : "updates"}
+
+        <span className="inline-flex items-center justify-center bg-slate-100/80 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+          {announcements.length} {announcements.length === 1 ? 'Update' : 'Updates'}
         </span>
       </div>
 
-      {/* Content Area */}
+      {/* Body Content */}
       {isLoading ? (
-        <div className="flex-1 space-y-3.5 pr-1 max-h-[320px] overflow-y-auto">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-4 rounded-xl border border-slate-100 bg-white/40 animate-pulse relative overflow-hidden">
-              <div className="flex items-center justify-between mb-2">
-                <div className="h-4.5 w-16 bg-slate-200 rounded" />
-                <div className="h-3.5 w-20 bg-slate-200 rounded" />
-              </div>
-              <div className="h-4.5 w-3/4 bg-slate-200 rounded mb-2" />
-              <div className="h-3.5 w-full bg-slate-200 rounded" />
-            </div>
-          ))}
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12">
+          <div className="w-6 h-6 border-2 border-[#FF9900] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs text-slate-400 font-medium">Loading updates...</span>
         </div>
       ) : announcements.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
-          <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-3.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+        <div className="flex-1 flex flex-col items-center justify-center py-10 text-center px-4">
+          <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-3">
             <Bell className="w-5 h-5 text-slate-400" />
           </div>
-
           <h4 
-            className="text-[14px] font-bold text-slate-700 tracking-tight"
+            className="font-bold text-sm text-slate-700 mb-1"
             style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
           >
             No Announcements Yet
           </h4>
           <p 
-            className="text-xs text-slate-400 mt-1 max-w-[220px] leading-relaxed font-medium"
+            className="text-xs text-slate-500 max-w-[240px] leading-relaxed"
             style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
           >
             Stay tuned! When the core team publishes updates or reminders, they will appear here in real-time.
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto pr-1 max-h-[320px] custom-scrollbar space-y-3.5">
+        <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="group p-4 rounded-2xl transition-all border border-slate-100 bg-white/70 hover:bg-white hover:border-[#FF9900]/25 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.04)]"
+              className="relative p-4 rounded-xl bg-white/90 border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-slate-200 transition-all group overflow-hidden"
             >
-              <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
-                <span className={cn("inline-block rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border-none", typeBadge(ann.type))}>
-                  {typeLabel(ann.type)}
-                </span>
-                <span className="text-[10px] text-slate-400 font-semibold">
-                  {formatDate(ann.createdAt)}
-                </span>
+              <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l-xl", typeLeftBar(ann.type))} />
+
+              <div className="flex items-start justify-between gap-2 pl-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider", typeBadge(ann.type))}>
+                    {typeLabel(ann.type)}
+                  </span>
+                  <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                    <Calendar size={11} />
+                    <span>{formatDate(ann.createdAt)}</span>
+                  </div>
+                </div>
               </div>
 
               <h4 
-                className="text-[13.5px] font-bold text-slate-800 group-hover:text-[#FF9900] transition-colors flex items-center gap-1 leading-tight group-hover:translate-x-0.5 transition-transform duration-200"
+                className="font-bold text-[13px] text-slate-800 mt-2 pl-1.5 leading-snug group-hover:text-[#FF9900] transition-colors"
                 style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
               >
-                <span>{ann.title}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 text-[#FF9900]" />
+                {ann.title}
               </h4>
 
               <p 
@@ -146,6 +146,6 @@ export default function Announcements() {
           ))}
         </div>
       )}
-    </GlassCard>
+    </motion.div>
   );
 }

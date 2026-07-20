@@ -137,7 +137,7 @@ export default function IncidentReportingPage() {
       <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)" }} className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[20px] border border-white/50 p-5 shadow-sm">
         <div className="flex items-start gap-4">
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-[#232F3E] font-display">
+            <h1 className="text-xl font-semibold tracking-tight text-[#232F3E] font-display">
               Incident & Issue Reporting
             </h1>
             <p className="text-xs text-slate-600 mt-0.5">

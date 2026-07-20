@@ -146,7 +146,7 @@ export default function EventsPage() {
     return events.some(ev => ev.onSpotEnabled);
   }, [events]);
 
-  const selectCls = "appearance-none pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-650 cursor-pointer transition-all";
+  const selectCls = "w-full appearance-none pl-8.5 pr-7 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-[12.5px] text-slate-700 cursor-pointer transition-all font-medium truncate";
 
   return (
     <section className="w-full min-h-screen py-6 px-4 sm:py-8 sm:px-8 bg-[#F8F9FA] flex flex-col items-center">
@@ -188,89 +188,93 @@ export default function EventsPage() {
         </div>
 
         {/* ── Filters + View Toggle ── */}
-        <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm px-5 py-3.5">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-xs p-3.5 sm:px-5 sm:py-3.5">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
 
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <div className="relative w-full lg:max-w-xs">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
                 type="text"
                 placeholder="Search events..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[13px] text-slate-700 placeholder-slate-400 transition-all"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium"
               />
             </div>
 
-            {/* Category Filter */}
-            <div className="relative shrink-0">
-              <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={selectCls}
-              >
-                <option value="All">All Categories</option>
-                {categories.slice(1).map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            {/* Category + Availability Filter Row */}
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3 w-full lg:w-auto">
+              {/* Category Filter */}
+              <div className="relative w-full sm:w-auto">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={selectCls}
+                >
+                  <option value="All">All Categories</option>
+                  {categories.slice(1).map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+              </div>
+
+              {/* Availability Filter */}
+              <div className="relative w-full sm:w-auto">
+                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+                <select
+                  value={availability}
+                  onChange={(e) => setAvailability(e.target.value)}
+                  className={selectCls}
+                >
+                  {AVAILABILITY_FILTERS.map((filter) => (
+                    <option key={filter.value} value={filter.value}>{filter.label}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+              </div>
             </div>
 
-            {/* Availability Filter */}
-            <div className="relative shrink-0">
-              <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
-              <select
-                value={availability}
-                onChange={(e) => setAvailability(e.target.value)}
-                className={selectCls}
-              >
-                {AVAILABILITY_FILTERS.map((filter) => (
-                  <option key={filter.value} value={filter.value}>{filter.label}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
-            </div>
+            {/* Bottom Row on Mobile (Spacer + Count + View Toggle on Desktop) */}
+            <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto lg:flex-1">
+              {/* Left Side: View Toggle + Clear */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 shrink-0">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-md transition cursor-pointer border-none ${viewMode === 'grid' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-650 bg-transparent'}`}
+                    title="Grid View"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded-md transition cursor-pointer border-none ${viewMode === 'list' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-650 bg-transparent'}`}
+                    title="List View"
+                  >
+                    <List className="h-3.5 w-3.5" />
+                  </button>
+                </div>
 
-            {/* Spacer */}
-            <div className="flex-1" />
+                {(searchInput !== '' || category !== 'All' || availability !== 'All') && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs font-bold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer border-none bg-transparent shrink-0"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
 
-            {/* Clear */}
-            {(searchInput !== '' || category !== 'All' || availability !== 'All') && (
-              <button
-                onClick={clearFilters}
-                className="text-[12px] font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer border-none bg-transparent shrink-0"
-              >
-                Clear
-              </button>
-            )}
-
-            {/* Event Count */}
-            <p className="text-[12px] font-medium text-slate-500 whitespace-nowrap shrink-0 m-0 flex items-center">
-              {isLoading ? 'Loading...' : sortedEvents.length > 0
-                ? <span><strong className="text-slate-700 font-semibold">{sortedEvents.length}</strong> event{sortedEvents.length !== 1 ? 's' : ''}{isRefetching && <span className="ml-1.5 text-[10px] text-[#FF9900]">(syncing...)</span>}</span>
-                : null
-              }
-            </p>
-
-            {/* View toggle */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-[6px] border border-slate-200 shrink-0">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-[4px] transition cursor-pointer border-none ${viewMode === 'grid' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-650 bg-transparent'}`}
-                title="Grid View"
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-[4px] transition cursor-pointer border-none ${viewMode === 'list' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-650 bg-transparent'}`}
-                title="List View"
-              >
-                <List className="h-3.5 w-3.5" />
-              </button>
+              {/* Right Side: Event Count */}
+              <p className="text-xs font-semibold text-slate-500 whitespace-nowrap shrink-0 m-0 flex items-center">
+                {isLoading ? 'Loading...' : sortedEvents.length > 0
+                  ? <span><strong className="text-slate-800 font-bold">{sortedEvents.length}</strong> event{sortedEvents.length !== 1 ? 's' : ''}{isRefetching && <span className="ml-1.5 text-[10px] text-[#FF9900]">(syncing...)</span>}</span>
+                  : null
+                }
+              </p>
             </div>
 
           </div>

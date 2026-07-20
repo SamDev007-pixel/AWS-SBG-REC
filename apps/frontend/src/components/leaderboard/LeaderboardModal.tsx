@@ -113,21 +113,21 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 flex flex-col gap-5 bg-white">
+        <div className="p-3.5 sm:p-6 flex flex-col gap-4 sm:gap-5 bg-white">
           {/* Search Section: Input + Page Count Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="w-full sm:max-w-[300px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+            <div className="w-full sm:max-w-[280px]">
               <SearchBar onSearch={(val) => setSearchQuery(val)} />
             </div>
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 select-none bg-slate-50/50 hover:bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200/80 transition-colors">
-              <span>
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 text-[11px] sm:text-xs text-slate-500 font-medium select-none px-0.5">
+              <span className="inline-block bg-slate-100/70 sm:bg-transparent px-2.5 sm:px-0 py-1 sm:py-0 rounded-md border border-slate-200/50 sm:border-none text-slate-500">
                 Showing{' '}
-                <strong className="text-slate-700 font-semibold">
+                <strong className="text-slate-800 font-bold">
                   {totalEntries > 0 ? startIndex + 1 : 0}
                 </strong>
-                -
-                <strong className="text-slate-700 font-semibold">{endIndex}</strong> of{' '}
-                <strong className="text-slate-700 font-semibold">{totalEntries}</strong> entries
+                –
+                <strong className="text-slate-800 font-bold">{endIndex}</strong> of{' '}
+                <strong className="text-slate-800 font-bold">{totalEntries}</strong> entries
               </span>
             </div>
           </div>
@@ -135,7 +135,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           {/* Leaderboard Table Container */}
           <div className="w-full border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
             {/* Header Columns (Uppercase, smaller, muted gray) */}
-            <div className="w-full grid grid-cols-[75px_1fr_125px] bg-slate-50/50 border-b border-slate-100 py-3.5 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
+            <div className="w-full grid grid-cols-[48px_1fr_95px] sm:grid-cols-[65px_1fr_125px] bg-slate-50/70 border-b border-slate-100 py-3 px-3 sm:px-6 text-[9.5px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
               <div className="flex items-center gap-1">
                 <span>Rank</span>
               </div>

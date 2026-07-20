@@ -592,9 +592,9 @@ export default function LearnPage() {
         <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
 
         <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">          {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
+          <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
             {/* Left Side: Current Mission Info */}
-            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-h-[52px] sm:min-h-[72px]">
+            <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto min-h-[52px] sm:min-h-[72px]">
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
                   <motion.div
@@ -646,13 +646,13 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto"
+                    className="flex items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto"
                   >
                     <button
                       onClick={handleResume}
                       aria-label="Continue learning"
                       className={cn(
-                        "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0",
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0 mt-0.5 sm:mt-0",
                         continueModule
                           ? "bg-[#FF9900] shadow-[#FF9900]/25 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/35 hover:scale-105 active:scale-95"
                           : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
@@ -667,14 +667,14 @@ export default function LearnPage() {
                       <span className="text-[13px] sm:text-base font-black text-slate-800 block leading-tight font-heading mt-0.5 truncate">
                         {continueModule ? `Current Mission: ${continueModule.name}` : 'Ready to start your AWS journey'}
                       </span>
-                      <div className="flex items-center gap-2 sm:gap-3 mt-1.5 text-[9.5px] sm:text-[11px] font-extrabold text-slate-500">
-                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 px-2 py-0.5 rounded-md border border-cyan-100/30">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-1.5 text-[9.5px] sm:text-[11px] font-extrabold text-slate-500">
+                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 px-2 py-0.5 rounded-md border border-cyan-100/30 shrink-0">
                           <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> {continueModule ? continueTopicProgress : 'Select a topic'}
                         </span>
                         {continueModule?.topicName && (
                           <Link
                             href={`/learn/${continueModule.topicSlug}`}
-                            className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
+                            className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 shrink-0"
                             title="Go to topic roadmap"
                           >
                             Topic: {continueModule.topicName}
@@ -688,69 +688,75 @@ export default function LearnPage() {
             </div>
 
             {/* Right Side: Reward & Resume */}
-            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end flex-wrap sm:flex-nowrap">
-              {/* Topics Progress Badge */}
-              <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
-                <div>
-                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    TOPICS
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
-                    {currentTopicIndex} / {topics.length}
-                  </span>
+            <div className="flex items-center justify-between lg:justify-end gap-2 sm:gap-3 w-full lg:w-auto pt-2 lg:pt-0 border-t border-slate-200/50 lg:border-none">
+              {/* Badges subset */}
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                {/* Topics Progress Badge */}
+                <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                      TOPICS
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
+                      {currentTopicIndex} / {topics.length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Total XP Badge */}
+                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                      SCORE
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
+                      {userXP} XP
+                    </span>
+                  </div>
+                </div>
+
+                {/* Level badge */}
+                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 items-center gap-1.5 sm:gap-2">
+                  <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                      LEVEL
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
+                      {continueDisplayLevel}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Total XP Badge */}
-              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
-                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
-                <div>
-                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    SCORE
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
-                    {userXP} XP
-                  </span>
-                </div>
+              {/* Action Buttons subset */}
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/enthusiasts/dashboard'}
+                  className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
+                >
+                  <Home className="w-4 h-4" />
+                </Link>
+
+                <AnimatePresence>
+                  {!isPlatformCompletedVisual && (
+                    <motion.button
+                      key="resume-learning-btn"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => setShowGuidelines(true)}
+                      className="font-bold text-[10px] sm:text-xs px-3 sm:px-5 py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0] whitespace-nowrap"
+                    >
+                      Guidelines
+                    </motion.button>
+                  )}
+                </AnimatePresence>
               </div>
-
-              {/* Level badge */}
-              <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 items-center gap-1.5 sm:gap-2">
-                <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
-                <div>
-                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
-                    LEVEL
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
-                    {continueDisplayLevel}
-                  </span>
-                </div>
-              </div>
-
-              <Link
-                href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="p-1.5 sm:p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
-                title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
-              >
-                <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Link>
-
-              <AnimatePresence>
-                {!isPlatformCompletedVisual && (
-                  <motion.button
-                    key="resume-learning-btn"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    onClick={() => setShowGuidelines(true)}
-                    className="font-bold text-[10px] sm:text-xs px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0]"
-                  >
-                    Guidelines
-                  </motion.button>
-                )}
-              </AnimatePresence>
             </div>
           </header>
 

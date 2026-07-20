@@ -617,7 +617,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
           {/* Right side controls for settings and logout (visible on desktop/tablet, hidden on mobile to avoid overlap) */}
           <div className="hidden sm:flex items-center gap-2 pointer-events-auto shrink-0">
             <Link
-              href={role === 'core' ? '/core/topics' : role === 'crew' ? '/core/learners' : '/events/dashboard'}
+              href={role === 'core' ? '/core/topics' : role === 'crew' ? '/core/learners' : '/enthusiasts/dashboard'}
               className="p-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-2xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
               title={role === 'core' ? "Admin Portal" : role === 'crew' ? "Crew Portal" : "Events Dashboard"}
             >

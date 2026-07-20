@@ -87,11 +87,11 @@ async function bootstrap() {
 
   const corsOrigin = process.env.CORS_ORIGIN;
   const allowedOrigins = corsOrigin
-    ? corsOrigin.split(',')
-    : ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3000'];
+    ? corsOrigin.split(',').map((o) => o.trim())
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: corsOrigin ? (allowedOrigins.length === 1 && allowedOrigins[0] === '*' ? true : allowedOrigins) : true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });

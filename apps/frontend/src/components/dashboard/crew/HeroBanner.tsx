@@ -65,7 +65,7 @@ export default function HeroBanner() {
         <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
-            background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.14) 0%, rgba(255, 153, 0, 0.05) 40%, rgba(255, 255, 255, 0) 70%)",
+            background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.04) 40%, rgba(255, 255, 255, 0) 70%)",
           }}
         />
         <motion.div
@@ -105,21 +105,21 @@ export default function HeroBanner() {
               Welcome to the Crew Operations Console. Coordinate upcoming community activities, manage registration lists, review attendee ticketing, and monitor check-in statistics in real time.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-              <Link href="/crew/events">
+            <div className="flex flex-row items-center justify-center md:justify-start gap-2 sm:gap-3 w-full sm:w-auto">
+              <Link href="/crew/events" className="flex-1 sm:flex-initial">
                 <button
-                  className="px-4.5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#FF9900] hover:bg-[#FFA524] text-white font-bold text-[11px] sm:text-xs shadow-xs border border-[#FF9900] transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
                   <span>Explore Events</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                 </button>
               </Link>
 
-              <Link href="/learn">
+              <Link href="/learn" className="flex-1 sm:flex-initial">
                 <button
-                  className="px-4.5 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold text-[11px] sm:text-xs shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
-                  <Trophy className="w-4 h-4 text-slate-500" />
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
                   <span>View Roadmap</span>
                 </button>
               </Link>

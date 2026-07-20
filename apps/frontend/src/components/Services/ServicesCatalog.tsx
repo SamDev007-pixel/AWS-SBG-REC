@@ -239,20 +239,22 @@ export default function ServicesCatalog() {
         {/* ── Header Row ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div>
-            <p className="text-[10px] font-semibold text-[#FF9900] uppercase tracking-[0.2em] mb-1">AWS Services Directory</p>
-            <div className="flex items-center gap-3">
-              <h2 className="text-[26px] font-bold text-slate-900 tracking-tight">AWS Services Catalog</h2>
+            <p className="text-[10px] font-bold text-[#FF9900] uppercase tracking-[0.2em] mb-1.5">AWS Services Directory</p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
+              <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight leading-tight m-0">AWS Services Catalog</h2>
               {userRole === "core" && (
-                <Link
-                  href="/core/services"
-                  className="flex items-center gap-1.5 px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-sm hover:-translate-y-0.5"
-                >
-                  <Settings2 size={12} />
-                  Manage Services
-                </Link>
+                <div className="mt-0.5 sm:mt-0">
+                  <Link
+                    href="/core/services"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs hover:-translate-y-0.5 whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <Settings2 size={13} className="text-[#FF9900]" />
+                    <span>Manage Services</span>
+                  </Link>
+                </div>
               )}
             </div>
-            <p className="text-[12px] text-slate-400 font-normal mt-0.5">
+            <p className="text-xs text-slate-400 font-normal mt-1.5 m-0 leading-relaxed">
               Comprehensive reference covering major AWS global cloud service offerings.
             </p>
           </div>
