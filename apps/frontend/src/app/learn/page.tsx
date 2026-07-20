@@ -31,20 +31,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
+import { LearningPageError, categorizeError } from './error-types';
+import { logError } from './error-logger';
+import LearningErrorView from '@/components/Learn/LearningErrorView';
 
-if (typeof window !== 'undefined') {
-  if (!(window as any).timelineLogs) {
-    (window as any).timelineLogs = [];
-    const origLog = console.log;
-    console.log = (...args) => {
-      origLog(...args);
-      (window as any).timelineLogs.push({
-        time: new Date().toISOString(),
-        text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
-      });
-    };
-  }
-}
+
 
 // Helper to parse topic descriptions into bullet points
 const parseBulletPoints = (text: string): string[] => {
@@ -76,14 +67,11 @@ export default function LearnPage() {
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("[TIMELINE] [LearnPage Render Frame]", {
-    loading,
-    topicsCount: topics.length,
-    mounted
-  });
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<LearningPageError | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [continueModule, setContinueModule] = useState<any | null>(null);
@@ -154,7 +142,7 @@ export default function LearnPage() {
     let active = true;
     const fetchTopics = async () => {
       try {
-        console.log("[TIMELINE] [fetchTopics Start]");
+
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -163,28 +151,19 @@ export default function LearnPage() {
         ]);
         if (!active) return;
 
-        console.log("[TIMELINE] [fetchTopics Success API returned]", {
-          topicsCount: data.length,
-        });
+
 
         // Proactively detect completion animation on initial fetch to avoid first-render flash
         const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
-        console.log("[TIMELINE] [fetchTopics Proactive Check]", { recentTopicId });
         if (recentTopicId) {
           const completedTopicIndex = data.findIndex(t => t.id === recentTopicId);
           if (completedTopicIndex !== -1) {
             const completedTopic = data[completedTopicIndex];
-            console.log("[TIMELINE] [fetchTopics Found completed topic in API data]", {
-              completedTopicId: completedTopic.id,
-              completedModules: completedTopic.completedModules,
-              totalModules: completedTopic.totalModules
-            });
+
             if (completedTopic.completedModules === completedTopic.totalModules) {
               const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
               const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
-              console.log("[TIMELINE] [fetchTopics Comparing signatures]", { currentSig, lastSig });
               if (currentSig !== lastSig) {
-                console.log("[TIMELINE] [fetchTopics Setting Animating States Proactively]");
                 setAnimatingTopicId(completedTopic.id);
                 const startPercent = 0;
                 setVisualPercent(startPercent);
@@ -203,22 +182,15 @@ export default function LearnPage() {
           }
         }
 
-        console.log("[TIMELINE] [fetchTopics Setting States in Component]");
         setTopics(data);
         setContinueModule(continueData.module);
         setUserXP(progressData.currentXP);
       } catch (err) {
         if (!active) return;
-        console.error('Failed to load topics: error details =', {
-          message: (err as any)?.message,
-          status: (err as any)?.status,
-          errors: (err as any)?.errors,
-          raw: err
-        });
-        setError('Failed to load learning topics. Please try again.');
+        logError(err, 'learn-page-fetch-topics');
+        setError(categorizeError(err));
       } finally {
         if (active) {
-          console.log("[TIMELINE] [fetchTopics Finally Setting Loading to false]");
           setLoading(false);
         }
       }
@@ -226,49 +198,38 @@ export default function LearnPage() {
 
     fetchTopics();
     return () => { active = false; };
-  }, [router]);
+  }, [router, retryTrigger]);
 
   // Topic completion animation trigger
   useEffect(() => {
-    console.log("[TIMELINE] [Animation Trigger useEffect Run]", {
-      loading,
-      topicsLength: topics.length,
-      recentTopicId: typeof window !== 'undefined' ? sessionStorage.getItem("recentTopicCompletion") : null
-    });
     if (loading || topics.length === 0) return;
 
     if (typeof window === 'undefined') return;
 
     const recentTopicId = sessionStorage.getItem("recentTopicCompletion");
     if (!recentTopicId) {
-      console.log("[TIMELINE] [Animation Trigger Check: No recentTopicCompletion in storage]");
       return;
     }
 
     const completedTopicIndex = topics.findIndex(t => t.id === recentTopicId);
     if (completedTopicIndex === -1) {
-      console.log("[TIMELINE] [Animation Trigger Check: completedTopicIndex is -1]");
       return;
     }
 
     const completedTopic = topics[completedTopicIndex];
-    console.log("[TIMELINE] [Animation Trigger Check: completedTopic found]", {
-      completedModules: completedTopic.completedModules,
-      totalModules: completedTopic.totalModules
-    });
+
     if (completedTopic.completedModules !== completedTopic.totalModules) return;
 
     const currentSig = `${completedTopic.id}-${completedTopic.totalModules}-${completedTopic.completedModules}`;
     const lastSig = localStorage.getItem("lastAnimatedCompletionKey");
-    console.log("[TIMELINE] [Animation Trigger Check: comparing signatures]", { currentSig, lastSig });
+
 
     if (currentSig === lastSig) {
-      console.log("[TIMELINE] [Animation Trigger Check: signature matches lastSig, removing completion key]");
       sessionStorage.removeItem("recentTopicCompletion");
       return;
     }
 
-    console.log("[TIMELINE] [Animation Trigger Check: New completion animation STARTING!]");
+
     // New completion found!
     setAnimatingTopicId(completedTopic.id);
     setIsCompletedVisual(false);
@@ -293,7 +254,7 @@ export default function LearnPage() {
       const intervalMs = 50;
       const totalSteps = duration / intervalMs;
       let currentStep = 0;
-      
+
       fillInterval = setInterval(() => {
         currentStep++;
         if (currentStep >= totalSteps) {
@@ -340,12 +301,7 @@ export default function LearnPage() {
     };
   }, [loading, topics]);
 
-  // Temporary logging to verify visualPercent transitions
-  useEffect(() => {
-    if (animatingTopicId) {
-      console.log("visualPercent updated:", visualPercent);
-    }
-  }, [visualPercent, animatingTopicId]);
+
 
 
 
@@ -535,10 +491,16 @@ export default function LearnPage() {
     return 50;
   }, [continueModule]);
 
-  // Completion calculations
   const topicsCompletedCount = useMemo(() => {
     return presentationTopics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
   }, [presentationTopics]);
+
+  const currentTopicIndex = useMemo(() => {
+    if (presentationTopics.length === 0) return 0;
+    const activeIndex = presentationTopics.findIndex(t => t.id === currentTopic?.id);
+    if (activeIndex !== -1) return activeIndex + 1;
+    return 1;
+  }, [presentationTopics, currentTopic]);
 
   const modulesCompletedCount = useMemo(() => {
     return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
@@ -589,7 +551,6 @@ export default function LearnPage() {
 
   // Main UI Load/Error views
   if (loading) {
-    console.log("[TIMELINE] [Render: SkyBackgroundLoader (Page is loading)]");
     return renderWithSidebar(
       <AppLayout>
         <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
@@ -611,37 +572,17 @@ export default function LearnPage() {
     );
   }
 
-  if (error) {
-    return renderWithSidebar(
-      <AppLayout>
-        <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
-          {/* Cloud Background from Roadmaps */}
-          <SkyBackground />
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    setRetryTrigger((prev) => prev + 1);
+  };
 
-          <div className="flex flex-col items-center gap-4 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md rounded-3xl p-8 z-10 pointer-events-auto text-center max-w-md mx-4">
-            <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200/60 flex items-center justify-center shadow-md">
-              <AlertCircle className="w-8 h-8 text-rose-500" />
-            </div>
-            <span className="text-xs text-slate-600 font-bold font-heading">{error}</span>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-2 px-6 py-3 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-black rounded-xl transition-all shadow-md active:scale-95 font-heading uppercase tracking-wider"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </AppLayout>
-    );
+  if (error) {
+    return <LearningErrorView error={error} reset={handleRetry} />;
   }
 
-  console.log("[TIMELINE] [Render: Main page layout (Page is ready)]", {
-    animatingTopicId,
-    displayTopicId: displayTopic?.id,
-    displayTopicCompletedModules: displayTopic?.completedModules,
-    displayTopicStatus: displayTopic?.status,
-    visualPercent
-  });
+
 
   return renderWithSidebar(
     <AppLayout>
@@ -754,6 +695,19 @@ export default function LearnPage() {
 
             {/* Right Side: Reward & Resume */}
             <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end flex-wrap sm:flex-nowrap">
+              {/* Topics Progress Badge */}
+              <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                <div>
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
+                    TOPICS
+                  </span>
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
+                    {currentTopicIndex} / {topics.length}
+                  </span>
+                </div>
+              </div>
+
               {/* Total XP Badge */}
               <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
                 <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
@@ -780,7 +734,7 @@ export default function LearnPage() {
               </div>
 
               {/* Level badge */}
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 items-center gap-1.5 sm:gap-2">
                 <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <div>
                   <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
@@ -1148,7 +1102,7 @@ export default function LearnPage() {
                         ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600"
                         : "bg-[#FF9900]/10 border-[#FF9900]/20 text-[#FF9900]"
                     )}>
-                      <BookOpen className="w-5 h-5 stroke-[2]" />
+                      <FlippingBook className="w-5 h-5" />
                     </div>
 
                     {/* Header text container: Animates on topic change */}
@@ -1218,7 +1172,7 @@ export default function LearnPage() {
                                     "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 transition-colors duration-600",
                                     isAnimatingCompleted && isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]"
                                   )} />
-                                  <span 
+                                  <span
                                     className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line break-words"
                                     style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
                                   >
@@ -1289,5 +1243,64 @@ export default function LearnPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+// ─── Animated Flipping Book Icon ───────────────────────────────────────────
+function FlippingBook({ className }: { className?: string }) {
+  return (
+    <span className={cn("relative inline-block w-5 h-5", className)} style={{ perspective: '120px' }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes page-flip-y {
+          0% {
+            transform: rotateY(0deg);
+          }
+          70%, 100% {
+            transform: rotateY(-180deg);
+          }
+        }
+      `}} />
+      
+      {/* Background static book */}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="absolute inset-0 w-full h-full text-current opacity-60"
+      >
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      </svg>
+
+      {/* Turning page */}
+      <div
+        className="absolute inset-0 w-full h-full"
+        style={{
+          transformOrigin: '50% 50%',
+          animation: 'page-flip-y 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
+          transformStyle: 'preserve-3d',
+          backfaceVisibility: 'visible',
+        }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-full h-full text-current"
+          style={{
+            backfaceVisibility: 'visible',
+          }}
+        >
+          {/* A single page sheet (the right page outline that rotates to the left) */}
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+      </div>
+    </span>
   );
 }
