@@ -12,6 +12,7 @@ import CreateTopicModal from '@/components/Core/CreateTopicModal';
 import EditTopicModal from '@/components/Core/EditTopicModal';
 import DeleteTopicModal from '@/components/Core/DeleteTopicModal';
 import { showToast } from '@/components/Core/Toast';
+import RoadmapNavHeader from '@/components/Core/RoadmapNavHeader';
 
 export default function TopicsDirectoryPage() {
   const router = useRouter();
@@ -98,9 +99,21 @@ export default function TopicsDirectoryPage() {
 
   const handleCreateTopic = async (name: string, description: string) => {
     try {
-      await topicsService.createTopic({ name, description });
+      const newTopic = await topicsService.createTopic({ name, description });
       await loadTopics();
       showToast('Topic created successfully');
+      
+      // Auto-scroll and highlight the newly created topic card
+      setTimeout(() => {
+        const el = document.getElementById(`topic-card-${newTopic.id}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-indigo-500', 'scale-[1.01]', 'shadow-lg');
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]', 'shadow-lg');
+          }, 2000);
+        }
+      }, 150);
     } catch (err) {
       handleApiError(err);
     }
@@ -162,22 +175,9 @@ export default function TopicsDirectoryPage() {
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
-        <div className="flex items-center gap-6 h-full text-xs font-bold">
-          <Link
-            href="/core/topics"
-            className="transition-all duration-150 h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600"
-          >
-            Roadmap Builder
-          </Link>
-          <Link
-            href="/core/learners"
-            className="transition-all duration-150 h-full flex items-center px-1 text-slate-500 hover:text-indigo-600 hover:border-b-2 hover:border-indigo-300 border-b-2 border-transparent"
-          >
-            Learners Directory
-          </Link>
-        </div>
-        <div className="flex items-center flex-shrink-0">
+      <RoadmapNavHeader
+        activeTab="builder"
+        desktopRightAction={
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
@@ -185,8 +185,17 @@ export default function TopicsDirectoryPage() {
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
             Create Topic
           </button>
-        </div>
-      </header>
+        }
+        mobileRightAction={
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-3 py-1.5 rounded-[8px] shadow-xs flex items-center gap-1 font-heading"
+          >
+            <Icons.Plus className="w-3.5 h-3.5 stroke-[3]" />
+            Create
+          </button>
+        }
+      />
 
       <div className="flex-1 overflow-y-auto p-6">
         {loading && topics.length === 0 ? (

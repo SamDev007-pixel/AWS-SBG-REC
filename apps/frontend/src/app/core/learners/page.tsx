@@ -6,6 +6,7 @@ import * as Icons from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { learnersService, type LearnerSummary } from '@/services/roadmap.api';
 import { getAuthSession } from '@/lib/authHelper';
+import RoadmapNavHeader from '@/components/Core/RoadmapNavHeader';
 
 function getInitials(name: string): string {
   return name
@@ -75,34 +76,33 @@ export default function CoreLearnersDirectoryPage() {
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
-      {/* HEADER */}
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-center md:justify-between px-8 flex-shrink-0 select-none">
-        <div className="flex items-center gap-6 h-full text-xs font-bold">
-          <Link
-            href="/core/topics"
-            className="transition-all duration-150 h-full flex items-center px-1 text-slate-500 hover:text-indigo-600 hover:border-b-2 hover:border-indigo-300 border-b-2 border-transparent"
-          >
-            Roadmap Builder
-          </Link>
-          <Link
-            href="/core/learners"
-            className="transition-all duration-150 h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600"
-          >
-            Learners Directory
-          </Link>
-        </div>
-
-        <div className="hidden md:block relative w-72 flex-shrink-0">
-          <input
-            type="text"
-            placeholder="Search learner name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
-          />
-          <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
-        </div>
-      </header>
+      <RoadmapNavHeader
+        activeTab="learners"
+        desktopRightAction={
+          <div className="relative w-72 flex-shrink-0">
+            <input
+              type="text"
+              placeholder="Search learner name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
+            />
+            <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
+          </div>
+        }
+        mobileRightAction={
+          <div className="relative w-44 sm:w-56 flex-shrink-0">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
+            />
+            <Icons.Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-450" />
+          </div>
+        }
+      />
 
       {/* CONTENT */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 space-y-6 w-full max-w-full">

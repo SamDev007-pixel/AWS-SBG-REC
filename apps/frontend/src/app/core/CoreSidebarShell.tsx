@@ -16,6 +16,7 @@ import {
   Bell,
   Cpu,
   KeyRound,
+  Lightbulb,
 } from 'lucide-react';
 
 const coreNavItems: NavItem[] = [

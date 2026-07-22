@@ -24,7 +24,7 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
   const advancedCount = topic.modules.filter((m) => m.level === 'ADVANCED').length;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden group">
+    <div id={`topic-card-${topic.id}`} className="bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden group">
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <Link href={`/core/topics/${topic.id}/roadmap`} className="flex-1 min-w-0">

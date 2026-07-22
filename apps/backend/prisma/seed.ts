@@ -617,6 +617,7 @@ async function main() {
   await seedCertifications();
   await seedDomainsAndTopics();
   await seedCareerRoles();
+  await seedLearningGuidelines();
 
   console.log('Seeding completed successfully!');
 }
@@ -1196,6 +1197,105 @@ async function seedCareerRoles() {
   }
 
   console.log("✅ Career roles, pathways, and opportunities seeded");
+}
+
+async function seedLearningGuidelines() {
+  console.log("Seeding learning guidelines...");
+  const guidelines = [
+    {
+      title: 'Complete modules in sequence.',
+      description: 'Modules must be completed in order. Skipping ahead is not allowed.',
+      icon: 'STEP_FUNCTIONS',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 0,
+    },
+    {
+      title: 'Revisit completed modules anytime.',
+      description: 'After completing a module, you can return to it at any time for revision and learning.',
+      icon: 'S3',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 1,
+    },
+    {
+      title: 'Unlock topics through progress.',
+      description: 'Complete all modules in a topic to unlock the next topic.',
+      icon: 'IAM',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 2,
+    },
+    {
+      title: 'Quiz Attempt Policy',
+      description: 'Each quiz can only be attempted once. Review the learning material carefully before starting.',
+      icon: 'CONFIG',
+      prominent: true,
+      prominentColor: 'AMBER',
+      orderIndex: 3,
+    },
+    {
+      title: 'Earn points through learning and quiz performance.',
+      description: 'Completing a module awards 50% of the available points automatically.',
+      icon: 'CLOUDWATCH',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 4,
+    },
+    {
+      title: 'Quiz accuracy determines the remaining points.',
+      description: 'The remaining 50% is awarded based on your quiz score. Higher accuracy earns more points.',
+      icon: 'QUICKSIGHT',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 5,
+    },
+    {
+      title: 'Follow the learning path.',
+      description: 'Modules, levels, and topics must be completed in order. You cannot jump between modules, levels, or topics.',
+      icon: 'APPLICATION_COMPOSER',
+      prominent: false,
+      prominentColor: null,
+      orderIndex: 6,
+    },
+  ];
+
+  for (const g of guidelines) {
+    const existing = await prisma.learningGuideline.findUnique({
+      where: { title: g.title }
+    });
+
+    if (!existing) {
+      await prisma.learningGuideline.create({
+        data: g as any
+      });
+    } else {
+      await prisma.learningGuideline.update({
+        where: { id: existing.id },
+        data: {
+          description: g.description,
+          icon: g.icon as any,
+          prominent: g.prominent,
+          prominentColor: g.prominentColor as any,
+          orderIndex: g.orderIndex,
+        }
+      });
+    }
+  }
+  console.log("✅ Learning guidelines seeded");
+
+  // Seed default configuration settings if they do not exist
+  const existingSettings = await prisma.learningGuidelineSettings.findFirst();
+  if (!existingSettings) {
+    await prisma.learningGuidelineSettings.create({
+      data: {
+        headerIcon: 'LIGHTBULB',
+        headerTitle: 'GUIDELINES',
+        headerDescription: 'Platform learning rules and progression guidelines',
+      },
+    });
+    console.log("✅ Default learning guidelines settings seeded");
+  }
 }
 
 main()
