@@ -90,18 +90,7 @@ export default function CoreLearnersDirectoryPage() {
             <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
           </div>
         }
-        mobileRightAction={
-          <div className="relative w-44 sm:w-56 flex-shrink-0">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
-            />
-            <Icons.Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-450" />
-          </div>
-        }
+        mobileRightAction={null}
       />
 
       {/* CONTENT */}
@@ -187,8 +176,8 @@ export default function CoreLearnersDirectoryPage() {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="block md:hidden relative w-full">
+        {/* Mobile & Tablet In-Page Search Bar */}
+        <div className="block lg:hidden relative w-full">
           <input
             type="text"
             placeholder="Search learner name or email..."

@@ -10,6 +10,7 @@ import {
   AlertCircle,
   X,
   Loader2,
+  ChevronLeft,
   ChevronRight,
   CheckCircle2,
   Trophy,
@@ -603,8 +604,18 @@ export default function LearnPage() {
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
           <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto">
-            {/* Left Side: Current Mission Info */}
+            {/* Left Side: Navigation & Current Mission Info */}
             <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto h-auto min-w-0">
+              {/* Back to Dashboard Link Button (White/Grey Circle Button) */}
+              <Link
+                href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white border border-slate-200/80 hover:border-slate-300 flex items-center justify-center text-slate-600 hover:text-slate-900 shadow-xs hover:shadow-md transition-all duration-200 flex-shrink-0 cursor-pointer active:scale-95 group"
+                title={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
+                aria-label={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
+              >
+                <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
+              </Link>
+
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
                   <motion.div
@@ -660,18 +671,6 @@ export default function LearnPage() {
                     transition={{ duration: 0.3 }}
                     className="flex items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
                   >
-                    <button
-                      onClick={handleResume}
-                      aria-label="Continue learning"
-                      className={cn(
-                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0 mt-0.5 sm:mt-0",
-                        continueModule
-                          ? "bg-[#FF9900] shadow-[#FF9900]/20 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/30 hover:scale-105 active:scale-95"
-                          : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
-                      )}
-                    >
-                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
-                    </button>
                     <div className="flex flex-col text-slate-800 min-w-0 flex-1">
                       <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
                         CONTINUE YOUR JOURNEY
@@ -714,8 +713,24 @@ export default function LearnPage() {
 
             {/* Right Side: Responsive Stats Grid & Actions */}
             <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-              {/* Stats Cards Grid (2x2 on Mobile, Inline Flex on Tablet & Desktop) */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              {/* Stats Cards Grid (2x2 on Mobile, Inline Flex on Tablet & Desktop - All cards stretch to uniform height) */}
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* Continue Action Button (Stretched to match exact height of stats cards without upper label) */}
+                <button
+                  onClick={handleResume}
+                  disabled={!continueModule}
+                  className={cn(
+                    "bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2.5 sm:py-2 flex items-center justify-center gap-1.5 self-stretch min-h-[44px] sm:min-h-0 min-w-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
+                    !continueModule && "opacity-60 cursor-not-allowed"
+                  )}
+                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
+                >
+                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
+                    Continue
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </button>
+
                 {/* Topics Progress Badge */}
                 <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
@@ -755,7 +770,7 @@ export default function LearnPage() {
                   </div>
                 </div>
 
-                {/* Level badge (Shown on Tablet & Desktop, replaced or paired with Home on Mobile) */}
+                {/* Level badge (Shown on Tablet & Desktop) */}
                 <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
@@ -767,23 +782,6 @@ export default function LearnPage() {
                     </span>
                   </div>
                 </div>
-
-                {/* Home Link Card */}
-                <Link
-                  href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                  className="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center justify-center sm:justify-start gap-2 transition-all flex-shrink-0 cursor-pointer min-h-[44px] sm:min-h-0 min-w-0"
-                  title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
-                >
-                  <Home className="w-4 h-4 text-indigo-650 flex-shrink-0" />
-                  <div className="min-w-0 hidden xs:block sm:block">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
-                      PORTAL
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-indigo-650 block leading-none mt-1 sm:mt-1 truncate">
-                      Home
-                    </span>
-                  </div>
-                </Link>
               </div>
 
               {/* Guidelines Action Button */}

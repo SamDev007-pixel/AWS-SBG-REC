@@ -239,6 +239,7 @@ export default function TopicsDirectoryPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateTopic}
+        nextTopicNumber={topics.length + 1}
       />
 
       <EditTopicModal

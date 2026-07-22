@@ -8,12 +8,16 @@ export interface RoadmapNavHeaderProps {
   activeTab: 'builder' | 'learners' | 'guidelines';
   desktopRightAction?: React.ReactNode;
   mobileRightAction?: React.ReactNode;
+  topicNumber?: number;
+  topicName?: string;
 }
 
 export default function RoadmapNavHeader({
   activeTab,
   desktopRightAction,
   mobileRightAction,
+  topicNumber,
+  topicName,
 }: RoadmapNavHeaderProps) {
   const tabs = [
     {
@@ -38,8 +42,8 @@ export default function RoadmapNavHeader({
 
   return (
     <header className="flex-shrink-0 select-none w-full bg-white border-b border-slate-200">
-      {/* DESKTOP HEADER (MD AND ABOVE) - UNCHANGED */}
-      <div className="hidden md:flex h-14 items-center justify-between px-8 w-full">
+      {/* DESKTOP HEADER (LG AND ABOVE) */}
+      <div className="hidden lg:flex h-14 items-center justify-between px-8 w-full">
         <div className="flex items-center gap-6 h-full text-xs font-bold" role="tablist" aria-label="Roadmap builder navigation">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -67,22 +71,31 @@ export default function RoadmapNavHeader({
         )}
       </div>
 
-      {/* MOBILE HEADER & SECONDARY SUB-NAV (< MD) */}
-      <div className="block md:hidden w-full">
+      {/* MOBILE & TABLET HEADER & SECONDARY SUB-NAV (< LG) */}
+      <div className="block lg:hidden w-full">
         {/* Top Header Bar */}
-        <div className="h-14 flex items-center justify-between pl-16 pr-4 border-b border-slate-150">
-          <span className="font-extrabold text-sm text-slate-900 font-heading tracking-tight">
-            Roadmap Builder
-          </span>
-          <div className="flex items-center flex-shrink-0">
-            {mobileRightAction === null ? null : (mobileRightAction ?? desktopRightAction)}
+        <div className="h-14 flex items-center justify-center px-4 border-b border-slate-150 relative">
+          <div className="flex items-center justify-center gap-2 min-w-0">
+            <span className="font-extrabold text-sm text-slate-900 font-heading tracking-tight truncate text-center">
+              Roadmap Builder
+            </span>
+            {topicNumber !== undefined && (
+              <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
+                Topic #{topicNumber}
+              </span>
+            )}
           </div>
+          {mobileRightAction !== null && (mobileRightAction ?? desktopRightAction) ? (
+            <div className="flex items-center flex-shrink-0 absolute right-4">
+              {mobileRightAction ?? desktopRightAction}
+            </div>
+          ) : null}
         </div>
 
         {/* Secondary Sub-Navigation Bar */}
         <nav
           aria-label="Roadmap section tabs"
-          className="h-11 flex items-center gap-1 sm:gap-2 px-4 overflow-x-auto no-scrollbar border-t border-slate-100/60 bg-slate-50/50 relative"
+          className="h-11 flex items-center justify-center gap-1 sm:gap-2 px-4 overflow-x-auto no-scrollbar border-t border-slate-100/60 bg-slate-50/50 relative"
           role="tablist"
         >
           {tabs.map((tab) => {

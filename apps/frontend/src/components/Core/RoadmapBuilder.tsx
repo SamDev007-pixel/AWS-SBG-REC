@@ -87,9 +87,10 @@ const calculateCompactRoadmapGeometry = (modulesList: any[]) => {
 interface RoadmapBuilderProps {
   topicId: string;
   topicName?: string;
+  topicNumber?: number;
 }
 
-export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderProps) {
+export default function RoadmapBuilder({ topicId, topicName, topicNumber }: RoadmapBuilderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [modules, setModules] = useState<any[]>([]);
@@ -651,17 +652,34 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
-        <div className="flex items-center gap-4 h-full text-xs font-bold">
-          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors">
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 flex-shrink-0 select-none">
+        <div className="flex items-center gap-2.5 md:gap-4 h-full text-xs font-bold min-w-0 pr-2">
+          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors flex-shrink-0">
             <Icons.ArrowLeft className="w-4 h-4" />
-            Back to Topics
+            <span className="hidden sm:inline">Back to Topics</span>
           </Link>
+
+          {(topicNumber !== undefined || topicName) && (
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              {topicNumber !== undefined && (
+                <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
+                  Topic #{topicNumber}
+                </span>
+              )}
+              {topicName && (
+                <span className="text-xs font-extrabold text-slate-900 font-heading tracking-tight truncate max-w-[130px] sm:max-w-[200px] md:max-w-xs">
+                  {topicName}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex items-center flex-shrink-0">
-          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
+          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 md:px-5 md:py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
-            Create Module
+            <span className="hidden sm:inline">Create Module</span>
+            <span className="inline sm:hidden">Create</span>
           </button>
         </div>
       </header>

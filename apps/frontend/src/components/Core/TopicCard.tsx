@@ -22,12 +22,20 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
   const beginnerCount = topic.modules.filter((m) => m.level === 'BEGINNER').length;
   const intermediateCount = topic.modules.filter((m) => m.level === 'INTERMEDIATE').length;
   const advancedCount = topic.modules.filter((m) => m.level === 'ADVANCED').length;
+  const topicNumber = topic.orderIndex !== undefined ? topic.orderIndex + 1 : undefined;
 
   return (
     <div id={`topic-card-${topic.id}`} className="bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden group">
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <Link href={`/core/topics/${topic.id}/roadmap`} className="flex-1 min-w-0">
+            {topicNumber !== undefined && (
+              <div className="mb-1">
+                <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider inline-block">
+                  Topic #{topicNumber}
+                </span>
+              </div>
+            )}
             <h3 className="text-sm font-black text-slate-900 font-heading tracking-tight truncate group-hover:text-indigo-600 transition-colors">
               {topic.name}
             </h3>

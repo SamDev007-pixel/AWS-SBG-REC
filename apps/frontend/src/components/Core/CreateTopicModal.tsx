@@ -9,9 +9,10 @@ interface CreateTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (name: string, description: string) => Promise<void>;
+  nextTopicNumber?: number;
 }
 
-export default function CreateTopicModal({ isOpen, onClose, onSubmit }: CreateTopicModalProps) {
+export default function CreateTopicModal({ isOpen, onClose, onSubmit, nextTopicNumber }: CreateTopicModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,11 +51,20 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit }: CreateTo
           <Icons.X className="w-4 h-4" />
         </button>
 
-        <h3 className="text-sm sm:text-base font-black text-slate-900 font-heading tracking-tight mb-1">
-          Create Topic
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm sm:text-base font-black text-slate-900 font-heading tracking-tight">
+            Create Topic
+          </h3>
+          {nextTopicNumber !== undefined && (
+            <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
+              Topic #{nextTopicNumber}
+            </span>
+          )}
+        </div>
         <p className="text-[10px] text-slate-550 mb-4 leading-normal">
-          A new topic automatically provisions 3 modules (Beginner, Intermediate, Advanced).
+          {nextTopicNumber !== undefined 
+            ? `Topic #${nextTopicNumber} will be automatically assigned and provisioned with 3 starter modules.`
+            : 'A new topic automatically gets assigned the next topic number in sequence.'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs font-semibold">

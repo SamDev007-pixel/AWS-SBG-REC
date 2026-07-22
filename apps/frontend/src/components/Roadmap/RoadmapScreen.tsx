@@ -511,60 +511,44 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
       <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-50 flex flex-col gap-3 sm:gap-4 pointer-events-none">
 
         {/* Back to Topics Button & Centered Completion Progress Bar */}
-        <div className="w-full flex justify-between items-center pointer-events-none gap-2">
-          <Link
-            href="/learn"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4.5 py-2 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer pointer-events-auto flex-shrink-0"
-            title="Back to Topics"
-          >
-            <Icons.ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
-            <span className="hidden sm:inline">Back to Topics</span>
-            <span className="sm:hidden">Back</span>
-          </Link>
+        <div className="w-full relative flex items-center justify-center min-h-[40px] pointer-events-none">
+          <div className="absolute left-0 flex items-center pointer-events-auto">
+            <Link
+              href="/learn"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4.5 py-2 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer pointer-events-auto flex-shrink-0"
+              title="Back to Topics"
+            >
+              <Icons.ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+              <span className="hidden sm:inline">Back to Topics</span>
+              <span className="sm:hidden">Back</span>
+            </Link>
+          </div>
 
           {/* Centered overall completion progress bar */}
           {modules.length > 0 && (
-            <div className="flex items-center gap-2 sm:gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 pointer-events-auto backdrop-blur-md">
-              <div className="flex flex-col">
-                <span className="text-[7px] sm:text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
-                  Progress
-                </span>
-                <span className="text-[9px] sm:text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
-                  {totalCompleted}/{modules.length}
+            <div className="flex items-center justify-center pointer-events-auto">
+              <div className="flex items-center gap-2 sm:gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 backdrop-blur-md">
+                <div className="flex flex-col">
+                  <span className="text-[7px] sm:text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
+                    Progress
+                  </span>
+                  <span className="text-[9px] sm:text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
+                    {totalCompleted}/{modules.length}
+                  </span>
+                </div>
+                <div className="w-16 sm:w-40 h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30 relative shadow-inner">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+                    style={{ width: `${Math.round((totalCompleted / modules.length) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-[10px] sm:text-xs font-black text-slate-900 font-heading">
+                  {Math.round((totalCompleted / modules.length) * 100)}%
                 </span>
               </div>
-              <div className="w-16 sm:w-40 h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30 relative shadow-inner">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
-                  style={{ width: `${Math.round((totalCompleted / modules.length) * 100)}%` }}
-                />
-              </div>
-              <span className="text-[10px] sm:text-xs font-black text-slate-900 font-heading">
-                {Math.round((totalCompleted / modules.length) * 100)}%
-              </span>
             </div>
           )}
 
-          {/* Right side controls for settings and logout (visible on desktop/tablet, hidden on mobile to avoid overlap) */}
-          <div className="hidden sm:flex items-center gap-2 pointer-events-auto shrink-0">
-            <Link
-              href={role === 'core' ? '/core/topics' : role === 'crew' ? '/core/learners' : '/events/dashboard'}
-              className="p-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-2xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
-              title={role === 'core' ? "Admin Portal" : role === 'crew' ? "Crew Portal" : "Events Dashboard"}
-            >
-              <Icons.Home className="w-4 h-4" />
-            </Link>
-
-            <button
-              onClick={handleLogout}
-              className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/30 text-rose-500 rounded-2xl transition-all cursor-pointer flex items-center justify-center flex-shrink-0"
-              title="Logout"
-            >
-              <Icons.LogOut className="w-4 h-4" />
-            </button>
-          </div>
-          {/* Mobile-only spacer to preserve layout balance */}
-          <div className="w-0 sm:hidden flex-shrink-0" />
         </div>
 
         {/* 2. LEVEL NAVIGATION BADGES (PILLS) WITH PREMIUM GRADIENTS */}

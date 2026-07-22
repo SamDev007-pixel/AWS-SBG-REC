@@ -59,9 +59,16 @@ export default function EditTopicModal({ isOpen, topic, onClose, onSubmit }: Edi
           <Icons.X className="w-4 h-4" />
         </button>
 
-        <h3 className="text-base font-black text-slate-900 font-heading tracking-tight mb-1">
-          Edit Topic
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-base font-black text-slate-900 font-heading tracking-tight">
+            Edit Topic
+          </h3>
+          {topic.orderIndex !== undefined && (
+            <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
+              Topic #{topic.orderIndex + 1}
+            </span>
+          )}
+        </div>
         <p className="text-[10px] text-slate-550 mb-5 leading-normal">
           Rename this topic, update its description, or configure its island template. Module names will update automatically.
         </p>
