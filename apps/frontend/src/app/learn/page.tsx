@@ -28,6 +28,8 @@ import { AppLayout } from '@/components/Layout/AppLayout';
 import { SkyBackground } from '@/components/Roadmap/SkyBackground';
 import { TopicRailItem } from '@/components/Learn/TopicRailItem';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
+import { SmartScrollNavigation } from '@/components/Learn/SmartScrollNavigation';
+import { BackToTopButton } from '@/components/Learn/BackToTopButton';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CoreSidebarShell from '@/app/core/CoreSidebarShell';
@@ -118,12 +120,34 @@ export default function LearnPage() {
       railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
   const scrollToActiveTopic = () => {
-    if (activeCardRef.current) {
-      activeCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else if (railRef.current) {
-      railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const activeEl = activeCardRef.current;
+
+    if (activeEl) {
+      const rect = activeEl.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      const elementCenter = rect.top + rect.height / 2;
+      const viewportCenter = viewportHeight / 2;
+
+      // Check if current topic card is already centered / in view
+      const isAlreadyAtTopic = Math.abs(elementCenter - viewportCenter) < 150 || (rect.top >= 40 && rect.bottom <= viewportHeight - 40);
+
+      if (!isAlreadyAtTopic) {
+        // First touch: scroll to current active topic
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    // Second touch (already at active topic) or all completed: scroll to bottom of page
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    }
+    const scrollableEl = Array.from(document.querySelectorAll<HTMLElement>('.overflow-y-auto, main, div')).find(
+      (el) => el.scrollHeight > el.clientHeight + 40
+    );
+    if (scrollableEl) {
+      scrollableEl.scrollTo({ top: scrollableEl.scrollHeight, behavior: 'smooth' });
     }
   };
 
@@ -694,16 +718,6 @@ export default function LearnPage() {
                             </Link>
                           </>
                         )}
-                        <span className="text-slate-300">|</span>
-                        <button
-                          onClick={scrollToActiveTopic}
-                          className="text-sky-700 font-bold bg-sky-50/90 hover:bg-sky-100/90 border border-sky-200/60 hover:border-sky-300/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 shadow-xs active:scale-95 group"
-                          title="Scroll down to active topic"
-                          aria-label="Scroll down to current active topic"
-                        >
-                          <ArrowDown className="w-3 h-3 text-sky-600 animate-bounce" />
-                          <span>Scroll to Active Topic</span>
-                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -1271,6 +1285,10 @@ export default function LearnPage() {
             )}
           </AnimatePresence>
 
+          {/* Smart Scroll Navigation & Floating Back to Top Button (Mobile & Tablet /learn page only) */}
+          <SmartScrollNavigation containerRef={railRef} onScrollDown={scrollToActiveTopic} />
+          <BackToTopButton containerRef={railRef} />
+
         </div>
       </div>
     </AppLayout>
@@ -1281,7 +1299,8 @@ export default function LearnPage() {
 function FlippingBook({ className }: { className?: string }) {
   return (
     <span className={cn("relative inline-block w-5 h-5", className)} style={{ perspective: '120px' }}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes page-flip-y {
           0% {
             transform: rotateY(0deg);
@@ -1291,7 +1310,7 @@ function FlippingBook({ className }: { className?: string }) {
           }
         }
       `}} />
-      
+
       {/* Background static book */}
       <svg
         viewBox="0 0 24 24"
