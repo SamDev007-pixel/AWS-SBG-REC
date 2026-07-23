@@ -126,26 +126,17 @@ export default function Navbar() {
               userSelect: "none",
             }}
           >
-            <div
-              className="flex items-center justify-center rounded-lg bg-[#161D27] border border-slate-700/50 shadow-sm shrink-0"
+            <img
+              src="/sbg_logo.svg"
+              alt="AWS SBG REC Logo"
               style={{
-                width: scrolled ? "30px" : "34px",
-                height: scrolled ? "30px" : "34px",
-                padding: scrolled ? "3px" : "4px",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                height: scrolled ? "24px" : "28px",
+                width: "auto",
+                objectFit: "contain",
+                display: "block",
+                transition: "height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
-            >
-              <img
-                src="/sbg_logo.svg"
-                alt="AWS SBG REC Logo"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  display: "block",
-                }}
-              />
-            </div>
+            />
             <span 
               style={{ 
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
