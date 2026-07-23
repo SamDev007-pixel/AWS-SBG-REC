@@ -50,7 +50,7 @@ export default function PwaRegistrar() {
   if (!showBanner || !deferredPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 max-w-sm bg-[#161D27] text-white p-4 rounded-2xl shadow-2xl border border-slate-700/60 flex items-center justify-between gap-3 animate-[slideUp_0.3s_ease-out]">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 max-w-sm bg-[#232F3E] text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-3 animate-[slideUp_0.3s_ease-out]">
       <div className="flex items-center gap-3 min-w-0">
         <img
           src="/pwa-192x192.png"
