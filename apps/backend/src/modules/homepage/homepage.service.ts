@@ -138,7 +138,11 @@ export class HomepageService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.ensureSeeded();
+    try {
+      await this.ensureSeeded();
+    } catch (error: any) {
+      console.warn('Failed to auto-seed homepage data during initialization (tables may not exist yet):', error?.message || error);
+    }
   }
 
   async ensureSeeded() {
