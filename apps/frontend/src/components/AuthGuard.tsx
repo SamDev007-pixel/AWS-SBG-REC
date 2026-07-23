@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
  *  - No session found → hard redirect to /login
  *  - Role = 'core' → authorized, render children
  *  - Role = 'crew' → redirect to /crew/dashboard
- *  - Role = 'enthusiasts' → redirect to /events
+ *  - Role = 'enthusiasts' → redirect to /events/dashboard
  *  - Corrupted session → clear storage, redirect to /login
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -33,8 +33,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       } else if (role === 'crew') {
         window.location.replace('/crew/dashboard');
       } else {
-        // enthusiasts or unknown role → events page
-        window.location.replace('/events');
+        // enthusiasts or unknown role → events dashboard page
+        window.location.replace('/events/dashboard');
       }
     } catch {
       localStorage.removeItem('aws_sgb_rec_user');

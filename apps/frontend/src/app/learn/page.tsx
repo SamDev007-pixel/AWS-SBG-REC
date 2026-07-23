@@ -29,7 +29,6 @@ import { SkyBackground } from '@/components/Roadmap/SkyBackground';
 import { TopicRailItem } from '@/components/Learn/TopicRailItem';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
 import { SmartScrollNavigation } from '@/components/Learn/SmartScrollNavigation';
-import { BackToTopButton } from '@/components/Learn/BackToTopButton';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CoreSidebarShell from '@/app/core/CoreSidebarShell';
@@ -38,7 +37,6 @@ import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 import { LearningPageError, categorizeError } from './error-types';
 import { logError } from './error-logger';
 import LearningErrorView from '@/components/Learn/LearningErrorView';
-
 
 
 // Helper to parse topic descriptions into bullet points
@@ -570,7 +568,7 @@ export default function LearnPage() {
       );
     }
     const themedContent = (
-      <div className="w-full h-full bg-slate-50/50 flex-1 min-h-0">
+      <div className="w-full min-h-screen min-h-[100dvh] h-full bg-slate-50/50 flex-1 min-h-0 flex flex-col">
         {children}
       </div>
     );
@@ -587,7 +585,7 @@ export default function LearnPage() {
   if (loading) {
     return renderWithSidebar(
       <AppLayout>
-        <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+        <div className="min-h-screen min-h-[100dvh] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
           {/* Cloud Background from Roadmaps */}
           <SkyBackground />
 
@@ -620,11 +618,11 @@ export default function LearnPage() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div className="h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden pb-12 lg:pb-0 flex flex-col">
+      <div className="min-h-screen min-h-[100dvh] h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden flex flex-col flex-1 no-scrollbar-mobile">
         {/* Cloud Background from Roadmaps */}
-        <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
+        <SkyBackground height={contentHeight ? contentHeight : undefined} />
 
-        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-4 sm:pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6 flex flex-col gap-5 sm:gap-8 relative z-10 w-full h-auto lg:h-full lg:flex-1 lg:min-h-0">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
           <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto">
@@ -818,9 +816,9 @@ export default function LearnPage() {
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-2 lg:pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-0 lg:pr-2 no-scrollbar-mobile lg:custom-scrollbar">
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -862,7 +860,7 @@ export default function LearnPage() {
                     <p className="text-xs text-slate-400 mt-1">Try search with a different keyword</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 w-full px-4 py-6 animate-fade-in">
+                  <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-4 pt-4 pb-2 sm:py-6 animate-fade-in">
                     {filteredTopics.map((topic, index) => {
                       const status = getDialStatus(topic);
                       const isCompleted = status === 'COMPLETED';
@@ -1285,9 +1283,10 @@ export default function LearnPage() {
             )}
           </AnimatePresence>
 
-          {/* Smart Scroll Navigation & Floating Back to Top Button (Mobile & Tablet /learn page only) */}
-          <SmartScrollNavigation containerRef={railRef} onScrollDown={scrollToActiveTopic} />
-          <BackToTopButton containerRef={railRef} />
+          {/* Smart Scroll Navigation (Mobile & Tablet /learn page only - hidden when searching) */}
+          {!searchQuery.trim() && (
+            <SmartScrollNavigation containerRef={railRef} onScrollDown={scrollToActiveTopic} />
+          )}
 
         </div>
       </div>
