@@ -21,7 +21,16 @@ const apiClient = axios.create({
 // Attach JWT access token
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('accessToken');
+    let token = localStorage.getItem('accessToken');
+    if (!token) {
+      try {
+        const userRaw = localStorage.getItem('aws_sgb_rec_user');
+        if (userRaw) {
+          const parsed = JSON.parse(userRaw);
+          token = parsed?.accessToken || parsed?.token || parsed?.jwt || null;
+        }
+      } catch {}
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,8 +55,8 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<any>) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('aws_sgb_rec_user');
         window.location.href = '/login';

@@ -154,6 +154,7 @@ export default function TopicsDirectoryPage() {
   }
 
   if (error) {
+    const isAuthError = error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('forbidden');
     return (
       <div className="min-h-[50vh] flex items-center justify-center p-6">
         <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="max-w-xl w-full border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
@@ -164,9 +165,22 @@ export default function TopicsDirectoryPage() {
             <h2 className="text-xl font-extrabold tracking-tight text-slate-900 font-heading">Error Loading Topics</h2>
             <p className="text-xs text-slate-650 leading-relaxed max-w-md mx-auto">{error}</p>
           </div>
-          <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading">
-            Retry
-          </button>
+          {isAuthError ? (
+            <button
+              onClick={() => {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('aws_sgb_rec_user');
+                router.push('/login');
+              }}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading"
+            >
+              Log In Again
+            </button>
+          ) : (
+            <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading">
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );
