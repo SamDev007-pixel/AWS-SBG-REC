@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useCrewAnnouncementsForMember } from '@/lib/hooks';
+import { useCrewAnnouncements } from '@/lib/hooks';
 import {
   Mail,
   Info,
@@ -72,7 +72,7 @@ export default function CrewAnnouncementsPage() {
     } catch { /* ignore */ }
   }, []);
 
-  const { data: announcements = [], isLoading } = useCrewAnnouncementsForMember(userId);
+  const { data: announcements = [], isLoading } = useCrewAnnouncements();
 
   const now = new Date();
   const isNew = (dateStr: string) => {
