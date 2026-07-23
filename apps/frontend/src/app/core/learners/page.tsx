@@ -145,13 +145,8 @@ export default function CoreLearnersDirectoryPage() {
               </div>
             </div>
 
-<<<<<<< HEAD
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold w-full lg:w-auto">
-              <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading shrink-0">
-=======
             <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 text-xs font-semibold">
               <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading">
->>>>>>> origin/roadmap-updates
                 Module Completion:
               </span>
               <div className="flex items-center gap-2 w-full sm:w-auto">

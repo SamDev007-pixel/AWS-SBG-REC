@@ -19,11 +19,8 @@ import {
   Lock,
   Home,
   Users,
-<<<<<<< HEAD
-  Lightbulb
-=======
+  Lightbulb,
   ArrowDown
->>>>>>> origin/roadmap-updates
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
 import { getAuthSession } from '@/lib/authHelper';
@@ -862,11 +859,7 @@ export default function LearnPage() {
                     <p className="text-xs text-slate-400 mt-1">Try search with a different keyword</p>
                   </div>
                 ) : (
-<<<<<<< HEAD
-                  <div className="flex flex-col items-center gap-4 w-full px-0 sm:px-2 py-6 animate-fade-in">
-=======
                   <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-4 pt-4 pb-2 sm:py-6 animate-fade-in">
->>>>>>> origin/roadmap-updates
                     {filteredTopics.map((topic, index) => {
                       const status = getDialStatus(topic);
                       const isCompleted = status === 'COMPLETED';
