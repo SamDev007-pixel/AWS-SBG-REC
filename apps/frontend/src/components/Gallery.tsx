@@ -8,9 +8,9 @@ const DEFAULT_CARDS = [
   {
     gradient: "linear-gradient(135deg,rgb(130,68,239),#4a7a9b)",
     label: "Cloud Matrix",
-    sublabel: "120+ builders · Oct 2025 · 24 hours",
+    sublabel: "Cloud Computing Session · 2025",
     image: "/images/cloud_jam.jpg",
-    description: "An intensive cloud computing hackathon challenge where student builders collaborate in teams to architect, deploy, and scale innovative solutions on AWS. A true 24-hour sprint from concept to a production-ready application.",
+    description: "CLOUD MATRIX was an engaging cloud computing awareness session organized by AWS Cloud Club REC. The event introduced participants to cloud fundamentals, career opportunities, and industry-recognized certifications through practical insights shared by a DevOps professional. The session concluded with an interactive live quiz, making learning both informative and enjoyable.",
   },
   {
     gradient: "linear-gradient(135deg,#0073BB,#005f9e)",
@@ -21,10 +21,10 @@ const DEFAULT_CARDS = [
   },
   {
     gradient: "linear-gradient(135deg,#FF9900,#E68900)",
-    label: "Community Meetup",
-    sublabel: "150+ members · Networking",
+    label: "AWS Student Community Day",
+    sublabel: "Community Event · SJIT",
     image: "/images/community_meetup.jpg",
-    description: "A community gathering bringing together cloud practitioners, student developers, and tech professionals to network, share case studies, and discuss the latest industry innovations.",
+    description: "AWS Student Community Day at St. Joseph's Institute of Technology was a community-driven event that brought together students, AWS experts, and cloud enthusiasts. The event featured insightful technical sessions, real-world AWS use cases, networking opportunities, and hands-on learning, enabling participants to enhance their cloud knowledge and connect with the AWS community.",
   },
   {
     gradient: "linear-gradient(135deg,#2c4a62,#3d6680)",
@@ -42,10 +42,10 @@ const DEFAULT_CARDS = [
   },
   {
     gradient: "linear-gradient(135deg,#243448,#2d4f6b)",
-    label: "Robo Wolke",
-    sublabel: "Robotics & IoT Showcase · Dobot Magician",
+    label: "ROBO WOLKE – From Pixels to Motion",
+    sublabel: "Robotics & Cloud Workshop",
     image: "/images/robo_wolke_journey.jpg",
-    description: "An experimental robotics exhibition demonstrating the integration of cloud computing with physical hardware. The showcase highlighted controlling Dobot Magician robotic arms using AWS-backed cloud services.",
+    description: "ROBO WOLKE – From Pixels to Motion is a hands-on technical workshop jointly organized by The Robotics Society and AWS Cloud Club REC. The session introduces participants to computer vision, motion planning, inverse kinematics, and intelligent cloud-powered robotics through live demonstrations and practical learning experiences.",
   },
 ];
 
