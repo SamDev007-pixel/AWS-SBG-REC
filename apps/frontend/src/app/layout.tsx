@@ -21,12 +21,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "AWS SBG",
+    statusBarStyle: "default",
+    title: "AWS SBG REC",
   },
   icons: {
-    icon: '/favicon-32x32.png',
-    apple: '/apple-touch-icon.png',
+    icon: '/sbg-logo-new.png',
+    apple: '/sbg-logo-new.png',
   },
 };
 
