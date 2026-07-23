@@ -1,24 +1,30 @@
 {
   "name": "AWS Student Builders Group REC",
-  "short_name": "AWS SBG REC",
+  "short_name": "AWS SBG",
   "description": "Browse upcoming AWS cloud events, bootcamps, workshops, certifications, and track your cloud learning roadmap.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F8F9FA",
-  "theme_color": "#232F3E",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
   "icons": [
     {
-      "src": "/sbg-logo-new.png",
+      "src": "/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/sbg-logo-latest.png",
+      "src": "/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["education", "technology", "events"]

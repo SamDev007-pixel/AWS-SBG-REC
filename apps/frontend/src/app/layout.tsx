@@ -22,11 +22,11 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AWS SBG REC",
+    title: "AWS SBG",
   },
   icons: {
-    icon: '/brand-logo.png',
-    apple: '/sbg-logo-new.png',
+    icon: '/favicon-32x32.png',
+    apple: '/apple-touch-icon.png',
   },
 };
 
