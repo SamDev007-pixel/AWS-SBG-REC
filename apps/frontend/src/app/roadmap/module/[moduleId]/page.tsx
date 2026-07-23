@@ -443,7 +443,9 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
         answers: answersPayload,
       });
 
-      setShowConfetti(true);
+      if (result.percentage > 60) {
+        setShowConfetti(true);
+      }
 
       const reviewData = await progressService.getQuizReview(module.dbId);
       setQuizReview(reviewData);

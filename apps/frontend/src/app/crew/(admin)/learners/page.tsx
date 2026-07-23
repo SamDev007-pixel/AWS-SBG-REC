@@ -236,27 +236,28 @@ export default function CrewLearnersDirectoryPage() {
                   <th className="py-4 px-4 sm:px-6">Learner Account</th>
                   <th className="py-4 px-4 sm:px-6 text-center">XP</th>
                   <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
-                  <th className="py-4 px-6 text-center hidden lg:table-cell">Current Level</th>
-                  <th className="py-4 px-6 text-center hidden lg:table-cell">Current Module</th>
+                  <th className="py-4 px-6 text-center">Topic #</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
                   <th className="py-4 px-4 sm:px-6 text-center">Progress</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       Loading learners...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-rose-450 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-rose-450 text-xs italic">
                       {error}
                     </td>
                   </tr>
                 ) : filteredLearners.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-slate-400 text-xs italic">
+                    <td colSpan={7} className="text-center py-10 text-slate-400 text-xs italic">
                       No matching learners found.
                     </td>
                   </tr>
@@ -330,8 +331,19 @@ export default function CrewLearnersDirectoryPage() {
                           </span>
                         </td>
 
+                        {/* Topic Number */}
+                        <td className="py-4 px-6 text-center">
+                          {learner.currentTopicNumber ? (
+                            <span className="text-slate-600 font-bold">
+                              {learner.currentTopicNumber}/{learner.totalTopicsCount}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 font-bold">—</span>
+                          )}
+                        </td>
+
                         {/* Current Level */}
-                        <td className="py-4 px-6 text-center hidden lg:table-cell">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           {learner.currentLevel ? (
                             <span className={cn(
                               "px-2.5 py-1 rounded-xl text-[9px] font-black border uppercase tracking-wider whitespace-nowrap",
@@ -349,7 +361,7 @@ export default function CrewLearnersDirectoryPage() {
                         </td>
 
                         {/* Current Module */}
-                        <td className="py-4 px-6 text-center hidden lg:table-cell">
+                        <td className="py-4 px-6 text-center hidden md:table-cell">
                           <span className="text-slate-600 font-semibold">
                             {learner.currentModuleName ?? (isComplete ? 'Completed' : '—')}
                           </span>

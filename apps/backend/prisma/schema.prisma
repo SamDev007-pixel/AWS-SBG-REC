@@ -1224,3 +1224,53 @@ model HomepageTeam {
   @@map("homepage_team")
 }
 
+enum GuidelineIcon {
+  STEP_FUNCTIONS
+  S3
+  IAM
+  CONFIG
+  CLOUDWATCH
+  QUICKSIGHT
+  COST_EXPLORER
+  APPLICATION_COMPOSER
+  LIGHTBULB
+  NONE
+}
+
+enum GuidelineThemeColor {
+  SKY
+  EMERALD
+  AMBER
+  INDIGO
+  ROSE
+  VIOLET
+  SLATE
+}
+
+model LearningGuideline {
+  id             String               @id @default(uuid())
+  title          String               @unique
+  description    String?
+  icon           GuidelineIcon
+  prominent      Boolean              @default(false)
+  prominentColor GuidelineThemeColor? @map("prominent_color")
+  isActive       Boolean              @default(true) @map("is_active")
+  orderIndex     Int                  @map("order_index")
+  isDeleted      Boolean              @default(false) @map("is_deleted")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  @@map("learning_guidelines")
+}
+
+model LearningGuidelineSettings {
+  id                String        @id @default(uuid())
+  headerIcon        GuidelineIcon @default(LIGHTBULB) @map("header_icon")
+  headerTitle       String        @map("header_title")
+  headerDescription String        @map("header_description")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  @@map("learning_guideline_settings")
+}
+

@@ -56,8 +56,16 @@ export class RoadmapModulesService {
     return this.prisma.roadmapModule.findMany({ where: { tier }, orderBy: { orderIndex: 'asc' } });
   }
 
-  async findByTopicId(topicId: string): Promise<RoadmapModule[]> {
-    return this.prisma.roadmapModule.findMany({ where: { topicId }, orderBy: { orderIndex: 'asc' } });
+  async findByTopicId(topicId: string): Promise<any[]> {
+    return this.prisma.roadmapModule.findMany({
+      where: { topicId },
+      include: {
+        _count: {
+          select: { slides: true, questions: true },
+        },
+      },
+      orderBy: { orderIndex: 'asc' },
+    });
   }
 
   async create(dto: CreateModuleDto): Promise<RoadmapModule> {

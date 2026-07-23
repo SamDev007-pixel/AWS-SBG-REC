@@ -83,7 +83,7 @@ export default function SidebarLayout({
       } else if (pathname.startsWith('/core/')) {
         router.push('/core/dashboard');
       } else {
-        router.push('/events');
+        router.push('/events/dashboard');
       }
     }
   }, [router, pathname]);
@@ -230,7 +230,7 @@ export default function SidebarLayout({
         <div className={`${
           pathname && pathname.includes('/chat')
             ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-hidden" : "h-full overflow-hidden"))
-            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
+            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden no-scrollbar-mobile" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-y-auto overflow-x-hidden no-scrollbar-mobile" : "h-full overflow-y-auto overflow-x-hidden no-scrollbar-mobile"))
         } custom-scrollbar`}>
           {children}
         </div>

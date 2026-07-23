@@ -634,6 +634,19 @@ img {
   background: rgba(0, 0, 0, 0.2);
 }
 
+/* Mobile & Tablet native scrollbar hider */
+@media (max-width: 1023px) {
+  .no-scrollbar-mobile {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .no-scrollbar-mobile::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+    width: 0;
+    height: 0;
+  }
+}
+
 /* Certifications page styles */
 .glass-panel {
   background: rgba(255, 255, 255, 0.78);

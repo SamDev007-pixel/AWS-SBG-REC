@@ -3,7 +3,7 @@
  * Three roles are supported:
  *  - core       → Admins / organizers → redirected to /core/dashboard
  *  - crew       → Volunteers / helpers → redirected to /crew/dashboard
- *  - enthusiasts → Regular attendees  → redirected to /events
+ *  - enthusiasts → Regular attendees  → redirected to /events/dashboard
  */
 export type RoleName = 'core' | 'crew' | 'enthusiasts';
 
@@ -20,6 +20,6 @@ export function getRoleRedirect(role: RoleName): string {
       return '/crew/dashboard';
     case 'enthusiasts':
     default:
-      return '/events';
+      return '/events/dashboard';
   }
 }

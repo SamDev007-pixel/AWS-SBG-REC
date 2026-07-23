@@ -351,6 +351,16 @@ export class RoadmapProgressService {
       const roleNames = u.roles.map((ur) => ur.role.name);
       const computedRole = computeGroup(roleNames);
 
+      let currentTopicNumber: number | null = null;
+      if (firstUncompleted && firstUncompleted.topicId) {
+        const topicIndex = topics.findIndex((t) => t.id === firstUncompleted.topicId);
+        if (topicIndex !== -1) {
+          currentTopicNumber = topicIndex + 1;
+        }
+      } else if (completedModulesCount === totalModulesCount) {
+        currentTopicNumber = totalTopicsCount;
+      }
+
       return {
         id: u.id,
         name: `${u.firstName} ${u.lastName}`,
@@ -358,6 +368,7 @@ export class RoadmapProgressService {
         role: computedRole,
         xp: u.xp,
         currentTopic: firstUncompleted && firstUncompleted.topicId ? (topicMap.get(firstUncompleted.topicId)?.name ?? null) : null,
+        currentTopicNumber,
         currentLevel: firstUncompleted ? firstUncompleted.level : null,
         currentModuleName: firstUncompleted ? firstUncompleted.name : null,
         currentModuleOrder: firstUncompleted ? firstUncompleted.orderIndex : null,
