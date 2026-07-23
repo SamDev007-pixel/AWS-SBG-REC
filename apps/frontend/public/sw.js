@@ -1,7 +1,11 @@
-const CACHE_NAME = 'aws-sbg-rec-v1';
+const CACHE_NAME = 'aws-sbg-rec-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/maskable-icon-512x512.png',
+  '/apple-touch-icon.png',
   '/sbg-logo-new.png',
   '/sbg-logo-latest.png',
   '/cloud-credit-coin.png',
@@ -31,12 +35,28 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - Stale-while-revalidate strategy for static assets, network first for APIs
+// Fetch event - Network-first for manifest & icons, Stale-while-revalidate for others
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Ignore non-GET requests or API/WebSocket calls
   if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network-first for manifest and PWA images to force instant refresh
+  if (url.pathname === '/manifest.json' || url.pathname.endsWith('.png') || url.pathname.endsWith('.jpg') || url.pathname.endsWith('.svg')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 
