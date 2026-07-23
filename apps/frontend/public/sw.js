@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aws-sbg-rec-v1';
+const CACHE_NAME = 'aws-sbg-rec-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -32,12 +32,26 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - Stale-while-revalidate strategy for static assets, network first for APIs
+// Fetch event - Network-first for manifest.json and APIs, stale-while-revalidate for assets
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Ignore non-GET requests or API/WebSocket calls
   if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network-first for manifest.json to force immediate updates on mobile devices
+  if (url.pathname === '/manifest.json') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 

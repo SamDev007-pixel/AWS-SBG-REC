@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -14,6 +14,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
+};
 
 export const metadata: Metadata = {
   title: "AWS SBG REC Event Registration",
