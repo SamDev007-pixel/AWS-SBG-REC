@@ -289,7 +289,7 @@ export default function ReviewsMarquee() {
 
   return (
     <section
-      id="reviews"
+      id="community"
       ref={sectionRef}
       onClick={() => setClickedIndex(null)}
       style={{
