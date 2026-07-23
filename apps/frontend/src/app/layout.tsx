@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     title: "AWS SBG REC",
   },
   icons: {
-    icon: '/brand-logo.png',
-    apple: '/sbg-logo-new.png',
+    icon: '/sbg_logo.svg',
+    apple: '/sbg_logo.svg',
   },
 };
 

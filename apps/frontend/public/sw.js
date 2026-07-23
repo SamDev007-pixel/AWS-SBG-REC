@@ -2,6 +2,7 @@ const CACHE_NAME = 'aws-sbg-rec-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
+  '/sbg_logo.svg',
   '/sbg-logo-new.png',
   '/sbg-logo-latest.png',
   '/cloud-credit-coin.png',
@@ -68,8 +69,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/sbg-logo-new.png',
-    badge: '/sbg-logo-new.png',
+    icon: '/sbg_logo.svg',
+    badge: '/sbg_logo.svg',
     vibrate: [100, 50, 100],
     data: { url: data.url || '/' }
   };

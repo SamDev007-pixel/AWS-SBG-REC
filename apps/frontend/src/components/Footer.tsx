@@ -98,9 +98,9 @@ export default function Footer() {
                 }}
               >
                 <img 
-                  src="/sbg-logo-latest.png" 
+                  src="/sbg_logo.svg" 
                   alt="AWS SBG REC Logo" 
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                  style={{ width: "100%", height: "100%", objectFit: "contain", padding: "2px" }} 
                 />
               </motion.div>
               <div>
