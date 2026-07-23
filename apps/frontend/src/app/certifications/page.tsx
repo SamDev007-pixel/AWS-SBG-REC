@@ -66,24 +66,24 @@ const LEVELS = ["All", "Foundational", "Associate", "Professional", "Specialty"]
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
 const sectionVariants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: easeOut },
+    transition: { duration: 0.35, ease: easeOut },
   },
 };
 
 const certItemVariants = {
-  hidden: { opacity: 0, y: 25, scale: 0.88 },
+  hidden: { opacity: 0, x: -15, scale: 0.95 },
   visible: (i: number) => ({
     opacity: 1,
-    y: 0,
+    x: 0,
     scale: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 280,
-      damping: 24,
+      stiffness: 300,
+      damping: 30,
       delay: 0.1 + i * 0.08,
     },
   }),
@@ -96,37 +96,37 @@ const connectorVariants = {
     scaleX: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 220,
-      damping: 18,
+      stiffness: 240,
+      damping: 20,
       delay: 0.08 + i * 0.08,
     },
   }),
 };
 
 const arrowVariants = {
-  hidden: { x: -8, opacity: 0 },
+  hidden: { x: -6, opacity: 0 },
   visible: (i: number) => ({
     x: 0,
     opacity: 1,
-    transition: { delay: 0.12 + i * 0.08, duration: 0.25, ease: easeOut },
+    transition: { delay: 0.12 + i * 0.08, duration: 0.2, ease: easeOut },
   }),
 };
 
 const careerVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 15 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring" as const, stiffness: 200, damping: 22, delay: 0.28 },
+    transition: { type: "spring" as const, stiffness: 220, damping: 26, delay: 0.25 },
   },
 };
 
 const oppVariants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, x: -10 },
   visible: (i: number) => ({
     opacity: 1,
-    y: 0,
-    transition: { delay: 0.3 + i * 0.05, duration: 0.28, ease: easeOut },
+    x: 0,
+    transition: { delay: 0.28 + i * 0.04, duration: 0.25, ease: easeOut },
   }),
 };
 
@@ -312,7 +312,7 @@ function RoleSection({
       className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative"
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-15px" }}
+      viewport={{ once: false, margin: "-120px" }}
       variants={sectionVariants}
     >
       <motion.div
@@ -328,7 +328,7 @@ function RoleSection({
             "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
             isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
           )}
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
+          style={{ backfaceVisibility: "hidden" }}
         >
           <div className="text-center mb-8 w-full relative">
             <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight">
@@ -340,7 +340,14 @@ function RoleSection({
           </div>
 
           <div 
-            className="flex flex-row flex-nowrap items-start justify-center gap-1.5 sm:gap-2.5 w-full py-2.5 px-1"
+            className={cn(
+              "flex flex-nowrap items-start gap-2 sm:gap-3 w-full overflow-x-auto py-2.5 px-1",
+              certs.length <= 2 
+                ? "justify-center" 
+                : certs.length === 3 
+                  ? "justify-start lg:justify-center" 
+                  : "justify-start"
+            )}
           >
             {certs.map((pathItem: any, i: number) => {
               const cert = pathItem.certification;
@@ -350,7 +357,7 @@ function RoleSection({
                 <React.Fragment key={cert.id}>
                   {i > 0 && (
                     <motion.div
-                      className="flex items-center justify-center shrink-0 select-none w-4 sm:w-6 h-[80px] sm:h-[100px] md:h-[120px]"
+                      className="flex items-start justify-center w-6 sm:w-8 shrink-0 select-none h-[100px] sm:h-[120px]"
                       variants={connectorVariants}
                       custom={i}
                     >
@@ -359,8 +366,8 @@ function RoleSection({
                         variants={arrowVariants}
                         custom={i}
                       >
-                        <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200/60 text-slate-400 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                          <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400 shrink-0" />
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200/60 text-slate-400 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                         </div>
                       </motion.span>
                     </motion.div>
@@ -369,7 +376,7 @@ function RoleSection({
                   <Link 
                     href={`/certifications/${cert.slug}`} 
                     onClick={(e) => e.stopPropagation()}
-                    className="group/cert w-full max-w-[76px] sm:max-w-[100px] md:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0"
+                    className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0"
                   >
                     <motion.div
                       className="w-full flex flex-col items-center gap-2"
@@ -377,7 +384,7 @@ function RoleSection({
                       custom={i}
                     >
                       <div
-                        className="w-full aspect-square rounded-lg sm:rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:-translate-y-0.5 group-hover/cert:scale-[1.02] group-hover/cert:shadow-md"
+                        className="w-full aspect-square rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:-translate-y-0.5 group-hover/cert:scale-[1.02] group-hover/cert:shadow-md"
                         style={{ "--tier-color": tierColor } as React.CSSProperties}
                       >
                         <div className="w-[75%] h-[75%] flex items-center justify-center">
@@ -388,18 +395,15 @@ function RoleSection({
                               className="w-full h-full object-contain block transition-transform duration-300 group-hover/cert:scale-[1.08]"
                             />
                           ) : (
-                            <>
-                              <GraduationCap size={24} className="sm:hidden" style={{ color: tierColor }} />
-                              <GraduationCap size={32} className="hidden sm:block" style={{ color: tierColor }} />
-                            </>
+                            <GraduationCap size={32} style={{ color: tierColor }} />
                           )}
                         </div>
                       </div>
                       <div className="flex flex-col items-center gap-0.5 w-full">
-                        <span className="text-[9px] sm:text-[10px] md:text-[11px] font-bold text-slate-800 leading-snug line-clamp-2 min-h-[28px] sm:min-h-[32px] flex items-center justify-center">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 leading-snug line-clamp-2 min-h-[32px] flex items-center justify-center">
                           {shortenName(cert.title)}
                         </span>
-                        <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest" style={{ color: tierColor }}>
+                        <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: tierColor }}>
                           {getTierLabel(cert.level.name)}
                         </span>
                       </div>
@@ -442,7 +446,7 @@ function RoleSection({
             "absolute inset-0 w-full h-full bg-[#0B0F19] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-[#FF9900]/40 hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.3),0_0_15px_rgba(255,153,0,0.15)]",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
           )}
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg) translate3d(0,0,0)" }}
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="w-full relative flex items-start justify-between">
             <div className="flex-1 text-left">
@@ -815,17 +819,14 @@ function CertificationsPageContent() {
   }, [dbPathways]);
 
   return (
-    <div className="bg-slate-50/30 min-h-screen pb-20 antialiased">
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      <div className="mx-auto max-w-[1440px] px-4 pt-4 sm:pt-12 sm:px-6 lg:px-8 flex flex-col gap-6">
+    <div className="bg-slate-50/30 min-h-screen pb-20">
+      <div className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 lg:px-8 flex flex-col gap-6">
         {/* Header Banner */}
         <section
-          className="rounded-2xl lg:rounded-3xl p-5 sm:p-6 lg:p-8 border border-[#FFF0E0]/50 relative overflow-hidden"
           style={{
             background: 'radial-gradient(ellipse at 95% 5%, rgba(255,153,0,0.18) 0%, rgba(255,153,0,0.08) 35%, rgba(255,255,255,0) 65%)',
+            borderRadius: '24px',
+            padding: '24px'
           }}
         >
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -840,37 +841,51 @@ function CertificationsPageContent() {
               </h1>
               <p style={{ fontSize: '14px', color: '#475569', marginTop: 8, margin: '8px 0 0 0' }}>
                 {activeTab === "certifications"
-                  ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
+                  ? "Select a difficulty level tab to browse AWS certifications. Each card shows detailed syllabus, duration, and exam weightages."
                   : "See how AWS certifications stack up to guide your path to high-demand cloud roles."}
               </p>
             </div>
 
             {/* Custom Tab Switcher inside the Header Banner */}
-            <div className="w-full lg:w-auto shrink-0 mt-2 lg:mt-0">
-              <div className="inline-flex items-center gap-1.5 bg-slate-100/50 p-1 rounded-lg border border-slate-200/40">
+            <div className="shrink-0 self-start lg:self-center mt-2 lg:mt-0">
+              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-sm">
                 <button
                   onClick={() => setActiveTab("certifications")}
                   className={cn(
-                    "relative flex items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer select-none active:scale-95",
+                    "relative flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all cursor-pointer select-none tracking-tight",
                     activeTab === "certifications"
-                      ? "bg-white text-slate-900 border border-slate-200/60 shadow-xs font-semibold"
-                      : "bg-transparent text-slate-500 hover:text-slate-700 border border-transparent"
+                      ? "text-slate-950"
+                      : "text-slate-550 hover:text-slate-800"
                   )}
                 >
-                  <GraduationCap className={cn("h-3.5 w-3.5", activeTab === "certifications" ? "text-[#FF9900]" : "text-slate-400")} />
-                  <span>AWS Certifications</span>
+                  {activeTab === "certifications" && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm border border-slate-200/40 z-0"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  <GraduationCap className={cn("h-4 w-4 shrink-0 relative z-10 transition-colors", activeTab === "certifications" ? "text-[#ff9900]" : "text-slate-500")} />
+                  <span className="relative z-10">AWS Certifications</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("pathways")}
                   className={cn(
-                    "relative flex items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer select-none active:scale-95",
+                    "relative flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all cursor-pointer select-none tracking-tight",
                     activeTab === "pathways"
-                      ? "bg-white text-slate-900 border border-slate-200/60 shadow-xs font-semibold"
-                      : "bg-transparent text-slate-500 hover:text-slate-700 border border-transparent"
+                      ? "text-slate-950"
+                      : "text-slate-550 hover:text-slate-800"
                   )}
                 >
-                  <BriefcaseBusiness className={cn("h-3.5 w-3.5", activeTab === "pathways" ? "text-[#FF9900]" : "text-slate-400")} />
-                  <span>Career Pathways</span>
+                  {activeTab === "pathways" && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm border border-slate-200/40 z-0"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  <BriefcaseBusiness className={cn("h-4 w-4 shrink-0 relative z-10 transition-colors", activeTab === "pathways" ? "text-[#ff9900]" : "text-slate-500")} />
+                  <span className="relative z-10">Career Pathways</span>
                 </button>
               </div>
             </div>
@@ -890,58 +905,64 @@ function CertificationsPageContent() {
               className="flex flex-col gap-6"
             >
               {/* Tabs Row */}
-              <div className="flex flex-nowrap overflow-x-auto gap-3 pb-2.5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0 scroll-smooth shrink-0 select-none">
+              <div className="flex flex-wrap gap-3">
                 {LEVELS.map((level) => {
                   const count = levelCounts[level] ?? 0;
                   const isActive = selectedLevel.toLowerCase() === level.toLowerCase();
                   
                   const LEVEL_THEMES: Record<string, {
-                    activeBg: string;
                     activeBorder: string;
+                    activeRing: string;
                     activeText: string;
-                    badgeBg: string;
-                    badgeText: string;
-                    badgeBorder: string;
+                    badgeActiveBg: string;
+                    badgeActiveBorder: string;
+                    badgeActiveText: string;
+                    hoverClass: string;
                   }> = {
                     all: {
-                      activeBg: "bg-orange-50/80",
-                      activeBorder: "border-orange-200",
-                      activeText: "text-[#FF9900]",
-                      badgeBg: "bg-orange-100/50",
-                      badgeText: "text-[#FF9900]",
-                      badgeBorder: "border-orange-200/40",
+                      activeBorder: "border-[#FF9900]",
+                      activeRing: "ring-[#FF9900]/20",
+                      activeText: "text-slate-800",
+                      badgeActiveBg: "bg-[#FFF8F2]",
+                      badgeActiveBorder: "border-[#FF9900]/20",
+                      badgeActiveText: "text-[#FF9900]",
+                      hoverClass: "hover:text-[#FF9900] hover:border-[#FF9900]/30 hover:bg-[#FFF8F2]/30",
                     },
                     foundational: {
-                      activeBg: "bg-slate-100/80",
-                      activeBorder: "border-slate-300",
-                      activeText: "text-slate-700",
-                      badgeBg: "bg-slate-200/50",
-                      badgeText: "text-slate-700",
-                      badgeBorder: "border-slate-300/40",
+                      activeBorder: "border-[#5A6572]",
+                      activeRing: "ring-[#5A6572]/20",
+                      activeText: "text-[#5A6572]",
+                      badgeActiveBg: "bg-[#F1F5F9]",
+                      badgeActiveBorder: "border-[#5A6572]/20",
+                      badgeActiveText: "text-[#5A6572]",
+                      hoverClass: "hover:text-[#5A6572] hover:border-[#5A6572]/30 hover:bg-[#F1F5F9]/30",
                     },
                     associate: {
-                      activeBg: "bg-blue-50/80",
-                      activeBorder: "border-blue-200",
-                      activeText: "text-blue-600",
-                      badgeBg: "bg-blue-100/50",
-                      badgeText: "text-blue-600",
-                      badgeBorder: "border-blue-200/40",
+                      activeBorder: "border-[#0972D3]",
+                      activeRing: "ring-[#0972D3]/20",
+                      activeText: "text-[#0972D3]",
+                      badgeActiveBg: "bg-[#F0F7FF]",
+                      badgeActiveBorder: "border-[#2E90FF]/20",
+                      badgeActiveText: "text-[#0972D3]",
+                      hoverClass: "hover:text-[#0972D3] hover:border-[#0972D3]/30 hover:bg-[#F0F7FF]/30",
                     },
                     professional: {
-                      activeBg: "bg-teal-50/80",
-                      activeBorder: "border-teal-200",
-                      activeText: "text-teal-700",
-                      badgeBg: "bg-teal-100/50",
-                      badgeText: "text-teal-700",
-                      badgeBorder: "border-teal-200/40",
+                      activeBorder: "border-[#00A4B4]",
+                      activeRing: "ring-[#00A4B4]/20",
+                      activeText: "text-[#00627A]",
+                      badgeActiveBg: "bg-[#E6F8FA]",
+                      badgeActiveBorder: "border-[#00A4B4]/20",
+                      badgeActiveText: "text-[#00627A]",
+                      hoverClass: "hover:text-[#00627A] hover:border-[#00A4B4]/30 hover:bg-[#E6F8FA]/30",
                     },
                     specialty: {
-                      activeBg: "bg-purple-50/80",
-                      activeBorder: "border-purple-200",
-                      activeText: "text-purple-600",
-                      badgeBg: "bg-purple-100/50",
-                      badgeText: "text-purple-600",
-                      badgeBorder: "border-purple-200/40",
+                      activeBorder: "border-[#5A30A6]",
+                      activeRing: "ring-[#5A30A6]/20",
+                      activeText: "text-[#5A30A6]",
+                      badgeActiveBg: "bg-[#F8F5FF]",
+                      badgeActiveBorder: "border-[#8C60D6]/20",
+                      badgeActiveText: "text-[#5A30A6]",
+                      hoverClass: "hover:text-[#5A30A6] hover:border-[#5A30A6]/30 hover:bg-[#F8F5FF]/30",
                     },
                   };
 
@@ -952,19 +973,19 @@ function CertificationsPageContent() {
                       key={level}
                       onClick={() => setSelectedLevel(level)}
                       className={cn(
-                        "flex items-center gap-2 rounded-[8px] px-3.5 py-1.5 text-xs font-medium border transition-all cursor-pointer select-none active:scale-95 focus:outline-none focus:ring-0 focus-visible:outline-none",
+                        "flex items-center gap-2 rounded-[8px] px-4 py-2 text-xs font-bold border transition-all cursor-pointer",
                         isActive
-                          ? `${theme.activeBg} ${theme.activeBorder} ${theme.activeText} font-semibold shadow-xs`
-                          : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300"
+                          ? `${theme.activeBorder} ${theme.activeText} bg-white ring-1 ${theme.activeRing}`
+                          : `border-slate-200 text-slate-500 bg-white hover:bg-slate-50 ${theme.hoverClass}`
                       )}
                     >
                       <span>{level}</span>
                       <span
                         className={cn(
-                          "inline-flex items-center justify-center rounded-[6px] h-4.5 min-w-[18px] px-1 text-[9.5px] font-semibold leading-none border",
+                          "inline-flex items-center justify-center rounded-[6px] h-5 min-w-[20px] px-1.5 text-[10px] font-bold leading-none border",
                           isActive
-                            ? `${theme.badgeBg} ${theme.badgeBorder} ${theme.badgeText}`
-                            : "bg-slate-100/60 border-slate-200 text-slate-400"
+                            ? `${theme.badgeActiveBg} ${theme.badgeActiveBorder} ${theme.badgeActiveText}`
+                            : "bg-slate-50 border-slate-200 text-slate-400"
                         )}
                       >
                         {count}

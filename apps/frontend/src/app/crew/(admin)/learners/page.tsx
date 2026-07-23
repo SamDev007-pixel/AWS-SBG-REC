@@ -83,32 +83,32 @@ export default function CrewLearnersDirectoryPage() {
     <div className="h-full flex flex-col bg-slate-50 text-slate-805 text-slate-800 overflow-hidden font-sans">
 
       {/* HEADER */}
-      <header className="min-h-[56px] md:h-14 bg-white border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between px-6 md:px-8 py-3.5 md:py-0 gap-3 md:gap-0 flex-shrink-0 select-none">
-        <div className="flex items-center gap-4 md:gap-6 text-[13.5px] font-bold overflow-x-auto scrollbar-none whitespace-nowrap w-full md:w-auto border-b border-slate-100 md:border-b-0 pb-2.5 md:pb-0 md:h-full">
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
+        <div className="flex items-center gap-6 h-full text-xs font-bold">
           <Link
             href="/crew/learners"
-            className="transition-all duration-150 py-1 md:py-0 md:h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600 shrink-0"
+            className="transition-all duration-150 h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600"
           >
             Learners Directory
           </Link>
           {activePermissions.includes('manage_announcements') ? (
             <Link
               href="/core/topics"
-              className="transition-all duration-150 py-1 md:py-0 md:h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold shrink-0"
+              className="transition-all duration-150 h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold"
             >
               Roadmap Builder
             </Link>
           ) : (
             <Link
               href="/learn"
-              className="transition-all duration-150 py-1 md:py-0 md:h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold shrink-0"
+              className="transition-all duration-150 h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold"
             >
               Back to Topics
             </Link>
           )}
         </div>
 
-        <div className="relative w-full md:w-72 flex-shrink-0">
+        <div className="relative w-72 flex-shrink-0">
           <input
             type="text"
             placeholder="Search learner name or email..."
@@ -116,7 +116,7 @@ export default function CrewLearnersDirectoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
           />
-          <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-455" />
+          <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
         </div>
       </header>
 
@@ -127,61 +127,59 @@ export default function CrewLearnersDirectoryPage() {
         <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block font-heading shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block font-heading mr-1">
                 Role Filter:
               </span>
-              <div className="flex flex-wrap items-center gap-2">
-                {[
-                  { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100' },
-                  { id: 'CREW', label: 'Crew Members', color: 'border-amber-100 text-amber-700 bg-amber-50/50 hover:bg-amber-50' },
-                  { id: 'ENTHUSIAST', label: 'Learners', color: 'border-indigo-100 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50' },
-                ].map((tab) => {
-                  const active = roleFilter === tab.id;
-                  const count =
-                    tab.id === 'all'
-                      ? learners.length
-                      : learners.filter((l) => l.role === tab.id).length;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setRoleFilter(tab.id as any)}
-                      className={cn(
-                        "px-3 py-1.5 border rounded-xl text-xs font-black transition-all flex items-center gap-2 font-heading shadow-xs cursor-pointer",
-                        active
-                          ? tab.id === 'all'
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : tab.id === 'CREW'
-                              ? "bg-amber-600 border-amber-600 text-white"
-                              : "bg-indigo-600 border-indigo-600 text-white"
-                          : tab.color
-                      )}
-                    >
-                      <span>{tab.label}</span>
-                      <span className={cn(
-                        "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
-                        active
-                          ? "bg-white/20 border-white/10 text-white"
-                          : "bg-white border-slate-200 text-slate-500"
-                      )}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              {[
+                { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100' },
+                { id: 'CREW', label: 'Crew Members', color: 'border-amber-100 text-amber-700 bg-amber-50/50 hover:bg-amber-50' },
+                { id: 'ENTHUSIAST', label: 'Learners', color: 'border-indigo-100 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50' },
+              ].map((tab) => {
+                const active = roleFilter === tab.id;
+                const count =
+                  tab.id === 'all'
+                    ? learners.length
+                    : learners.filter((l) => l.role === tab.id).length;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setRoleFilter(tab.id as any)}
+                    className={cn(
+                      "px-3 py-1.5 border rounded-xl text-xs font-black transition-all flex items-center gap-2 font-heading shadow-xs",
+                      active
+                        ? tab.id === 'all'
+                          ? "bg-blue-600 border-blue-600 text-white"
+                          : tab.id === 'CREW'
+                            ? "bg-amber-600 border-amber-600 text-white"
+                            : "bg-indigo-600 border-indigo-600 text-white"
+                        : tab.color
+                    )}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={cn(
+                      "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
+                      active
+                        ? "bg-white/20 border-white/10 text-white"
+                        : "bg-white border-slate-200 text-slate-500"
+                    )}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold w-full lg:w-auto">
-              <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading shrink-0">
+            <div className="flex items-center gap-3 text-xs font-semibold">
+              <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading">
                 Module Completion:
               </span>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:flex-initial">
+              <div className="flex items-center gap-2">
+                <div className="relative">
                   <select
                     value={moduleFilterType}
                     onChange={(e) => setModuleFilterType(e.target.value as 'all' | 'above' | 'below')}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs text-slate-800 font-extrabold focus:bg-white focus:outline-none cursor-pointer appearance-none text-slate-800"
+                    className="bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs text-slate-850 font-extrabold focus:bg-white focus:outline-none cursor-pointer appearance-none text-slate-800"
                   >
                     <option value="all">Any count completed</option>
                     <option value="above">Completed modules &gt;=</option>
@@ -197,32 +195,31 @@ export default function CrewLearnersDirectoryPage() {
                     max={20}
                     value={moduleFilterValue}
                     onChange={(e) => setModuleFilterValue(Number(e.target.value))}
-                    className="w-14 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-805 text-center font-extrabold focus:bg-white focus:outline-none bg-slate-50 text-slate-800"
+                    className="w-14 bg-slate-55 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-850 text-center font-extrabold focus:bg-white focus:outline-none bg-slate-50 text-slate-800"
                   />
                 )}
               </div>
             </div>
-
           </div>
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { label: 'Total Learners', value: learners.length, icon: Icons.Users, color: 'text-indigo-650 bg-white border-slate-200 shadow-sm' },
             { label: 'Total Modules', value: totalModulesCount, icon: Icons.Layers, color: 'text-emerald-600 bg-white border-slate-200 shadow-sm' },
             { label: 'Total Topics', value: totalTopicsCount, icon: Icons.BookOpen, color: 'text-sky-600 bg-white border-slate-200 shadow-sm' },
           ].map((stat, idx) => (
-            <div key={idx} className={cn("border rounded-xl p-3 flex flex-col justify-between h-[80px] md:h-auto md:flex-row md:items-center", stat.color)}>
-              <div className="space-y-1 min-w-0">
-                <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-450 block tracking-wider font-heading leading-tight truncate">
+            <div key={idx} className={cn("border rounded-2xl p-4 flex items-center justify-between", stat.color)}>
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase text-slate-450 block tracking-wider font-heading">
                   {stat.label}
                 </span>
-                <span className="text-base md:text-xl font-black text-slate-850 block leading-none">
+                <span className="text-xl font-black text-slate-850 block">
                   {stat.value}
                 </span>
               </div>
-              <stat.icon className="h-4 w-4 md:w-8 md:h-8 opacity-45 shrink-0 self-end md:self-auto" />
+              <stat.icon className="w-8 h-8 opacity-45" />
             </div>
           ))}
         </div>
@@ -230,16 +227,16 @@ export default function CrewLearnersDirectoryPage() {
         {/* TABLE */}
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[750px] text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 text-[10px] uppercase font-black tracking-wider text-slate-450 bg-slate-50/50">
-                  <th className="py-4 px-4 sm:px-6">Learner Account</th>
-                  <th className="py-4 px-4 sm:px-6 text-center">XP</th>
+                  <th className="py-4 px-6">Learner Account</th>
+                  <th className="py-4 px-6 text-center">XP</th>
                   <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
                   <th className="py-4 px-6 text-center">Topic #</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
-                  <th className="py-4 px-4 sm:px-6 text-center">Progress</th>
+                  <th className="py-4 px-6 text-center">Progress</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -288,18 +285,18 @@ export default function CrewLearnersDirectoryPage() {
                         className={cn("transition-colors", rowBg)}
                       >
                         {/* Name, Email & Badge */}
-                        <td className="py-4 px-4 sm:px-6">
-                          <div className="flex items-center gap-2 sm:gap-3.5">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3.5">
                             <div className={cn(
-                              "w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-black text-[10px] sm:text-xs border flex-shrink-0",
+                              "w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs border flex-shrink-0",
                               avatarBg
                             )}>
                               {getInitials(learner.name)}
                             </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5 flex-wrap">
+                            <div>
+                              <div className="flex items-center gap-2">
                                 <span className={cn(
-                                  "font-extrabold transition-colors truncate text-xs sm:text-sm max-w-[120px] sm:max-w-none",
+                                  "font-extrabold transition-colors",
                                   nameColor
                                 )}>
                                   {learner.name}
@@ -310,7 +307,7 @@ export default function CrewLearnersDirectoryPage() {
                                   </span>
                                 )}
                               </div>
-                              <span className="text-slate-400 text-[9px] sm:text-[10px] block mt-0.5 font-bold truncate max-w-[130px] sm:max-w-none">
+                              <span className="text-slate-400 text-[10px] block mt-0.5 font-bold">
                                 {learner.email}
                               </span>
                             </div>
@@ -318,7 +315,7 @@ export default function CrewLearnersDirectoryPage() {
                         </td>
 
                         {/* XP */}
-                        <td className="py-4 px-4 sm:px-6 text-center">
+                        <td className="py-4 px-6 text-center">
                           <span className="text-amber-650 font-black text-amber-600">
                             {learner.xp}
                           </span>
@@ -373,7 +370,7 @@ export default function CrewLearnersDirectoryPage() {
                         </td>
 
                         {/* Progress */}
-                        <td className="py-4 px-4 sm:px-6 text-center">
+                        <td className="py-4 px-6 text-center">
                           <span className={cn(
                             "font-black",
                             isComplete ? "text-emerald-600" : "text-slate-600"

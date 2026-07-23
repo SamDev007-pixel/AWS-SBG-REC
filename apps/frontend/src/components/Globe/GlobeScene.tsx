@@ -15,21 +15,6 @@ interface GlobeSceneProps {
 export default function GlobeScene({ regions, onSelectRegion, selectedRegion }: GlobeSceneProps) {
   const controlsRef = useRef<any>(null);
   const prevRegionRef = useRef<AWSRegionData | null>(null);
-  const [globeScale, setGlobeScale] = useState(1.5);
-
-  useEffect(() => {
-    const handleResize = () => {
-      // Restore exact desktop scale (1.5) on large screens, use enlarged (2.2) on mobile/tablet
-      if (window.innerWidth >= 1024) {
-        setGlobeScale(1.5);
-      } else {
-        setGlobeScale(2.2);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     if (selectedRegion && controlsRef.current) {
@@ -91,7 +76,14 @@ export default function GlobeScene({ regions, onSelectRegion, selectedRegion }: 
           regions={regions} 
           onSelectRegion={onSelectRegion} 
           selectedRegion={selectedRegion} 
-          scale={globeScale}
+        />
+
+        <ContactShadows 
+          position={[0, -4.5, 0]} 
+          opacity={0.1} 
+          scale={30} 
+          blur={3} 
+          far={10} 
         />
       </Canvas>
     </div>

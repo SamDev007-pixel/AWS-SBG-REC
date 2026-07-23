@@ -141,11 +141,11 @@ export default function ServiceTable({
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* Search, Filter, and Bulk Import/Export Controls */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-4 sm:p-5 rounded-2xl shadow-xs">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-4 bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
         {/* Left Side: Filtering */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input
               type="text"
               placeholder="Search services..."
@@ -154,19 +154,19 @@ export default function ServiceTable({
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-xs font-normal transition-all text-slate-700"
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700"
             />
           </div>
 
           <div className="relative w-full sm:w-56">
-            <Layers className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
+            <Layers className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
             <select
               value={categoryFilter}
               onChange={e => {
                 setCategoryFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-xs font-semibold text-slate-700 cursor-pointer"
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] font-medium text-slate-600 cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categoriesList.map(cat => (
@@ -179,26 +179,26 @@ export default function ServiceTable({
         </div>
 
         {/* Right Side: Export / Import Operations */}
-        <div className="grid grid-cols-2 sm:flex items-center gap-2.5 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
           {/* JSON Export */}
           <button
             onClick={() => handleExport("json")}
-            className="flex-1 sm:flex-initial px-3.5 py-2.5 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            className="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-xl text-[11px] font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all shadow-sm"
           >
-            <FileCode size={14} className="text-blue-500" /> <span>Export JSON</span>
+            <FileCode size={14} className="text-blue-500" /> Export JSON
           </button>
 
           {/* CSV Export */}
           <button
             onClick={() => handleExport("csv")}
-            className="flex-1 sm:flex-initial px-3.5 py-2.5 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            className="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-xl text-[11px] font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all shadow-sm"
           >
-            <FileSpreadsheet size={14} className="text-emerald-500" /> <span>Export CSV</span>
+            <FileSpreadsheet size={14} className="text-emerald-500" /> Export CSV
           </button>
 
           {/* Bulk Import */}
-          <label className="col-span-2 sm:col-span-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs">
-            <Upload size={14} className="text-[#FF9900]" /> <span>Bulk Import File</span>
+          <label className="px-4 py-2 bg-slate-900 hover:bg-slate-850 text-white rounded-xl text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-sm hover:shadow">
+            <Upload size={14} /> Bulk Import File
             <input
               type="file"
               accept=".csv,.json"
@@ -210,27 +210,27 @@ export default function ServiceTable({
       </div>
 
       {/* Services Table List */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden w-full">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden w-full">
         <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-[720px] border-collapse text-left">
+          <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-4 px-5 sm:px-8">Icon</th>
-                <th className="py-4 px-4 sm:px-6">Code</th>
-                <th className="py-4 px-4 sm:px-6">Service Name</th>
-                <th className="py-4 px-4 sm:px-6">Category</th>
-                <th className="py-4 px-4 sm:px-6 text-center">Launch Status</th>
-                <th className="py-4 px-4 sm:px-6 text-center">Featured</th>
-                <th className="py-4 px-4 sm:px-6 text-center">Enthusiasts</th>
-                <th className="py-4 px-5 sm:px-8 text-right">Actions</th>
+                <th className="py-4 px-8">Icon</th>
+                <th className="py-4 px-6">Code</th>
+                <th className="py-4 px-6">Service Name</th>
+                <th className="py-4 px-6">Category</th>
+                <th className="py-4 px-6 text-center">Launch Status</th>
+                <th className="py-4 px-6 text-center">Featured</th>
+                <th className="py-4 px-6 text-center">Enthusiasts</th>
+                <th className="py-4 px-8 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-normal text-slate-600">
               {paginatedItems.map(service => (
                 <tr key={service.id} className="hover:bg-slate-50/40 transition-colors group">
                   {/* Icon */}
-                  <td className="py-3.5 px-5 sm:px-8">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center border border-slate-100 bg-white p-0.5">
+                  <td className="py-3.5 px-8">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
                       <img
                         src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                         alt={service.name}
@@ -243,30 +243,30 @@ export default function ServiceTable({
                   </td>
 
                   {/* Service Code */}
-                  <td className="py-3.5 px-4 sm:px-6">
-                    <span className="font-mono bg-slate-50 border border-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] uppercase font-semibold whitespace-nowrap">
+                  <td className="py-3.5 px-6">
+                    <span className="font-mono bg-slate-50 border border-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] uppercase font-semibold">
                       {service.serviceCode}
                     </span>
                   </td>
 
                   {/* Name */}
-                  <td className="py-3.5 px-4 sm:px-6">
-                    <div className="min-w-[160px] max-w-[240px]">
-                      <p className="font-semibold text-slate-800 leading-tight whitespace-nowrap">{service.name}</p>
+                  <td className="py-3.5 px-6">
+                    <div className="max-w-[200px] truncate">
+                      <p className="font-semibold text-slate-800 leading-tight">{service.name}</p>
                       <p className="text-[10px] text-slate-400 truncate mt-0.5">{service.shortDescription}</p>
                     </div>
                   </td>
 
                   {/* Category */}
-                  <td className="py-3.5 px-4 sm:px-6">
-                    <span className="text-[10px] px-2.5 py-0.5 bg-slate-50 border border-slate-100 rounded text-slate-500 font-medium uppercase tracking-wide whitespace-nowrap">
+                  <td className="py-3.5 px-6">
+                    <span className="text-[10px] px-2.5 py-0.5 bg-slate-50 border border-slate-100 rounded text-slate-500 font-medium uppercase tracking-wide">
                       {service.category?.name || "AWS Core"}
                     </span>
                   </td>
 
                   {/* Launch Status */}
-                  <td className="py-3.5 px-4 sm:px-6 text-center">
-                    <span className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded border whitespace-nowrap ${
+                  <td className="py-3.5 px-6 text-center">
+                    <span className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded border ${
                       service.status === "GA"
                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                         : service.status === "Preview" || service.status === "Beta"
@@ -278,7 +278,7 @@ export default function ServiceTable({
                   </td>
 
                   {/* Featured */}
-                  <td className="py-3.5 px-4 sm:px-6 text-center">
+                  <td className="py-3.5 px-6 text-center">
                     <div className="flex justify-center">
                       {service.isFeatured ? (
                         <Star size={14} className="fill-amber-400 text-amber-400" />
@@ -288,8 +288,10 @@ export default function ServiceTable({
                     </div>
                   </td>
 
+
+
                   {/* Enthusiasts */}
-                  <td className="py-3.5 px-4 sm:px-6 text-center">
+                  <td className="py-3.5 px-6 text-center">
                     <div className="flex justify-center">
                       {service.isVisibleToEnthusiasts ? (
                         <CheckCircle size={15} className="text-[#FF9900]" />
@@ -300,8 +302,8 @@ export default function ServiceTable({
                   </td>
 
                   {/* Actions */}
-                  <td className="py-3.5 px-5 sm:px-8 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <td className="py-3.5 px-8 text-right">
+                    <div className="flex items-center justify-end gap-2.5 opacity-80 group-hover:opacity-100 transition-opacity">
                       {/* Edit */}
                       <button
                         onClick={() => onEditClick(service)}
@@ -344,8 +346,8 @@ export default function ServiceTable({
         )}
 
         {/* Pagination Controls */}
-        <div className="px-4 sm:px-8 py-3.5 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-slate-500">
-          <span className="text-center sm:text-left">
+        <div className="px-8 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span>
             Showing <span className="text-slate-800 font-bold">{filtered.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to{" "}
             <span className="text-slate-800 font-bold">
               {Math.min(currentPage * itemsPerPage, filtered.length)}
@@ -353,20 +355,20 @@ export default function ServiceTable({
             of <span className="text-slate-800 font-bold">{filtered.length}</span> services
           </span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className={`p-2 border border-slate-200 rounded-lg flex items-center justify-center transition-all ${
                 currentPage === 1
                   ? "bg-slate-100/50 text-slate-300 cursor-not-allowed border-slate-100"
-                  : "bg-white text-slate-600 hover:bg-slate-50 cursor-pointer shadow-2xs"
+                  : "bg-white text-slate-600 hover:bg-slate-50 cursor-pointer"
               }`}
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft size={13} />
             </button>
-            <span className="px-2.5 text-xs text-slate-600">
-              Page <span className="text-slate-900 font-extrabold">{currentPage}</span> of <span className="text-slate-900 font-extrabold">{totalPages}</span>
+            <span className="px-3">
+              Page <span className="text-slate-800 font-bold">{currentPage}</span> of <span className="text-slate-800 font-bold">{totalPages}</span>
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
@@ -374,10 +376,10 @@ export default function ServiceTable({
               className={`p-2 border border-slate-200 rounded-lg flex items-center justify-center transition-all ${
                 currentPage === totalPages
                   ? "bg-slate-100/50 text-slate-300 cursor-not-allowed border-slate-100"
-                  : "bg-white text-slate-600 hover:bg-slate-50 cursor-pointer shadow-2xs"
+                  : "bg-white text-slate-600 hover:bg-slate-50 cursor-pointer"
               }`}
             >
-              <ChevronRight size={14} />
+              <ChevronRight size={13} />
             </button>
           </div>
         </div>

@@ -158,86 +158,52 @@ async function main() {
   }
 
   // Create Users with new credentials
-  const coreHashedPassword = await bcrypt.hash('core123', 10);
-  const crewHashedPassword = await bcrypt.hash('crew123', 10);
-  const enthusiastHashedPassword = await bcrypt.hash('enthusiast123', 10);
+  const coreHashedPassword = await bcrypt.hash('pranav123', 10);
+  const crewHashedPassword = await bcrypt.hash('sam123', 10);
 
   const coreUser = await prisma.user.upsert({
-    where: { email: 'core@rajalakshmi.edu.in' },
+    where: { email: 'pranavranjan@rajalakshmi.edu.in' },
     update: {
       password: coreHashedPassword,
-      firstName: 'Core',
-      lastName: 'Admin',
+      firstName: 'Pranav',
+      lastName: 'Ranjan',
       isActive: true,
     },
     create: {
-      email: 'core@rajalakshmi.edu.in',
+      email: 'pranavranjan@rajalakshmi.edu.in',
       password: coreHashedPassword,
-      firstName: 'Core',
-      lastName: 'Admin',
+      firstName: 'Pranav',
+      lastName: 'Ranjan',
       phone: '+1234567890',
       isActive: true,
     },
   });
 
   const crewUser = await prisma.user.upsert({
-    where: { email: 'crew@rajalakshmi.edu.in' },
+    where: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in' },
     update: {
       password: crewHashedPassword,
-      firstName: 'Crew',
-      lastName: 'Member',
+      firstName: 'Sam',
+      lastName: 'Devaraja',
       isActive: true,
     },
     create: {
-      email: 'crew@rajalakshmi.edu.in',
+      email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in',
       password: crewHashedPassword,
-      firstName: 'Crew',
-      lastName: 'Member',
+      firstName: 'Sam',
+      lastName: 'Devaraja',
       phone: '+1234567891',
       isActive: true,
     },
   });
 
-  const enthusiastUser = await prisma.user.upsert({
-    where: { email: 'enthusiast@rajalakshmi.edu.in' },
-    update: {
-      password: enthusiastHashedPassword,
-      firstName: 'Cloud',
-      lastName: 'Enthusiast',
-      isActive: true,
-    },
-    create: {
-      email: 'enthusiast@rajalakshmi.edu.in',
-      password: enthusiastHashedPassword,
-      firstName: 'Cloud',
-      lastName: 'Enthusiast',
-      phone: '+1234567892',
-      isActive: true,
-    },
-  });
-
-  // Also preserve pranav & sam accounts
-  const pranavHashed = await bcrypt.hash('pranav123', 10);
-  const samHashed = await bcrypt.hash('sam123', 10);
-  const pranavUser = await prisma.user.upsert({
-    where: { email: 'pranavranjan@rajalakshmi.edu.in' },
-    update: { password: pranavHashed, isActive: true },
-    create: { email: 'pranavranjan@rajalakshmi.edu.in', password: pranavHashed, firstName: 'Pranav', lastName: 'Ranjan', isActive: true },
-  });
-  const samUser = await prisma.user.upsert({
-    where: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in' },
-    update: { password: samHashed, isActive: true },
-    create: { email: 'samdevaraja.j.2024.cse@rajalakshmi.edu.in', password: samHashed, firstName: 'Sam', lastName: 'Devaraja', isActive: true },
-  });
-
-  console.log('Created core, crew, and enthusiast users');
+  console.log('Created core and crew users');
 
   // Assign Roles to Users
   const superAdminRole = roles.find((r) => r.name === ROLES.SUPER_ADMIN)!;
   const adminRole = roles.find((r) => r.name === ROLES.ADMIN)!;
   const organizerRole = roles.find((r) => r.name === ROLES.ORGANIZER)!;
   const scannerRole = roles.find((r) => r.name === ROLES.SCANNER)!;
-  const enthusiastRole = roles.find((r) => r.name === ROLES.ENTHUSIAST)!;
 
   await Promise.all([
     prisma.userRole.upsert({
@@ -256,24 +222,9 @@ async function main() {
       create: { userId: coreUser.id, roleId: organizerRole.id },
     }),
     prisma.userRole.upsert({
-      where: { userId_roleId: { userId: pranavUser.id, roleId: superAdminRole.id } },
-      update: {},
-      create: { userId: pranavUser.id, roleId: superAdminRole.id },
-    }),
-    prisma.userRole.upsert({
       where: { userId_roleId: { userId: crewUser.id, roleId: scannerRole.id } },
       update: {},
       create: { userId: crewUser.id, roleId: scannerRole.id },
-    }),
-    prisma.userRole.upsert({
-      where: { userId_roleId: { userId: samUser.id, roleId: scannerRole.id } },
-      update: {},
-      create: { userId: samUser.id, roleId: scannerRole.id },
-    }),
-    prisma.userRole.upsert({
-      where: { userId_roleId: { userId: enthusiastUser.id, roleId: enthusiastRole.id } },
-      update: {},
-      create: { userId: enthusiastUser.id, roleId: enthusiastRole.id },
     }),
   ]);
 
@@ -660,46 +611,6 @@ async function main() {
     ],
   });
   console.log('Seeded news articles');
-
-  console.log('Seeding announcements...');
-  await prisma.announcement.deleteMany({});
-  await prisma.announcement.createMany({
-    data: [
-      {
-        id: 'announcement-seed-001',
-        eventId: 'event-seed-001',
-        title: 'AWS Cloud Day 2026 Registration Open',
-        message: 'Join us for our annual flagship event featuring hands-on labs, expert speaker sessions, and networking opportunities. RSVP today to secure your entry pass!',
-        type: 'UPDATE',
-        targetType: 'EVENT',
-      },
-      {
-        id: 'announcement-seed-002',
-        eventId: 'event-seed-001',
-        title: 'Weekly Hands-on Lab Session: Serverless on AWS',
-        message: 'Get ready to build! This week we are diving deep into AWS Lambda, API Gateway, and DynamoDB. Bring your laptops and pre-configured AWS Sandbox accounts.',
-        type: 'SCHEDULE_CHANGE',
-        targetType: 'EVENT',
-      },
-      {
-        id: 'announcement-seed-003',
-        eventId: 'event-seed-002',
-        title: 'AWS Certifications Bootcamp Starting Soon',
-        message: 'Kickstart your Cloud Practitioner or Solutions Architect Associate journey. Weekly study groups, mock exams, and voucher eligibility trackers are now active.',
-        type: 'REMINDER',
-        targetType: 'EVENT',
-      },
-      {
-        id: 'announcement-seed-004',
-        eventId: 'event-seed-003',
-        title: 'Community Mentorship Program Cohort 3',
-        message: 'Applications for mentors and mentees are now open. Get paired with senior AWS engineers and work on real-world capstone projects. Apply before the deadline.',
-        type: 'INFO',
-        targetType: 'EVENT',
-      },
-    ],
-  });
-  console.log('Seeded announcements');
 
   console.log('Seeding certifications & career pathways...');
   await seedCertificationLevels();

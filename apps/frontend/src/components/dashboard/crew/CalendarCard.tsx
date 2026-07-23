@@ -79,23 +79,18 @@ export default function CalendarCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
-        className="glass-panel rounded-[22px] overflow-hidden !p-4 border border-white/20 cursor-pointer select-none transition-all duration-[250ms] ease-out"
-        style={{ background: "rgba(255, 255, 255, 0.75)" }}
-        whileHover={{
-          boxShadow: "0 10px 25px -5px rgba(35, 47, 62, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.03)",
-          borderColor: "rgba(255, 153, 0, 0.35)",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          transition: { duration: 0.15, ease: "easeOut" },
-        }}
+        className="glass-panel rounded-[22px] overflow-hidden !p-5 border border-white/25 cursor-pointer select-none transition-all duration-[250ms] ease-out"
+        style={{ background: "rgba(255, 255, 255, 0.92)" }}
+        whileHover={{ y: -3, boxShadow: "-12px 0 28px rgba(105, 145, 255, 0), 12px 0 28px rgba(0, 0, 0, 0.4), 0 10px 20px rgba(15, 23, 42, 0.10)", borderColor: "rgba(255, 255, 255, 0.4)", transition: { duration: 0.25, ease: "easeOut" } }}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5 min-w-0">
             <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">Calendar</span>
-            <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
+            <span className="text-2xl font-extrabold text-foreground font-display tracking-tight">
               {MONTHS[today.getMonth()].slice(0, 3)} {today.getFullYear()}
             </span>
-            <span className="text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
+            <span className="text-[11px] font-semibold text-foreground/50">
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>
@@ -115,7 +110,7 @@ export default function CalendarCard() {
           {isOpen && (
             <motion.div key="calendar-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ top: 0, left: 0, right: 0, bottom: 0 }} onClick={e => { if (e.target === e.currentTarget) closeModal(); }}>
               <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-              <motion.div initial={{ opacity: 0, scale: 0.96, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 15 }} transition={{ duration: 0.2, ease: "easeOut" }} className="relative z-10 w-full max-w-xl rounded-2xl overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18)] flex flex-col max-h-[92vh] bg-white border border-black/5">
+              <motion.div initial={{ opacity: 0, scale: 0.94, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.94, y: 20 }} transition={{ type: "spring", stiffness: 320, damping: 28 }} className="relative z-10 w-full max-w-2xl rounded-[24px] overflow-hidden shadow-2xl flex flex-col max-h-[92vh]" style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.45)" }}>
                 <div className="flex items-center justify-between px-8 pt-6 pb-5 border-b border-black/[0.06] flex-shrink-0">
                   <div className="flex items-center gap-3.5">
                     <AwsCloudWatchIcon className="w-10 h-10" />
@@ -153,7 +148,7 @@ export default function CalendarCard() {
                     const isSelected = selectedDay === day && hasEvent;
                     return (
                       <div key={key} className="relative flex flex-col items-center">
-                        <button onClick={() => { if (!hasEvent) return; setSelectedDay(prev => (prev === day ? null : day)); }} className={[ "w-10 h-10 flex items-center justify-center rounded-full text-[14px] transition-all duration-200 select-none", hasEvent && isSelected ? "bg-slate-900 text-white font-medium shadow-md shadow-black/10 scale-105" : hasEvent ? "bg-slate-100 text-slate-900 font-medium hover:bg-slate-200 cursor-pointer" : isToday ? "bg-white text-brand-orange font-bold border border-brand-orange/30 cursor-default" : "text-slate-600 hover:bg-slate-50 cursor-default" ].join(" ")}>
+                        <button onClick={() => { if (!hasEvent) return; setSelectedDay(prev => (prev === day ? null : day)); }} className={[ "w-12 h-12 flex items-center justify-center rounded-full text-base font-semibold transition-all duration-150 select-none", hasEvent && isSelected ? "bg-brand-orange text-white shadow-md shadow-brand-orange/30 ring-2 ring-brand-orange/40 scale-110" : hasEvent ? "bg-brand-orange/80 text-white shadow-sm shadow-brand-orange/20 hover:scale-105 cursor-pointer" : isToday ? "ring-2 ring-brand-teal text-brand-teal font-bold cursor-default" : "text-foreground/70 hover:bg-black/5 cursor-default" ].join(" ")}>
                           {day}
                         </button>
                         {hasEvent && <span className="mt-1 w-2 h-2 rounded-full bg-brand-orange/60" />}
@@ -176,11 +171,7 @@ export default function CalendarCard() {
                         </div>
                       </button>
                     );
-                  }) : (
-                    <div className="flex flex-col items-center justify-center text-center py-10">
-                      <p className="text-[14px] text-slate-500">No events scheduled for this month</p>
-                    </div>
-                  )}
+                  }) : <p className="text-xs text-foreground/40 italic py-2">No events scheduled for this month.</p>}
                 </div>
               </motion.div>
             </motion.div>

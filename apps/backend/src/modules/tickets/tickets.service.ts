@@ -256,59 +256,6 @@ export class TicketsService {
     const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = pagination;
     const skip = (page - 1) * limit;
 
-    // Auto-generate tickets for any confirmed registrations of this user that don't have one
-    const unticketedRegistrations = await this.prisma.registration.findMany({
-      where: {
-        userId,
-        status: 'CONFIRMED',
-        ticket: null,
-      },
-      include: {
-        event: true,
-        user: true,
-      },
-    });
-
-    for (const reg of unticketedRegistrations) {
-      try {
-        const eventShortId = reg.eventId.substring(0, 8).toUpperCase();
-        const timestamp = Date.now();
-        const randomPart = Math.floor(1000 + Math.random() * 9000);
-        const ticketCode = `EVT-${eventShortId}-${timestamp}-${randomPart}`;
-
-        let ticket = await this.prisma.ticket.create({
-          data: {
-            registrationId: reg.id,
-            eventId: reg.eventId,
-            ticketCode,
-            status: 'ACTIVE',
-            userName: reg.name || `${reg.user.firstName} ${reg.user.lastName}`.trim(),
-            userRoll: reg.roll_number || '',
-            userEmail: reg.email || reg.user.email,
-            eventTitle: reg.event.title,
-            eventDate: reg.event.date ? new Date(reg.event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-            eventTime: reg.event.time || (reg.event.date ? new Date(reg.event.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''),
-            eventVenue: reg.event.venue || '',
-          },
-        });
-
-        const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
-        const verificationUrl = `${appUrl}/verify/${ticket.id}`;
-        const qrCodeUrl = await QRCode.toDataURL(verificationUrl, {
-          errorCorrectionLevel: 'H',
-          margin: 2,
-          width: 300,
-        });
-
-        await this.prisma.ticket.update({
-          where: { id: ticket.id },
-          data: { qrCodeUrl },
-        });
-      } catch (e) {
-        this.logger.error(`Failed to auto-generate missing ticket for registration ${reg.id}:`, e);
-      }
-    }
-
     const where = {
       registration: {
         userId,

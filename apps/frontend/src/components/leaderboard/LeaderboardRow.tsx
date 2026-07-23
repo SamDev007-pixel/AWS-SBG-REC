@@ -72,7 +72,7 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
 
   return (
     <div
-      className={`w-full grid grid-cols-[48px_1fr_95px] sm:grid-cols-[65px_1fr_125px] items-center py-2.5 px-3 sm:px-6 transition-all duration-200 group ${
+      className={`w-full grid grid-cols-[75px_1fr_125px] items-center py-2.5 px-6 transition-all duration-200 group ${
         isCurrentUser
           ? 'bg-amber-500/[0.03] border-l-4 border-l-amber-500 shadow-[inset_1px_0_0_rgba(245,158,11,0.1)]'
           : 'bg-white hover:bg-slate-50/40'
@@ -84,23 +84,23 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
       </div>
 
       {/* Column 2: Name + YOU Badge */}
-      <div className="text-xs sm:text-sm text-slate-700 font-semibold min-w-0 flex items-center gap-1.5 sm:gap-2.5 pr-2">
-        <span className="truncate text-slate-800 shrink">{row.name}</span>
+      <div className="text-sm text-slate-700 font-semibold truncate flex items-center gap-2.5">
+        <span className="truncate text-slate-800">{row.name}</span>
         {isCurrentUser && (
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded-[4px] text-[8.5px] sm:text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/25 select-none uppercase tracking-wider shrink-0">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/25 select-none uppercase tracking-wider scale-90 origin-left">
             YOU
           </span>
         )}
       </div>
 
       {/* Column 3: Cloud Credits in Coin Format */}
-      <div className="text-left font-bold text-xs sm:text-sm text-slate-800 flex items-center justify-start gap-1.5 sm:gap-2">
+      <div className="text-left font-bold text-sm text-slate-800 flex items-center justify-start gap-2">
         <img
           src="/cloud-credit-coin.png"
           alt="Cloud Credit Coin"
-          className="w-4 h-4 sm:w-5.5 sm:h-5.5 select-none object-contain drop-shadow-[0_1.5px_3px_rgba(212,163,89,0.2)] transition-transform duration-300 group-hover:scale-110 shrink-0"
+          className="w-5.5 h-5.5 select-none object-contain drop-shadow-[0_1.5px_3px_rgba(212,163,89,0.2)] transition-transform duration-300 group-hover:scale-110"
         />
-        <span className="text-xs sm:text-[13px] text-slate-800 font-bold whitespace-nowrap">{formatCredits(row.cloudCredits)}</span>
+        <span className="text-[13px] text-slate-800">{formatCredits(row.cloudCredits)}</span>
       </div>
     </div>
   );

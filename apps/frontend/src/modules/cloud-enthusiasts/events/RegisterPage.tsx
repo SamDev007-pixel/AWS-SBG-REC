@@ -2,19 +2,17 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEventDetails, useRegister } from '../shared/hooks/useCloudEnthusiasts';
 import { EC2ConsoleLoader, ErrorAlert } from '../shared/components/Animations';
-import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp, ChevronDown, Calendar, MapPin, Clock, Users, Pencil, Lock, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp, ChevronDown, Calendar, MapPin, Clock, Users, Pencil } from 'lucide-react';
 import { STORAGE_KEYS } from '../../../context/mockData';
 import { cn } from '@/lib/utils';
 
 export default function RegisterPage() {
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
   const eventId = params.eventId as string;
-  const onSpot = searchParams.get('onSpot') === 'true';
 
   const { data: detailData, isLoading: isDetailsLoading, error: detailsError } = useEventDetails(eventId);
   const registerMutation = useRegister(eventId);
@@ -29,37 +27,6 @@ export default function RegisterPage() {
   });
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-
-  React.useEffect(() => {
-    try {
-      // 1. Check if there are cached registration prefills from a previous registration
-      const prefillsJson = localStorage.getItem('aws_sgb_rec_registration_prefills');
-      if (prefillsJson) {
-        const prefills = JSON.parse(prefillsJson);
-        setFormData(prev => ({
-          ...prev,
-          fullName: prefills.fullName || prev.fullName,
-          rollNumber: prefills.rollNumber || prev.rollNumber,
-          department: prefills.department || prev.department,
-          email: prefills.email || prev.email,
-        }));
-        return;
-      }
-
-      // 2. Fall back to user session details from login (Name and Email)
-      const userJson = localStorage.getItem('aws_sgb_rec_user');
-      if (userJson) {
-        const parsed = JSON.parse(userJson);
-        setFormData(prev => ({
-          ...prev,
-          fullName: parsed.fullName || parsed.name || prev.fullName,
-          email: parsed.email || prev.email,
-        }));
-      }
-    } catch (e) {
-      console.error('Failed to prefill registration fields:', e);
-    }
-  }, []);
 
   const handleFixedChange = (fieldName: string, value: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
@@ -110,40 +77,20 @@ export default function RegisterPage() {
   }
 
   const { event, formFields = [] } = detailData;
-  
-  const isCustomForm = event.registration_form_type === 'CUSTOM';
-  const nameField = formFields.find((f: any) => f.field_label === 'Name');
-  const rollNumberField = formFields.find((f: any) => f.field_label === 'Roll Number');
-  const emailField = formFields.find((f: any) => f.field_label === 'Email');
-  const departmentField = formFields.find((f: any) => f.field_label === 'Department');
-
-  const isNameRequired = isCustomForm && nameField ? nameField.is_required : true;
-  const isRollNumberRequired = isCustomForm && rollNumberField ? rollNumberField.is_required : true;
-  const isEmailRequired = isCustomForm && emailField ? emailField.is_required : true;
-  const isDepartmentRequired = isCustomForm && departmentField ? departmentField.is_required : true;
-
-  const customFields = [...formFields]
-    .filter((f) => !['Name', 'Roll Number', 'Email', 'Department'].includes(f.field_label))
-    .sort((a, b) => a.field_order - b.field_order);
+  const customFields = [...formFields].sort((a, b) => a.field_order - b.field_order);
 
   // Step 1 Validation: Fixed/Default Fields
   const validateStep1 = () => {
     const errors: Record<string, string> = {};
-    if (isNameRequired && !formData.fullName.trim()) {
-      errors.fullName = 'Full Name is required';
-    }
-    if (isRollNumberRequired && !formData.rollNumber.trim()) {
-      errors.rollNumber = 'Registration / Roll Number is required';
-    }
-    if (isDepartmentRequired && !formData.department.trim()) {
-      errors.department = 'Department is required';
-    }
+    if (!formData.fullName.trim()) errors.fullName = 'Full Name is required';
+    if (!formData.rollNumber.trim()) errors.rollNumber = 'Registration / Roll Number is required';
+    if (!formData.department.trim()) errors.department = 'Department is required';
     
     // Email checking
     const emailVal = formData.email.trim();
-    if (isEmailRequired && !emailVal) {
+    if (!emailVal) {
       errors.email = 'Email address is required';
-    } else if (emailVal) {
+    } else {
       const collegeEmailRegex = /^[a-zA-Z0-9._%+-]+@rajalakshmi\.edu\.in$/;
       if (!collegeEmailRegex.test(emailVal)) {
         errors.email = 'Please use your college email address (@rajalakshmi.edu.in)';
@@ -206,19 +153,9 @@ export default function RegisterPage() {
         department: formData.department,
         email: formData.email,
         responses,
-        onSpot,
       },
       {
         onSuccess: (data) => {
-          try {
-            localStorage.setItem('aws_sgb_rec_registration_prefills', JSON.stringify({
-              fullName: formData.fullName,
-              rollNumber: formData.rollNumber,
-              department: formData.department,
-              email: formData.email,
-            }));
-          } catch { /* ignore */ }
-
           interface LocalTicket {
             ticketId: string;
             regId: string;
@@ -274,55 +211,12 @@ export default function RegisterPage() {
     return step;
   };
 
-  const renderSubmitError = () => {
-    if (!validationErrors.submit) return null;
-    
-    const err = validationErrors.submit.toLowerCase();
-    let title = 'Registration Failed';
-    let description = validationErrors.submit;
-    let Icon = AlertCircle;
-    let colors = 'bg-rose-50 border-rose-100 text-rose-800';
-    let iconColor = 'text-rose-500';
-
-    if (err.includes('already registered')) {
-      title = 'Duplicate Registration Blocked';
-      description = 'You have already secured a ticket pass for this cloud event. Duplicate registrations are not permitted. Please visit your dashboard to manage your existing ticket.';
-      Icon = Lock;
-      colors = 'bg-amber-50/70 border-amber-200/60 text-amber-850';
-      iconColor = 'text-amber-600';
-    } else if (err.includes('capacity') || err.includes('limit') || err.includes('full')) {
-      title = 'Event at Maximum Capacity';
-      description = 'Unfortunately, this event has already reached its maximum seat reservation limit. No additional tickets can be released at this time. Please check out our other upcoming workshops!';
-      Icon = Users;
-      colors = 'bg-rose-50/80 border-rose-150/75 text-rose-900';
-      iconColor = 'text-rose-600';
-    } else if (err.includes('deadline') || err.includes('passed') || err.includes('not open')) {
-      title = 'Registration Closed';
-      description = 'The registration window for this event is currently closed, or the deadline has passed. Ticket passes are no longer being issued.';
-      Icon = Calendar;
-      colors = 'bg-slate-50 border-slate-200/80 text-slate-700';
-      iconColor = 'text-slate-500';
-    }
-
-    return (
-      <div className={cn("border rounded-xl p-4.5 flex items-start gap-3.5 transition-all duration-300 shadow-sm", colors)}>
-        <div className={cn("p-1.5 rounded-lg bg-white shadow-xs shrink-0 mt-0.5", iconColor)}>
-          <Icon className="w-4.5 h-4.5" />
-        </div>
-        <div className="space-y-0.5">
-          <h4 className="font-bold text-[12.5px] tracking-tight leading-tight uppercase font-sans">{title}</h4>
-          <p className="text-[11px] font-normal leading-relaxed opacity-90">{description}</p>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="bg-transparent min-h-screen py-5 px-4 sm:px-6 lg:px-8 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans relative py-6 px-4 sm:px-6 lg:px-8 pb-12 overflow-y-auto premium-scrollbar scroll-smooth">
       {/* Background ambient glow (matches events page style) */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.07)_0%,rgba(255,153,0,0.03)_40%,transparent_70%)] pointer-events-none z-0" />
 
-      <div className="max-w-screen-xl w-full mx-auto z-10 relative">
+      <div className="max-w-3xl w-full mx-auto z-10 relative">
         {/* Top Header & Breadcrumbs / Cancel & Back */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <Link
@@ -347,17 +241,10 @@ export default function RegisterPage() {
                       Event Pass Application
                     </span>
                     <h2 className="text-3xl font-bold text-[#232F3E] tracking-tight">
-                      Register for Event
+                      Secure Your Ticket
                     </h2>
                   </div>
                 </div>
-
-                {onSpot && (
-                  <div className="mb-5 flex items-center gap-2.5 p-3.5 bg-emerald-50 border border-emerald-250/60 rounded-xl text-emerald-700 text-xs font-semibold leading-none shadow-xs select-none">
-                    <Camera size={14} className="stroke-[2.5] text-emerald-600 animate-pulse" />
-                    <span>On-Spot Venue Registration Active</span>
-                  </div>
-                )}
 
                 {/* Stacked Wizard Form Panels */}
                 <form onSubmit={currentStep === 3 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
@@ -410,8 +297,8 @@ export default function RegisterPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                           {/* Full Name */}
                           <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
-                              Full Name {isNameRequired && <span className="text-red-500">*</span>}
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
+                              Full Name <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -419,12 +306,9 @@ export default function RegisterPage() {
                               </span>
                               <input
                                 type="text"
-                                required={isNameRequired}
+                                required
                                 value={formData.fullName}
-                                onChange={(e) => {
-                                  const clean = e.target.value.replace(/[^a-zA-Z\s.-]/g, '');
-                                  handleFixedChange('fullName', clean);
-                                }}
+                                onChange={(e) => handleFixedChange('fullName', e.target.value)}
                                 placeholder="Enter your full name"
                                 className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.fullName ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
@@ -441,8 +325,8 @@ export default function RegisterPage() {
 
                           {/* Roll Number */}
                           <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
-                              Registration / Roll Number {isRollNumberRequired && <span className="text-red-500">*</span>}
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
+                              Registration / Roll Number <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -450,12 +334,9 @@ export default function RegisterPage() {
                               </span>
                               <input
                                 type="text"
-                                required={isRollNumberRequired}
+                                required
                                 value={formData.rollNumber}
-                                onChange={(e) => {
-                                  const val = e.target.value.replace(/\D/g, '');
-                                  handleFixedChange('rollNumber', val);
-                                }}
+                                onChange={(e) => handleFixedChange('rollNumber', e.target.value)}
                                 placeholder="Enter your college registration number"
                                 className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.rollNumber ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
@@ -472,8 +353,8 @@ export default function RegisterPage() {
 
                           {/* Department */}
                           <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
-                              Department {isDepartmentRequired && <span className="text-red-500">*</span>}
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
+                              Department <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -481,12 +362,9 @@ export default function RegisterPage() {
                               </span>
                               <input
                                 type="text"
-                                required={isDepartmentRequired}
+                                required
                                 value={formData.department}
-                                onChange={(e) => {
-                                  const clean = e.target.value.replace(/[^a-zA-Z0-9\s.&/-]/g, '');
-                                  handleFixedChange('department', clean);
-                                }}
+                                onChange={(e) => handleFixedChange('department', e.target.value)}
                                 placeholder="e.g. Computer Science & Engineering"
                                 className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.department ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
@@ -503,8 +381,8 @@ export default function RegisterPage() {
 
                           {/* Email */}
                           <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
-                              Email Address {isEmailRequired && <span className="text-red-500">*</span>}
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
+                              Email Address <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -512,7 +390,7 @@ export default function RegisterPage() {
                               </span>
                               <input
                                 type="email"
-                                required={isEmailRequired}
+                                required
                                 value={formData.email}
                                 onChange={(e) => handleFixedChange('email', e.target.value)}
                                 placeholder="yourname@rajalakshmi.edu.in"
@@ -611,7 +489,7 @@ export default function RegisterPage() {
 
                               return (
                                 <div key={field.field_id} className={cn("space-y-1.5", isFullWidth && "md:col-span-2")}>
-                                  <label className="block text-xs font-semibold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
+                                  <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                                     {field.field_label} {isRequired && <span className="text-red-500">*</span>}
                                   </label>
 
@@ -799,7 +677,12 @@ export default function RegisterPage() {
                     {/* Panel Body */}
                     {currentStep === 3 && (
                       <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
-                        {renderSubmitError()}
+                        {validationErrors.submit && (
+                          <div className="bg-rose-50 border border-rose-100 text-rose-800 rounded-xl p-4 text-[12.5px] font-semibold flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                            <span>{validationErrors.submit}</span>
+                          </div>
+                        )}
 
                         <div className="bg-slate-50/50 border border-slate-200/60 rounded-2xl p-5 space-y-4">
                           <div className="flex items-center gap-2 border-b border-slate-200/60 pb-2.5">

@@ -121,49 +121,47 @@ export function DomainCard({ domain, certificationId, index, levelName }: Domain
 
   return (
     <>
-      <div className="group rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs transition-shadow hover:shadow-sm">
-        {/* Domain Card Header */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-orange-50 border border-orange-200/70 text-xs font-black text-[#FF9900]">
+      <div className="group rounded-2xl border border-slate-300 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-600">
               {index + 1}
             </span>
-            <div className="min-w-0">
-              <h3 className={cn("text-sm sm:text-base font-bold text-slate-900 leading-snug transition-colors m-0 line-clamp-2 sm:line-clamp-1", hoverClass)}>
+            <div>
+              <h3 className={cn("font-bold text-slate-800 leading-snug transition-colors duration-200", hoverClass)}>
                 {domain.name}
               </h3>
-              <p className="mt-0.5 text-[11px] text-slate-400 font-medium m-0">
-                Domain Weightage: <span className="font-bold text-slate-700">{domain.weightage}%</span>
+              <p className="mt-0.5 text-xs text-slate-400 font-medium">
+                Domain Weightage: {domain.weightage}%
               </p>
             </div>
           </div>
 
-          {/* Action Buttons (Ghost icons without harsh boxes) */}
-          <div className="flex items-center gap-1 shrink-0">
-            <span className={cn("text-[9.5px] font-black px-2 py-0.5 rounded-md border tracking-wider uppercase", config.badgeClass)}>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-[4px] border", config.badgeClass)}>
               {domain.weightage}%
             </span>
-            <button
-              type="button"
-              className="h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-slate-400 hover:text-slate-700! hover:bg-slate-100! rounded-md cursor-pointer transition-colors duration-150"
               onClick={() => setEditDomainOpen(true)}
-              title="Edit Domain"
             >
               <Pencil className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-red-400 hover:text-red-600! hover:bg-red-50! rounded-md cursor-pointer transition-colors duration-150"
               onClick={() => setDeleteDomainConfirm(true)}
-              title="Delete Domain"
             >
               <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Weightage Progress Bar */}
-        <div className="mt-3.5 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+        <div className="mt-4 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
           <div 
             className="h-full rounded-full transition-all duration-500" 
             style={{ 
@@ -173,35 +171,36 @@ export function DomainCard({ domain, certificationId, index, levelName }: Domain
           />
         </div>
 
-        {/* Separator & Topics */}
-        <div className="mt-4 pt-3.5 border-t border-slate-100">
-          <p className="mb-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+        {/* Separator and Topics */}
+        <Separator className="my-4 border-slate-100" />
+        <div className="ml-9">
+          <p className="mb-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
             Syllabus Topics
           </p>
 
           {domain.topics.length === 0 ? (
-            <p className="text-xs text-slate-400 py-1 font-medium">
+            <p className="text-sm text-slate-400 py-1 font-medium">
               No topics yet. Add one below.
             </p>
           ) : (
-            <ul className="space-y-1 p-0 m-0 list-none">
+            <ul className="space-y-1">
               {[...domain.topics]
                 .sort((a, b) => a.displayOrder - b.displayOrder)
                 .map((topic) => (
                   <li
                     key={topic.id}
-                    className="group/topic flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm hover:bg-slate-50 transition-colors"
+                    className="group/topic flex items-center justify-between rounded-md px-3 py-1.5 text-sm hover:bg-slate-50 transition-colors -mx-3"
                   >
-                    <span className="flex items-start sm:items-center gap-2 text-slate-700 font-semibold min-w-0">
-                      <BookOpen className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5 sm:mt-0" />
-                      <span className="text-slate-400 text-xs font-bold shrink-0">{topic.displayOrder}.</span>
-                      <span className="leading-snug text-slate-800">{topic.name}</span>
+                    <span className="flex items-center gap-2 text-slate-700 font-medium">
+                      <BookOpen className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                      <span className="text-slate-400 text-xs font-bold">{topic.displayOrder}.</span>
+                      <span>{topic.name}</span>
                     </span>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        className="h-6 w-6 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/topic:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-400 hover:text-slate-700! hover:bg-slate-100! rounded-md cursor-pointer transition-colors duration-150"
                         onClick={() =>
                           setEditTopic({
                             id: topic.id,
@@ -212,32 +211,31 @@ export function DomainCard({ domain, certificationId, index, levelName }: Domain
                             updatedAt: "",
                           })
                         }
-                        title="Edit Topic"
                       >
                         <Pencil className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        className="h-6 w-6 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-red-400 hover:text-red-600! hover:bg-red-50! rounded-md cursor-pointer transition-colors duration-150"
                         onClick={() => setDeleteTopicId(topic.id)}
-                        title="Delete Topic"
                       >
                         <Trash2 className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                   </li>
                 ))}
             </ul>
           )}
 
-          <button
-            type="button"
-            className="mt-3 w-full bg-slate-50 hover:bg-slate-100/80 border border-dashed border-slate-200 hover:border-slate-300 text-slate-600 font-bold transition-all cursor-pointer h-8 rounded-lg text-xs flex items-center justify-center gap-1.5"
+          <Button
+            variant="ghost"
+            className="mt-4 w-full bg-slate-50/45 hover:bg-slate-100/60! border border-dashed border-slate-200/80 hover:border-slate-300 text-slate-500 hover:text-slate-700! font-bold transition-all duration-150 cursor-pointer h-9 rounded-[10px] text-xs shadow-none flex items-center justify-center gap-1.5"
             onClick={() => setAddTopicOpen(true)}
           >
-            <Plus className="h-3.5 w-3.5 text-slate-400" />
-            <span>Add Topic</span>
-          </button>
+            <Plus className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-500" />
+            Add Topic
+          </Button>
         </div>
       </div>
 

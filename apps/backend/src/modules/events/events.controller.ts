@@ -95,15 +95,6 @@ export class EventsController {
     return this.eventsService.reopenRegistration(id);
   }
 
-  @Patch(':id/toggle-on-spot')
-  @ApiOperation({ summary: 'Toggle event on-spot registration flag' })
-  toggleOnSpot(
-    @Param('id') id: string,
-    @Body('enabled') enabled: boolean,
-  ) {
-    return this.eventsService.toggleOnSpot(id, enabled);
-  }
-
   @Post(':id/duplicate')
   @ApiOperation({ summary: 'Duplicate an event' })
   @HttpCode(HttpStatus.CREATED)

@@ -87,11 +87,11 @@ async function bootstrap() {
 
   const corsOrigin = process.env.CORS_ORIGIN;
   const allowedOrigins = corsOrigin
-    ? corsOrigin.split(',').map((o) => o.trim())
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
+    ? corsOrigin.split(',')
+    : ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3000'];
 
   app.enableCors({
-    origin: corsOrigin ? (allowedOrigins.length === 1 && allowedOrigins[0] === '*' ? true : allowedOrigins) : true,
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -122,7 +122,6 @@ async function bootstrap() {
   }
 
   const port = parseInt(process.env.APP_PORT || '3000', 10);
-  app.enableShutdownHooks();
   await app.listen(port, '0.0.0.0');
 
   winstonLogger.log('info', `Application is running on: http://localhost:${port}`);

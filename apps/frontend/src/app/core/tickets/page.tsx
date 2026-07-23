@@ -525,13 +525,6 @@ function TicketsPageContent() {
                         {/* Actions */}
                         <td className="px-6 py-4.5 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            {/* View */}
-                            <button
-                              onClick={() => setSelectedTicket(ticket)}
-                              className="text-[12.5px] font-semibold text-[#FF9900] hover:text-[#e08800] transition-colors cursor-pointer"
-                            >
-                              View
-                            </button>
                             {/* Regenerate */}
                             <button
                               onClick={() => handleRegenerate(ticket.id)}

@@ -142,11 +142,11 @@ export const RoadmapPath: React.FC<RoadmapPathProps> = ({ nodes, width }) => {
             <path
               d={seg.pathData}
               fill="none"
-              stroke="white"
+              stroke="#94A3B8"
               strokeWidth="2.5"
               strokeDasharray="4 8"
               strokeLinecap="round"
-              className="opacity-50"
+              className="opacity-35"
             />
           </g>
         );

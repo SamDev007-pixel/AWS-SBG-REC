@@ -85,7 +85,6 @@ model Event {
   updatedAt            DateTime             @updatedAt @map("updated_at")
   endDatetime          DateTime?            @map("end_datetime")
   meetingLink          String?              @map("meeting_link")
-  onSpotEnabled        Boolean              @default(false) @map("on_spot_enabled")
   agendaJson           Json?                @map("agenda")
   speakerDetailsJson   Json?                @map("speaker_details")
   announcements        Announcement[]
@@ -249,17 +248,15 @@ model AuditLog {
 }
 
 model Announcement {
-  id                String   @id @default(uuid())
-  eventId           String?
-  title             String
-  message           String
-  type              String   @default("UPDATE")
-  sendEmail         Boolean  @default(false)
-  targetType        String   @default("EVENT")  // "EVENT" | "CREW_ALL" | "CREW_SPECIFIC"
-  targetCrewUserId  String?                      // filled only when targetType = "CREW_SPECIFIC"
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  event             Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  eventId   String
+  title     String
+  message   String
+  type      String   @default("UPDATE")
+  sendEmail Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model SchemaEnumDummy {
@@ -1156,72 +1153,6 @@ model ChatReport {
   @@index([sessionId])
   @@index([status])
   @@map("chat_reports")
-}
-
-model HomepageHero {
-  id              String   @id @default(uuid())
-  badge           String
-  titleHighlight  String
-  subtitle        String
-  updatedAt       DateTime @updatedAt
-
-  @@map("homepage_hero")
-}
-
-model HomepageCoordinator {
-  id          String   @id @default(uuid())
-  name        String
-  role        String
-  department  String
-  image       String
-  bio         String   @db.Text
-  linkedin    String
-  updatedAt   DateTime @updatedAt
-
-  @@map("homepage_coordinator")
-}
-
-model HomepageJourney {
-  id          String   @id @default(uuid())
-  label       String
-  sublabel    String
-  image       String
-  description String   @db.Text
-  gradient    String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("homepage_journeys")
-}
-
-model HomepageTestimonial {
-  id        String   @id @default(uuid())
-  name      String
-  role      String
-  rating    Int
-  text      String   @db.Text
-  type      String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("homepage_testimonials")
-}
-
-model HomepageTeam {
-  id         String   @id @default(uuid())
-  name       String
-  role       String
-  department String
-  image      String
-  accent     String
-  type       String   // "core" | "crew"
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@map("homepage_team")
 }
 
 enum GuidelineIcon {

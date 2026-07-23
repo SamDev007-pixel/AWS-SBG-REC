@@ -13,7 +13,7 @@ function SkeletonBlock({ className }: { className: string }) {
 
 export function FeedSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pt-20 pb-6 sm:pt-6 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6 max-w-4xl">
         <SkeletonBlock className="h-4 w-48" />
         <SkeletonBlock className="mt-4 h-12 w-full max-w-2xl rounded-2xl" />

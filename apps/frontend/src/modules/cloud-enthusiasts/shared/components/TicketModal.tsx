@@ -48,7 +48,6 @@ export default function TicketModal({ isOpen, onClose, ticket }: TicketModalProp
         backgroundColor: '#ffffff',
         pixelRatio: 2,
         quality: 1,
-        fontEmbedCSS: '',
       });
       
       const link = document.createElement('a');
@@ -153,13 +152,13 @@ export default function TicketModal({ isOpen, onClose, ticket }: TicketModalProp
 
             {/* Status Badge */}
             <div className="mt-5 font-display">
-              <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
+              <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-medium uppercase tracking-wider ${
                 isActive 
                   ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700' 
                   : 'border-slate-200 bg-slate-50 text-slate-600'
               }`}>
-                <Clock className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">{isActive ? 'Pass Active' : ticket.ticket_status}</span>
+                <Clock className="w-4 h-4" />
+                <span>{isActive ? 'Pass Active' : ticket.ticket_status}</span>
               </div>
             </div>
           </div>

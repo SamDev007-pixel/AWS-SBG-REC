@@ -128,7 +128,7 @@ export default function CoreServicesManagementPage() {
   const featuredServices = services.filter((s) => s.isFeatured).length;
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto relative space-y-6">
+    <div className="p-6 md:p-8 max-w-[1600px] mx-auto relative">
       {/* Toast Notification Stack */}
       <div className="fixed top-6 right-6 z-[200] flex flex-col gap-2 pointer-events-none">
         {toasts.map((t) => (
@@ -175,23 +175,23 @@ export default function CoreServicesManagementPage() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-[#FF9900]" />
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight m-0">
+          <div className="flex items-center gap-2.5 mb-1">
+            <Cpu className="w-6 h-6 text-[#FF9900]" />
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               AWS Services Management
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal m-0 leading-relaxed">
+          <p className="text-sm text-slate-500 font-normal">
             Add, edit, and manage AWS service catalog entries. Core admin access only.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto pt-1 sm:pt-0">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => { setEditingService(null); setFormMode('create'); }}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
             <Plus size={14} />
             <span>Add New Service</span>
@@ -200,7 +200,7 @@ export default function CoreServicesManagementPage() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         {[
           {
             label: 'Total Services',
@@ -231,21 +231,21 @@ export default function CoreServicesManagementPage() {
           return (
             <div
               key={stat.label}
-              className="bg-white border border-slate-200/80 rounded-xl p-4 sm:p-5 shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 group"
+              className="bg-white border border-slate-200/60 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between hover:shadow-md hover:border-[#FF9900]/30 hover:-translate-y-0.5 transition-all duration-300 ease-out group"
             >
               <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-slate-400 font-heading">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-455 font-heading">
                   {stat.label}
                 </span>
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display tracking-tight my-0.5">
+                <span className="text-3xl font-bold text-slate-850 font-display tracking-tight my-0.5">
                   {stat.value}
                 </span>
-                <span className="text-[10.5px] sm:text-[11px] font-medium text-slate-500 truncate">
+                <span className="text-[11px] font-medium text-slate-500 truncate">
                   {stat.subtext}
                 </span>
               </div>
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${stat.iconBg}`}>
-                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.iconColor}`} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 ${stat.iconBg}`}>
+                <Icon className={`w-5 h-5 ${stat.iconColor}`} />
               </div>
             </div>
           );

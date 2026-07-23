@@ -44,21 +44,21 @@ export default function UpcomingEvent() {
 
   return (
     <GlassCard
-      className="p-0 overflow-hidden flex flex-col lg:flex-row h-full border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-2xl bg-white"
+      className="p-0 overflow-hidden flex flex-col lg:flex-row h-full border border-orange-100/70 shadow-sm rounded-xl"
       hoverEffect={false}
       style={{
-        background: "white"
+        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%)"
       }}
     >
       {/* Poster */}
       {(() => {
         const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.banner_url);
         return (
-          <div className="relative w-full lg:w-[40%] aspect-[4/5] lg:h-full lg:max-h-[340px] overflow-hidden bg-slate-50 rounded-t-2xl lg:rounded-tr-none lg:rounded-l-2xl lg:rounded-br-none">
+          <div className="relative w-full lg:w-[42%] aspect-[4/5] lg:max-h-[360px] overflow-hidden bg-slate-50 rounded-t-xl lg:rounded-tr-none lg:rounded-l-xl lg:rounded-br-none">
             <img
               src={imgPosterSrc}
               alt={event.title}
-              className="w-full h-full object-cover transition-transform duration-750 hover:scale-103 rounded-t-2xl lg:rounded-tr-none lg:rounded-l-2xl lg:rounded-br-none"
+              className="w-full h-full object-cover transition-transform duration-750 hover:scale-103 rounded-t-xl lg:rounded-tr-none lg:rounded-l-xl lg:rounded-br-none"
               style={{ objectPosition: imgPosterPosition }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
@@ -72,92 +72,57 @@ export default function UpcomingEvent() {
       })()}
 
       {/* Content */}
-      <div className="p-6 md:p-8 flex flex-col flex-1 justify-between bg-transparent min-w-0 h-full">
-        {/* Top Badges Row */}
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-orange bg-orange-50 px-2 py-0.5 rounded-md">
-              {event.category || "EVENT"}
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
-              {event.mode || "OFFLINE"}
-            </span>
-          </div>
-          {event.registration_deadline && (
-            <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-              Closes {new Date(event.registration_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </span>
-          )}
-        </div>
-
-        <div className="space-y-1.5">
-          <h3 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight leading-snug">
+      <div className="p-5 flex flex-col flex-1 min-h-0 bg-transparent">
+        <div className="flex-1 flex flex-col gap-3">
+          <h3 className="text-[19px] md:text-[21px] font-bold text-slate-800 tracking-tight leading-snug">
             {event.title}
           </h3>
-          <p className="text-[13px] leading-relaxed text-slate-500 font-medium line-clamp-2">
+          <p className="text-[13px] leading-relaxed text-slate-500 line-clamp-3">
             {event.short_description}
           </p>
-        </div>
 
-        {/* Live Registration Progress Bar */}
-        {event.max_capacity && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-[11px] font-semibold text-slate-450">
-              <span className="text-slate-400">Registration Space</span>
-              <span className="text-slate-650 font-bold">{event.registered || 0} / {event.max_capacity} filled</span>
+          {/* Details List */}
+          <div className="space-y-3.5 mt-1 text-slate-700">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500 flex-shrink-0">
+                <Calendar className="w-4 h-4 text-slate-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">Date</span>
+                <span className="text-sm font-semibold text-slate-700 mt-0.5">{event._date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+              </div>
             </div>
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-amber-500 to-[#FF9900] transition-all duration-500 rounded-full" 
-                style={{ width: `${Math.min(100, Math.max(5, ((event.registered || 0) / event.max_capacity) * 100))}%` }}
-              />
+
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500 flex-shrink-0">
+                <Clock className="w-4 h-4 text-slate-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">Time</span>
+                <span className="text-sm font-semibold text-slate-700 mt-0.5">{event._date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Quick Stats Divider Grid */}
-        <div className="grid grid-cols-2 gap-4 py-3.5 border-t border-b border-slate-100/80">
-          <div>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Seats Available</span>
-            <span className="text-sm font-extrabold text-slate-700 mt-0.5">
-              {event.max_capacity ? `${event.max_capacity - (event.registered || 0)} left` : "Open"}
-            </span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Participation Reward</span>
-            <span className="text-sm font-extrabold text-brand-orange mt-0.5 flex items-center gap-0.5">
-              +150 XP
-            </span>
-          </div>
-        </div>
-
-        {/* Details Pill List */}
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100/85 text-[11px] font-semibold text-slate-600">
-            <Calendar className="w-3.5 h-3.5 text-[#FF9900]" />
-            <span>{event._date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100/85 text-[11px] font-semibold text-slate-600">
-            <Clock className="w-3.5 h-3.5 text-[#FF9900]" />
-            <span>{event._date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100/85 text-[11px] font-semibold text-slate-600 max-w-full">
-            <MapPin className="w-3.5 h-3.5 text-[#FF9900] flex-shrink-0" />
-            <span className="truncate">{event.venue}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500 flex-shrink-0">
+                <MapPin className="w-4 h-4 text-slate-500" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">Venue</span>
+                <span className="text-sm font-semibold text-slate-700 mt-0.5 truncate">{event.venue}</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Register CTA */}
-        <div className="pt-2">
+        <div className="mt-auto pt-4">
           <Link
             href={`/events/${event.event_id}`}
-            className="group inline-flex items-center justify-center px-6 py-2.5 rounded-full font-bold text-xs tracking-wider text-white transition-all duration-200 bg-[#FF9900] hover:bg-[#FFA524] shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/20 gap-1.5"
+            className="group w-full py-2.5 rounded-lg font-bold text-sm md:text-[14px] tracking-wide text-white transition-all duration-150 flex items-center justify-center gap-1.5 bg-[#FF9900] hover:bg-[#FFA524] shadow-sm hover:shadow"
           >
             <span>Register Now</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

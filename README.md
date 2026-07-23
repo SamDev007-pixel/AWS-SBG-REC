@@ -7,6 +7,7 @@ This platform serves as a comprehensive hub for cloud learning, community buildi
 ---
 
 ## 🔑 Demo Login Credentials
+
 Use these seeded accounts to log in and test different platform capabilities:
 
 | Role | Email Address | Password | Permissions & Features |

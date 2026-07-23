@@ -46,7 +46,6 @@ export default function TicketDetailsModal({
         backgroundColor: '#ffffff',
         pixelRatio: 2,
         quality: 1,
-        fontEmbedCSS: '',
       });
 
       const link = document.createElement('a');
@@ -226,12 +225,12 @@ export default function TicketDetailsModal({
             {/* Status Badge */}
             <div className="mt-5 font-display">
               <div
-                className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-medium uppercase tracking-wider whitespace-nowrap ${getStatusStyle(
+                className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-medium uppercase tracking-wider ${getStatusStyle(
                   ticket.status,
                 )}`}
               >
-                <Clock className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">{getStatusLabel(ticket.status)}</span>
+                <Clock className="w-4 h-4" />
+                <span>{getStatusLabel(ticket.status)}</span>
               </div>
             </div>
           </div>

@@ -19,7 +19,6 @@ import {
   Lock,
   Home,
   Users,
-  Lightbulb,
   ArrowDown
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
@@ -649,7 +648,9 @@ export default function LearnPage() {
                     transition={{ duration: 0.3 }}
                     className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
+                    >
                       <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
                         <path
                           fill="#252F3E"
@@ -826,7 +827,7 @@ export default function LearnPage() {
                     placeholder="Search Topics"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-full pl-9 pr-8 sm:pl-10 sm:pr-9 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
+                    className="w-full pl-9 pr-8 sm:pl-10 sm:pr-9 py-1.5 sm:py-2 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
                   />
                   {searchQuery && (
                     <button
@@ -841,7 +842,7 @@ export default function LearnPage() {
                 {userRole === 'crew' && (
                   <Link
                     href="/crew/learners"
-                    className="flex items-center justify-center gap-1.5 px-4 sm:px-4.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0 h-full"
+                    className="flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
                     title="View Learner Progress"
                   >
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -963,7 +964,7 @@ export default function LearnPage() {
                                     </div>
 
                                     {/* AWS Swoosh Progress Illustration */}
-                                    <div className="w-36 h-16 md:w-40 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
+                                    <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
                                       <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
                                         <defs>
                                           <clipPath id={`aws-swoosh-clip-${topic.id}`}>
@@ -1095,29 +1096,29 @@ export default function LearnPage() {
                             )}
 
                             {renderLocked && (
-                               <motion.div
-                                 key={`${topic.id}-locked`}
-                                 initial={{ opacity: 0, y: 10 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 exit={{ opacity: 0, y: -10 }}
-                                 transition={{ duration: 0.45 }}
-                                 className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
-                               >
-                                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                                   <div className="w-8 h-8 rounded-full bg-slate-500/10 border border-slate-500/15 flex items-center justify-center text-slate-600 flex-shrink-0">
-                                     <Lock className="w-4 h-4" />
-                                   </div>
-                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
-                                     <span className="font-semibold text-slate-700 text-sm leading-snug">
-                                       {topic.name}
-                                     </span>
-                                     <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
-                                       {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                     </span>
-                                   </div>
-                                 </div>
-                               </motion.div>
-                             )}
+                              <motion.div
+                                key={`${topic.id}-locked`}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.45 }}
+                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
+                              >
+                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0">
+                                    <Lock className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                    <span className="font-semibold text-slate-700 text-sm leading-snug">
+                                      {topic.name}
+                                    </span>
+                                    <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
                           </AnimatePresence>
                         </div>
                       );
@@ -1262,38 +1263,19 @@ export default function LearnPage() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.25 }}
-                  className="relative w-full max-w-md max-h-[80vh] flex flex-col rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
+                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Sky Background from Roadmaps */}
                   <SkyBackground />
 
-                  {/* Fixed Modal Header */}
-                  <div className="p-5 pb-3 border-b border-slate-200/10 flex items-center justify-between relative z-20 bg-white/30 backdrop-blur-md">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center border border-amber-500/20 flex-shrink-0">
-                          <Lightbulb className="w-4 h-4 text-amber-600" />
-                        </div>
-                        <h2 className="text-[12px] font-black text-slate-800 uppercase tracking-widest font-heading">
-                          GUIDELINES
-                        </h2>
-                      </div>
-                      <p className="text-[10px] text-slate-500 font-semibold tracking-tight pl-10 -mt-1 leading-normal">
-                        Platform learning rules and progression guidelines
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => setShowGuidelines(false)}
-                      className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm cursor-pointer flex-shrink-0"
-                    >
-                      <X className="w-4 h-4 text-slate-650" />
-                    </button>
-                  </div>
-
-                  {/* Scrollable Content */}
-                  <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 relative z-10 custom-scrollbar">
+                  <button
+                    onClick={() => setShowGuidelines(false)}
+                    className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm"
+                  >
+                    <X className="w-4 h-4 text-slate-650" />
+                  </button>
+                  <div className="p-5 relative z-10">
                     <LearningGuidePanel />
                   </div>
                 </motion.div>

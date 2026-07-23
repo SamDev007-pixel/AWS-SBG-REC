@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { List } from "react-window";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import {
   Search,
   BookOpen,
@@ -174,7 +173,7 @@ export default function ServicesCatalog() {
             <div
               key={service.id}
               onClick={() => setSelectedServiceId(service.id)}
-              className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-5 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden h-full"
+              className="bg-white border border-slate-200/60 rounded-xl p-5 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden h-full"
             >
               {/* Featured dot */}
               {service.isFeatured && (
@@ -230,61 +229,59 @@ export default function ServicesCatalog() {
   };
 
   return (
-    <section className="w-full min-h-screen py-10 px-4 sm:px-10 bg-[#F8F9FA] relative flex flex-col items-center">
+    <section className="w-full min-h-screen py-10 px-10 bg-[#F8F9FA] relative flex flex-col items-center">
       {/* Subtle background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none" />
 
       <div ref={containerRef} className="max-w-7xl w-full flex flex-col gap-7 z-10">
 
         {/* ── Header Row ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] font-bold text-[#FF9900] uppercase tracking-[0.2em] mb-1.5">AWS Services Directory</p>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
-              <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight leading-tight m-0">AWS Services Catalog</h2>
+            <p className="text-[10px] font-semibold text-[#FF9900] uppercase tracking-[0.2em] mb-1">AWS Services Directory</p>
+            <div className="flex items-center gap-3">
+              <h2 className="text-[26px] font-bold text-slate-900 tracking-tight">AWS Services Catalog</h2>
               {userRole === "core" && (
-                <div className="mt-0.5 sm:mt-0">
-                  <Link
-                    href="/core/services"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs hover:-translate-y-0.5 whitespace-nowrap shrink-0 cursor-pointer"
-                  >
-                    <Settings2 size={13} className="text-[#FF9900]" />
-                    <span>Manage Services</span>
-                  </Link>
-                </div>
+                <Link
+                  href="/core/services"
+                  className="flex items-center gap-1.5 px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-sm hover:-translate-y-0.5"
+                >
+                  <Settings2 size={12} />
+                  Manage Services
+                </Link>
               )}
             </div>
-            <p className="text-xs text-slate-400 font-normal mt-1.5 m-0 leading-relaxed">
+            <p className="text-[12px] text-slate-400 font-normal mt-0.5">
               Comprehensive reference covering major AWS global cloud service offerings.
             </p>
           </div>
 
-          {/* Stats row: grid cards on mobile, flex row on desktop */}
-          <div className="grid grid-cols-2 gap-2 w-full md:flex md:items-center md:gap-6 md:w-auto bg-slate-100/50 md:bg-white border border-slate-200/40 md:border-slate-100 rounded-2xl p-2 md:px-6 md:py-4 shadow-sm">
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">Services</span>
-              <span className="text-xl font-black text-slate-800 mt-0.5">{stats.total}</span>
+          {/* Stats row */}
+          <div className="flex items-center gap-6 bg-white border border-slate-100 rounded-2xl px-6 py-4 shadow-sm">
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Services</span>
+              <span className="text-xl font-bold text-slate-800">{stats.total}</span>
             </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">Categories</span>
-              <span className="text-xl font-black text-slate-800 mt-0.5">{stats.categoriesCount}</span>
+            <div className="w-px h-8 bg-slate-100" />
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Categories</span>
+              <span className="text-xl font-bold text-slate-800">{stats.categoriesCount}</span>
             </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-orange-400/80 md:text-slate-400 font-bold uppercase tracking-wider">Featured</span>
-              <span className="text-xl font-black text-orange-500 mt-0.5">{stats.featured}</span>
+            <div className="w-px h-8 bg-slate-100" />
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Featured</span>
+              <span className="text-xl font-bold text-orange-500">{stats.featured}</span>
             </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-emerald-500/80 md:text-slate-400 font-bold uppercase tracking-wider">Active GA</span>
-              <span className="text-xl font-black text-emerald-500 mt-0.5">{stats.active}</span>
+            <div className="w-px h-8 bg-slate-100" />
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Active GA</span>
+              <span className="text-xl font-bold text-emerald-500">{stats.active}</span>
             </div>
           </div>
         </div>
 
         {/* ── Filter Panel ── */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 sm:px-6 sm:py-5 shadow-sm flex flex-col gap-4">
+        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 shadow-sm flex flex-col gap-4">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
             {/* Search */}
             <div className="lg:col-span-6 relative">
@@ -324,42 +321,24 @@ export default function ServicesCatalog() {
           </div>
 
           {/* Category Pills */}
-          <div className="flex flex-col gap-2">
-            <span className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider">Filter by Cloud Category</span>
-            <div className="relative w-full overflow-hidden">
-              {/* Fade gradient overlay for visual scroll cue on mobile */}
-              <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10 md:hidden" />
-              
-              <div 
-                className="flex items-center gap-2 overflow-x-auto pb-1.5 -mx-4 px-4 scroll-smooth"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Filter by Cloud Category</span>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 premium-scrollbar">
+              <button
+                onClick={() => setSelectedCategorySlug("all")}
+                className={`px-4 py-1.5 rounded-full text-[11px] font-semibold flex-shrink-0 border transition-all ${selectedCategorySlug === "all" ? "bg-[#FF9900] border-[#FF9900] text-white" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"}`}
               >
+                All Categories
+              </button>
+              {visibleCategories.map(cat => (
                 <button
-                  onClick={() => setSelectedCategorySlug("all")}
-                  className={cn(
-                    "px-4 py-1.5 rounded-full text-[11px] font-black flex-shrink-0 border transition-all select-none cursor-pointer duration-200",
-                    selectedCategorySlug === "all"
-                      ? "bg-[#FF9900] border-[#FF9900] text-white shadow-sm shadow-[#FF9900]/15"
-                      : "bg-slate-50/80 border-slate-200/50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
-                  )}
+                  key={cat.id}
+                  onClick={() => setSelectedCategorySlug(cat.slug)}
+                  className={`px-4 py-1.5 rounded-full text-[11px] font-semibold flex-shrink-0 border transition-all ${selectedCategorySlug === cat.slug ? "bg-[#FF9900] border-[#FF9900] text-white" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"}`}
                 >
-                  All Categories
+                  {cat.name}
                 </button>
-                {visibleCategories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategorySlug(cat.slug)}
-                    className={cn(
-                      "px-4 py-1.5 rounded-full text-[11px] font-black flex-shrink-0 border transition-all select-none cursor-pointer duration-200",
-                      selectedCategorySlug === cat.slug
-                        ? "bg-[#FF9900] border-[#FF9900] text-white shadow-sm shadow-[#FF9900]/15"
-                        : "bg-slate-50/80 border-slate-200/50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
-                    )}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </div>

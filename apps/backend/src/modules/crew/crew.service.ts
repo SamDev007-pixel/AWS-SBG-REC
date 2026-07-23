@@ -203,23 +203,8 @@ export class CrewService {
   }
 
   async verifyTicket(ticketCode: string) {
-    let lookupField: 'id' | 'ticketCode' = 'ticketCode';
-    let lookupValue = ticketCode;
-
-    // Extract ticket ID from URL if a URL was scanned
-    if (lookupValue.includes('/verify/')) {
-      const parts = lookupValue.split('/verify/');
-      lookupValue = parts[parts.length - 1];
-    }
-
-    // Check if the lookupValue is a valid UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidRegex.test(lookupValue)) {
-      lookupField = 'id';
-    }
-
     const ticket = await this.prisma.ticket.findUnique({
-      where: lookupField === 'id' ? { id: lookupValue } : { ticketCode: lookupValue },
+      where: { ticketCode },
       include: {
         event: { select: { title: true, date: true } },
         registration: {
@@ -302,16 +287,9 @@ export class CrewService {
     });
   }
 
-  async getAnnouncements(userId?: string) {
-    const orConditions: object[] = [{ targetType: 'CREW_ALL' }];
-
-    if (userId) {
-      orConditions.push({ targetType: 'CREW_SPECIFIC', targetCrewUserId: userId });
-    }
-
+  async getAnnouncements() {
     return this.prisma.announcement.findMany({
       where: {
-        OR: orConditions,
         NOT: {
           id: {
             startsWith: 'ann-seed',
@@ -386,5 +364,4 @@ export class CrewService {
       },
     });
   }
-
 }

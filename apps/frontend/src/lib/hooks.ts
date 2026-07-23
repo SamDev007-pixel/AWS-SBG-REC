@@ -122,18 +122,6 @@ export function useCancelRegistration() {
   });
 }
 
-export function useToggleOnSpot() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
-      api.toggleOnSpot(id, enabled),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['event', variables.id] });
-    },
-  });
-}
-
 // ── Tickets ──────────────────────────────────────────────────────────────────
 
 export function useTickets(params?: PaginationParams) {
@@ -356,32 +344,6 @@ export function useDeleteAnnouncement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },
-  });
-}
-
-/** All crew-targeted announcements (CREW_ALL + CREW_SPECIFIC) — for Core Admin view */
-export function useAllCrewAnnouncements() {
-  return useQuery({
-    queryKey: ['announcements', 'crew'],
-    queryFn: () => api.fetchAllCrewAnnouncements(),
-  });
-}
-
-/** Announcements visible to a specific crew member (CREW_ALL + their CREW_SPECIFIC) */
-export function useCrewAnnouncementsForMember(userId: string) {
-  return useQuery({
-    queryKey: ['announcements', 'crew', 'me', userId],
-    queryFn: () => api.fetchCrewAnnouncementsForMember(userId),
-    enabled: !!userId,
-  });
-}
-
-/** Crew member list for targeting dropdown */
-export function useCrewMembers() {
-  return useQuery({
-    queryKey: ['crew', 'members'],
-    queryFn: () => api.fetchCrewMembers(),
-    staleTime: 5 * 60 * 1000,
   });
 }
 

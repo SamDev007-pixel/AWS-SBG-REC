@@ -35,7 +35,6 @@ import { LeaderboardModule } from '@/modules/leaderboard/leaderboard.module';
 import { AdminModule } from '@/modules/admin/admin.module';
 import { CareerPathwaysModule } from '@/modules/career-pathways/career-pathways.module';
 import { UploadModule } from '@/modules/upload/upload.module';
-import { HomepageModule } from '@/modules/homepage/homepage.module';
 
 @Module({
   imports: [
@@ -70,7 +69,6 @@ import { HomepageModule } from '@/modules/homepage/homepage.module';
     AdminModule,
     CareerPathwaysModule,
     UploadModule,
-    HomepageModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

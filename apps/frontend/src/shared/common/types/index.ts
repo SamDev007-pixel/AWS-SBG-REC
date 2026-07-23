@@ -81,7 +81,6 @@ export interface Event {
   registrationDeadline?: string;
   status: EventStatus;
   registrationFormType: 'DEFAULT' | 'CUSTOM';
-  onSpotEnabled?: boolean;
   organizerId: string;
   createdAt: string;
   updatedAt: string;
@@ -117,7 +116,6 @@ export interface EventSpeaker {
   organization?: string;
   bio?: string;
   photo?: string;
-  linkedinUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -221,23 +219,14 @@ export interface AuditLog {
 
 export interface Announcement {
   id: string;
-  eventId?: string | null;
+  eventId: string;
   title: string;
   message: string;
   type: string;
   sendEmail: boolean;
-  targetType: 'EVENT' | 'CREW_ALL' | 'CREW_SPECIFIC';
-  targetCrewUserId?: string | null;
   createdAt: string;
   updatedAt: string;
   event?: Event;
-}
-
-export interface CrewMember {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
 }
 
 // ── DTOs ─────────────────────────────────────────────────────────────────────
@@ -277,7 +266,6 @@ export interface CreateSpeakerDto {
   organization?: string;
   bio?: string;
   photo?: string;
-  linkedinUrl?: string;
 }
 
 export interface CreateFormFieldDto {
@@ -293,14 +281,13 @@ export interface UpdateFormFieldDto extends CreateFormFieldDto {
 }
 
 export interface CreateRegistrationDto {
-  userId?: string;
+  userId: string;
   eventId: string;
   name: string;
   roll_number: string;
   email: string;
   department: string;
   answers?: RegistrationAnswerDto[];
-  onSpot?: boolean;
 }
 
 export interface RegistrationAnswerDto {
@@ -309,13 +296,11 @@ export interface RegistrationAnswerDto {
 }
 
 export interface CreateAnnouncementDto {
-  eventId?: string;
+  eventId: string;
   title: string;
   message: string;
   type?: string;
   sendEmail?: boolean;
-  targetType?: 'EVENT' | 'CREW_ALL' | 'CREW_SPECIFIC';
-  targetCrewUserId?: string;
 }
 
 export interface VerifyTicketDto {

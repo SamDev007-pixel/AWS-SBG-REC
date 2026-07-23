@@ -63,7 +63,7 @@ export function NewsFeedPage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-background px-4 pt-4 pb-4 sm:pt-6 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-background px-4 py-4 sm:px-6 lg:px-8">
       <h1 className="sr-only">AWS Community Newsroom</h1>
 
       <div className="mx-auto max-w-[1440px]">
@@ -72,10 +72,11 @@ export function NewsFeedPage() {
             AWS Community Newsroom
           </p>
           <p className="mt-2 max-w-[calc(100vw-2rem)] break-words font-display text-2xl font-semibold leading-tight tracking-tight text-foreground [overflow-wrap:anywhere] sm:max-w-full sm:text-3xl">
-            Cloud news. Community stories. Industry trends.
+            Cloud intelligence, curated for builders.
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-            Stay connected with the latest AWS innovations, real-world use cases, industry updates, certifications, events, and community stories.
+            A dynamic editorial feed across cloud, AI, security, engineering,
+            and emerging technology.
           </p>
         </header>
 

@@ -100,61 +100,59 @@ export default function CoreLearnersDirectoryPage() {
         <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block font-heading shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block font-heading mr-1">
                 Role Filter:
               </span>
-              <div className="flex flex-wrap items-center gap-2">
-                {[
-                  { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
-                  { id: 'CREW', label: 'Crew Members', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
-                  { id: 'ENTHUSIAST', label: 'Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
-                ].map((tab) => {
-                  const active = roleFilter === tab.id;
-                  const count =
-                    tab.id === 'all'
-                      ? learners.length
-                      : learners.filter((l) => l.role === tab.id).length;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setRoleFilter(tab.id as any)}
-                      className={cn(
-                        "px-3.5 py-1.5 border rounded-[8px] text-xs font-bold transition-all flex items-center gap-2 font-heading shadow-xs",
-                        active
-                          ? tab.id === 'all'
-                            ? "bg-[#232F3E] border-[#232F3E] text-white"
-                            : tab.id === 'CREW'
-                              ? "bg-amber-600 border-amber-600 text-white"
-                              : "bg-indigo-600 border-indigo-600 text-white"
-                          : tab.color
-                      )}
-                    >
-                      <span>{tab.label}</span>
-                      <span className={cn(
-                        "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
-                        active
-                          ? "bg-white/20 border-white/10 text-white"
-                          : "bg-white border-slate-250 text-slate-500"
-                      )}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              {[
+                { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
+                { id: 'CREW', label: 'Crew Members', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
+                { id: 'ENTHUSIAST', label: 'Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
+              ].map((tab) => {
+                const active = roleFilter === tab.id;
+                const count =
+                  tab.id === 'all'
+                    ? learners.length
+                    : learners.filter((l) => l.role === tab.id).length;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setRoleFilter(tab.id as any)}
+                    className={cn(
+                      "px-3.5 py-1.5 border rounded-[8px] text-xs font-bold transition-all flex items-center gap-2 font-heading shadow-xs",
+                      active
+                        ? tab.id === 'all'
+                          ? "bg-[#232F3E] border-[#232F3E] text-white"
+                          : tab.id === 'CREW'
+                            ? "bg-amber-600 border-amber-600 text-white"
+                            : "bg-indigo-600 border-indigo-600 text-white"
+                        : tab.color
+                    )}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={cn(
+                      "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
+                      active
+                        ? "bg-white/20 border-white/10 text-white"
+                        : "bg-white border-slate-250 text-slate-500"
+                    )}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 text-xs font-semibold">
               <span className="text-slate-455 font-extrabold text-[10px] uppercase tracking-wider block font-heading">
                 Module Completion:
               </span>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:flex-initial">
+              <div className="flex items-center gap-2">
+                <div className="relative">
                   <select
                     value={moduleFilterType}
                     onChange={(e) => setModuleFilterType(e.target.value as 'all' | 'above' | 'below')}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs text-slate-800 font-extrabold focus:bg-white focus:outline-none cursor-pointer appearance-none"
+                    className="bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs text-slate-800 font-extrabold focus:bg-white focus:outline-none cursor-pointer appearance-none"
                   >
                     <option value="all">Any count completed</option>
                     <option value="above">Completed modules &gt;=</option>
@@ -175,7 +173,6 @@ export default function CoreLearnersDirectoryPage() {
                 )}
               </div>
             </div>
-
           </div>
         </div>
 
@@ -192,22 +189,22 @@ export default function CoreLearnersDirectoryPage() {
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { label: 'Total Learners', value: learners.length, icon: Icons.Users, color: 'text-indigo-650 bg-white border-slate-200 shadow-sm' },
             { label: 'Total Modules', value: totalModulesCount, icon: Icons.Layers, color: 'text-emerald-600 bg-white border-slate-200 shadow-sm' },
             { label: 'Total Topics', value: totalTopicsCount, icon: Icons.BookOpen, color: 'text-sky-600 bg-white border-slate-200 shadow-sm' },
           ].map((stat, idx) => (
-            <div key={idx} className={cn("border rounded-xl p-3 flex flex-col justify-between h-[80px] md:h-auto md:flex-row md:items-center", stat.color)}>
-              <div className="space-y-1 min-w-0">
-                <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-450 block tracking-wider font-heading leading-tight truncate">
+            <div key={idx} className={cn("border rounded-2xl p-4 flex items-center justify-between", stat.color)}>
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase text-slate-450 block tracking-wider font-heading">
                   {stat.label}
                 </span>
-                <span className="text-base md:text-xl font-black text-slate-850 block leading-none">
+                <span className="text-xl font-black text-slate-850 block">
                   {stat.value}
                 </span>
               </div>
-              <stat.icon className="h-4 w-4 md:w-8 md:h-8 opacity-45 shrink-0 self-end md:self-auto" />
+              <stat.icon className="w-8 h-8 opacity-45" />
             </div>
           ))}
         </div>
@@ -215,7 +212,7 @@ export default function CoreLearnersDirectoryPage() {
         {/* TABLE (Desktop View) */}
         <div className="hidden md:block bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[750px] text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 text-[10px] uppercase font-black tracking-wider text-slate-450 bg-slate-50/50">
                   <th className="py-4 px-6">Learner Account</th>

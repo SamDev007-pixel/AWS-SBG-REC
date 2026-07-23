@@ -75,26 +75,26 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl p-7 max-w-[380px] w-full border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-2xl p-6.5 max-w-[340px] w-full border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-5 top-5 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Header */}
         <div className="mb-5">
-          <h2 className="text-[18px] font-bold text-slate-950 leading-tight">Attendance Distribution</h2>
-          <p className="text-[13px] text-slate-400 font-medium mt-1 truncate">
+          <h2 className="text-base font-bold text-slate-950 leading-tight">Attendance Distribution</h2>
+          <p className="text-[11.5px] text-slate-400 font-medium mt-1 truncate">
             {eventTitle || 'All Events Overview'}
           </p>
         </div>
 
         {/* Chart Container */}
-        <div className="relative h-52 w-full flex items-center justify-center mb-5">
+        <div className="relative h-48 w-full flex items-center justify-center mb-5">
           {mounted && (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -102,8 +102,8 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={76}
-                  outerRadius={88}
+                  innerRadius={68}
+                  outerRadius={78}
                   paddingAngle={total > 0 ? 3 : 0}
                   dataKey="value"
                 >
@@ -113,7 +113,7 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
                 </Pie>
                 <Tooltip 
                   formatter={(value: any, name: any) => [value, name]} 
-                  contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                  contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -121,40 +121,40 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
 
           {/* Center Info Overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Attendance Rate</span>
-            <span className="text-4xl font-bold text-slate-900 tracking-tight tabular-nums">{stats.rate}%</span>
+            <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Attendance Rate</span>
+            <span className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums">{stats.rate}%</span>
           </div>
         </div>
 
         {/* Metrics List Layout */}
-        <div className="space-y-3 mt-2 pt-5 border-t border-slate-200">
-          <div className="flex items-center justify-between text-[13.5px]">
+        <div className="space-y-2.5 mt-2 pt-4.5 border-t border-slate-200">
+          <div className="flex items-center justify-between text-[12px]">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0" />
-              <span className="text-slate-655 font-semibold">Total Registered</span>
+              <span className="text-slate-600 font-semibold">Total Registered</span>
             </div>
-            <span className="font-bold text-slate-905 tabular-nums">{stats.total}</span>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.total}</span>
           </div>
-          <div className="flex items-center justify-between text-[13.5px]">
+          <div className="flex items-center justify-between text-[12px]">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-              <span className="text-slate-655 font-semibold">Attended</span>
+              <span className="text-slate-600 font-semibold">Attended</span>
             </div>
-            <span className="font-bold text-slate-905 tabular-nums">{stats.attended}</span>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.attended}</span>
           </div>
-          <div className="flex items-center justify-between text-[13.5px]">
+          <div className="flex items-center justify-between text-[12px]">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
-              <span className="text-slate-655 font-semibold">Absent</span>
+              <span className="text-slate-600 font-semibold">Absent</span>
             </div>
-            <span className="font-bold text-slate-905 tabular-nums">{stats.absent}</span>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.absent}</span>
           </div>
         </div>
 
         {/* Bottom CTA */}
         <button
           onClick={onClose}
-          className="w-full mt-6 py-3 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-655 hover:text-slate-800 border border-slate-200/50 rounded-xl text-[12.5px] font-semibold transition-all cursor-pointer text-center animate-none"
+          className="w-full mt-5 py-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-650 hover:text-slate-800 border border-slate-200/50 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center"
         >
           Close
         </button>
@@ -339,7 +339,7 @@ function TicketScannerPageContent() {
   const hasFilter = !!(eventFilter || dateFilter || statusFilter);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative pt-4 pb-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* ── Header Section ── */}
@@ -354,22 +354,20 @@ function TicketScannerPageContent() {
               <span className="text-[#FF9900] font-semibold">Attendance</span>
             </div>
             
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[22px] sm:text-[24px] font-bold text-slate-900 tracking-tight">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none">
                 {eventTitle || 'Assigned Attendance'}
               </h1>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold">
-                  {totalCount}
-                </span>
-                <button
-                  onClick={() => setShowStatsModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-[10px] font-semibold transition-all duration-200 cursor-pointer shadow-sm"
-                >
-                  <BarChart2 size={10.5} className="text-white" />
-                  Show Stats
-                </button>
-              </div>
+              <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold mr-1">
+                {totalCount}
+              </span>
+              <button
+                onClick={() => setShowStatsModal(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-[10px] font-semibold transition-all duration-200 cursor-pointer shadow-sm ml-1.5"
+              >
+                <BarChart2 size={10.5} className="text-white" />
+                Show Stats
+              </button>
             </div>
             <p className="text-[13px] text-slate-500 font-normal mt-2.5">
               {eventTitle 
@@ -378,7 +376,7 @@ function TicketScannerPageContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* OD List Button */}
             <button
               onClick={() => {
@@ -388,7 +386,7 @@ function TicketScannerPageContent() {
                 }
                 router.push(`/crew/attendance/od-generator?eventId=${eventFilter}`);
               }}
-              className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
             >
               <Download size={13} className="text-slate-500" />
               Generate OD List
@@ -405,7 +403,7 @@ function TicketScannerPageContent() {
                 setScanResult(null);
                 setTicketCode('');
               }}
-              className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-1.5 px-3.5 py-2 border rounded-lg text-[12px] font-semibold transition-all shadow-sm cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-lg text-[12px] font-semibold transition-all shadow-sm cursor-pointer ${
                 eventFilter 
                   ? 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:-translate-y-0.5' 
                   : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
@@ -425,9 +423,9 @@ function TicketScannerPageContent() {
           <div className="px-6 py-4 bg-slate-50/20 border-b border-slate-200 relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
             
-            <div className="relative z-10 grid grid-cols-2 md:grid-cols-12 gap-3 items-center">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
               {/* Event Filter */}
-              <div className="col-span-2 md:col-span-5 relative">
+              <div className="md:col-span-5 relative">
                 <select
                   value={eventFilter}
                   onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
@@ -442,7 +440,7 @@ function TicketScannerPageContent() {
               </div>
 
               {/* Date Filter */}
-              <div className="col-span-1 md:col-span-4 relative flex items-center gap-2">
+              <div className="md:col-span-4 relative flex items-center gap-2">
                 <Calendar size={14} className="text-slate-400 absolute left-3.5" />
                 <input
                   type="date"
@@ -453,7 +451,7 @@ function TicketScannerPageContent() {
               </div>
 
               {/* Status Filter */}
-              <div className="col-span-1 md:col-span-3 relative">
+              <div className="md:col-span-3 relative">
                 <select
                   value={statusFilter}
                   onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
@@ -485,117 +483,73 @@ function TicketScannerPageContent() {
           ) : tickets.length === 0 ? (
             <EmptyState />
           ) : (
-            <div>
-              {/* Desktop Table View (hidden on mobile) */}
-              <div className="hidden md:block overflow-x-auto relative z-10">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-100/80">
-                      {([
-                        'Attendee',
-                        !eventFilter && 'Event',
-                        'Ticket Code',
-                        'Scanned At',
-                        'Scanner',
-                        'Status'
-                      ].filter(Boolean) as string[]).map((h) => (
-                        <th key={h} className="px-6 py-4 text-[11px] font-bold text-slate-505 uppercase tracking-wider whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {tickets.map((ticket) => {
-                      const name = getAttendeeName(ticket);
-                      return (
-                        <tr
-                          key={ticket.id}
-                          className="hover:bg-slate-50/40 transition-all duration-200 group"
-                        >
-                          {/* Attendee */}
-                          <td className="px-6 py-4.5 whitespace-nowrap">
-                            {name !== '—' ? (
-                              <span className="text-[13.5px] font-semibold text-slate-800">{name}</span>
-                            ) : (
-                              <span className="text-[13px] text-slate-400">—</span>
-                            )}
-                          </td>
-
-                          {/* Event */}
-                          {!eventFilter && (
-                            <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
-                              {ticket.event?.title ?? '—'}
-                            </td>
+            <div className="overflow-x-auto relative z-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-100/80">
+                    {([
+                      'Attendee',
+                      !eventFilter && 'Event',
+                      'Ticket Code',
+                      'Scanned At',
+                      'Scanner',
+                      'Status'
+                    ].filter(Boolean) as string[]).map((h) => (
+                      <th key={h} className="px-6 py-4 text-[11px] font-bold text-slate-505 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {tickets.map((ticket) => {
+                    const name = getAttendeeName(ticket);
+                    return (
+                      <tr
+                        key={ticket.id}
+                        className="hover:bg-slate-50/40 transition-all duration-200 group"
+                      >
+                        {/* Attendee */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          {name !== '—' ? (
+                            <span className="text-[13.5px] font-semibold text-slate-800">{name}</span>
+                          ) : (
+                            <span className="text-[13px] text-slate-400">—</span>
                           )}
+                        </td>
 
-                          {/* Ticket Code */}
-                          <td className="px-6 py-4.5 whitespace-nowrap">
-                            <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
-                              {ticket.ticketCode}
-                            </span>
-                          </td>
-
-                          {/* Scanned At */}
-                          <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
-                            {ticket.scannedAt ? formatDateTime(ticket.scannedAt) : '—'}
-                          </td>
-
-                          {/* Scanner */}
-                          <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-555">
-                            {ticket.scannerId ?? '—'}
-                          </td>
-
-                          {/* Status */}
-                          <td className="px-6 py-4.5 whitespace-nowrap">
-                            <StatusBadge status={isAttended(ticket) ? 'ATTENDED' : 'ABSENT'} />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Card List View (hidden on desktop) */}
-              <div className="md:hidden divide-y divide-slate-100 relative z-10">
-                {tickets.map((ticket) => {
-                  const name = getAttendeeName(ticket);
-                  const attended = isAttended(ticket);
-                  return (
-                    <div key={ticket.id} className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/30 transition-all">
-                      {/* Left: Attendee Info */}
-                      <div className="min-w-0 flex-1">
-                        {name !== '—' ? (
-                          <span className="text-[14.5px] font-bold text-slate-800 block truncate">{name}</span>
-                        ) : (
-                          <span className="text-[13px] text-slate-400 block">—</span>
-                        )}
-                        
+                        {/* Event */}
                         {!eventFilter && (
-                          <span className="text-[12px] text-slate-500 font-medium truncate block mt-0.5">
+                          <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
                             {ticket.event?.title ?? '—'}
+                          </td>
+                        )}
+
+                        {/* Ticket Code */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
+                            {ticket.ticketCode}
                           </span>
-                        )}
+                        </td>
 
-                        <span className="font-mono text-[11px] text-slate-400 block mt-1 tracking-tight">
-                          {ticket.ticketCode}
-                        </span>
-                      </div>
+                        {/* Scanned At */}
+                        <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
+                          {ticket.scannedAt ? formatDateTime(ticket.scannedAt) : '—'}
+                        </td>
 
-                      {/* Right: Status & Time */}
-                      <div className="flex flex-col items-end gap-1.5 shrink-0">
-                        <StatusBadge status={attended ? 'ATTENDED' : 'ABSENT'} />
-                        {attended && ticket.scannedAt && (
-                          <div className="flex items-center gap-1 text-[10.5px] text-slate-400 font-medium">
-                            <Clock size={11} className="shrink-0 text-slate-400/80" />
-                            <span>{new Date(ticket.scannedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                        {/* Scanner */}
+                        <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-555">
+                          {ticket.scannerId ?? '—'}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          <StatusBadge status={isAttended(ticket) ? 'ATTENDED' : 'ABSENT'} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -650,7 +604,7 @@ function TicketScannerPageContent() {
       {scanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="absolute inset-0 cursor-pointer" onClick={() => setScanModalOpen(false)} />
-          <div className="relative bg-white border border-slate-200 rounded-3xl p-6.5 max-w-[420px] w-full shadow-2xl z-10 overflow-hidden flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white border border-slate-200 rounded-3xl p-6.5 max-w-sm w-full shadow-2xl z-10 overflow-hidden flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
             
             {/* Dynamic Keyframes for modal scanner laser */}
             <style>{`
@@ -666,45 +620,45 @@ function TicketScannerPageContent() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle_at_70%_20%,rgba(255,153,0,0.06)_0%,transparent_60%)] pointer-events-none" />
 
             <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/50 flex items-center justify-center text-slate-700 shrink-0 animate-pulse">
-                  <QrCode size={19} />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/50 flex items-center justify-center text-slate-700">
+                  <QrCode size={16} />
                 </div>
                 <div>
-                  <h3 className="text-[17px] font-bold text-slate-900 leading-tight">Scan Ticket</h3>
-                  <p className="text-[12px] text-slate-400 mt-1">
+                  <h3 className="text-[15px] font-bold text-slate-900">Scan Ticket</h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     {scanMode === 'camera' ? 'Position QR code in front of camera' : 'Enter code to verify check-in'}
                   </p>
                 </div>
               </div>
-               <button
+              <button
                 onClick={() => setScanModalOpen(false)}
-                className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-450 hover:text-rose-600 transition-colors flex items-center justify-center cursor-pointer border border-slate-200/50 hover:border-rose-100 shrink-0"
+                className="w-7 h-7 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-655 transition-colors flex items-center justify-center text-[10px] font-semibold cursor-pointer border border-transparent hover:border-rose-100"
               >
-                <X size={15} />
+                ✕
               </button>
             </div>
 
             {/* Mode Switch Tab Link */}
-            <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200/50 relative h-10 shrink-0">
+            <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200/50 relative h-9 shrink-0">
               <button
                 type="button"
                 onClick={() => { setScanMode('camera'); setScanResult(null); }}
-                className={`flex-grow text-[12px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
+                className={`flex-grow text-[11px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
                   scanMode === 'camera' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <QrCode size={14.5} />
+                <QrCode size={13} />
                 Camera Scanner
               </button>
               <button
                 type="button"
                 onClick={() => { setScanMode('manual'); setScanResult(null); }}
-                className={`flex-grow text-[12px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
+                className={`flex-grow text-[11px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
                   scanMode === 'manual' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Keyboard size={14.5} />
+                <Keyboard size={13} />
                 Manual Code
               </button>
             </div>
@@ -712,8 +666,8 @@ function TicketScannerPageContent() {
             <div className="relative z-10 flex flex-col gap-4">
               {scanMode === 'camera' ? (
                 /* Camera Feed Viewport inside Modal */
-                <div className="flex flex-col items-center justify-center gap-3.5">
-                  <div className="relative w-full aspect-square max-w-[280px] rounded-2xl bg-[#101720] overflow-hidden shadow-md flex items-center justify-center border border-slate-200/45">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="relative w-full aspect-square max-w-[240px] rounded-2xl bg-[#101720] overflow-hidden shadow-md flex items-center justify-center border border-slate-200/45">
                     
                     {/* QR Code Scanner Feed */}
                     <div
@@ -735,23 +689,11 @@ function TicketScannerPageContent() {
                     </div>
 
                     {/* HUD Targets */}
-                    <div className="absolute inset-0 pointer-events-none p-3.5">
-                      <div className="absolute top-3.5 left-3.5 w-4.5 h-4.5 border-t-2 border-l-2 border-[#FF9900] rounded-tl-sm" />
-                      <div className="absolute top-3.5 right-3.5 w-4.5 h-4.5 border-t-2 border-r-2 border-[#FF9900] rounded-tr-sm" />
-                      <div className="absolute bottom-3.5 left-3.5 w-4.5 h-4.5 border-b-2 border-l-2 border-[#FF9900] rounded-bl-sm" />
-                      <div className="absolute bottom-3.5 right-3.5 w-4.5 h-4.5 border-b-2 border-r-2 border-[#FF9900] rounded-br-sm" />
-                    </div>
-
-                    {/* Laser Line */}
-                    <div className="absolute left-3.5 right-3.5 h-0.5 bg-gradient-to-r from-transparent via-[#FF9900] to-transparent opacity-80 shadow-[0_0_8px_#FF9900] animate-[laser-sweep_2.5s_infinite] pointer-events-none" />
-                  </div>
-                  
-                  {/* Bottom Controls Row: Live feed indicator + Mirror toggle */}
-                  <div className="flex items-center justify-between w-full max-w-[280px] px-1 mt-1">
-                    {/* Blinking Live Feed Badge */}
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full text-[9.5px] font-bold text-emerald-700 tracking-wide uppercase select-none">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Live Feed
+                    <div className="absolute inset-0 pointer-events-none p-3">
+                      <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[#FF9900] rounded-tl-sm" />
+                      <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[#FF9900] rounded-tr-sm" />
+                      <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#FF9900] rounded-bl-sm" />
+                      <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#FF9900] rounded-br-sm" />
                     </div>
 
                     {/* Mirror/Flip View Option */}
@@ -759,18 +701,26 @@ function TicketScannerPageContent() {
                       type="button"
                       onClick={() => setIsMirrored(!isMirrored)}
                       title="Mirror Camera View"
-                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 rounded-lg text-[9.5px] font-bold uppercase transition-all shadow-sm cursor-pointer"
+                      className="absolute top-3.5 right-3.5 z-20 bg-slate-900/65 hover:bg-slate-900/85 text-white p-1.5 rounded-lg border border-white/10 backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center shadow-sm cursor-pointer"
                     >
-                      <FlipHorizontal size={11.5} className="shrink-0" />
-                      <span>Mirror</span>
+                      <FlipHorizontal size={13} />
                     </button>
+
+                    {/* Laser Line */}
+                    <div className="absolute left-3 right-3 h-0.5 bg-gradient-to-r from-transparent via-[#FF9900] to-transparent opacity-80 shadow-[0_0_8px_#FF9900] animate-[laser-sweep_2.5s_infinite] pointer-events-none" />
+                  </div>
+                  
+                  {/* Blinking Live Feed Badge */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 border border-emerald-100 rounded-full text-[9px] font-bold text-emerald-700 tracking-wide uppercase select-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live Camera Feed
                   </div>
                 </div>
               ) : (
                 /* Manual text input */
                 <form onSubmit={handleScanSubmit} className="flex flex-col gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                       Ticket Code
                     </label>
                     <input
@@ -779,7 +729,7 @@ function TicketScannerPageContent() {
                       onChange={(e) => setTicketCode(e.target.value)}
                       placeholder="e.g. TKT-XXXXXXXXX"
                       autoFocus
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13.5px] text-slate-755 placeholder-slate-400 transition-all font-mono font-semibold"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[12.5px] text-slate-750 placeholder-slate-400 transition-all font-mono font-semibold"
                     />
                   </div>
 
@@ -787,14 +737,14 @@ function TicketScannerPageContent() {
                     <button
                       type="button"
                       onClick={() => setScanModalOpen(false)}
-                      className="px-5 py-2.5 border border-slate-200 bg-white hover:border-slate-300 rounded-xl text-[12.5px] font-semibold text-slate-505 transition-colors cursor-pointer"
+                      className="px-4 py-2 border border-slate-200 bg-white hover:border-slate-300 rounded-xl text-[11px] font-semibold text-slate-505 transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={verifyMutation.isPending || !ticketCode.trim()}
-                      className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12.5px] font-semibold transition-all disabled:opacity-40 cursor-pointer"
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-semibold transition-all disabled:opacity-40 cursor-pointer"
                     >
                       {verifyMutation.isPending ? 'Verifying…' : 'Verify Ticket'}
                     </button>

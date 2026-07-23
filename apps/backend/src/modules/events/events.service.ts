@@ -155,11 +155,7 @@ export class EventsService {
       this.prisma.event.count({ where }),
     ]);
 
-    const transitionedEvents = await Promise.all(
-      events.map((event) => this.transitionEventStatus(event)),
-    );
-
-    return new PaginatedResponseDto(transitionedEvents, total, page, limit);
+    return new PaginatedResponseDto(events, total, page, limit);
   }
 
   async findOne(id: string) {
@@ -180,7 +176,7 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${id}" not found`);
     }
 
-    return this.transitionEventStatus(event);
+    return event;
   }
 
   async findByOrganizer(organizerId: string, pagination: PaginationDto) {
@@ -219,11 +215,7 @@ export class EventsService {
       this.prisma.event.count({ where }),
     ]);
 
-    const transitionedEvents = await Promise.all(
-      events.map((event) => this.transitionEventStatus(event)),
-    );
-
-    return new PaginatedResponseDto(transitionedEvents, total, page, limit);
+    return new PaginatedResponseDto(events, total, page, limit);
   }
 
   async update(id: string, dto: UpdateEventDto) {
@@ -342,19 +334,6 @@ export class EventsService {
 
   async reopenRegistration(id: string) {
     return this.setStatus(id, EventStatus.REGISTRATION_OPEN);
-  }
-
-  async toggleOnSpot(id: string, enabled: boolean) {
-    const existing = await this.prisma.event.findUnique({ where: { id } });
-
-    if (!existing) {
-      throw new NotFoundException(`Event with ID "${id}" not found`);
-    }
-
-    return this.prisma.event.update({
-      where: { id },
-      data: { onSpotEnabled: enabled },
-    });
   }
 
   async duplicate(id: string) {
@@ -566,74 +545,6 @@ export class EventsService {
 
   // --- Internal helpers ---
 
-  async transitionEventStatus(event: any) {
-    if (!event) return event;
-    const now = new Date();
-    let targetStatus = event.status;
-
-    // Draft and Archived statuses are static
-    if (event.status === EventStatus.DRAFT || event.status === EventStatus.ARCHIVED) {
-      return event;
-    }
-
-    const start = event.date ? new Date(event.date) : null;
-    const end = event.endDatetime
-      ? new Date(event.endDatetime)
-      : start
-      ? new Date(start.getTime() + 3 * 60 * 60 * 1000)
-      : null;
-    const deadline = event.registrationDeadline ? new Date(event.registrationDeadline) : null;
-    const capacity = event.capacity || 0;
-
-    let regCount = event._count?.registrations ?? 0;
-    if (capacity > 0 && event._count?.registrations === undefined) {
-      regCount = await this.prisma.registration.count({
-        where: {
-          eventId: event.id,
-          status: { not: 'CANCELLED' },
-        },
-      });
-    }
-
-    const isOngoingTime = start && now > start && (!end || now <= end);
-    const isCompletedTime = end && now > end;
-
-    if (isCompletedTime) {
-      // Only auto-complete if it is currently ongoing
-      if (event.status === EventStatus.ONGOING) {
-        targetStatus = EventStatus.COMPLETED;
-      }
-    } else if (isOngoingTime) {
-      // Transition to ongoing when start time passes
-      if (
-        event.status === EventStatus.PUBLISHED ||
-        event.status === EventStatus.REGISTRATION_OPEN ||
-        event.status === EventStatus.REGISTRATION_CLOSED
-      ) {
-        targetStatus = EventStatus.ONGOING;
-      }
-    } else if (event.status === EventStatus.PUBLISHED || event.status === EventStatus.REGISTRATION_OPEN) {
-      // Before start time: check deadline and capacity
-      const isDeadlinePassed = deadline && now > deadline;
-      const isCapacityReached = capacity > 0 && regCount >= capacity;
-      if (isDeadlinePassed || isCapacityReached) {
-        targetStatus = EventStatus.REGISTRATION_CLOSED;
-      } else if (event.status === EventStatus.PUBLISHED) {
-        targetStatus = EventStatus.REGISTRATION_OPEN;
-      }
-    }
-
-    if (targetStatus !== event.status) {
-      await this.prisma.event.update({
-        where: { id: event.id },
-        data: { status: targetStatus },
-      });
-      event.status = targetStatus;
-    }
-
-    return event;
-  }
-
   private async setStatus(id: string, status: EventStatus) {
     const existing = await this.prisma.event.findUnique({ where: { id } });
 
@@ -653,4 +564,3 @@ export class EventsService {
     });
   }
 }
-

@@ -78,7 +78,7 @@ export default function Navbar() {
           transition: all 0.25s ease !important;
         }
         .navbar-link-item:hover {
-          color: #E68A00 !important;
+          color: #FF9900 !important;
         }
       `}</style>
       <motion.header
@@ -90,12 +90,12 @@ export default function Navbar() {
           top: 0,
           left: 0,
           right: 0,
-          height: isMobile ? "64px" : (scrolled ? "64px" : "80px"),
-          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.65)",
+          height: scrolled ? "64px" : "80px",
+          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderBottom: scrolled ? "1px solid rgba(15, 23, 42, 0.08)" : "1px solid rgba(15, 23, 42, 0.04)",
-          boxShadow: scrolled ? "0 4px 24px rgba(15, 23, 42, 0.03)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0.03)",
+          boxShadow: scrolled ? "0 4px 20px rgba(0, 0, 0, 0.04)" : "none",
           display: "flex",
           alignItems: "center",
           zIndex: 1000,
@@ -108,7 +108,7 @@ export default function Navbar() {
             width: "100%",
             maxWidth: "100%",
             margin: "0 auto",
-            padding: isMobile ? "0 20px" : "0 40px",
+            padding: "0 40px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -130,7 +130,7 @@ export default function Navbar() {
               src="/sbg-logo-new.png"
               alt="AWS SBG REC Logo"
               style={{
-                height: isMobile ? "28px" : scrolled ? "28px" : "34px",
+                height: scrolled ? "28px" : "34px",
                 width: "auto",
                 objectFit: "contain",
                 display: "block",
@@ -141,8 +141,8 @@ export default function Navbar() {
               style={{ 
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                 fontWeight: 700,
-                fontSize: isMobile ? "16px" : scrolled ? "17px" : "19px",
-                color: "#0F172A",
+                fontSize: scrolled ? "17px" : "19px",
+                color: "#1e293b",
                 letterSpacing: "-0.015em",
                 whiteSpace: "nowrap",
                 transform: "translateY(-0.5px)",
@@ -173,7 +173,7 @@ export default function Navbar() {
                       position: "relative",
                       fontSize: "16px",
                       fontWeight: 600,
-                      color: isActive ? "#E68A00" : "#475569",
+                      color: isActive ? "#FF9900" : "#475569",
                       textDecoration: "none",
                       padding: "6px 0",
                       fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -189,7 +189,7 @@ export default function Navbar() {
                           left: 0,
                           right: 0,
                           height: "3px",
-                          backgroundColor: "#E68A00",
+                          backgroundColor: "#FF9900",
                           borderRadius: "999px",
                         }}
                       />
@@ -233,7 +233,7 @@ export default function Navbar() {
                 onClick={() => router.push("/signup")}
                 style={{
                   padding: "10px 24px",
-                  background: "#E68A00",
+                  background: "#FF9900",
                   color: "#ffffff",
                   border: "none",
                   fontWeight: 700,
@@ -248,11 +248,11 @@ export default function Navbar() {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "skewX(-20deg) scale(1.04)";
-                  e.currentTarget.style.backgroundColor = "#CD7B00";
+                  e.currentTarget.style.backgroundColor = "#E68A00";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "skewX(-20deg) scale(1)";
-                  e.currentTarget.style.backgroundColor = "#E68A00";
+                  e.currentTarget.style.backgroundColor = "#FF9900";
                 }}
               >
                 <span style={{ display: "inline-block", transform: "skewX(20deg)" }}>
@@ -271,7 +271,7 @@ export default function Navbar() {
                 border: "none",
                 cursor: "pointer",
                 padding: "8px",
-                color: "#0F172A",
+                color: "#232F3E",
                 outline: "none",
               }}
             >
@@ -290,13 +290,13 @@ export default function Navbar() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               style={{
                 position: "absolute",
-                top: "64px",
+                top: scrolled ? "64px" : "80px",
                 left: 0,
                 right: 0,
-                backgroundColor: "rgba(255, 255, 255, 0.96)",
-                borderBottom: "1px solid rgba(15, 23, 42, 0.08)",
+                backgroundColor: "#ffffff",
+                borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
                 padding: "16px 24px 24px",
-                boxShadow: "0 10px 30px rgba(15, 23, 42, 0.06)",
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.06)",
                 display: "flex",
                 flexDirection: "column",
                 gap: "16px",
@@ -311,7 +311,7 @@ export default function Navbar() {
                   style={{
                     fontSize: "16px",
                     fontWeight: 600,
-                    color: "#0F172A",
+                    color: "#232F3E",
                     textDecoration: "none",
                     padding: "8px 0",
                     display: "block",
@@ -338,9 +338,9 @@ export default function Navbar() {
                     width: "100%",
                     padding: "12px",
                     background: "transparent",
-                    border: "1.5px solid rgba(15, 23, 42, 0.2)",
+                    border: "1.5px solid rgba(35, 47, 62, 0.2)",
                     borderRadius: "8px",
-                    color: "#0F172A",
+                    color: "#232F3E",
                     fontWeight: 700,
                     fontSize: "16px",
                     cursor: "pointer",
@@ -357,7 +357,7 @@ export default function Navbar() {
                   style={{
                     width: "100%",
                     padding: "12px",
-                    background: "#E68A00",
+                    background: "#FF9900",
                     border: "none",
                     borderRadius: "8px",
                     color: "#ffffff",

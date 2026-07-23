@@ -64,7 +64,7 @@ export default function ServiceDetailsModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[2000] flex items-center justify-center p-0 sm:p-6 md:p-10">
+      <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 md:p-10">
         {/* Backdrop overlay */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -80,14 +80,14 @@ export default function ServiceDetailsModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.98, y: 10 }}
           transition={{ type: "spring", duration: 0.35 }}
-          className="relative bg-white border-0 sm:border border-slate-100 rounded-none sm:rounded-2xl shadow-xl w-full h-full max-h-none sm:max-h-[90vh] sm:max-w-5xl overflow-hidden flex flex-col z-10"
+          className="relative bg-white border border-slate-100 rounded-2xl shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col z-10"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/60 hover:border-slate-300 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all z-20 cursor-pointer select-none shadow-sm active:scale-95 duration-100"
+            className="absolute top-6 right-6 w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all z-20"
           >
-            <X size={14} strokeWidth={2.8} className="shrink-0" />
+            <X size={16} />
           </button>
 
           {loading ? (
@@ -112,7 +112,7 @@ export default function ServiceDetailsModal({
           ) : (
             <>
               {/* Modal Header */}
-              <div className="p-6 sm:p-10 border-b border-slate-100 flex gap-6 items-center pr-16">
+              <div className="p-8 sm:p-10 border-b border-slate-100 flex gap-6 items-center">
                 <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img
                     src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
@@ -123,25 +123,29 @@ export default function ServiceDetailsModal({
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 leading-none">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                      {service.serviceCode}
+                    </span>
+                    <span className="px-2.5 py-0.5 text-[9px] font-semibold uppercase bg-[#FF9900]/10 text-[#FF9900] rounded border border-[#FF9900]/20">
+                      {service.category?.name || "AWS Core"}
+                    </span>
+                    <span className="px-2.5 py-0.5 text-[9px] font-semibold uppercase bg-emerald-50 text-emerald-600 rounded border border-emerald-100">
+                      {service.status}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2">
                     {service.name}
                     {service.isFeatured && (
-                      <Star size={16} className="fill-amber-400 text-amber-400 shrink-0" />
+                      <Star size={15} className="fill-amber-400 text-amber-400" />
                     )}
                   </h3>
-                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
-                    <span>{service.serviceCode}</span>
-                    <span className="text-slate-200">•</span>
-                    <span>{service.category?.name || "AWS Core"}</span>
-                    <span className="text-slate-200">•</span>
-                    <span>{service.status}</span>
-                  </div>
                 </div>
               </div>
 
               {/* Scrollable Content Body */}
-              <div className="flex-grow overflow-y-auto premium-scrollbar p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="flex-grow overflow-y-auto premium-scrollbar p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* LEFT BLOCK: RICH DETAILS */}
                 <div className="lg:col-span-8 flex flex-col gap-8">
                   {/* Full Description */}

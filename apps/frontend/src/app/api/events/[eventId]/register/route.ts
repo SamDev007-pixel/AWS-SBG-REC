@@ -10,7 +10,7 @@ export async function POST(
   try {
     const { eventId } = await params;
     const body = await request.json();
-    const { fullName, rollNumber, department, email, responses, onSpot } = body;
+    const { fullName, rollNumber, department, email, responses } = body;
 
     if (!email || !fullName || !rollNumber || !department) {
       return NextResponse.json(
@@ -61,7 +61,6 @@ export async function POST(
         email: normalizedEmail,
         department,
         answers,
-        onSpot,
       }),
     });
 

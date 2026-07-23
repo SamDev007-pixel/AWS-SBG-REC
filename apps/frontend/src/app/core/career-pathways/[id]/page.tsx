@@ -176,32 +176,32 @@ export default function PathwayBuilderPage({
       <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6 z-10 relative">
         
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
           <div>
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
               <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors font-semibold">Admin</Link>
               <span className="text-slate-300">/</span>
               <Link href="/core/certifications?tab=pathways" className="hover:text-[#FF9900] transition-colors font-semibold">Career Pathways</Link>
             </div>
             
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight m-0">
+              <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none m-0">
                 {role.name}
               </h1>
             </div>
-            <p className="text-xs text-slate-500 font-normal mt-1.5 leading-relaxed">
+            <p className="text-[13px] text-slate-500 font-normal mt-2.5">
               Configure the certification pathway sequence and align matching career opportunities for the {role.name} role.
             </p>
           </div>
           
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Button
               onClick={() => setIsPreviewOpen(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
             >
               <Eye size={13} className="text-[#FF9900]" />
-              <span>Preview</span>
+              Preview Pathway
             </Button>
             <Button
               onClick={() => {
@@ -209,17 +209,17 @@ export default function PathwayBuilderPage({
                 setEditDescription(role.description);
                 setIsEditingRole(true);
               }}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
             >
               <Pencil size={13} className="text-slate-500" />
-              <span>Edit</span>
+              Edit Role
             </Button>
             <Button
               onClick={() => setShowDeleteConfirm(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-red-50 border border-red-100 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-red-50 border border-red-100 hover:bg-red-100 text-red-600 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer border-none"
             >
               <Trash2 size={13} className="text-red-500" />
-              <span>Delete</span>
+              Delete Role
             </Button>
           </div>
         </div>
@@ -416,8 +416,8 @@ export default function PathwayBuilderPage({
               </p>
             </div>
           ) : (
-            <div className="w-full py-2 px-1 overflow-x-auto no-scrollbar">
-              <div className="flex items-start justify-start sm:justify-center gap-2 min-w-max mx-auto">
+            <div className="w-full py-2 px-2 flex justify-center">
+              <div className="flex items-start justify-center gap-0 w-full max-w-full">
                 {previewCerts.map((cert: any, index: number) => {
                   if (!cert) return null;
                   const isLast = index === previewCerts.length - 1;

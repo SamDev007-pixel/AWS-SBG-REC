@@ -58,9 +58,9 @@ export class CrewController {
   }
 
   @Get('announcements')
-  @ApiOperation({ summary: 'Retrieve crew announcements; pass ?userId= to filter for a specific member' })
-  getAnnouncements(@Query('userId') userId?: string) {
-    return this.crewService.getAnnouncements(userId);
+  @ApiOperation({ summary: 'Retrieve operational read-only announcements' })
+  getAnnouncements() {
+    return this.crewService.getAnnouncements();
   }
 
   @Post('incidents')

@@ -16,48 +16,29 @@ import { cn, getPosterSrcAndPosition } from '@/lib/utils';
 interface LocalTicket {
   ticketId: string;
   eventId: string;
-  regId?: string;
-  eventTitle?: string;
-  date?: string;
-  time?: string;
-  name?: string;
-  email?: string;
-}
-
-function getFallbackAvatar(name: string = '') {
-  const lowercase = name.toLowerCase();
-  if (lowercase.includes('priya') || lowercase.includes('patel') || lowercase.includes('sarah') || lowercase.includes('jane') || lowercase.includes('ananya') || lowercase.includes('lisa')) {
-    return "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150";
-  }
-  if (lowercase.includes('aravind') || lowercase.includes('rahul') || lowercase.includes('john') || lowercase.includes('michael') || lowercase.includes('david') || lowercase.includes('alex')) {
-    return "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150&h=150";
-  }
-  return "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150";
 }
 
 function SpeakerCard({ speaker }: { speaker: any }) {
   return (
-    <div className="flex items-start gap-3.5 p-4 rounded-xl border border-slate-200 bg-white hover:shadow-xs transition-all duration-200 flex-1 min-w-[280px] max-w-[400px]">
-      {/* Avatar Container: Clean Square format */}
-      <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200/80 shrink-0 bg-slate-50 flex items-center justify-center shadow-2xs">
-        <img 
-          src={speaker.avatar_url || getFallbackAvatar(speaker.name)} 
-          alt={speaker.name} 
-          className="w-full h-full object-cover" 
-        />
+    <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-shadow flex-1 min-w-[280px] max-w-[400px]">
+      <div className="w-12 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-50/50 flex items-center justify-center shadow-xs">
+        {speaker.avatar_url ? (
+          <img src={speaker.avatar_url} alt={speaker.name} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm font-bold text-slate-400">
+            {speaker.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+          </span>
+        )}
       </div>
-      
-      {/* Content Container */}
       <div className="min-w-0 flex-1">
-        {/* Name and LinkedIn link aligned baseline */}
-        <div className="flex items-center gap-1.5 leading-none">
-          <h4 className="font-bold text-sm text-slate-800 leading-none">{speaker.name}</h4>
+        <div className="flex items-center gap-2">
+          <h4 className="font-bold text-sm text-slate-800 leading-snug">{speaker.name}</h4>
           {speaker.linkedin_url && (
             <a
               href={speaker.linkedin_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-[#0A66C2] transition-colors flex items-center shrink-0"
+              className="text-slate-400 hover:text-[#0A66C2] transition-colors inline-flex items-center mt-0.5 shrink-0"
               title={`${speaker.name}'s LinkedIn Profile`}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -66,17 +47,13 @@ function SpeakerCard({ speaker }: { speaker: any }) {
             </a>
           )}
         </div>
-        
-        {/* Designation */}
         {speaker.designation && (
-          <span className="text-[#FF9900] text-[9.5px] font-bold uppercase tracking-wider block mt-1">
+          <span className="text-[#FF9900] text-[10px] font-bold uppercase tracking-wider block mt-0.5">
             {speaker.designation}
           </span>
         )}
-        
-        {/* Bio */}
         {speaker.bio && (
-          <p className="text-slate-500 text-[11.5px] mt-1.5 leading-relaxed font-normal">{speaker.bio}</p>
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed font-normal">{speaker.bio}</p>
         )}
       </div>
     </div>
@@ -132,51 +109,7 @@ export default function EventDetailsPage() {
           setCheckingRegistration(false);
         });
     } else {
-      // If not in local storage, check backend tickets in case they registered on another client or cleared storage
-      const userJson = typeof window !== 'undefined' ? localStorage.getItem('aws_sgb_rec_user') : null;
-      if (userJson) {
-        setCheckingRegistration(true);
-        apiService.getMyTickets()
-          .then((tickets) => {
-            const backendTicket = tickets.find((t: any) => t.event_id === eventId);
-            if (backendTicket) {
-              const ticketRef = {
-                ticketId: backendTicket.ticket_id,
-                eventId: backendTicket.event_id,
-              };
-              setRegisteredTicket(ticketRef);
-              setTicketDetails(backendTicket);
-
-              // Add to local storage
-              const updatedLocal = [...localTickets];
-              if (!updatedLocal.some((t: any) => t.ticketId === backendTicket.ticket_id)) {
-                updatedLocal.push({
-                  ticketId: backendTicket.ticket_id,
-                  regId: backendTicket.registration_id,
-                  eventId: backendTicket.event_id,
-                  eventTitle: backendTicket.event_title,
-                  date: backendTicket.event_date,
-                  time: backendTicket.event_time,
-                  name: backendTicket.user_name,
-                  email: backendTicket.user_email,
-                });
-                localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(updatedLocal));
-              }
-
-              if (searchParams.get('showTicket') === 'true') {
-                setIsTicketModalOpen(true);
-              }
-            }
-          })
-          .catch((err) => {
-            console.error('Failed to auto-sync backend tickets:', err);
-          })
-          .finally(() => {
-            setCheckingRegistration(false);
-          });
-      } else {
-        setCheckingRegistration(false);
-      }
+      setCheckingRegistration(false);
     }
   }, [eventId, searchParams, handleRemoveStale]);
 

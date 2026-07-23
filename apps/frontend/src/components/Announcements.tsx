@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import GlassCard from "./GlassCard";
 import { Bell, Calendar, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAnnouncements } from "@/lib/hooks";
-import { motion } from "framer-motion";
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -17,24 +16,13 @@ function formatDate(dateString: string): string {
 
 function typeBadge(type: string) {
   const map: Record<string, string> = {
-    UPDATE: 'bg-blue-50 text-blue-700 border-blue-200/50',
-    REMINDER: 'bg-amber-50 text-amber-700 border-amber-200/50',
-    SCHEDULE_CHANGE: 'bg-rose-50 text-rose-700 border-rose-200/50',
-    URGENT: 'bg-red-50 text-red-700 border-red-200/50',
-    INFO: 'bg-emerald-50 text-emerald-700 border-emerald-200/50',
+    UPDATE: 'bg-blue-100/70 text-blue-800 border-blue-200/50',
+    REMINDER: 'bg-amber-100/70 text-amber-800 border-amber-200/50',
+    SCHEDULE_CHANGE: 'bg-rose-100/70 text-rose-800 border-rose-200/50',
+    URGENT: 'bg-red-100/70 text-red-800 border-red-200/50',
+    INFO: 'bg-emerald-100/70 text-emerald-800 border-emerald-200/50',
   };
-  return map[type] || 'bg-slate-50 text-slate-700 border-slate-200/50';
-}
-
-function typeLeftBar(type: string) {
-  const map: Record<string, string> = {
-    UPDATE: 'bg-blue-500',
-    REMINDER: 'bg-amber-500',
-    SCHEDULE_CHANGE: 'bg-rose-500',
-    URGENT: 'bg-red-500',
-    INFO: 'bg-emerald-500',
-  };
-  return map[type] || 'bg-slate-400';
+  return map[type] || 'bg-slate-100/70 text-slate-800 border-slate-200/50';
 }
 
 function typeLabel(type: string) {
@@ -43,109 +31,88 @@ function typeLabel(type: string) {
 
 export default function Announcements() {
   const { data: announcements = [], isLoading } = useAnnouncements();
-  const [headerHovered, setHeaderHovered] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-col h-full rounded-[22px] p-5 overflow-hidden select-none min-h-[400px] border border-amber-500/20 shadow-[0_8px_30px_rgba(255,153,0,0.04)]"
+    <GlassCard
+      className="flex flex-col h-full border border-orange-100/70 shadow-sm rounded-xl !p-5 min-h-[300px]"
+      hoverEffect={false}
       style={{
-        background: "linear-gradient(135deg, rgba(255, 248, 240, 0.95) 0%, rgba(255, 243, 228, 0.85) 50%, rgba(255, 248, 240, 0.95) 100%)"
+        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%)"
       }}
     >
       {/* Panel Header */}
-      <div 
-        className="flex items-center justify-between pb-3.5 border-b border-slate-100/80 mb-4 flex-shrink-0"
-        onMouseEnter={() => setHeaderHovered(true)}
-        onMouseLeave={() => setHeaderHovered(false)}
-      >
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
         <div className="flex items-center gap-2.5">
-          <motion.div 
-            animate={headerHovered ? { rotate: [0, -15, 15, -10, 10, 0] } : {}}
-            transition={{ duration: 0.5 }}
-            className="w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 flex items-center justify-center text-[#FF9900]"
-          >
+          <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500">
             <Bell className="w-4 h-4" />
-          </motion.div>
-          <div>
-            <h3 
-              className="font-bold text-[14.5px] text-slate-800 tracking-tight leading-none"
-              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-            >
-              Community Announcements
-            </h3>
           </div>
+          <h3 className="text-base font-bold text-slate-800 font-display">
+            Community Announcements
+          </h3>
         </div>
-
-        <span className="inline-flex items-center justify-center bg-slate-100/80 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-          {announcements.length} {announcements.length === 1 ? 'Update' : 'Updates'}
+        <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+          {announcements.length} updates
         </span>
       </div>
 
-      {/* Body Content */}
+      {/* Content Area */}
       {isLoading ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12">
-          <div className="w-6 h-6 border-2 border-[#FF9900] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs text-slate-400 font-medium">Loading updates...</span>
+        <div className="flex-1 space-y-3 pr-1 max-h-[380px] overflow-y-auto">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="p-3 rounded-lg border border-slate-100 bg-slate-50 animate-pulse">
+              <div className="flex items-center justify-between mb-2">
+                <div className="h-4 w-20 bg-slate-250 rounded" />
+                <div className="h-3 w-16 bg-slate-250 rounded" />
+              </div>
+              <div className="h-4 w-3/4 bg-slate-250 rounded mb-2" />
+              <div className="h-3 w-full bg-slate-250 rounded" />
+            </div>
+          ))}
         </div>
       ) : announcements.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-10 text-center px-4">
-          <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-3">
-            <Bell className="w-5 h-5 text-slate-400" />
-          </div>
-          <h4 
-            className="font-bold text-sm text-slate-700 mb-1"
-            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-          >
-            No Announcements Yet
-          </h4>
-          <p 
-            className="text-xs text-slate-500 max-w-[240px] leading-relaxed"
-            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-          >
-            Stay tuned! When the core team publishes updates or reminders, they will appear here in real-time.
+        <div className="flex-1 flex flex-col items-center justify-center text-center mt-4">
+          <Bell className="w-7 h-7 text-slate-300 mb-2" />
+          <h4 className="text-[13.5px] font-bold text-slate-700">No Announcements Yet</h4>
+          <p className="text-xs text-slate-400 mt-1 max-w-[210px] leading-relaxed">
+            Watch this space for the latest updates.
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto pr-1 max-h-[380px] custom-scrollbar space-y-3">
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="relative p-4 rounded-xl bg-white/90 border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-slate-200 transition-all group overflow-hidden"
+              className="group p-3.5 rounded-lg transition-all relative border border-slate-100 bg-white/50 hover:bg-white hover:border-orange-200/50 hover:shadow-sm"
             >
-              <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l-xl", typeLeftBar(ann.type))} />
-
-              <div className="flex items-start justify-between gap-2 pl-1.5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider", typeBadge(ann.type))}>
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className={cn("inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase border", typeBadge(ann.type))}>
                     {typeLabel(ann.type)}
                   </span>
-                  <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
-                    <Calendar size={11} />
-                    <span>{formatDate(ann.createdAt)}</span>
-                  </div>
+                  {ann.event?.title && (
+                    <span className="text-[10px] font-semibold text-slate-500">
+                      @{ann.event.title}
+                    </span>
+                  )}
                 </div>
+                <span className="text-[10px] text-slate-400 flex items-center gap-1 font-medium">
+                  <Calendar className="h-3 w-3" />
+                  {formatDate(ann.createdAt)}
+                </span>
               </div>
 
-              <h4 
-                className="font-bold text-[13px] text-slate-800 mt-2 pl-1.5 leading-snug group-hover:text-[#FF9900] transition-colors"
-                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-              >
-                {ann.title}
+              <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#FF9900] transition-colors flex items-center gap-1">
+                <span>{ann.title}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 text-[#FF9900]" />
               </h4>
 
-              <p 
-                className="text-[11.5px] text-slate-500 leading-relaxed mt-2.5 whitespace-pre-line font-medium"
-                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-              >
+              <p className="text-xs text-slate-500 leading-relaxed mt-2 whitespace-pre-line">
                 {ann.message}
               </p>
             </div>
           ))}
         </div>
       )}
-    </motion.div>
+    </GlassCard>
   );
 }

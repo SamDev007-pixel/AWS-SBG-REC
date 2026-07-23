@@ -108,11 +108,8 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
           <motion.div
             className="absolute -inset-4 border border-cyan-300 rounded-full pointer-events-none animate-pulse-glow"
           />
-          <div className={cn(
-            "absolute -top-8 left-1/2 -translate-x-1/2 font-black text-[9px] px-3.5 py-0.5 rounded-lg border-2 border-white tracking-widest shadow-md animate-bounce z-35 whitespace-nowrap font-outfit",
-            index === 0 ? "bg-emerald-500 text-white shadow-emerald-500/25" : "bg-amber-400 text-slate-950 shadow-amber-400/25"
-          )}>
-            {index === 0 ? 'START HERE' : 'CURRENT'}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 font-black text-[9px] px-3.5 py-0.5 rounded-full border-2 border-white tracking-widest shadow-md animate-bounce z-35 whitespace-nowrap font-outfit">
+            CURRENT
           </div>
         </>
       )}
@@ -167,10 +164,10 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
             <g>
               <path
                 d="M 45,95 C 15,95 10,70 30,55 C 10,35 35,15 65,20 C 80,5 115,10 125,30 C 150,20 165,45 155,70 C 165,85 145,95 125,95 Z"
-                fill="white"
-                stroke="#E2E8F0"
+                fill="#E2E8F0"
+                stroke="#CBD5E1"
                 strokeWidth="1.5"
-                opacity="0.9"
+                opacity="0.85"
               />
               <path
                 d="M 50,85 C 60,88 90,88 100,83 C 110,88 140,88 145,81 C 150,71 150,58 140,53 C 135,43 115,48 110,48 C 100,38 80,43 75,51 C 65,48 50,55 53,68 C 47,73 47,81 50,85 Z"
@@ -235,7 +232,7 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
 
         {/* Flag pole on the first island */}
         {index === 0 && status !== 'locked' && (
-          <div className="absolute top-[-25px] left-[22%] -translate-x-1/2 z-30 flex flex-col items-center select-none pointer-events-none">
+          <div className="absolute top-[-25px] left-[32%] -translate-x-1/2 z-30 flex flex-col items-center select-none pointer-events-none">
             <div className="relative w-6 h-4 bg-emerald-500 border border-emerald-600 rounded-sm shadow-sm flex items-center justify-center">
               <Icons.Flag className="w-2.5 h-2.5 text-white fill-current" />
             </div>
@@ -284,7 +281,7 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
           </div>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center z-20 pb-4">
-            <div className="w-8 h-8 rounded-full bg-white/90 border border-slate-200/50 flex items-center justify-center text-slate-400 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-slate-300/60 border border-slate-400/20 flex items-center justify-center text-slate-500 shadow-inner">
               <Icons.Lock className="w-3.5 h-3.5" />
             </div>
           </div>

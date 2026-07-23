@@ -49,7 +49,7 @@ export default function EventsSidebarShell({ children }: { children: React.React
       user={user}
       brandTitle={user?.name || 'Attendee'}
       brandSubtitle={user?.badge || 'Enthusiast'}
-      homeHref="/enthusiasts/dashboard"
+      homeHref="/events/dashboard"
     >
       {children}
     </SidebarLayout>

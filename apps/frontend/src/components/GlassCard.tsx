@@ -36,16 +36,15 @@ export default function GlassCard({
       whileHover={
         hoverEffect
           ? {
-            y: -4,
+            y: -3,
             boxShadow:
-              "0 14px 28px -5px rgba(35, 47, 62, 0.12), 0 10px 14px -6px rgba(0, 0, 0, 0.05)",
-            borderColor: "rgba(255, 255, 255, 0.8)",
-            backgroundColor: "rgba(255, 255, 255, 0.98)",
-            transition: { duration: 0.2, ease: "easeOut" },
+              "-12px 0 28px rgba(105, 145, 255, 0), 12px 0 28px rgba(0, 0, 0, 0.4), 0 10px 20px rgba(15, 23, 42, 0.10)",
+            borderColor: "rgba(255, 255, 255, 0.4)",
+            transition: { duration: 0.25, ease: "easeOut" },
           }
           : undefined
       }
-      whileTap={hoverEffect ? { scale: 0.97 } : undefined}
+      whileTap={onClick && hoverEffect ? { scale: 0.98 } : undefined}
     >
       {children}
     </motion.div>

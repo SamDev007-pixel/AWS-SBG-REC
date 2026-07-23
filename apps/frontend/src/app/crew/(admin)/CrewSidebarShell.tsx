@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   Newspaper,
   Cpu,
-  Bell,
 } from 'lucide-react';
 
 const crewNavItems: NavItem[] = [
