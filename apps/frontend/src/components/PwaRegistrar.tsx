@@ -87,7 +87,7 @@ export default function PwaRegistrar() {
           <img
             src="/sbg_logo.svg"
             alt="AWS SBG App"
-            className="w-10 h-10 rounded-xl object-contain shrink-0 bg-[#0A0F19] p-1.5 border border-slate-700/80"
+            className="w-10 h-10 rounded-xl object-contain shrink-0 bg-black p-1.5 border border-slate-700/80"
           />
           <div className="min-w-0">
             <h4 className="text-xs font-bold text-white truncate">Install AWS SBG REC App</h4>
