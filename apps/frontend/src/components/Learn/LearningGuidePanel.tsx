@@ -182,6 +182,7 @@ export const LearningGuidePanel: React.FC<LearningGuidePanelProps> = ({
                 )}
               </div>
             </div>
+          );
         })}
       </div>
     </div>
