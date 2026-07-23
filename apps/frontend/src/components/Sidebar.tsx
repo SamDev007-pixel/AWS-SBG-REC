@@ -135,8 +135,8 @@ export default function Sidebar({
                     isHome ? "bg-white/10 text-white" : "hover:bg-white/5 text-slate-200"
                   )}
                 >
-                  <div className="w-9 h-9 rounded-lg bg-[#161D27] border border-slate-700/50 flex items-center justify-center shrink-0 shadow-sm overflow-hidden p-1">
-                    <img src="/sbg_logo.svg" alt="AWS SBG REC Logo" className="w-full h-full object-contain" />
+                  <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                    <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-lg font-extrabold truncate text-white tracking-tight leading-tight">{user.name}</p>
@@ -160,8 +160,8 @@ export default function Sidebar({
               </div>
             ) : (
               <button onClick={() => onNavigate(homeHref)} className={cn("flex items-center justify-center rounded-xl transition-colors duration-150 p-2", isHome ? "bg-white/10" : "hover:bg-white/5")}>
-                <div className="w-9 h-9 rounded-lg bg-[#161D27] border border-slate-700/50 flex items-center justify-center shadow-sm overflow-hidden p-1">
-                  <img src="/sbg_logo.svg" alt="AWS SBG REC Logo" className="w-full h-full object-contain" />
+                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm overflow-hidden">
+                  <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
                 </div>
               </button>
             )}
