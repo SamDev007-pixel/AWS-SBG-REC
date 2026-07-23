@@ -15,15 +15,8 @@ const COLS = [
     h: "Resources",
     links: [
       { label: "Our Team", href: "/#team" },
-      { label: "Community", href: "/#about" }
-    ]
-  },
-  {
-    h: "Connect",
-    links: [
-      { label: "Instagram", href: "https://www.instagram.com/aws_sbg_rec/" },
-      { label: "LinkedIn", href: "https://www.linkedin.com/company/aws-sbg-rec/" },
-      { label: "WhatsApp", href: "https://chat.whatsapp.com/KSFvYJKRYyB31aL0lZMugK" }
+      { label: "Events", href: "/events" },
+      { label: "Roadmap", href: "/learn" }
     ]
   },
 ];
@@ -77,7 +70,7 @@ export default function Footer() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.8fr 1fr 1fr 1fr",
+            gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr 1fr",
             gap: isMobile ? "24px" : "48px",
           }}
         >
