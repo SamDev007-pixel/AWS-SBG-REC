@@ -282,8 +282,16 @@ export default function ReviewsMarquee() {
   const handleCardClick = (idx: number, half: "a" | "b") => {
     if (clickedIndex && clickedIndex.idx === idx && clickedIndex.half === half) {
       setClickedIndex(null);
+      setIsPaused(false);
     } else {
       setClickedIndex({ idx, half });
+    }
+  };
+
+  const handleSectionClick = () => {
+    if (clickedIndex) {
+      setClickedIndex(null);
+      setIsPaused(false);
     }
   };
 
@@ -291,7 +299,7 @@ export default function ReviewsMarquee() {
     <section
       id="community"
       ref={sectionRef}
-      onClick={() => setClickedIndex(null)}
+      onClick={handleSectionClick}
       style={{
         width: "100%",
         background: "linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%)",
@@ -350,7 +358,11 @@ export default function ReviewsMarquee() {
       <div
         ref={containerRef}
         onMouseEnter={() => !clickedIndex && setIsPaused(true)}
-        onMouseLeave={() => !clickedIndex && setIsPaused(false)}
+        onMouseLeave={() => {
+          if (!clickedIndex) {
+            setIsPaused(false);
+          }
+        }}
         style={{
           width: "100%",
           display: "flex",
@@ -367,13 +379,11 @@ export default function ReviewsMarquee() {
             display: "flex",
             gap: GAP,
             width: "max-content",
-            animationName: (trackOffset > 0 && !clickedIndex) ? "marquee-scroll" : "none",
+            animationName: trackOffset > 0 ? "marquee-scroll" : "none",
             animationDuration: "30s",
             animationTimingFunction: "linear",
             animationIterationCount: "infinite",
-            animationPlayState: (isPaused || !isInView) ? "paused" : "running",
-            transform: clickedIndex ? `translateX(${clickedTranslation}px)` : undefined,
-            transition: clickedIndex ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
+            animationPlayState: (isPaused || !isInView || !!clickedIndex) ? "paused" : "running",
             willChange: "transform",
           }}
         >
