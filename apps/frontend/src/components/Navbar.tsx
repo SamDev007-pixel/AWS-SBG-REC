@@ -130,7 +130,7 @@ export default function Navbar() {
               src="/sbg_logo.svg"
               alt="AWS SBG REC Logo"
               style={{
-                height: scrolled ? "28px" : "34px",
+                height: scrolled ? "22px" : "26px",
                 width: "auto",
                 objectFit: "contain",
                 display: "block",

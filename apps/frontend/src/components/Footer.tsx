@@ -88,8 +88,8 @@ export default function Footer() {
                 whileHover={{ rotate: -5, scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "26px",
+                  height: "26px",
                   borderRadius: "8px",
                   overflow: "hidden",
                   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
