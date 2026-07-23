@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "AWS SBG REC",
   },
   icons: {
@@ -32,9 +32,13 @@ export const metadata: Metadata = {
 
 function LayoutSpinner() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-[3px] border-[#FF9900] border-t-transparent rounded-full animate-spin" />
+    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+      <div className="flex items-center justify-center">
+        <img
+          src="/sbg-logo-latest.png"
+          alt="AWS SBG REC Logo"
+          className="w-28 h-28 object-contain"
+        />
       </div>
     </div>
   );
