@@ -53,9 +53,9 @@ export default function PwaRegistrar() {
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 max-w-sm bg-[#232F3E] text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-3 animate-[slideUp_0.3s_ease-out]">
       <div className="flex items-center gap-3 min-w-0">
         <img
-          src="/sbg-logo-new.png"
+          src="/pwa-192x192.png"
           alt="AWS SBG App"
-          className="w-10 h-10 rounded-xl object-cover shrink-0 bg-white p-1"
+          className="w-10 h-10 rounded-xl object-contain shrink-0"
         />
         <div className="min-w-0">
           <h4 className="text-xs font-bold text-white truncate">Install AWS SBG REC</h4>
