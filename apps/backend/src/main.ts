@@ -121,10 +121,15 @@ async function bootstrap() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 
+
 const port = Number(process.env.PORT || process.env.APP_PORT || 3000);
 
 await app.listen(port, '0.0.0.0');
 
 winstonLogger.log('info', `Application is running at ${await app.getUrl()}`);
 winstonLogger.log('info', `Swagger documentation: ${await app.getUrl()}/api/docs`);
-bootstrap();}
+}
+bootstrap().catch((err) => {
+  console.error('Bootstrap failed:', err);
+  process.exit(1);
+});
