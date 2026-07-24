@@ -208,15 +208,7 @@ export default function ServicesCatalog() {
               </div>
 
               {/* Description */}
-              <p
-                className="text-[11.5px] text-slate-400 leading-relaxed overflow-hidden flex-grow"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  textOverflow: "ellipsis",
-                }}
-              >
+              <p className="text-[11.5px] text-slate-400 leading-relaxed line-clamp-2 flex-grow">
                 {service.shortDescription}
               </p>
 

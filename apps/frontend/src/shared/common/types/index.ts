@@ -223,7 +223,6 @@ export interface Announcement {
   title: string;
   message: string;
   type: string;
-  targetType?: 'CREW_ALL' | 'CREW_SPECIFIC' | string;
   sendEmail: boolean;
   createdAt: string;
   updatedAt: string;

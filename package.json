@@ -7,20 +7,10 @@
     "apps/frontend"
   ],
   "scripts": {
-    "build": "npm run build -w backend && npm run build -w frontend",
     "backend": "npm run start:dev -w backend",
     "frontend": "npm run dev -w frontend",
     "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgCyan.bold\" --kill-others-on-fail \"npm run backend\" \"npm run frontend\"",
     "dev:fast": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgCyan.bold\" --kill-others-on-fail \"npm run start:dev -w backend\" \"npm run frontend\""
-  },
-  "dependencies": {
-    "@nestjs/cli": "^10.4.0",
-    "prisma": "^5.20.0",
-    "typescript": "^5.5.0",
-    "ts-node": "^10.9.2",
-    "@types/express": "^4.17.21",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^22.0.0"
   },
   "devDependencies": {
     "@types/multer": "^2.2.0",

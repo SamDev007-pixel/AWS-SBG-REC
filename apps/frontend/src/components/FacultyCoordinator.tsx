@@ -1,15 +1,10 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 
 const DESCRIPTION = `The driving force behind the AWS Student Builder Group at Rajalakshmi Engineering College, he has played a pivotal role in establishing and nurturing the community since its inception. By mentoring the core and crew teams, reviewing ideas, monitoring progress, providing valuable feedback, and ensuring the successful execution of every initiative, he has fostered a culture of innovation, collaboration, and continuous learning. Through his unwavering guidance and commitment to excellence, he empowers students to grow, lead impactful initiatives, and contribute to the sustained success of the AWS Student Builder Group.`;
 
-interface FacultyCoordinatorProps {
-  previewData?: any;
-  forceMobile?: boolean;
-}
-
-export default function FacultyCoordinator({ previewData, forceMobile }: FacultyCoordinatorProps = {}) {
+export default function FacultyCoordinator() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 

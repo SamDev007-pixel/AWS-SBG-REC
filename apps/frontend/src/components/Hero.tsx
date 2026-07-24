@@ -47,12 +47,7 @@ const DecorativeGrid = ({
   );
 };
 
-interface HeroProps {
-  previewData?: any;
-  forceMobile?: boolean;
-}
-
-export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
+export default function Hero() {
   const [isMobile, setIsMobile] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(800);

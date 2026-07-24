@@ -218,8 +218,6 @@ export default function SidebarLayout({
         <div className={
           pathname && pathname.includes('/chat')
             ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : "h-full overflow-hidden")
-            : isRoadmapPage
-            ? (shouldShowBack() ? "h-full pt-12 overflow-y-auto md:overflow-hidden overflow-x-hidden no-scrollbar-mobile" : "h-full overflow-y-auto md:overflow-hidden overflow-x-hidden no-scrollbar-mobile")
             : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden no-scrollbar-mobile" : "h-full overflow-y-auto overflow-x-hidden no-scrollbar-mobile")
         }>
           {children}

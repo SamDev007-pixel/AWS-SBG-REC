@@ -50,7 +50,7 @@ export default function ServicesMarquee() {
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
-          minHeight: "80px",
+          minHeight: "68px",
         }}
       >
         {/* ── Hover info overlay ───────────────────────────────────────── */}
@@ -100,7 +100,7 @@ export default function ServicesMarquee() {
                   style={{ width: 28, height: 28, flexShrink: 0, objectFit: "contain" }}
                 />
                 {/* Text */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <span
                       style={{
@@ -131,15 +131,10 @@ export default function ServicesMarquee() {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: "12.5px",
-                      color: "rgba(255,255,255,0.70)",
-                      lineHeight: 1.4,
+                      fontSize: "13px",
+                      color: "rgba(255,255,255,0.55)",
+                      lineHeight: 1.5,
                       fontWeight: 400,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
                     }}
                   >
                     {hoveredService.desc}

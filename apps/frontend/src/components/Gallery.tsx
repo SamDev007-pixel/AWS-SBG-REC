@@ -1,10 +1,9 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "@/lib/api";
 
 /* ─── Card data ─────────────────────────────────────────────────────────── */
-const DEFAULT_CARDS = [
+const CARDS = [
   {
     gradient: "linear-gradient(135deg,rgb(130,68,239),#4a7a9b)",
     label: "Cloud Matrix",
@@ -54,6 +53,7 @@ const CARD_H     = 460;   // card height px
 const Y_STEP     = 12;    // vertical offset per depth level (stack peek)
 const SCALE_STEP = 0.03;  // scale reduction per depth level
 const AUTO_MS    = 3200;  // auto-advance interval (ms)
+const N          = CARDS.length;
 
 /* ─── Shared card face ──────────────────────────────────────────────────── */
 function CardFace({
@@ -61,7 +61,7 @@ function CardFace({
   index,
   total,
 }: {
-  card: (typeof DEFAULT_CARDS)[0];
+  card: (typeof CARDS)[0];
   index: number;
   total: number;
 }) {
@@ -108,44 +108,17 @@ function CardFace({
 }
 
 /* ─── Gallery ───────────────────────────────────────────────────────────── */
-interface GalleryProps {
-  previewData?: any[];
-}
-
-export default function Gallery({ previewData }: GalleryProps = {}) {
-  const [cards, setCards] = useState<any[]>(previewData || DEFAULT_CARDS);
+export default function Gallery() {
+  /* order[0] = top card, order[N-1] = bottom card */
   const [order, setOrder] = useState<number[]>(() =>
-    (previewData || DEFAULT_CARDS).map((_, i) => i)
+    CARDS.map((_, i) => i)
   );
   const [flyingIdx, setFlyingIdx] = useState<number | null>(null);
   const [isBusy, setIsBusy] = useState(false);
 
-  const N = cards.length;
-
-  useEffect(() => {
-    if (previewData) {
-      setCards(previewData);
-      setOrder(previewData.map((_, i) => i));
-    }
-  }, [previewData]);
-
-  useEffect(() => {
-    if (previewData) return;
-    let active = true;
-    api.get<any[]>("/homepage/journeys")
-      .then((res) => {
-        if (active && res && res.length > 0) {
-          setCards(res);
-          setOrder(res.map((_, i) => i));
-        }
-      })
-      .catch((err) => console.error("Journeys dynamic fetch error:", err));
-    return () => { active = false; };
-  }, [previewData]);
-
   /* ── Advance: top card flies up, deck rotates ─────────────────────── */
   const advance = useCallback(() => {
-    if (isBusy || order.length === 0) return;
+    if (isBusy) return;
     setIsBusy(true);
 
     const topCardIdx = order[0];
@@ -170,9 +143,7 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
     return () => clearInterval(t);
   }, [advance]);
 
-  if (order.length === 0 || cards.length === 0) return null;
-
-  const currentTopCard = cards[order[0]];
+  const currentTopCard = CARDS[order[0]];
 
   return (
     <section
@@ -196,23 +167,21 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
       {/* ── Immersive Blurred Background ──────────────────────────── */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden" }}>
         <AnimatePresence mode="popLayout">
-          {currentTopCard && (
-            <motion.div
-              key={currentTopCard.image}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }} // Increased ambient glow
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              style={{
-                position: "absolute",
-                inset: 0,
-                backgroundImage: `url(${currentTopCard.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                filter: "blur(50px) scale(1.15)", // Smooth edge blur
-              }}
-            />
-          )}
+          <motion.div
+            key={currentTopCard.image}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }} // Increased ambient glow
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${currentTopCard.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "blur(50px) scale(1.15)", // Smooth edge blur
+            }}
+          />
         </AnimatePresence>
         {/* Dark radial gradient overlay for high contrast */}
         <div
@@ -289,10 +258,8 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
         {/* Stack cards — rendered back-to-front (bottom first) */}
         {[...order].reverse().map((cardIdx, revDepth) => {
           const depth = N - 1 - revDepth;
-          const card = cards[cardIdx];
+          const card = CARDS[cardIdx];
           const isTop = depth === 0;
-
-          if (!card) return null;
 
           return (
             <motion.div
@@ -392,16 +359,164 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "rgba(10, 15, 25, 0.4)",
-                    zIndex: 3,
-                    pointerEvents: "none",
+                    background: "rgba(15, 23, 42, 0.35)",
+                    zIndex: 10,
+                    borderRadius: 20,
                   }}
                 />
               )}
             </motion.div>
           );
         })}
+
+        {/* Flying card overlay — exits upward */}
+        <AnimatePresence>
+          {flyingIdx !== null && (
+            <motion.div
+              key="flying"
+              initial={{ y: 0, scale: 1, opacity: 1, rotateX: 0 }}
+              animate={{
+                y: -CARD_H * 1.4,
+                scale: 0.82,
+                opacity: 0,
+                rotateX: -20,
+              }}
+              exit={{}}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: CARD_H,
+                borderRadius: 20,
+                overflow: "hidden",
+                zIndex: N + 10,
+                pointerEvents: "none",
+                transformOrigin: "top center",
+                boxShadow: "0 24px 56px rgba(0,0,0,0.55)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {/* Top half: Image */}
+              <div style={{ height: "270px", width: "100%", position: "relative", overflow: "hidden" }}>
+                {CARDS[flyingIdx].image && (
+                  <img
+                    src={CARDS[flyingIdx].image}
+                    alt={CARDS[flyingIdx].label}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                )}
+                {/* Counter badge */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 18,
+                    right: 18,
+                    background: "rgba(15, 23, 42, 0.65)",
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 100,
+                    padding: "4px 12px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#fff",
+                    zIndex: 5,
+                  }}
+                >
+                  {String(flyingIdx + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
+                </div>
+              </div>
+
+              {/* Bottom half: Solid dark text container */}
+              <div
+                style={{
+                  height: "190px",
+                  width: "100%",
+                  background: "#111622",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "20px 24px",
+                  boxSizing: "border-box",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                <CardFace
+                  card={CARDS[flyingIdx]}
+                  index={flyingIdx}
+                  total={N}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ── Centered Controls Below Photo Stack ────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
+          marginTop: "10px",
+          zIndex: 2,
+          position: "relative",
+        }}
+      >
+        {/* Dot progress indicators */}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {CARDS.map((_, i) => (
+            <motion.div
+              key={i}
+              animate={{
+                width: order[0] === i ? 26 : 9,
+                backgroundColor:
+                  order[0] === i ? "#FF9900" : "rgba(255, 255, 255, 0.35)",
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ height: 9, borderRadius: 100, cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent advancing the deck on dot click
+                if (isBusy) return;
+                const steps = (order.indexOf(i) + N) % N;
+                if (steps === 0) return;
+                let count = 0;
+                const tick = () => {
+                  if (count >= steps) return;
+                  count++;
+                  advance();
+                  if (count < steps) setTimeout(tick, 180); // Advance animation timing
+                };
+                tick();
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Click hint */}
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "rgba(255, 255, 255, 0.6)",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Click photo to advance
+        </span>
       </div>
     </section>
   );
 }
+
+
