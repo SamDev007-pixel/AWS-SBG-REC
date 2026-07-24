@@ -6,8 +6,6 @@ import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
 import { Toaster } from "sonner";
 
-import PwaRegistrar from "@/components/PwaRegistrar";
-
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -18,15 +16,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "AWS SBG REC Event Registration",
   description: "Register for AWS Cloud Practitioner bootcamps, serverless workshops, and container orchestration bootcamps.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "AWS SBG REC",
-  },
   icons: {
     icon: '/brand-logo.png',
-    apple: '/sbg-logo-new.png',
   },
 };
 
@@ -54,7 +45,6 @@ export default function RootLayout({
               {children}
             </Suspense>
             <Toaster position="top-center" richColors />
-            <PwaRegistrar />
           </AuthWrapper>
         </Providers>
       </body>
