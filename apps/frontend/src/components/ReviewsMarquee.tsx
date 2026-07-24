@@ -205,7 +205,11 @@ const ReviewCard = ({ review, idx, half, isZoomed, isDimmed, onClick }: ReviewCa
   );
 };
 
-export default function ReviewsMarquee() {
+interface ReviewsMarqueeProps {
+  previewData?: any[];
+}
+
+export default function ReviewsMarquee({ previewData }: ReviewsMarqueeProps = {}) {
   const [isPaused, setIsPaused] = useState(false);
   const [trackOffset, setTrackOffset] = useState(0);
   const [isInView, setIsInView] = useState(false);

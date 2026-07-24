@@ -61,6 +61,19 @@ const parseBulletPoints = (text: string): string[] => {
   return bulletItems.length > 0 ? bulletItems : [text.trim()];
 };
 
+// Helper to determine dial status of a topic
+function getDialStatus(topic?: TopicSummary | null): 'LOCKED' | 'COMPLETED' | 'CURRENT' | 'AVAILABLE' {
+  if (!topic) return 'LOCKED';
+  const isLocked = !topic.unlocked;
+  const isCompleted = topic.status === 'COMPLETED' || (topic.totalModules > 0 && topic.completedModules >= topic.totalModules);
+  const isCurrent = topic.unlocked && !isCompleted;
+
+  if (isLocked) return 'LOCKED';
+  if (isCompleted) return 'COMPLETED';
+  if (isCurrent) return 'CURRENT';
+  return 'AVAILABLE';
+}
+
 export default function LearnPage() {
   const router = useRouter();
 
@@ -115,37 +128,32 @@ export default function LearnPage() {
 
   const handleReviewTopics = () => {
     if (railRef.current) {
-      railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      railRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
   const scrollToActiveTopic = () => {
     const activeEl = activeCardRef.current;
 
     if (activeEl) {
-      const rect = activeEl.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const elementCenter = rect.top + rect.height / 2;
-      const viewportCenter = viewportHeight / 2;
+      const railEl = railRef.current;
+      if (railEl) {
+        const railRect = railEl.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+        const isAlreadyAtTopic =
+          activeRect.top >= railRect.top && activeRect.bottom <= railRect.bottom;
 
-      // Check if current topic card is already centered / in view
-      const isAlreadyAtTopic = Math.abs(elementCenter - viewportCenter) < 150 || (rect.top >= 40 && rect.bottom <= viewportHeight - 40);
-
-      if (!isAlreadyAtTopic) {
-        // First touch: scroll to current active topic
+        if (!isAlreadyAtTopic) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      } else {
         activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
 
-    // Second touch (already at active topic) or all completed: scroll to bottom of page
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-    }
-    const scrollableEl = Array.from(document.querySelectorAll<HTMLElement>('.overflow-y-auto, main, div')).find(
-      (el) => el.scrollHeight > el.clientHeight + 40
-    );
-    if (scrollableEl) {
-      scrollableEl.scrollTo({ top: scrollableEl.scrollHeight, behavior: 'smooth' });
+    if (railRef.current) {
+      railRef.current.scrollTo({ top: railRef.current.scrollHeight, behavior: 'smooth' });
     }
   };
 
@@ -424,6 +432,12 @@ export default function LearnPage() {
   // Find current topic
   const currentTopic = useMemo(() => {
     if (presentationTopics.length === 0) return null;
+    const isAllCompleted = presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted) {
+      return presentationTopics[presentationTopics.length - 1];
+    }
     if (continueModule?.topicSlug) {
       const found = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
       if (found) return found;
@@ -504,40 +518,6 @@ export default function LearnPage() {
     };
   }, [currentTopic?.id, animatingTopicId, isCompletedVisual, loading]);
 
-  // Map display level for continue module
-  const continueDisplayLevel = useMemo(() => {
-    if (!continueModule) return 'Beginner';
-    const mapping: Record<string, string> = {
-      BEGINNER: 'Beginner',
-      INTERMEDIATE: 'Intermediate',
-      ADVANCED: 'Advanced',
-    };
-    return mapping[continueModule.level] || 'Beginner';
-  }, [continueModule]);
-
-  // Fallback reward calculation
-  const continueXPReward = useMemo(() => {
-    if (!continueModule) return 50;
-    if (continueModule.level === 'ADVANCED') return 100;
-    if (continueModule.level === 'INTERMEDIATE') return 75;
-    return 50;
-  }, [continueModule]);
-
-  const topicsCompletedCount = useMemo(() => {
-    return presentationTopics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
-  }, [presentationTopics]);
-
-  const currentTopicIndex = useMemo(() => {
-    if (presentationTopics.length === 0) return 0;
-    const activeIndex = presentationTopics.findIndex(t => t.id === currentTopic?.id);
-    if (activeIndex !== -1) return activeIndex + 1;
-    return 1;
-  }, [presentationTopics, currentTopic]);
-
-  const modulesCompletedCount = useMemo(() => {
-    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-  }, [presentationTopics]);
-
   const isPlatformCompleted = useMemo(() => {
     if (presentationTopics.length === 0) return false;
     const totalCompleted = presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
@@ -547,17 +527,43 @@ export default function LearnPage() {
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
 
-  // Check dial states
-  const getDialStatus = (topic: TopicSummary) => {
-    const isLocked = !topic.unlocked;
-    const isCompleted = topic.status === 'COMPLETED';
-    const isCurrent = topic.unlocked && !isCompleted;
+  // Map display level for continue module or completed platform
+  const continueDisplayLevel = useMemo(() => {
+    const isAllCompleted = presentationTopics.length > 0 && presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted || isPlatformCompleted) {
+      return 'Advanced';
+    }
+    if (!continueModule) return 'Beginner';
+    const mapping: Record<string, string> = {
+      BEGINNER: 'Beginner',
+      INTERMEDIATE: 'Intermediate',
+      ADVANCED: 'Advanced',
+    };
+    return mapping[continueModule.level] || 'Beginner';
+  }, [continueModule, isPlatformCompleted, presentationTopics]);
 
-    if (isLocked) return 'LOCKED';
-    if (isCompleted) return 'COMPLETED';
-    if (isCurrent) return 'CURRENT';
-    return 'AVAILABLE';
-  };
+  const topicsCompletedCount = useMemo(() => {
+    return presentationTopics.filter(t => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)).length;
+  }, [presentationTopics]);
+
+  const currentTopicIndex = useMemo(() => {
+    if (presentationTopics.length === 0) return 0;
+    const isAllCompleted = presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted) {
+      return presentationTopics.length;
+    }
+    const activeIndex = presentationTopics.findIndex(t => t.id === currentTopic?.id);
+    if (activeIndex !== -1) return activeIndex + 1;
+    return 1;
+  }, [presentationTopics, currentTopic]);
+
+  const modulesCompletedCount = useMemo(() => {
+    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+  }, [presentationTopics]);
 
   const renderWithSidebar = (children: React.ReactNode) => {
     if (!mounted) {
@@ -568,7 +574,7 @@ export default function LearnPage() {
       );
     }
     const themedContent = (
-      <div className="w-full min-h-screen min-h-[100dvh] h-full bg-slate-50/50 flex-1 min-h-0 flex flex-col">
+      <div className="w-full h-screen h-[100dvh] max-h-screen bg-slate-50/50 flex-1 min-h-0 flex flex-col overflow-hidden">
         {children}
       </div>
     );
@@ -618,16 +624,16 @@ export default function LearnPage() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen min-h-[100dvh] h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden flex flex-col flex-1 no-scrollbar-mobile">
+      <div className="h-screen h-[100dvh] max-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-hidden flex flex-col flex-1 no-scrollbar-mobile">
         {/* Cloud Background from Roadmaps */}
         <SkyBackground height={contentHeight ? contentHeight : undefined} />
 
-        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-4 sm:pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6 flex flex-col gap-5 sm:gap-8 relative z-10 w-full h-auto lg:h-full lg:flex-1 lg:min-h-0">
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-4 sm:pt-6 pb-4 md:pb-6 flex flex-col gap-4 sm:gap-6 relative z-10 w-full h-full flex-1 min-h-0 overflow-hidden">
 
           {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto">
+          <header className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto flex-shrink-0">
             {/* Left Side: Navigation & Current Mission Info */}
-            <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto h-auto min-w-0">
+            <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto h-auto min-w-0">
               {/* Back to Dashboard Link Button (White/Grey Circle Button) */}
               <Link
                 href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
@@ -646,7 +652,7 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
+                    className="flex items-center gap-3 sm:gap-4 w-full md:w-auto min-w-0"
                   >
                     <div
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
@@ -691,7 +697,7 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
+                    className="flex items-start sm:items-center gap-3 sm:gap-4 w-full md:w-auto min-w-0"
                   >
                     <div className="flex flex-col text-slate-800 min-w-0 flex-1">
                       <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
@@ -724,25 +730,9 @@ export default function LearnPage() {
             </div>
 
             {/* Right Side: Responsive Stats Grid & Actions */}
-            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-              {/* Stats Cards Grid (2x2 on Mobile, Inline Flex on Tablet & Desktop - All cards stretch to uniform height) */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Continue Action Button (Stretched to match exact height of stats cards without upper label) */}
-                <button
-                  onClick={handleResume}
-                  disabled={!continueModule}
-                  className={cn(
-                    "bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2.5 sm:py-2 flex items-center justify-center gap-1.5 self-stretch min-h-[44px] sm:min-h-0 min-w-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
-                    !continueModule && "opacity-60 cursor-not-allowed"
-                  )}
-                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
-                >
-                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
-                    Continue
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                </button>
-
+            <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+              {/* Stats Cards Grid */}
+              <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
                 {/* Topics Progress Badge */}
                 <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
@@ -769,21 +759,8 @@ export default function LearnPage() {
                   </div>
                 </div>
 
-                {/* Reward XP Badge */}
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
-                      REWARD
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
-                      +{continueModule ? continueXPReward : 50} XP
-                    </span>
-                  </div>
-                </div>
-
-                {/* Level badge (Shown on Tablet & Desktop) */}
-                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
+                {/* Level badge */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
@@ -816,9 +793,9 @@ export default function LearnPage() {
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-2 lg:pb-6">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-1 min-h-0 overflow-hidden pb-2 md:pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-0 lg:pr-2 no-scrollbar-mobile lg:custom-scrollbar">
+            <div ref={railRef} className="flex-[1.5] min-w-0 overflow-y-auto h-full pr-1.5 md:pr-3 custom-scrollbar scroll-smooth flex flex-col">
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -1129,7 +1106,7 @@ export default function LearnPage() {
             </div>
 
             {/* Right Column: Description of current Topic */}
-            <div className="hidden lg:flex w-full lg:flex-1 flex-shrink-0 flex-col gap-6 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+            <div className="hidden md:flex w-full md:flex-1 flex-shrink-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
               {displayTopic ? (
                 <div className={cn(
                   "w-full backdrop-blur-[20px] border rounded-2xl p-6 md:p-8 flex flex-col gap-6 text-left transition-all duration-600",

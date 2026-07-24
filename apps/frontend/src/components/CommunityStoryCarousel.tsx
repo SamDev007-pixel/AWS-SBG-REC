@@ -285,7 +285,11 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
   );
 }
 
-export default function OurTeamShowcase() {
+interface OurTeamShowcaseProps {
+  previewData?: any[];
+}
+
+export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = {}) {
   const [currentIndex, setCurrentIndex] = useState(() => {
     const captIdx = ALL_MEMBERS.findIndex((m) => m.role === "Captain");
     return captIdx !== -1 ? captIdx + PAD : PAD;
