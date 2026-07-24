@@ -211,7 +211,8 @@ function AccessControlDashboard() {
       }
       const res = await fetch("/api/events?limit=100", { headers });
       if (!res.ok) {
-        throw new Error("Failed to query events database.");
+        setEvents([]);
+        return;
       }
       const responseJson = await res.json();
       let eventsList: any[] = [];
@@ -228,7 +229,8 @@ function AccessControlDashboard() {
       }
       setEvents(eventsList);
     } catch (err) {
-      console.error("Failed to load events:", err);
+      console.warn("Unable to load events data:", err);
+      setEvents([]);
     }
   };
 
@@ -486,28 +488,30 @@ function AccessControlDashboard() {
       <div className="space-y-6 relative z-10">
         
         {/* Workspace Toolbar Context Control Row */}
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-3.5 flex-wrap gap-4 bg-white/40 p-4 rounded-[8px] backdrop-blur-xs border shadow-xs relative z-50">
-          <div className="flex items-center gap-3 relative">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-slate-200 bg-white shadow-xs text-xs select-none hover:border-slate-350 transition-all duration-200">
-              {currentUser?.role === "core" ? (
-                <User size={13} className="text-[#FF9900] shrink-0" />
-              ) : (
-                <User size={13} className="text-slate-400 shrink-0" />
-              )}
-              <span className="font-semibold text-slate-700">{currentUser ? currentUser.name : "Anonymous Member"}</span>
-              <span className="text-slate-400 font-medium uppercase text-[10px]">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-slate-200/80 pb-3.5 gap-3 sm:gap-4 bg-white/40 p-3.5 sm:p-4 rounded-[8px] backdrop-blur-xs border shadow-xs relative z-50">
+          <div className="flex items-center gap-3 relative w-full sm:w-auto">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-slate-200 bg-white shadow-xs text-xs select-none hover:border-slate-350 transition-all duration-200 w-full sm:w-auto justify-between sm:justify-start">
+              <div className="flex items-center gap-2 min-w-0">
+                {currentUser?.role === "core" ? (
+                  <User size={13} className="text-[#FF9900] shrink-0" />
+                ) : (
+                  <User size={13} className="text-slate-400 shrink-0" />
+                )}
+                <span className="font-semibold text-slate-700 truncate">{currentUser ? currentUser.name : "Anonymous Member"}</span>
+              </div>
+              <span className="text-slate-400 font-medium uppercase text-[10px] shrink-0">
                 ({currentUser ? currentUser.role : "OPERATOR"})
               </span>
             </div>
           </div>
 
           {/* Navigation Tab Pills */}
-          <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-[4px] border border-slate-200/80">
+          <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-[6px] border border-slate-200/80 w-full sm:w-auto">
             {workspaceTabs.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-[2px] transition-all cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-[4px] transition-all cursor-pointer text-center ${
                   activeTab === tab
                     ? "bg-white text-slate-900 border border-slate-200/50 shadow-xs"
                     : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/35"
@@ -517,7 +521,7 @@ function AccessControlDashboard() {
               </button>
             ))}
           </div>
-          <div className="w-12 sm:block hidden" />
+          <div className="w-12 lg:block hidden" />
         </div>
 
         {/* Workspace Body */}
@@ -542,7 +546,7 @@ function AccessControlDashboard() {
                 )}
 
                 {/* Unified Main Workspace Container Card */}
-                <div className="bg-white border border-slate-200 rounded-[8px] p-8 shadow-xs space-y-6">
+                <div className="bg-white border border-slate-200 rounded-[8px] p-4 sm:p-8 shadow-xs space-y-6">
                   
                   {/* Dropdown Crew Selector & Active Header Row */}
                   <div className="flex items-center justify-between pb-6 border-b border-slate-100 flex-wrap gap-4">
@@ -568,11 +572,11 @@ function AccessControlDashboard() {
                     </div>
 
                     {selectedCrewMember && (
-                      <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-[8px]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <div className="text-sm">
-                          <span className="font-bold text-slate-800">{selectedCrewMember.name}</span>
-                          <span className="text-slate-400 font-semibold ml-1.5 uppercase text-xs">({selectedCrewMember.role})</span>
+                      <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-[8px] w-full sm:w-auto">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                        <div className="text-sm min-w-0">
+                          <span className="font-bold text-slate-800 truncate block sm:inline">{selectedCrewMember.name}</span>
+                          <span className="text-slate-400 font-semibold sm:ml-1.5 uppercase text-xs">({selectedCrewMember.role})</span>
                         </div>
                       </div>
                     )}
@@ -582,19 +586,19 @@ function AccessControlDashboard() {
                   {!selectedCrewMember ? (
                     activeMembers.length > 0 ? (
                       <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
-                        <div className="flex items-center justify-between pb-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 gap-2">
                           <div>
-                            <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">Active Core Access Directory</h3>
-                            <p className="text-xs text-slate-405 font-semibold uppercase tracking-wide mt-0.5">
+                            <h3 className="text-base sm:text-lg font-bold text-[#232F3E] tracking-tight">Active Core Access Directory</h3>
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
                               Crew members currently holding elevated credentials to core modules
                             </p>
                           </div>
-                          <span className="inline-block bg-[#232F3E]/5 text-[#232F3E] border border-slate-200 px-2.5 py-1 rounded-[6px] text-xs font-bold uppercase tracking-wide">
+                          <span className="inline-block bg-[#232F3E]/5 text-[#232F3E] border border-slate-200 px-2.5 py-1 rounded-[6px] text-xs font-bold uppercase tracking-wide w-fit">
                             Active Grants: {activeMembers.length}
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                           {activeMembers.map((member) => {
                             const roleColors: Record<string, string> = {
                               volunteer: "bg-emerald-50 text-emerald-700 border-emerald-100",
@@ -608,44 +612,46 @@ function AccessControlDashboard() {
                               <div
                                 key={member.id}
                                 onClick={() => setSelectedCrewMemberId(member.id)}
-                                className="bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-6 hover:bg-slate-50/90 hover:border-slate-300 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+                                className="bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-4 sm:p-6 hover:bg-slate-50/90 hover:border-slate-300 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
                               >
                                 {/* Background subtle glow effect */}
                                 <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-white/50 rounded-full group-hover:scale-125 transition-all duration-500 blur-xl pointer-events-none" />
 
                                 {/* Card Top / Identity */}
                                 <div>
-                                  <div className="flex items-center gap-3.5 pr-16">
-                                    {/* Avatar */}
-                                    {member.avatar?.photo ? (
-                                      <img
-                                        src={member.avatar.photo}
-                                        alt={member.name}
-                                        className="w-11 h-11 rounded-[8px] object-cover ring-2 ring-slate-100 group-hover:ring-[#FF9900]/30 transition-all duration-300"
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-11 h-11 rounded-[8px] flex items-center justify-center font-bold text-xs text-white shadow-xs group-hover:scale-105 ring-2 ring-slate-100 group-hover:ring-[#FF9900]/30 transition-all duration-300"
-                                        style={{ backgroundColor: member.avatar?.color || '#232F3E' }}
-                                      >
-                                        {member.avatar?.initials || "CR"}
+                                  <div className="flex items-start justify-between gap-3 mb-2">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      {/* Avatar */}
+                                      {member.avatar?.photo ? (
+                                        <img
+                                          src={member.avatar.photo}
+                                          alt={member.name}
+                                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-[8px] object-cover ring-2 ring-slate-100 group-hover:ring-[#FF9900]/30 transition-all duration-300 shrink-0"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-[8px] flex items-center justify-center font-bold text-xs text-white shadow-xs group-hover:scale-105 ring-2 ring-slate-100 group-hover:ring-[#FF9900]/30 transition-all duration-300 shrink-0"
+                                          style={{ backgroundColor: member.avatar?.color || '#232F3E' }}
+                                        >
+                                          {member.avatar?.initials || "CR"}
+                                        </div>
+                                      )}
+
+                                      <div className="min-w-0">
+                                        <h4 className="text-sm sm:text-base font-bold text-[#232F3E] group-hover:text-[#FF9900] transition-colors duration-300 truncate">
+                                          {member.name}
+                                        </h4>
+                                        <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
+                                          {member.email}
+                                        </p>
                                       </div>
-                                    )}
-
-                                    <div className="min-w-0">
-                                      <h4 className="text-base font-bold text-[#232F3E] group-hover:text-[#FF9900] transition-colors duration-300 truncate">
-                                        {member.name}
-                                      </h4>
-                                      <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
-                                        {member.email}
-                                      </p>
                                     </div>
-                                  </div>
 
-                                  {/* Absolute Role Badge */}
-                                  <span className={`absolute top-6 right-6 px-2.5 py-0.5 rounded-[6px] text-xs font-bold uppercase tracking-wide border ${roleBadgeClass}`}>
-                                    {member.role || "CREW"}
-                                  </span>
+                                    {/* Role Badge */}
+                                    <span className={`px-2 py-0.5 rounded-[6px] text-[10px] sm:text-xs font-bold uppercase tracking-wide border shrink-0 ${roleBadgeClass}`}>
+                                      {member.role || "CREW"}
+                                    </span>
+                                  </div>
 
                                   <div className="border-b border-slate-200/60 my-4" />
 
@@ -708,20 +714,20 @@ function AccessControlDashboard() {
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                         
                         {/* Left Block: Assign Task Form */}
-                        <div className="lg:col-span-7 bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-6 flex flex-col justify-between">
+                        <div className="lg:col-span-7 bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-4 sm:p-6 flex flex-col justify-between">
                           <div>
-                            <div className="pb-3 border-b border-slate-200/60 mb-6 flex items-center justify-between">
+                            <div className="pb-3 border-b border-slate-200/60 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                               <div>
-                                <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">
+                                <h3 className="text-base sm:text-lg font-bold text-[#232F3E] tracking-tight">
                                   {editingTaskId ? "Edit Task" : "Assign New Task"}
                                 </h3>
-                                <p className="text-xs text-slate-455 uppercase font-bold tracking-wide mt-0.5">
+                                <p className="text-[10px] text-slate-400 uppercase font-medium tracking-wider mt-0.5">
                                   {editingTaskId 
                                     ? `Modify event duties for ${selectedCrewMember.name}` 
                                     : `Delegate event duties to ${selectedCrewMember.name}`}
                                 </p>
                               </div>
-                              <span className="inline-block bg-orange-50 text-[#FF9900] border border-orange-100 px-2.5 py-0.5 rounded-[6px] text-xs font-bold uppercase tracking-wide">
+                              <span className="inline-block bg-orange-50 text-[#FF9900] border border-orange-100 px-2.5 py-0.5 rounded-[6px] text-xs font-bold uppercase tracking-wide whitespace-nowrap shrink-0 w-fit">
                                 {editingTaskId ? "TASK EDITOR" : "TASK DELEGATOR"}
                               </span>
                             </div>
@@ -820,11 +826,11 @@ function AccessControlDashboard() {
                         </div>
 
                         {/* Right Block: Capability Authorizations */}
-                        <div className="lg:col-span-5 bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-6 flex flex-col justify-between">
+                        <div className="lg:col-span-5 bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-4 sm:p-6 flex flex-col justify-between">
                           <div>
                             <div className="pb-3 border-b border-slate-200/60 mb-6">
-                              <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">Capability Authorizations</h3>
-                              <p className="text-xs text-slate-455 uppercase font-bold tracking-tight mt-0.5">Toggle security permissions for {selectedCrewMember.name}</p>
+                              <h3 className="text-base sm:text-lg font-bold text-[#232F3E] tracking-tight">Capability Authorizations</h3>
+                              <p className="text-[10px] text-slate-400 uppercase font-medium tracking-wider mt-0.5">Toggle security permissions for {selectedCrewMember.name}</p>
                             </div>
 
                             <div className="space-y-4">
@@ -887,13 +893,13 @@ function AccessControlDashboard() {
                       </div>
 
                       {/* Bottom Block: Currently Assigned Tasks */}
-                      <div className="bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-6">
-                        <div className="pb-3 border-b border-slate-200/60 mb-6 flex items-center justify-between">
+                      <div className="bg-slate-50/40 border border-slate-200/80 rounded-[8px] p-4 sm:p-6">
+                        <div className="pb-3 border-b border-slate-200/60 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                           <div>
-                            <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">Currently Assigned Tasks</h3>
-                            <p className="text-xs text-slate-455 uppercase font-bold tracking-tight mt-0.5">Active event operations workload of {selectedCrewMember.name}</p>
+                            <h3 className="text-base sm:text-lg font-bold text-[#232F3E] tracking-tight">Currently Assigned Tasks</h3>
+                            <p className="text-[10px] text-slate-400 uppercase font-medium tracking-wider mt-0.5">Active event operations workload of {selectedCrewMember.name}</p>
                           </div>
-                          <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-[6px] text-xs font-bold uppercase tracking-tight border border-slate-200/40">
+                          <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-[6px] text-xs font-bold uppercase tracking-wide border border-slate-200/60 whitespace-nowrap shrink-0 w-fit">
                             Total Tasks: {selectedCrewTasks.length}
                           </span>
                         </div>
@@ -908,8 +914,8 @@ function AccessControlDashboard() {
                             No tasks currently assigned to this crew member.
                           </div>
                         ) : (
-                          <div className="overflow-x-auto">
-                             <table className="w-full text-left border-collapse table-fixed">
+                          <div className="overflow-x-auto w-full">
+                            <table className="w-full min-w-[650px] text-left border-collapse">
                               <thead>
                                 <tr className="border-b border-slate-200/60 text-xs uppercase tracking-tight text-slate-400 font-bold">
                                   <th className="pb-3 text-left font-bold w-[28%] pr-4">Task Name</th>

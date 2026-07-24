@@ -306,7 +306,7 @@ export default function ModuleLearningPage() {
   // ─── Loading State ────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
+      <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center overflow-hidden font-sans select-none z-50">
         <SkyBackground />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative flex items-center justify-center">
@@ -415,9 +415,7 @@ export default function ModuleLearningPage() {
 
       const result = await progressService.submitQuizAttempt(module.dbId, { answers: answersPayload });
 
-      if (result.percentage > 60) {
-        setShowConfetti(true);
-      }
+      setShowConfetti(true);
 
       const reviewData = await progressService.getQuizReview(module.dbId);
       setQuizReview(reviewData);
@@ -444,7 +442,7 @@ export default function ModuleLearningPage() {
 
   // ─── Main Render ──────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF] flex items-center justify-center p-4 font-sans select-none relative overflow-hidden text-slate-800">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF] flex items-center justify-center p-0 sm:p-4 font-sans select-none relative overflow-hidden text-slate-800">
 
       {/* Background Ambience */}
       <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-cyan-300/10 rounded-full blur-[100px] pointer-events-none animate-pulse" />
@@ -455,28 +453,26 @@ export default function ModuleLearningPage() {
         <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[100]" />
       )}
 
-      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-[32px] shadow-2xl p-6 md:p-8 flex flex-col min-h-[520px] relative z-10">
+      <div className="w-full max-w-2xl bg-white border-0 sm:border border-slate-200 rounded-none sm:rounded-[32px] shadow-none sm:shadow-2xl p-5 sm:p-8 flex flex-col min-h-screen sm:min-h-[520px] relative z-10">
 
         {/* TOP STATUS BAR */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
           <div className="flex items-center gap-3">
             <Link
               href={module.topicSlug ? `/learn/${module.topicSlug}` : '/learn'}
-              className="p-2 hover:bg-slate-100 rounded-full text-slate-600 transition-colors flex items-center justify-center"
+              className="p-1.5 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 rounded-lg text-slate-500 transition-colors flex items-center justify-center shadow-sm cursor-pointer"
             >
-              <Icons.ArrowLeft className="w-5 h-5" />
+              <Icons.ArrowLeft className="w-4 h-4 stroke-[2.5]" />
             </Link>
             <div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
-                  {module.level} Path
-                </span>
+              <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                <span>{module.level} Path</span>
                 {module.topicSlug && module.topicName && (
                   <>
-                    <span className="text-slate-300 text-[9px] font-bold">|</span>
+                    <span className="text-slate-300 font-normal">•</span>
                     <Link
                       href={`/learn/${module.topicSlug}`}
-                      className="text-indigo-600 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] tracking-tight transition-all duration-200 cursor-pointer"
+                      className="text-indigo-600 hover:text-indigo-700 transition-colors font-extrabold cursor-pointer"
                       title="Back to Topic Roadmap"
                     >
                       Topic: {module.topicName}

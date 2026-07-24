@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { api } from "@/lib/api";
 
 interface TeamMember {
   id: string;
@@ -162,20 +162,16 @@ const CREW_MEMBERS: TeamMember[] = [
   },
 ];
 
-const ALL_MEMBERS = [
+const DEFAULT_MEMBERS = [
   ...CORE_MEMBERS.map((m) => ({ ...m, type: "core" as const })),
   ...CREW_MEMBERS.map((m) => ({ ...m, type: "crew" as const })),
 ];
 
 const PAD = 6;
-const DISPLAY_MEMBERS = [
-  ...ALL_MEMBERS.slice(-PAD),
-  ...ALL_MEMBERS,
-  ...ALL_MEMBERS.slice(0, PAD),
-];
 
 function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "core" | "crew" }; isActive: boolean }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const shouldPopUp = isActive || isHovered;
 
   return (
@@ -187,9 +183,9 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
         flexShrink: 0,
         background: "linear-gradient(to bottom, #ffffff, #f8fafc)",
         borderRadius: 8,
-        border: shouldPopUp ? "1px solid #FF9900" : "1px solid rgba(15, 23, 42, 0.12)",
+        border: shouldPopUp ? "1px solid #E68A00" : "1px solid rgba(15, 23, 42, 0.12)",
         boxShadow: shouldPopUp
-          ? "0 12px 24px -6px rgba(255, 153, 0, 0.16), 0 4px 12px -4px rgba(255, 153, 0, 0.12)"
+          ? "0 12px 24px -6px rgba(230, 138, 0, 0.16), 0 4px 12px -4px rgba(230, 138, 0, 0.12)"
           : "0 1px 3px rgba(15, 23, 42, 0.015), 0 1px 2px rgba(15, 23, 42, 0.01)",
         overflow: "hidden",
         display: "flex",
@@ -198,24 +194,29 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
         padding: "0 0 14px 0",
         transform: shouldPopUp ? "translateY(-6px)" : "none",
         transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        position: "relative",
       }}
     >
       {/* Image Container */}
       <div style={{
         width: "100%",
         height: 230,
-        background: "#f8fafc",
+        background: (!member.image || imageError) ? "#0f172a" : "#f8fafc",
         overflow: "hidden",
-        position: "relative"
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}>
         <img
-          src={member.image}
-          alt={member.name}
+          src={(!member.image || imageError) ? "/aws-logo.svg" : member.image}
+          alt={(!member.image || imageError) ? "AWS Logo" : member.name}
+          onError={() => setImageError(true)}
           style={{
-            width: "100%",
-            height: "100%",
+            width: (!member.image || imageError) ? "50%" : "100%",
+            height: (!member.image || imageError) ? "auto" : "100%",
             display: "block",
-            objectFit: "cover",
+            objectFit: (!member.image || imageError) ? "contain" : "cover",
             transition: "transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         />
@@ -235,7 +236,7 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
         <h3 style={{
           fontSize: 14,
           fontWeight: 700,
-          color: shouldPopUp ? "#FF9900" : "#0f172a",
+          color: shouldPopUp ? "#E68A00" : "#0f172a",
           margin: "0 0 6px 0",
           letterSpacing: "-0.01em",
           textOverflow: "ellipsis",
@@ -254,9 +255,9 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             fontWeight: 800,
             letterSpacing: "0.04em",
             textTransform: "uppercase",
-            color: member.type === "core" ? "#FF9900" : "#0073BB",
-            background: member.type === "core" ? "rgba(255, 153, 0, 0.06)" : "rgba(0, 115, 187, 0.06)",
-            border: `1px solid ${member.type === "core" ? "rgba(255, 153, 0, 0.12)" : "rgba(0, 115, 187, 0.12)"}`,
+            color: member.type === "core" ? "#E68A00" : "#0073BB",
+            background: member.type === "core" ? "rgba(230, 138, 0, 0.06)" : "rgba(0, 115, 187, 0.06)",
+            border: `1px solid ${member.type === "core" ? "rgba(230, 138, 0, 0.12)" : "rgba(0, 115, 187, 0.12)"}`,
             borderRadius: 3,
             padding: "1px 5px",
             display: "inline-block",
@@ -275,8 +276,12 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             display: "inline-flex",
             alignItems: "center",
             gap: 4.5,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "100%",
           }}>
-            <span style={{ width: 4.5, height: 4.5, borderRadius: "50%", background: member.accent }} />
+            <span style={{ width: 4.5, height: 4.5, borderRadius: "50%", background: member.accent, flexShrink: 0 }} />
             {member.role}
           </span>
         )}
@@ -285,15 +290,52 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
   );
 }
 
-export default function OurTeamShowcase() {
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    const captIdx = ALL_MEMBERS.findIndex((m) => m.role === "Captain");
-    return captIdx !== -1 ? captIdx + PAD : PAD;
-  });
+interface OurTeamShowcaseProps {
+  previewData?: any[];
+}
+
+export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = {}) {
+  const [allMembers, setAllMembers] = useState<(TeamMember & { type: "core" | "crew" })[]>(previewData as any || DEFAULT_MEMBERS);
+  const [currentIndex, setCurrentIndex] = useState(PAD);
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [hasReached, setHasReached] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (previewData) {
+      setAllMembers(previewData as any);
+    }
+  }, [previewData]);
+
+  useEffect(() => {
+    if (previewData) return;
+    let active = true;
+    api.get<any[]>("/homepage/team")
+      .then((res) => {
+        if (active && res && res.length > 0) {
+          setAllMembers(res as any);
+        }
+      })
+      .catch((err) => console.error("Team dynamic fetch error:", err));
+    return () => { active = false; };
+  }, [previewData]);
+
+  const displayMembers = useMemo(() => {
+    if (allMembers.length === 0) return [];
+    return [
+      ...allMembers.slice(-PAD),
+      ...allMembers,
+      ...allMembers.slice(0, PAD),
+    ];
+  }, [allMembers]);
+
+  // Adjust current index on members load/update
+  useEffect(() => {
+    if (allMembers.length === 0) return;
+    const captIdx = allMembers.findIndex((m) => m.role === "Captain");
+    setCurrentIndex(captIdx !== -1 ? captIdx + PAD : PAD);
+  }, [allMembers]);
 
   // Intersection Observer to detect when section reaches the viewport
   useEffect(() => {
@@ -301,7 +343,7 @@ export default function OurTeamShowcase() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setHasReached(true);
-          const captIdx = ALL_MEMBERS.findIndex((m) => m.role === "Captain");
+          const captIdx = allMembers.findIndex((m) => m.role === "Captain");
           if (captIdx !== -1) {
             setCurrentIndex(captIdx + PAD);
           }
@@ -317,16 +359,16 @@ export default function OurTeamShowcase() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [allMembers]);
 
   // Auto swap every 3 seconds, resets timer on index change
   useEffect(() => {
-    if (!hasReached) return;
+    if (!hasReached || allMembers.length === 0) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => prev + 1);
     }, 3000);
     return () => clearInterval(timer);
-  }, [currentIndex, hasReached]);
+  }, [currentIndex, hasReached, allMembers]);
 
   // Re-enable transitions after browser reflow
   useEffect(() => {
@@ -349,14 +391,17 @@ export default function OurTeamShowcase() {
   };
 
   const handleTransitionEnd = () => {
-    if (currentIndex >= ALL_MEMBERS.length + PAD) {
+    if (allMembers.length === 0) return;
+    if (currentIndex >= allMembers.length + PAD) {
       setIsTransitioning(false);
-      setCurrentIndex(currentIndex - ALL_MEMBERS.length);
+      setCurrentIndex(currentIndex - allMembers.length);
     } else if (currentIndex < PAD) {
       setIsTransitioning(false);
-      setCurrentIndex(currentIndex + ALL_MEMBERS.length);
+      setCurrentIndex(currentIndex + allMembers.length);
     }
   };
+
+  if (allMembers.length === 0) return null;
 
   return (
     <section
@@ -375,9 +420,25 @@ export default function OurTeamShowcase() {
         justifyContent: "center",
         padding: "36px 0 44px",
         scrollMarginTop: "100px",
-        borderTop: "1px solid #e2e8f0",
+        borderTop: previewData ? "none" : "1px solid #e2e8f0",
       }}
     >
+      <style>{`
+        @media (max-width: 1024px) {
+          .team-mobile-nav-buttons {
+            display: flex !important;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+            width: 100%;
+            position: relative;
+            z-index: 30;
+          }
+          .team-desktop-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
 
       {/* ── DOT GRID RADIAL FADE MASK ── */}
       <div style={{
@@ -398,7 +459,7 @@ export default function OurTeamShowcase() {
           fontWeight: 700,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
-          color: "#FF9900",
+          color: "#E68A00",
           display: "block",
           marginBottom: "8px",
         }}>
@@ -436,125 +497,177 @@ export default function OurTeamShowcase() {
           overflow: "hidden",
           position: "relative",
           zIndex: 10,
-          padding: "20px 0",
+          padding: "20px 0 10px",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
         }}
       >
-        {/* Left Arrow Button */}
-        <button
-          onClick={handlePrev}
-          aria-label="Previous Team Member"
-          style={{
-            position: "absolute",
-            left: "24px",
-            zIndex: 30,
-            width: "44px",
-            height: "44px",
-            borderRadius: "50%",
-            background: "rgba(255, 255, 255, 0.85)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(15, 23, 42, 0.08)",
-            boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#475569",
-            transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FF9900";
-            e.currentTarget.style.color = "#FFFFFF";
-            e.currentTarget.style.borderColor = "#FF9900";
-            e.currentTarget.style.boxShadow = "0 8px 16px rgba(255, 153, 0, 0.25)";
-            e.currentTarget.style.transform = "scale(1.08)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.85)";
-            e.currentTarget.style.color = "#475569";
-            e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.08)";
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(15, 23, 42, 0.06)";
-            e.currentTarget.style.transform = "none";
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
+        {/* Carousel Content Row */}
+        <div style={{ width: "100%", display: "flex", alignItems: "center", position: "relative" }}>
+          {/* Left Arrow Button */}
+          <button
+            onClick={handlePrev}
+            className="team-desktop-btn"
+            aria-label="Previous Team Member"
+            style={{
+              position: "absolute",
+              left: "24px",
+              zIndex: 30,
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.85)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(15, 23, 42, 0.08)",
+              boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#475569",
+              transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#E68A00";
+              e.currentTarget.style.color = "#FFFFFF";
+              e.currentTarget.style.borderColor = "#E68A00";
+              e.currentTarget.style.boxShadow = "0 8px 16px rgba(230, 138, 0, 0.25)";
+              e.currentTarget.style.transform = "scale(1.08)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.85)";
+              e.currentTarget.style.color = "#475569";
+              e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.08)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(15, 23, 42, 0.06)";
+              e.currentTarget.style.transform = "none";
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
 
-        {/* Right Arrow Button */}
-        <button
-          onClick={handleNext}
-          aria-label="Next Team Member"
-          style={{
-            position: "absolute",
-            right: "24px",
-            zIndex: 30,
-            width: "44px",
-            height: "44px",
-            borderRadius: "50%",
-            background: "rgba(255, 255, 255, 0.85)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(15, 23, 42, 0.08)",
-            boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#475569",
-            transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FF9900";
-            e.currentTarget.style.color = "#FFFFFF";
-            e.currentTarget.style.borderColor = "#FF9900";
-            e.currentTarget.style.boxShadow = "0 8px 16px rgba(255, 153, 0, 0.25)";
-            e.currentTarget.style.transform = "scale(1.08)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.85)";
-            e.currentTarget.style.color = "#475569";
-            e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.08)";
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(15, 23, 42, 0.06)";
-            e.currentTarget.style.transform = "none";
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
+          {/* Right Arrow Button */}
+          <button
+            onClick={handleNext}
+            className="team-desktop-btn"
+            aria-label="Next Team Member"
+            style={{
+              position: "absolute",
+              right: "24px",
+              zIndex: 30,
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.85)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(15, 23, 42, 0.08)",
+              boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#475569",
+              transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#E68A00";
+              e.currentTarget.style.color = "#FFFFFF";
+              e.currentTarget.style.borderColor = "#E68A00";
+              e.currentTarget.style.boxShadow = "0 8px 16px rgba(230, 138, 0, 0.25)";
+              e.currentTarget.style.transform = "scale(1.08)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.85)";
+              e.currentTarget.style.color = "#475569";
+              e.currentTarget.style.borderColor = "rgba(15, 23, 42, 0.08)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(15, 23, 42, 0.06)";
+              e.currentTarget.style.transform = "none";
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
 
-        {/* Carousel Track */}
-        <div
-          ref={containerRef}
-          onTransitionEnd={handleTransitionEnd}
-          style={{
-            display: "flex",
-            gap: "20px",
-            transition: isTransitioning ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
-            transform: `translateX(calc(50% - 120px - ${currentIndex * 260}px))`,
-            width: "100%",
-          }}
-        >
-          {DISPLAY_MEMBERS.map((member, index) => (
-            <div
-              key={`${member.id}-${index}`}
-              onClick={() => {
-                if (isTransitioning) {
-                  setCurrentIndex(index);
-                }
-              }}
-              style={{
-                width: 240,
-                flexShrink: 0,
-                opacity: currentIndex === index ? 1 : 0.75,
-                transition: "opacity 0.4s ease",
-              }}
-            >
-              <TeamMemberCard member={member} isActive={currentIndex === index} />
-            </div>
-          ))}
+          {/* Carousel Track */}
+          <div
+            ref={containerRef}
+            onTransitionEnd={handleTransitionEnd}
+            style={{
+              display: "flex",
+              gap: "20px",
+              transition: isTransitioning ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
+              transform: `translateX(calc(50% - 120px - ${currentIndex * 260}px))`,
+              width: "100%",
+            }}
+          >
+            {displayMembers.map((member, index) => (
+              <div
+                key={`${member.id}-${index}`}
+                onClick={() => {
+                  if (isTransitioning) {
+                    setCurrentIndex(index);
+                  }
+                }}
+                style={{
+                  width: 240,
+                  flexShrink: 0,
+                  opacity: currentIndex === index ? 1 : 0.75,
+                  transition: "opacity 0.4s ease",
+                }}
+              >
+                <TeamMemberCard member={member} isActive={currentIndex === index} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Navigation Buttons (Repositioned below carousel to avoid overlaps) */}
+        <div className="team-mobile-nav-buttons" style={{ display: "none" }}>
+          <button
+            onClick={handlePrev}
+            aria-label="Previous Team Member"
+            style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.9)",
+              border: "1px solid rgba(15, 23, 42, 0.08)",
+              boxShadow: "0 2px 8px rgba(15, 23, 42, 0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#475569",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Next Team Member"
+            style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.9)",
+              border: "1px solid rgba(15, 23, 42, 0.08)",
+              boxShadow: "0 2px 8px rgba(15, 23, 42, 0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#475569",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
         </div>
       </div>
     </section>

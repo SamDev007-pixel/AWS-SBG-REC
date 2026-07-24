@@ -3,10 +3,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import {
   ChevronRight, ArrowDown, AlertCircle,
   Search, Server, Trophy, LayoutGrid, CheckCircle2, ChevronLeft,
-  Settings2
+  Settings2, ChevronDown, Globe, MapPin
 } from 'lucide-react';
 import GlobeScene from '@/components/Globe/GlobeScene';
 import IntelligenceDashboard from '@/components/Intelligence/IntelligenceDashboard';
@@ -22,6 +23,7 @@ export default function Home() {
   const [showIntelligence, setShowIntelligence] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // User role state
@@ -225,7 +227,7 @@ export default function Home() {
   }
 
   return (
-    <main className={`min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'overflow-hidden h-screen' : 'overflow-y-auto premium-scrollbar scroll-smooth'}`}>
+    <main className={`w-full bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'lg:overflow-hidden lg:h-screen h-auto' : 'lg:overflow-y-auto lg:h-screen h-auto'}`}>
 
       <AnimatePresence mode="wait">
         {!showIntelligence ? (
@@ -238,56 +240,136 @@ export default function Home() {
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             className="w-full relative flex flex-col bg-[#F8F9FA]"
           >
-            {/* 3D Globe View viewport (takes exactly 100vh) */}
-            <div className="h-screen w-full relative overflow-hidden flex flex-col flex-shrink-0">
+            {/* 3D Globe View viewport (takes exactly 100vh on desktop, flows naturally on mobile) */}
+            <div className="h-auto lg:h-screen w-full relative overflow-visible lg:overflow-hidden flex flex-col lg:flex-shrink-0">
             {/* Background Gradient */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.15)_0%,transparent_60%)]" />
             </div>
 
             {/* Top Header */}
-            <header className="absolute top-0 left-0 right-0 z-50 p-10 flex items-center justify-between pointer-events-none">
-              <div className="flex items-center gap-4 pointer-events-auto">
+            <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 sm:px-10 pt-6 sm:pt-8 pb-2 lg:pt-10 lg:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto lg:pointer-events-none">
+              <div className="flex items-center gap-4 pointer-events-auto w-full sm:w-auto">
                 <div>
-                  <h1 className="text-[32px] font-semibold tracking-tight leading-none text-[#1A1C1E]" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-slate-900 m-0" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
                     AWS Region Intelligence
                   </h1>
-                  <p className="text-slate-400 text-[10px] font-medium tracking-[0.05em] uppercase mt-2">
+                  <p className="text-slate-400 text-[10px] sm:text-xs font-medium tracking-wider uppercase mt-1.5 leading-relaxed m-0">
                     Interactive 3D explorer visualizing global cloud infrastructure partitions
                   </p>
                 </div>
               </div>
               {userRole === "core" && (
-                <div className="pointer-events-auto">
+                <div className="pointer-events-auto shrink-0 mt-1 sm:mt-0">
                   <Link
                     href="/core/manage-regions"
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer uppercase tracking-wider"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold transition-all shadow-xs hover:-translate-y-0.5 cursor-pointer uppercase tracking-wider"
                   >
-                    <Settings2 size={12} className="text-[#FF9900]" />
-                    Manage Regions
+                    <Settings2 size={13} className="text-[#FF9900]" />
+                    <span>Manage Regions</span>
                   </Link>
                 </div>
               )}
             </header>
 
-            <div className="flex-grow flex relative z-10 pt-32 pb-10 px-10 gap-8 h-full">
+            <div className="flex-grow flex flex-col lg:flex-row relative z-10 pt-4 lg:pt-32 pb-6 lg:pb-10 px-4 sm:px-10 gap-6 lg:gap-8 h-auto lg:h-full overflow-visible lg:overflow-hidden">
 
-              {/* LEFT SIDEBAR: REGION NAVIGATION */}
+              {/* MOBILE REGION DROPDOWN SELECTOR (visible only on mobile) */}
+              <div className="relative w-full lg:hidden z-30">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="w-full bg-white border border-slate-200/80 rounded-2xl px-4 py-3.5 shadow-sm flex items-center justify-between transition-all hover:bg-slate-50 cursor-pointer select-none active:scale-[0.99] duration-150"
+                >
+                  <div className="flex items-center gap-2.5 truncate">
+                    {selectedRegion ? (
+                      <>
+                        <FlagImage flag={selectedRegion.flagUrl || selectedRegion.flag} name={selectedRegion.name} className="w-5.5 h-3.5 object-contain flex-shrink-0 rounded-sm border border-slate-200/50 shadow-xs" />
+                        <span className="text-[13px] font-bold text-slate-800 truncate">
+                          {selectedRegion.name}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
+                        <span className="text-[13px] font-bold text-slate-500">
+                          Select AWS Region...
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200 shrink-0", isMobileMenuOpen ? "rotate-180" : "")} />
+                </button>
+
+                <AnimatePresence>
+                  {isMobileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl shadow-xl z-50 p-4 max-h-[320px] overflow-y-auto premium-scrollbar"
+                    >
+                      <p className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider mb-2.5 px-2">Global AWS Regions</p>
+                      
+                      <div className="flex flex-col gap-3">
+                        {sidebarCategories.map((cat) => {
+                          if (cat.regionIds.length === 0) return null;
+                          return (
+                            <div key={cat.id} className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2 px-2 py-1">
+                                <FlagImage flag={cat.flag} name={cat.name} className="w-4 h-2.5 object-contain rounded-xs border border-slate-200/50" />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{cat.name}</span>
+                              </div>
+                              
+                              <div className="flex flex-col gap-1 pl-1 border-l border-slate-100">
+                                {cat.regionIds.map((rId) => {
+                                  const r = regions.find(region => region.id === rId);
+                                  if (!r) return null;
+                                  const isSubSelected = selectedRegion?.id === r.id;
+                                  return (
+                                    <button
+                                      key={r.id}
+                                      onClick={() => {
+                                        handleRegionSelect(r);
+                                        setIsMobileMenuOpen(false);
+                                      }}
+                                      className={cn(
+                                        "w-full px-3 py-2 rounded-lg text-left transition-all flex items-center justify-between select-none cursor-pointer",
+                                        isSubSelected
+                                          ? "bg-[#0073BB]/8 text-[#0073BB] font-extrabold"
+                                          : "hover:bg-slate-50 text-slate-650 font-semibold text-[11.5px]"
+                                      )}
+                                    >
+                                      <span className="text-[11.5px] truncate">{r.name}</span>
+                                      {isSubSelected && <CheckCircle2 size={12} className="text-[#0073BB] shrink-0" />}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* LEFT SIDEBAR: REGION NAVIGATION (visible only on desktop) */}
               <motion.aside
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="w-72 flex flex-col gap-4 z-20"
+                className="hidden lg:flex w-72 flex-col gap-4 z-20"
               >
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-6 h-full flex flex-col shadow-sm">
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-4 sm:p-6 h-auto lg:h-full flex flex-col shadow-sm">
 
                   {/* Header */}
-                  <div className="mb-5 pb-5 border-b border-slate-100">
-                    <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-[0.12em] mb-2">Global Regions</p>
-                    <p className="text-[12px] font-medium text-slate-500 leading-snug">Select a region to begin exploration.</p>
+                  <div className="mb-4 pb-4 border-b border-slate-100/80">
+                    <p className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1.5">Global Regions</p>
+                    <p className="text-[11.5px] sm:text-[12px] font-semibold text-slate-500 leading-snug">Select a region to begin exploration.</p>
                   </div>
 
                   {/* Region list */}
-                  <div className="flex flex-col gap-1 flex-grow overflow-y-auto premium-scrollbar">
+                  <div className="flex flex-col gap-1 flex-grow overflow-y-auto max-h-48 lg:max-h-none premium-scrollbar">
                     {sidebarCategories.map((cat) => {
                       const isExpanded = expandedCategory === cat.id;
                       const hasActiveChild = cat.regionIds.includes(selectedRegion?.id || '');
@@ -305,13 +387,28 @@ export default function Home() {
                                 if (firstRegion) handleRegionSelect(firstRegion);
                               }
                             }}
-                            className={`w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all text-left group ${hasActiveChild ? 'bg-[#1A1C1E] text-white' : 'hover:bg-slate-50 text-slate-600'}`}
+                            className={cn(
+                              "w-full px-3 py-2.5 rounded-xl flex items-center justify-between transition-all text-left group border border-transparent select-none cursor-pointer",
+                              hasActiveChild
+                                ? "bg-slate-900 text-white shadow-sm border-slate-900"
+                                : isExpanded
+                                  ? "bg-slate-100 text-slate-900 border-slate-200/50"
+                                  : "hover:bg-slate-50 text-slate-700"
+                            )}
                           >
                             <div className="flex items-center gap-3 truncate">
-                              <FlagImage flag={cat.flag} name={cat.name} className="w-5 h-3.5 object-contain flex-shrink-0 rounded-sm" />
-                              <span className="text-[11px] font-bold tracking-wide truncate uppercase">{cat.name}</span>
+                              <FlagImage flag={cat.flag} name={cat.name} className="w-5.5 h-3.5 object-contain flex-shrink-0 rounded-sm border border-slate-200/50 shadow-xs" />
+                              <span className="text-[11px] sm:text-[12px] font-black tracking-wide truncate uppercase">{cat.name}</span>
                             </div>
-                            <ChevronRight size={12} className={`flex-shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''} ${hasActiveChild ? 'text-white/60' : 'text-slate-300'}`} />
+                            <ChevronRight size={12} className={cn(
+                              "flex-shrink-0 transition-transform duration-200",
+                              isExpanded ? "rotate-90" : "",
+                              hasActiveChild
+                                ? "text-white/60"
+                                : isExpanded
+                                  ? "text-slate-600"
+                                  : "text-slate-400"
+                            )} />
                           </button>
 
                           {/* Sub-regions */}
@@ -322,7 +419,7 @@ export default function Home() {
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="overflow-hidden ml-4 mt-1 border-l-2 border-slate-100 pl-3 flex flex-col gap-0.5"
+                                className="overflow-hidden ml-1 mt-2 flex flex-col gap-1.5"
                               >
                                 {cat.regionIds.map((rId) => {
                                   const r = regions.find(region => region.id === rId);
@@ -333,10 +430,25 @@ export default function Home() {
                                     <button
                                       key={r.id}
                                       onClick={() => handleRegionSelect(r)}
-                                      className={`w-full px-3 py-2 rounded-lg text-[11px] text-left transition-all flex items-center justify-between ${isSubSelected ? 'bg-[#0073BB]/8 text-[#0073BB] font-semibold' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium'}`}
+                                      className={cn(
+                                        "w-full px-3.5 py-2.5 rounded-xl text-left transition-all flex items-center justify-between border border-slate-100/50 select-none cursor-pointer group/sub",
+                                        isSubSelected
+                                          ? "bg-gradient-to-r from-sky-50 to-white border-sky-200/80 text-sky-600 font-extrabold shadow-sm"
+                                          : "bg-white text-slate-650 hover:text-slate-800 hover:bg-slate-50/50 hover:border-slate-200/60 font-semibold"
+                                      )}
                                     >
-                                      <span>{r.name}</span>
-                                      {isSubSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#0073BB] flex-shrink-0" />}
+                                      <div className="flex items-center gap-2 truncate">
+                                        <span className={cn(
+                                          "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors",
+                                          isSubSelected ? "bg-sky-500 animate-pulse" : "bg-slate-300"
+                                        )} />
+                                        <span className="text-[11.5px] tracking-tight truncate">{r.name}</span>
+                                      </div>
+                                      {isSubSelected ? (
+                                        <CheckCircle2 size={12} className="text-sky-500 shrink-0" />
+                                      ) : (
+                                        <ChevronRight size={11} className="text-slate-300 group-hover/sub:text-slate-400 shrink-0 transition-colors" />
+                                      )}
                                     </button>
                                   );
                                 })}
@@ -351,8 +463,8 @@ export default function Home() {
               </motion.aside>
 
               {/* CENTER: GLOBE ALIGNMENT */}
-              <div className="flex-grow relative flex items-center justify-center">
-                <div className="w-[850px] h-[850px] relative pointer-events-auto">
+              <div className="flex-grow relative flex items-center justify-center min-h-[300px] sm:min-h-0 mt-4 lg:mt-0">
+                <div className="w-[340px] h-[340px] max-w-[95vw] max-h-[95vw] sm:w-[500px] sm:h-[500px] lg:w-[850px] lg:h-[850px] relative pointer-events-auto">
                   <GlobeScene
                     regions={normalizedRegions.filter(r => visibleRegionIds.has(r.id))}
                     onSelectRegion={handleRegionSelect}
@@ -362,8 +474,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Bottom Status Bar */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            {/* Bottom Status Bar (hidden on mobile, visible on desktop) */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden md:block">
               <div className="flex items-center gap-2.5 px-5 py-2.5 bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-full shadow-sm pointer-events-auto">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span className="text-xs font-semibold text-slate-500 tracking-wide whitespace-nowrap">Region Intelligence Active</span>
@@ -386,7 +498,7 @@ export default function Home() {
 
             {/* Scroll Down Floating Indicator */}
             <div
-              className="absolute bottom-10 right-10 z-20 animate-bounce cursor-pointer pointer-events-auto bg-white/95 backdrop-blur-md p-4 rounded-full border border-slate-100 shadow-xl flex items-center justify-center hover:bg-slate-50 transition-colors"
+              className="absolute bottom-8 right-4 sm:bottom-10 sm:right-10 z-20 animate-bounce cursor-pointer pointer-events-auto bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-full border border-slate-200/60 shadow-none flex items-center justify-center hover:bg-slate-50 transition-colors"
               onClick={() => {
                 const catalogEl = document.getElementById("services-catalog-anchor");
                 if (catalogEl) {
@@ -395,7 +507,7 @@ export default function Home() {
               }}
               title="Scroll down to AWS Services Catalog"
             >
-              <ArrowDown size={18} className="text-[#FF9900]" />
+              <ArrowDown className="text-[#FF9900] h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
             </div>
           </div>
 
@@ -437,7 +549,7 @@ function RegionBriefModal({ region, onClose, onExplore }: { region: AWSRegionDat
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.95, opacity: 0, y: 16 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="absolute bottom-20 right-10 z-[100] w-[360px] overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.12)] border border-slate-100/80 bg-white"
+      className="absolute bottom-20 left-4 right-4 sm:left-auto sm:right-10 z-[100] w-auto sm:w-[360px] overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.12)] border border-slate-100/80 bg-white"
     >
       <div className="p-6 flex flex-col gap-5">
 

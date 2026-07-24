@@ -192,8 +192,8 @@ export default function ManageHomepage() {
       if (journeyRes) setJourneys(journeyRes.sort((a, b) => a.order - b.order));
       if (testimonialRes) setTestimonials(testimonialRes.sort((a, b) => a.order - b.order));
       if (teamRes) setTeam(teamRes.sort((a, b) => a.order - b.order));
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Homepage settings fetch error:', err?.message || err);
       setMessage({ text: 'Failed to fetch homepage settings.', isError: true });
     } finally {
       setLoading(false);

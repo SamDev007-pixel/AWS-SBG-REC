@@ -1,8 +1,7 @@
-const CACHE_NAME = 'aws-sbg-rec-v3';
+const CACHE_NAME = 'aws-sbg-rec-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
-  '/sbg_logo.svg',
   '/sbg-logo-new.png',
   '/sbg-logo-latest.png',
   '/cloud-credit-coin.png',
@@ -32,26 +31,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - Network-first for manifest.json and APIs, stale-while-revalidate for assets
+// Fetch event - Stale-while-revalidate strategy for static assets, network first for APIs
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Ignore non-GET requests or API/WebSocket calls
   if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
-    return;
-  }
-
-  // Network-first for manifest.json to force immediate updates on mobile devices
-  if (url.pathname === '/manifest.json') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
     return;
   }
 
@@ -83,8 +68,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/sbg_logo.svg',
-    badge: '/sbg_logo.svg',
+    icon: '/sbg-logo-new.png',
+    badge: '/sbg-logo-new.png',
     vibrate: [100, 50, 100],
     data: { url: data.url || '/' }
   };

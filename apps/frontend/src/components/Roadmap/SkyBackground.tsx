@@ -11,8 +11,8 @@ interface SkyBackgroundProps {
 export const SkyBackground: React.FC<SkyBackgroundProps> = ({ height }) => {
   return (
     <div
-      className="absolute inset-x-0 top-0 overflow-hidden pointer-events-none select-none z-0 min-h-full min-h-screen min-h-[100dvh]"
-      style={{ height: height ? `max(100%, 100dvh, ${height}px)` : '100%' }}
+      className="absolute inset-x-0 top-0 overflow-hidden pointer-events-none select-none z-0"
+      style={{ height: height ? `${height}px` : '100%' }}
     >
       {/* Sky Ambient Light Glows - Distributed throughout height */}
       <div

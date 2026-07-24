@@ -33,7 +33,7 @@ export const LoginCard = () => {
         } else if (role === 'crew') {
           router.replace('/crew/dashboard');
         } else if (role) {
-          router.replace('/events/dashboard');
+          router.replace('/enthusiasts/dashboard');
         }
       }
     } catch {
@@ -76,7 +76,7 @@ export const LoginCard = () => {
         setStatus({ type: "success", message: "Successfully logged in! Redirecting..." });
 
         // Role-based redirect — short delay so success message is visible
-        let redirectPath = '/events/dashboard';
+        let redirectPath = '/enthusiasts/dashboard';
         if (role === 'core') redirectPath = '/core/dashboard';
         else if (role === 'crew') redirectPath = '/crew/dashboard';
 

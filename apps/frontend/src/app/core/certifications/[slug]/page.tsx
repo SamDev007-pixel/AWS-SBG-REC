@@ -159,8 +159,8 @@ export default function CertificationDetailPage({
   return (
     <div className="bg-slate-50/30 min-h-screen pb-24">
       {/* Header Navigation Bar - Simple & Dedicated */}
-      <header className="bg-white border-b border-slate-200/80 py-4 shadow-sm sticky top-0 z-30 px-6 sm:px-10 lg:px-14">
-        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <header className="bg-white border-b border-slate-200/80 py-4 shadow-sm sm:sticky sm:top-0 sm:z-30 px-4 sm:px-10 lg:px-14">
+        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           
           {/* Breadcrumbs & Title Stack */}
           <div className="flex flex-col gap-1 min-w-0">
@@ -178,14 +178,14 @@ export default function CertificationDetailPage({
             </nav>
 
             <div className="flex items-center mt-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight truncate">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-snug sm:truncate">
                 {certification.title}
               </h1>
             </div>
           </div>
 
           {/* Level Badges, Code & Actions */}
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
             <Badge variant="outline" className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-[4px] uppercase border", config.badgeClass)}>
               {levelName}
             </Badge>
@@ -221,11 +221,11 @@ export default function CertificationDetailPage({
       </header>
 
       {/* Main Content Area */}
-      <main className="w-full px-6 sm:px-10 lg:px-14 py-8">
-        <div className="grid gap-8 lg:grid-cols-12 items-start">
+      <main className="w-full px-4 sm:px-10 lg:px-14 py-6 sm:py-8">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 items-start">
           
           {/* Left Column: Domains list (Width: 9/12) */}
-          <div className="lg:col-span-9 space-y-6">
+          <div className="lg:col-span-9 space-y-6 order-2 lg:order-1">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h2 className="text-base font-bold text-slate-800 tracking-tight">
                 Exam Domains ({certification.domains.length})
@@ -270,7 +270,7 @@ export default function CertificationDetailPage({
           </div>
 
           {/* Right Column: Sidebar (Width: 3/12) */}
-          <div className="lg:col-span-3 lg:sticky lg:top-24 space-y-6">
+          <div className="lg:col-span-3 lg:sticky lg:top-24 space-y-6 order-1 lg:order-2">
             {/* Certification Badge Card */}
             <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center justify-center text-center">
               <div className="w-32 h-32 flex items-center justify-center mb-3">

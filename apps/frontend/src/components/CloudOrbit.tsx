@@ -627,7 +627,7 @@ export default function CloudOrbit() {
           ) : (
             <motion.img
               key="hub-logo"
-              src="/sbg_logo.svg"
+              src="/sbg-logo-latest.png"
               alt="AWS SBG REC Logo"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

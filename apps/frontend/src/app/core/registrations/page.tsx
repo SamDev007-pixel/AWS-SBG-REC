@@ -3,14 +3,15 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useRegistrations, useEvents, useGenerateBulkTickets } from '@/lib/hooks';
+import { useRegistrations, useEvents, useGenerateBulkTickets, useToggleOnSpot } from '@/lib/hooks';
 import {
   Download, Eye, XCircle, ClipboardList,
   Search, ChevronDown, Calendar, Filter,
-  ChevronLeft, ChevronRight, Users, Ticket, X, FilterX
+  ChevronLeft, ChevronRight, Users, Ticket, X, FilterX, QrCode
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
+
 
 /* ─── Loading Skeleton ──────────────────────────────────────────────── */
 function LoadingSkeleton() {
@@ -93,8 +94,10 @@ function RegistrationsPageContent() {
   const [sendEmailOption, setSendEmailOption] = useState(true);
   const [createAnnouncementOption, setCreateAnnouncementOption] = useState(false);
   const [showActionsDropdown, setShowActionsDropdown] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const generateMutation = useGenerateBulkTickets();
+  const toggleMutation = useToggleOnSpot();
 
   const { data: eventsData } = useEvents({ limit: 200 });
   const events = eventsData?.data ?? [];
@@ -208,26 +211,54 @@ function RegistrationsPageContent() {
             </p>
           </div>
           
-          <div className="flex items-center gap-2.5 shrink-0 relative">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 relative">
             {/* Specific Event View actions */}
             {(eventFilter || initialEventId) ? (
               <>
                 <button
-                  onClick={() => handleOpenGenerateModal(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  onClick={() => {
+                    if (currentEvent) {
+                      toggleMutation.mutate({
+                        id: currentEvent.id,
+                        enabled: !currentEvent.onSpotEnabled,
+                      });
+                    }
+                  }}
+                  disabled={toggleMutation.isPending}
+                  className={`inline-flex items-center gap-1.5 px-3.5 h-9 border rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0 ${
+                    currentEvent?.onSpotEnabled
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100/70'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
                 >
-                  <Ticket size={13} />
-                  Release Event Passes
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${currentEvent?.onSpotEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-350'}`} />
+                  <span>{currentEvent?.onSpotEnabled ? 'On-Spot Active (QR)' : 'Enable On-Spot (QR)'}</span>
+                </button>
+                {currentEvent?.onSpotEnabled && (
+                  <button
+                    onClick={() => setShowQrModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
+                  >
+                    <QrCode size={13} className="text-[#FF9900] shrink-0" />
+                    <span>View QR</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => handleOpenGenerateModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
+                >
+                  <Ticket size={13} className="shrink-0" />
+                  <span>Release Event Passes</span>
                 </button>
 
                 {/* More Actions Dropdown */}
-                <div className="relative">
+                <div className="relative shrink-0">
                   <button
                     onClick={() => setShowActionsDropdown(!showActionsDropdown)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                   >
-                    Actions
-                    <ChevronDown size={13} className={`text-slate-500 transition-transform duration-200 ${showActionsDropdown ? 'rotate-180' : ''}`} />
+                    <span>Actions</span>
+                    <ChevronDown size={13} className={`text-slate-500 transition-transform duration-200 shrink-0 ${showActionsDropdown ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showActionsDropdown && (
@@ -241,8 +272,8 @@ function RegistrationsPageContent() {
                           onClick={() => setShowActionsDropdown(false)}
                           className="group flex items-center gap-2.5 px-3 py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all duration-150 w-full text-left"
                         >
-                          <Eye size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150" />
-                          View Tickets
+                          <Eye size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150 shrink-0" />
+                          <span>View Tickets</span>
                         </Link>
                         
                         <div className="h-px bg-slate-100/70 my-1 mx-1" />
@@ -254,30 +285,30 @@ function RegistrationsPageContent() {
                           }}
                           className="group flex items-center gap-2.5 px-3 py-2 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all duration-150 w-full text-left cursor-pointer border-none bg-transparent"
                         >
-                          <Download size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150" />
-                          Export CSV
+                          <Download size={14} className="text-slate-400 group-hover:text-slate-650 transition-colors duration-150 shrink-0" />
+                          <span>Export CSV</span>
                         </button>
                       </div>
                     </>
                   )}
                 </div>
               </>
-            ) : (
-              <>
-                {/* Overall Registrations View actions */}
+             ) : (
+               <>
+                 {/* Overall Registrations View actions */}
                 <Link
                   href="/core/attendance"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <ClipboardList size={13} className="text-slate-500" />
-                  Attendance
+                  <ClipboardList size={13} className="text-slate-500 shrink-0" />
+                  <span>Attendance</span>
                 </Link>
                 <button
                   onClick={handleExportCsv}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Download size={13} />
-                  Export CSV
+                  <Download size={13} className="shrink-0" />
+                  <span>Export CSV</span>
                 </button>
               </>
             )}
@@ -659,6 +690,78 @@ function RegistrationsPageContent() {
               >
                 {generateMutation.isPending ? 'Generating...' : 'Confirm'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showQrModal && currentEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full border border-slate-100/80 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-[14px] font-bold text-slate-800">On-Spot Registration QR</h3>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">Enthusiasts scan this to register</p>
+              </div>
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="w-8 h-8 rounded-lg hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-6 text-center space-y-5">
+              {/* Event Info Card */}
+              <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3.5 text-left flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#FF9900]/10 flex items-center justify-center text-[#FF9900] shrink-0 mt-0.5">
+                  <Calendar size={18} className="stroke-[2]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-slate-700 truncate">{currentEvent.title}</h4>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">
+                    <span>On-Spot Active</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+
+              {/* QR Image */}
+              <div className="flex justify-center py-1">
+                <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                      typeof window !== 'undefined'
+                        ? `${window.location.origin}/events/${currentEvent.id}/register?onSpot=true`
+                        : ''
+                    )}`}
+                    alt="On-Spot QR Code"
+                    className="w-48 h-48 block"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    typeof window !== 'undefined'
+                      ? `${window.location.origin}/events/${currentEvent.id}/register?onSpot=true`
+                      : ''
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 text-[11px] text-slate-500 font-medium px-3.5 py-2.5 rounded-lg text-center select-all focus:outline-none focus:ring-1 focus:ring-[#FF9900]/30"
+                />
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/events/${currentEvent.id}/register?onSpot=true`;
+                    navigator.clipboard.writeText(url);
+                  }}
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[12px] font-semibold transition-all cursor-pointer shadow-md hover:-translate-y-0.5"
+                >
+                  Copy Registration Link
+                </button>
+              </div>
             </div>
           </div>
         </div>

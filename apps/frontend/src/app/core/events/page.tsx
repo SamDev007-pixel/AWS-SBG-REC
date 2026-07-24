@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -269,6 +269,28 @@ export default function EventsPage() {
 
   const queryClient = useQueryClient();
 
+  const { data: allEventsData } = useEvents({ limit: 1000 });
+
+  const dynamicCategories = useMemo(() => {
+    const defaultCategories = ['Technology', 'Workshop', 'Bootcamp', 'DevOps'];
+    const fetchedEvents = allEventsData?.data || [];
+    const uniqueEventCats = Array.from(
+      new Set(
+        fetchedEvents
+          .map(e => e.category)
+          .filter((cat): cat is string => !!cat && cat.trim() !== '')
+      )
+    );
+    const merged = [...defaultCategories];
+    uniqueEventCats.forEach(cat => {
+      const clean = cat.trim();
+      if (!merged.some(m => m.toLowerCase() === clean.toLowerCase())) {
+        merged.push(clean);
+      }
+    });
+    return merged;
+  }, [allEventsData]);
+
   const { data, isLoading } = useEvents({
     page, limit: 12,
     search: search || undefined,
@@ -331,9 +353,6 @@ export default function EventsPage() {
               <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none m-0">
                 Events
               </h1>
-              <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-[4px] text-xs font-semibold">
-                {data?.total ?? 0}
-              </span>
             </div>
             <p className="text-[13px] text-slate-500 font-normal mt-2.5">
               Create, manage, and track all community activities, registrations, and scheduling configurations.
@@ -377,10 +396,9 @@ export default function EventsPage() {
             <div className="relative shrink-0">
               <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className={selectCls}>
                 <option value="">All Categories</option>
-                <option value="Technology">Technology</option>
-                <option value="Workshop">Workshop</option>
-                <option value="Bootcamp">Bootcamp</option>
-                <option value="DevOps">DevOps</option>
+                {dynamicCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>

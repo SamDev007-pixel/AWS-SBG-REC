@@ -56,96 +56,96 @@ export default function HeroBanner() {
   return (
     <div className="relative w-full">
       {/* Background glow blobs to render through the glass blur */}
-      <div className="absolute top-1/2 left-[15%] -translate-y-1/2 w-48 h-48 bg-brand-orange/20 rounded-full blur-[70px] pointer-events-none z-0" />
-      <div className="absolute top-1/2 right-[20%] -translate-y-1/2 w-52 h-52 bg-brand-blue/15 rounded-full blur-[75px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-brand-orange/25 rounded-full blur-[60px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-brand-blue/15 rounded-full blur-[65px] pointer-events-none z-0" />
 
       {/* Glassmorphic Panel Wrapper */}
-      <div className="relative w-full rounded-[22px] border border-white/50 bg-white/45 backdrop-blur-[24px] shadow-xl shadow-black/[0.03] overflow-hidden z-10">
+      <div className="relative w-full rounded-[22px] border border-orange-100/60 bg-white/45 backdrop-blur-[24px] shadow-xl shadow-black/[0.03] overflow-hidden z-10 isolate">
         {/* Gradient from top-right orange to center white */}
         <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
-            background:
-              "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)",
+            background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.04) 40%, rgba(255, 255, 255, 0) 70%)",
           }}
         />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative w-full min-h-[300px] p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6"
+          className="relative w-full min-h-[190px] p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6"
         >
           {/* Hero Text Content */}
-          <div className="relative z-10 flex-1 flex flex-col items-start text-black">
+          <div className="relative z-10 flex-1 flex flex-col items-center md:items-start text-center md:text-left text-slate-800">
             <motion.div
               initial={{ opacity: 0, x: -15 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/5 border border-black/10 text-xs font-semibold mb-4"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9900]/8 border border-[#FF9900]/30 text-[11px] mb-3 shadow-[0_1px_4px_rgba(255,153,0,0.04)]"
             >
-              <Sparkles
-                className="w-3.5 h-3.5 text-brand-orange animate-spin"
-                style={{ animationDuration: "4s" }}
-              />
-              <span>AWS Student Builder Groups — REC</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#FF9900] animate-spin" style={{ animationDuration: "6s" }} />
+              <span
+                className="text-slate-700 tracking-wider font-semibold"
+                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+              >
+                AWS Student Builders Group REC
+              </span>
             </motion.div>
 
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-black drop-shadow-sm mb-3">
-              {greeting}, <span className="capitalize font-bold text-black inline-block">{userName}</span>!
+            <h1
+              className="text-[23px] md:text-[29px] font-semibold tracking-tight text-slate-900 drop-shadow-sm mb-2.5"
+              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+            >
+              {greeting}, <span className="capitalize font-bold text-slate-900 inline-block">{userName}</span>!
             </h1>
 
-            <p className="text-black/80 max-w-xl text-[14px] md:text-base leading-relaxed mb-6">
+            <p
+              className="text-slate-600 max-w-xl text-[13.5px] leading-relaxed mb-5 text-center md:text-left tracking-wide"
+              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontWeight: 550 }}
+            >
               Welcome to the Crew Operations Console. Coordinate upcoming community activities, manage registration lists, review attendee ticketing, and monitor check-in statistics in real time.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <Link href="/crew/events">
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-6 py-3 rounded-xl bg-brand-orange hover:bg-brand-orange/95 text-black font-semibold text-sm shadow-lg shadow-brand-orange/20 flex items-center gap-2 group transition-all cursor-pointer"
+            <div className="flex flex-row items-center justify-center md:justify-start gap-2 sm:gap-3 w-full sm:w-auto">
+              <Link href="/crew/events" className="flex-1 sm:flex-initial">
+                <button
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#FF9900] hover:bg-[#FFA524] text-white font-bold text-[11px] sm:text-xs shadow-xs border border-[#FF9900] transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
                   <span>Explore Events</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                </button>
               </Link>
 
-              <Link href="/learn">
-                <motion.button
-                  whileHover={{
-                    scale: 1.03,
-                    y: -2,
-                    backgroundColor: "rgba(255,255,255,0.15)",
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-6 py-3 rounded-xl bg-black/5 border border-black/10 text-black font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
+              <Link href="/learn" className="flex-1 sm:flex-initial">
+                <button
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold text-[11px] sm:text-xs shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
-                  <Trophy className="w-4 h-4 text-brand-orange" />
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
                   <span>View Roadmap</span>
-                </motion.button>
+                </button>
               </Link>
             </div>
           </div>
 
           {/* Right Side Visual Panel — Orbiting Icons */}
-          <div className="relative z-10 flex-shrink-0 w-full md:w-auto flex justify-center items-center md:px-4">
-            <div className="relative w-64 h-64 flex items-center justify-center">
+          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-4">
+            <div className="relative w-56 h-56 flex items-center justify-center">
               {/* Animated floating circles / orbits */}
-              <div className="absolute w-48 h-48 border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
-              <div className="absolute w-32 h-32 border border-dotted border-black/20 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
+              <div className="absolute w-[172px] h-[172px] border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
+              <div className="absolute w-[116px] h-[116px] border border-dotted border-black/20 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
 
               {/* Central Main Large Icon (AWS Logo) */}
               <motion.div
-                animate={{ y: [5, -5, 5] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute z-10 w-24 h-24 bg-transparent flex items-center justify-center"
+                animate={{
+                  y: [4, -4, 4],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute z-10 w-21 h-21 bg-transparent flex items-center justify-center"
               >
-                <img
-                  src="/aws-logo.svg"
-                  alt="AWS Logo"
-                  className="w-16 h-auto object-contain animate-pulse"
-                  style={{ animationDuration: "3s" }}
-                />
+                <img src="/aws-logo.svg" alt="AWS Logo" className="w-14 h-auto object-contain animate-pulse" style={{ animationDuration: "3s" }} />
               </motion.div>
 
               {/* 5 Surrounding Smaller Icons (Orbiting) */}
@@ -155,12 +155,23 @@ export default function HeroBanner() {
                   <motion.div
                     key={item.label}
                     className="absolute"
-                    style={{ left: "50%", top: "50%", x: "-50%", y: "-50%" }}
-                    animate={{ rotate: [item.angle, item.angle + 360] }}
-                    transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                    style={{
+                      left: "50%",
+                      top: "50%",
+                      x: "-50%",
+                      y: "-50%",
+                    }}
+                    animate={{
+                      rotate: [item.angle, item.angle + 360],
+                    }}
+                    transition={{
+                      duration: 40,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   >
                     <motion.div
-                      className="absolute w-10 h-10 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
+                      className="absolute w-9.5 h-9.5 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
                       style={{
                         left: "50%",
                         top: "50%",
@@ -171,8 +182,8 @@ export default function HeroBanner() {
                         rotate: [-item.angle, -item.angle - 360],
                         scale: isHovered ? 1.25 : 1,
                         boxShadow: isHovered
-                          ? "0 12px 24px -10px rgba(0,0,0,0.15), 0 8px 16px -8px rgba(0,0,0,0.15)"
-                          : "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
+                          ? "0 10px 20px -8px rgba(0, 0, 0, 0.15), 0 6px 12px -6px rgba(0, 0, 0, 0.15)"
+                          : "0 3px 5px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.1)",
                         borderColor: isHovered
                           ? "rgba(255, 153, 0, 0.35)"
                           : "rgba(0, 0, 0, 0.1)",
@@ -188,16 +199,6 @@ export default function HeroBanner() {
                       onHoverEnd={() => setHoveredIcon(null)}
                     >
                       <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
-                      {isHovered && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 5, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          className="absolute top-full mt-2 px-2.5 py-1 bg-slate-900 text-white text-[10px] font-semibold rounded shadow-md border border-slate-800/60 whitespace-nowrap pointer-events-none tracking-wide z-30"
-                        >
-                          <span>{item.label}</span>
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[4px] border-b-slate-900" />
-                        </motion.div>
-                      )}
                     </motion.div>
                   </motion.div>
                 );

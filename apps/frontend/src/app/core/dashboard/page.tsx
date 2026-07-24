@@ -24,6 +24,7 @@ import {
   CheckCircle,
   Eye,
   Sliders,
+  Home,
   ChevronRight,
   RotateCcw,
 } from 'lucide-react';
@@ -174,22 +175,22 @@ function CoreHeroBanner() {
               className="text-slate-600 max-w-xl text-[13.5px] leading-relaxed mb-5 text-left tracking-wide"
               style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontWeight: 500 }}
             >
-              Manage events, coordinate announcements, and monitor community progress from your central console. Let's inspire the next generation of cloud builders today!
+              Manage your community, empower your team, and turn ambitious ideas into impactful events that leave a lasting impression.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Link href="/core/events/create">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <Link href="/core/events/create" className="w-full sm:w-auto">
                 <button
-                  className="px-4.5 py-2 rounded-md bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                  className="w-full sm:w-auto px-4.5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Event</span>
                 </button>
               </Link>
 
-              <Link href="/core/analytics">
+              <Link href="/core/analytics" className="w-full sm:w-auto">
                 <button
-                  className="px-4.5 py-2 rounded-md bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center gap-2 transition-all duration-150 cursor-pointer"
+                  className="w-full sm:w-auto px-4.5 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
                 >
                   <BarChart3 className="w-4 h-4 text-slate-500" />
                   <span>System Analytics</span>
@@ -199,7 +200,7 @@ function CoreHeroBanner() {
           </div>
 
           {/* Right Side Visual Panel */}
-          <div className="relative z-10 flex-shrink-0 w-full md:w-auto flex justify-center items-center md:px-4">
+          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-4">
             <div className="relative w-56 h-56 flex items-center justify-center">
               {/* Animated floating circles / orbits */}
               <div className="absolute w-[172px] h-[172px] border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
@@ -423,7 +424,7 @@ const RecentEventCard = ({
   return (
     <div className="bg-white border border-slate-200 rounded-[6px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-[#FF9900]/70 hover:shadow-[0_12px_30px_-6px_rgba(35,47,62,0.08),0_0_15px_rgba(255,153,0,0.22)] hover:-translate-y-1 transition-all duration-300 ease-out group flex flex-col relative h-full">
       {/* Poster (Premium full-bleed cover image) */}
-      <div className="h-42 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
+      <div className="h-44 sm:h-42 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
         <img
           src={imgPosterSrc}
           alt={event.title}
@@ -577,6 +578,7 @@ export default function DashboardPage() {
   }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation, revertMutation]);
 
   const adminActions = [
+    { label: 'Manage Homepage', href: '/core/manage-homepage', icon: Home, color: 'text-orange-500 bg-orange-50/60 border border-orange-100/50' },
     { label: 'Scanner Panel', href: '/core/attendance', icon: UserCheck, color: 'text-indigo-600 bg-indigo-50 border border-indigo-100' },
     { label: 'Generate Report', href: '/core/analytics', icon: BarChart3, color: 'text-teal-600 bg-teal-50 border border-teal-100' },
   ];
@@ -614,19 +616,21 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
               {adminActions.map((action) => (
-                <Link key={action.label} href={action.href} className="inline-flex">
+                <Link key={action.label} href={action.href} className="w-full sm:w-auto inline-flex">
                   <motion.button
                     whileHover={{ scale: 1.02, y: -0.5 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-[9px] border border-slate-200 bg-white shadow-sm hover:border-[#FF9900]/40 hover:shadow-md text-[12px] font-semibold text-slate-700 transition-all duration-200 cursor-pointer group"
+                    className="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 px-4 py-2.5 rounded-[9px] border border-slate-200 bg-white shadow-sm hover:border-[#FF9900]/40 hover:shadow-md text-[12px] font-semibold text-slate-700 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className={`w-7.5 h-7.5 flex items-center justify-center rounded-[6px] border ${action.color}`}>
-                      <action.icon className="h-4 w-4" />
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-7.5 h-7.5 flex items-center justify-center rounded-[6px] border ${action.color}`}>
+                        <action.icon className="h-4 w-4" />
+                      </div>
+                      <span>{action.label}</span>
                     </div>
-                    <span>{action.label}</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#FF9900] group-hover:translate-x-0.5 transition-transform duration-150" />
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#FF9900] group-hover:translate-x-0.5 transition-transform duration-150 shrink-0" />
                   </motion.button>
                 </Link>
               ))}
@@ -636,7 +640,7 @@ export default function DashboardPage() {
 
         {/* Recent Events Section */}
         <div className="mt-6 px-4 md:px-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 mb-5">
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center justify-center w-9 h-9 rounded-[6px] bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/20 text-[#FF9900] shadow-sm shrink-0">
                 <Calendar className="w-4.5 h-4.5 text-brand-orange" />
@@ -651,7 +655,7 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <Link href="/core/events" className="inline-flex items-center gap-1.25 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[5px] text-[12px] font-semibold transition-all shadow-sm group self-start sm:self-auto">
+            <Link href="/core/events" className="w-full sm:w-auto inline-flex items-center justify-center gap-1.25 px-3.5 py-2 sm:py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm group">
               <span>View All Events</span>
               <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-650 group-hover:translate-x-0.5 transition-all" />
             </Link>

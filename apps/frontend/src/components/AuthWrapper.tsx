@@ -8,7 +8,7 @@ const PUBLIC_ROUTES = ['/', '/login', '/signup', '/forgot-password', '/reset-pas
 function getHomeForRole(role: string): string {
   if (role === 'core') return '/core/dashboard';
   if (role === 'crew') return '/crew/dashboard';
-  return '/events/dashboard';
+  return '/events';
 }
 
 function getSession(): { id?: string; role: string } | null {

@@ -302,10 +302,10 @@ function CalibrationPageContent() {
   const isCoreDashboard = searchParams.get("scope") !== "crew";
 
   return (
-    <div className="h-screen flex overflow-hidden bg-background p-3">
+    <div className="h-screen flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-background p-3 pt-16 md:pt-3">
       {/* Left Panel — Controls */}
-      <div className="w-[420px] min-w-[420px] border-r overflow-y-auto p-5 space-y-4 flex flex-col text-sm bg-white">
-        <h1 className="text-xl font-bold tracking-tight text-slate-800">OD List Generation</h1>
+      <div className="w-full md:w-[420px] md:min-w-[420px] border-b md:border-b-0 md:border-r overflow-y-visible md:overflow-y-auto p-4 md:p-5 space-y-4 flex flex-col text-sm bg-white shrink-0">
+        <h1 className="text-xl font-bold tracking-tight text-slate-800 pt-8 md:pt-0">OD List Generation</h1>
 
         {/* Event Selector (if they want to load database attendees) */}
         <div className="space-y-1">
@@ -488,7 +488,7 @@ function CalibrationPageContent() {
       </div>
 
       {/* Right Visual Canvas / Preview */}
-      <div className="flex-1 min-w-0 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 min-w-0 overflow-y-visible md:overflow-y-auto p-4 space-y-4">
         {/* Visual Canvas */}
         <div className="bg-white rounded-lg border border-slate-200 p-4">
           <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">

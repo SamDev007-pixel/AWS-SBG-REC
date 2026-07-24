@@ -333,11 +333,6 @@ export const learningService = {
     const res = await apiClient.get<{ module: (LearningModuleSummary & { topicSlug: string; topicName: string }) | null }>('/roadmap/learning/continue');
     return res.data;
   },
-
-  getGuidelines: async (): Promise<any[]> => {
-    const res = await apiClient.get<any[]>('/roadmap/guidelines');
-    return res.data;
-  },
 };
 
 // ============================================================================
@@ -409,7 +404,6 @@ export interface LearnerSummary {
   role: string;
   xp: number;
   currentTopic: string | null;
-  currentTopicNumber: number | null;
   currentLevel: string | null;
   currentModuleName: string | null;
   currentModuleOrder: number | null;

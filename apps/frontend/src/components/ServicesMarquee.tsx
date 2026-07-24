@@ -50,7 +50,7 @@ export default function ServicesMarquee() {
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
-          minHeight: "80px",
+          minHeight: "90px",
         }}
       >
         {/* ── Hover info overlay ───────────────────────────────────────── */}
@@ -80,27 +80,45 @@ export default function ServicesMarquee() {
                   padding: "0 32px",
                   display: "flex",
                   alignItems: "center",
-                  gap: "20px",
+                  gap: "16px",
                 }}
               >
-                {/* Accent bar */}
+                {/* Accent bar with colored glow */}
                 <div
                   style={{
-                    width: "3px",
+                    width: "4px",
                     height: "36px",
-                    borderRadius: "2px",
-                    background: hoveredService.color,
+                    borderRadius: "999px",
+                    background: `linear-gradient(to bottom, ${hoveredService.color}, ${hoveredService.color}99)`,
+                    boxShadow: `0 0 10px ${hoveredService.color}a0`,
                     flexShrink: 0,
                   }}
                 />
-                {/* Icon */}
-                <img
-                  src={Icons[hoveredService.id]}
-                  alt={hoveredService.name}
-                  style={{ width: 28, height: 28, flexShrink: 0, objectFit: "contain" }}
-                />
-                {/* Text */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, minWidth: 0 }}>
+                
+                {/* Glowing Icon Frame */}
+                <div
+                  style={{
+                    width: "38px",
+                    height: "38px",
+                    borderRadius: "8px",
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                  }}
+                >
+                  <img
+                    src={Icons[hoveredService.id]}
+                    alt={hoveredService.name}
+                    style={{ width: 22, height: 22, objectFit: "contain" }}
+                  />
+                </div>
+
+                {/* Text Block */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <span
                       style={{
@@ -108,21 +126,23 @@ export default function ServicesMarquee() {
                         fontWeight: 700,
                         color: "#ffffff",
                         letterSpacing: "0.01em",
+                        fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                       }}
                     >
                       {hoveredService.name}
                     </span>
                     <span
                       style={{
-                        fontSize: "10px",
-                        fontWeight: 600,
+                        fontSize: "9px",
+                        fontWeight: 700,
                         color: hoveredService.color,
-                        background: `${hoveredService.color}18`,
-                        border: `1px solid ${hoveredService.color}40`,
-                        padding: "1px 8px",
-                        borderRadius: "4px",
+                        background: `${hoveredService.color}15`,
+                        border: `1px solid ${hoveredService.color}35`,
+                        padding: "2px 10px",
+                        borderRadius: "999px",
                         textTransform: "uppercase",
-                        letterSpacing: "0.08em",
+                        letterSpacing: "0.06em",
+                        fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                       }}
                     >
                       {hoveredService.tag}
@@ -132,14 +152,10 @@ export default function ServicesMarquee() {
                     style={{
                       margin: 0,
                       fontSize: "12.5px",
-                      color: "rgba(255,255,255,0.70)",
-                      lineHeight: 1.4,
+                      color: "#cbd5e1",
+                      lineHeight: 1.45,
                       fontWeight: 400,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
+                      fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                     }}
                   >
                     {hoveredService.desc}

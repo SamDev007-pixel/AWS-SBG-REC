@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { REVIEWS } from "@/lib/reviewsData";
+import { api } from "@/lib/api";
 
 const QuoteIcon = ({ color }: { color: string }) => (
   <svg
@@ -205,23 +206,71 @@ const ReviewCard = ({ review, idx, half, isZoomed, isDimmed, onClick }: ReviewCa
   );
 };
 
-export default function ReviewsMarquee() {
+interface ReviewsMarqueeProps {
+  previewData?: any[];
+}
+
+export default function ReviewsMarquee({ previewData }: ReviewsMarqueeProps = {}) {
   const [isPaused, setIsPaused] = useState(false);
   const [trackOffset, setTrackOffset] = useState(0);
   const [isInView, setIsInView] = useState(false);
   const [clickedIndex, setClickedIndex] = useState<{ idx: number; half: "a" | "b" } | null>(null);
   
+  const [reviews, setReviews] = useState<any[]>(REVIEWS);
+
+  const mapData = useCallback((data: any[]) => {
+    return data.map((r, idx) => {
+      const initials = r.name
+        ? r.name
+            .split(" ")
+            .map((n: string) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)
+        : "U";
+      const colors = ["#0073BB", "#FF9900", "#16A34A", "#7C3AED", "#DC2626"];
+      return {
+        ...r,
+        initials,
+        stars: r.rating || 5,
+        color: colors[idx % colors.length],
+        badge: r.type || "Cloud",
+        verified: true,
+        featured: false,
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (previewData) {
+      setReviews(mapData(previewData));
+    }
+  }, [previewData, mapData]);
+
+  useEffect(() => {
+    if (previewData) return;
+    let active = true;
+    api.get<any[]>("/homepage/testimonials")
+      .then((res) => {
+        if (active && res && res.length > 0) {
+          setReviews(mapData(res));
+        }
+      })
+      .catch((err) => console.error("Testimonials dynamic fetch error:", err));
+    return () => { active = false; };
+  }, [previewData, mapData]);
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const firstHalfRef = useRef<HTMLDivElement>(null);
 
   // Filter and order reviews so Prathakshanaa ("Captain") is always first
   const marqueeReviews = React.useMemo(() => {
-    const unfiltered = REVIEWS.filter(r => !r.featured);
+    const unfiltered = reviews.filter(r => !r.featured);
     const captain = unfiltered.filter(r => r.name.toLowerCase().includes("prathakshanaa"));
     const others = unfiltered.filter(r => !r.name.toLowerCase().includes("prathakshanaa"));
     return [...captain, ...others];
-  }, []);
+  }, [reviews]);
 
   const measure = useCallback(() => {
     if (firstHalfRef.current) {
@@ -282,24 +331,16 @@ export default function ReviewsMarquee() {
   const handleCardClick = (idx: number, half: "a" | "b") => {
     if (clickedIndex && clickedIndex.idx === idx && clickedIndex.half === half) {
       setClickedIndex(null);
-      setIsPaused(false);
     } else {
       setClickedIndex({ idx, half });
     }
   };
 
-  const handleSectionClick = () => {
-    if (clickedIndex) {
-      setClickedIndex(null);
-      setIsPaused(false);
-    }
-  };
-
   return (
     <section
-      id="community"
+      id="reviews"
       ref={sectionRef}
-      onClick={handleSectionClick}
+      onClick={() => setClickedIndex(null)}
       style={{
         width: "100%",
         background: "linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%)",
@@ -308,8 +349,8 @@ export default function ReviewsMarquee() {
         overflow: "hidden",
         zIndex: 10,
         scrollMarginTop: "100px",
-        borderTop: "1px solid #e2e8f0",
-        borderBottom: "1px solid #e2e8f0",
+        borderTop: previewData ? "none" : "1px solid #e2e8f0",
+        borderBottom: previewData ? "none" : "1px solid #e2e8f0",
       }}
     >
       <style>{`
@@ -355,14 +396,21 @@ export default function ReviewsMarquee() {
         </p>
       </div>
 
+      <style>{`
+        .reviews-gradient-overlay {
+          width: 80px;
+        }
+        @media (max-width: 1024px) {
+          .reviews-gradient-overlay {
+            width: 25px !important;
+          }
+        }
+      `}</style>
+
       <div
         ref={containerRef}
         onMouseEnter={() => !clickedIndex && setIsPaused(true)}
-        onMouseLeave={() => {
-          if (!clickedIndex) {
-            setIsPaused(false);
-          }
-        }}
+        onMouseLeave={() => !clickedIndex && setIsPaused(false)}
         style={{
           width: "100%",
           display: "flex",
@@ -371,19 +419,21 @@ export default function ReviewsMarquee() {
           padding: "16px 0",
         }}
       >
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "140px", background: "linear-gradient(90deg, #f8fafc, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "140px", background: "linear-gradient(270deg, #ffffff, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
+        <div className="reviews-gradient-overlay" style={{ position: "absolute", left: 0, top: 0, bottom: 0, background: "linear-gradient(90deg, #f8fafc, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
+        <div className="reviews-gradient-overlay" style={{ position: "absolute", right: 0, top: 0, bottom: 0, background: "linear-gradient(270deg, #ffffff, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
 
         <div
           style={{
             display: "flex",
             gap: GAP,
             width: "max-content",
-            animationName: trackOffset > 0 ? "marquee-scroll" : "none",
+            animationName: (trackOffset > 0 && !clickedIndex) ? "marquee-scroll" : "none",
             animationDuration: "30s",
             animationTimingFunction: "linear",
             animationIterationCount: "infinite",
-            animationPlayState: (isPaused || !isInView || !!clickedIndex) ? "paused" : "running",
+            animationPlayState: (isPaused || !isInView) ? "paused" : "running",
+            transform: clickedIndex ? `translateX(${clickedTranslation}px)` : undefined,
+            transition: clickedIndex ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
             willChange: "transform",
           }}
         >
