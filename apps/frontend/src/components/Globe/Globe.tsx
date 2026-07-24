@@ -12,11 +12,12 @@ interface GlobeProps {
   regions: AWSRegionData[];
   onSelectRegion: (region: AWSRegionData) => void;
   selectedRegion: AWSRegionData | null;
+  scale?: number;
 }
 
 let cachedTexture: THREE.Texture | null = null;
 
-export default function Globe({ regions, onSelectRegion, selectedRegion }: GlobeProps) {
+export default function Globe({ regions, onSelectRegion, selectedRegion, scale = 1.5 }: GlobeProps) {
   const [texture, setTexture] = useState<THREE.Texture | null>(cachedTexture);
   const globeGroupRef = useRef<THREE.Group>(null);
   const loggedFinalRef = useRef<boolean>(false);
@@ -175,7 +176,7 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
   return (
     <group
       ref={globeGroupRef}
-      scale={1.5}
+      scale={scale}
       rotation={new THREE.Euler(0, -1.3962634, 0, 'XYZ')}
     >
       {/* Ocean Base Sphere — renders first */}

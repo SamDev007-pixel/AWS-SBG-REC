@@ -102,7 +102,7 @@ export const SignupCard = () => {
 
         setStatus({ type: "success", message: "Account created successfully! Redirecting..." });
         setTimeout(() => {
-          router.push("/events/dashboard");
+          router.push("/events");
         }, 2000);
       } else {
         setStatus({ type: "error", message: data.message || "Failed to create account." });

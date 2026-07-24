@@ -82,7 +82,7 @@ export function SelectedPathwayList({
 
             return (
               <div key={cert.id} className="relative flex flex-col">
-                <div className="group flex items-center gap-3.5 rounded-lg border border-slate-300 bg-white p-3.5 hover:border-[#FF9900]/45 shadow-[0_1px_3px_rgba(0,0,0,0.01)] hover:shadow-sm transition-all duration-200">
+                <div className="group flex items-center gap-3 rounded-lg border border-slate-300 bg-white p-3 sm:p-3.5 hover:border-[#FF9900]/45 shadow-[0_1px_3px_rgba(0,0,0,0.01)] hover:shadow-sm transition-all duration-200">
                   {/* Step Number Circle */}
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#FF9900]/35 bg-orange-50 text-[#FF9905] text-[11px] font-bold shadow-xs">
                     {cert.order}
@@ -90,14 +90,21 @@ export function SelectedPathwayList({
                   
                   {/* Title details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-slate-700 truncate m-0 leading-tight">
+                    <p className="text-[12.5px] sm:text-[13px] font-semibold text-slate-800 line-clamp-2 sm:line-clamp-1 sm:truncate m-0 leading-tight">
                       {cert.title.replace("AWS Certified ", "")}
                     </p>
-                    <span className="text-[10px] text-slate-400 font-mono mt-0.5 inline-block">{cert.examCode}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-slate-400 font-mono inline-block">{cert.examCode}</span>
+                      <span className={`sm:hidden inline-flex items-center rounded-[4px] px-1.5 py-0.2 text-[8.5px] font-bold uppercase tracking-wider ${
+                        levelBadgeColors[lvlName] ?? "bg-slate-50 text-slate-500 border border-slate-200"
+                      }`}>
+                        {lvlName}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Level Badge */}
-                  <span className={`inline-flex items-center rounded-[4px] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider ${
+                  {/* Level Badge (Desktop) */}
+                  <span className={`hidden sm:inline-flex items-center rounded-[4px] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider shrink-0 ${
                     levelBadgeColors[lvlName] ?? "bg-slate-50 text-slate-500 border border-slate-200"
                   }`}>
                     {lvlName}

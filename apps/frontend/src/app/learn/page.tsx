@@ -10,7 +10,6 @@ import {
   AlertCircle,
   X,
   Loader2,
-  ChevronLeft,
   ChevronRight,
   CheckCircle2,
   Trophy,
@@ -19,7 +18,7 @@ import {
   Lock,
   Home,
   Users,
-  ArrowDown
+  Lightbulb
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
 import { getAuthSession } from '@/lib/authHelper';
@@ -28,7 +27,6 @@ import { AppLayout } from '@/components/Layout/AppLayout';
 import { SkyBackground } from '@/components/Roadmap/SkyBackground';
 import { TopicRailItem } from '@/components/Learn/TopicRailItem';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
-import { SmartScrollNavigation } from '@/components/Learn/SmartScrollNavigation';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CoreSidebarShell from '@/app/core/CoreSidebarShell';
@@ -37,6 +35,7 @@ import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 import { LearningPageError, categorizeError } from './error-types';
 import { logError } from './error-logger';
 import LearningErrorView from '@/components/Learn/LearningErrorView';
+
 
 
 // Helper to parse topic descriptions into bullet points
@@ -116,36 +115,6 @@ export default function LearnPage() {
   const handleReviewTopics = () => {
     if (railRef.current) {
       railRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-  const scrollToActiveTopic = () => {
-    const activeEl = activeCardRef.current;
-
-    if (activeEl) {
-      const rect = activeEl.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const elementCenter = rect.top + rect.height / 2;
-      const viewportCenter = viewportHeight / 2;
-
-      // Check if current topic card is already centered / in view
-      const isAlreadyAtTopic = Math.abs(elementCenter - viewportCenter) < 150 || (rect.top >= 40 && rect.bottom <= viewportHeight - 40);
-
-      if (!isAlreadyAtTopic) {
-        // First touch: scroll to current active topic
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-    }
-
-    // Second touch (already at active topic) or all completed: scroll to bottom of page
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-    }
-    const scrollableEl = Array.from(document.querySelectorAll<HTMLElement>('.overflow-y-auto, main, div')).find(
-      (el) => el.scrollHeight > el.clientHeight + 40
-    );
-    if (scrollableEl) {
-      scrollableEl.scrollTo({ top: scrollableEl.scrollHeight, behavior: 'smooth' });
     }
   };
 
@@ -568,7 +537,7 @@ export default function LearnPage() {
       );
     }
     const themedContent = (
-      <div className="w-full min-h-screen min-h-[100dvh] h-full bg-slate-50/50 flex-1 min-h-0 flex flex-col">
+      <div className="w-full h-full bg-slate-50/50 flex-1 min-h-0">
         {children}
       </div>
     );
@@ -585,7 +554,7 @@ export default function LearnPage() {
   if (loading) {
     return renderWithSidebar(
       <AppLayout>
-        <div className="min-h-screen min-h-[100dvh] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+        <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
           {/* Cloud Background from Roadmaps */}
           <SkyBackground />
 
@@ -618,26 +587,14 @@ export default function LearnPage() {
 
   return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen min-h-[100dvh] h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden flex flex-col flex-1 no-scrollbar-mobile">
+      <div className="h-full lg:h-[calc(100vh)] w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] font-sans select-none relative overflow-y-auto lg:overflow-hidden pb-12 lg:pb-0 flex flex-col custom-scrollbar">
         {/* Cloud Background from Roadmaps */}
-        <SkyBackground height={contentHeight ? contentHeight : undefined} />
+        <SkyBackground height={contentHeight ? contentHeight + 200 : undefined} />
 
-        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-4 sm:pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6 flex flex-col gap-5 sm:gap-8 relative z-10 w-full h-auto lg:h-full lg:flex-1 lg:min-h-0">
-
-          {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto">
-            {/* Left Side: Navigation & Current Mission Info */}
-            <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto h-auto min-w-0">
-              {/* Back to Dashboard Link Button (White/Grey Circle Button) */}
-              <Link
-                href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white border border-slate-200/80 hover:border-slate-300 flex items-center justify-center text-slate-600 hover:text-slate-900 shadow-xs hover:shadow-md transition-all duration-200 flex-shrink-0 cursor-pointer active:scale-95 group"
-                title={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
-                aria-label={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
-              >
-                <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
-              </Link>
-
+        <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-6 sm:pt-8 pb-6 flex flex-col gap-6 sm:gap-8 relative z-10 w-full h-full lg:h-full lg:flex-1 lg:min-h-0">          {/* ROADMAP PROGRESS HEADER PANEL */}
+          <header className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 w-full pointer-events-auto py-2">
+            {/* Left Side: Current Mission Info */}
+            <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto min-h-[52px] sm:min-h-[72px]">
               <AnimatePresence mode="wait">
                 {isPlatformCompletedVisual ? (
                   <motion.div
@@ -646,11 +603,9 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
+                    className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto"
                   >
-                    <div
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0"
-                    >
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0">
                       <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
                         <path
                           fill="#252F3E"
@@ -667,13 +622,13 @@ export default function LearnPage() {
                       </svg>
                     </div>
                     <div className="flex flex-col text-slate-800 min-w-0">
-                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 break-words">
+                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5">
                         🎉 AWS Journey Complete
                       </span>
-                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block break-words">
+                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block">
                         Congratulations! You've completed every available topic.
                       </span>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-extrabold">
+                      <div className="flex items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-extrabold">
                         <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2 py-0.5 rounded-md">
                           {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'}
                         </span>
@@ -691,30 +646,39 @@ export default function LearnPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto min-w-0"
+                    className="flex items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto"
                   >
+                    <button
+                      onClick={handleResume}
+                      aria-label="Continue learning"
+                      className={cn(
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 flex-shrink-0 mt-0.5 sm:mt-0",
+                        continueModule
+                          ? "bg-[#FF9900] shadow-[#FF9900]/25 cursor-pointer hover:bg-[#ffb84d] hover:shadow-lg hover:shadow-[#FF9900]/35 hover:scale-105 active:scale-95"
+                          : "bg-[#FF9900]/60 cursor-pointer hover:bg-[#ffb84d] hover:scale-105 active:scale-95"
+                      )}
+                    >
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
+                    </button>
                     <div className="flex flex-col text-slate-800 min-w-0 flex-1">
                       <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
                         CONTINUE YOUR JOURNEY
                       </span>
-                      <span className="text-sm sm:text-base font-black text-slate-900 block leading-snug font-heading mt-0.5 break-words whitespace-normal [text-wrap:balance]">
+                      <span className="text-[13px] sm:text-base font-black text-slate-800 block leading-tight font-heading mt-0.5 truncate">
                         {continueModule ? `Current Mission: ${continueModule.name}` : 'Ready to start your AWS journey'}
                       </span>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-[10px] sm:text-[11px] font-extrabold text-slate-500">
-                        <span className="flex items-center gap-1 text-cyan-600">
-                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" /> {continueModule ? continueTopicProgress : 'Select a topic'}
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-1.5 text-[9.5px] sm:text-[11px] font-extrabold text-slate-500">
+                        <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 px-2 py-0.5 rounded-md border border-cyan-100/30 shrink-0">
+                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> {continueModule ? continueTopicProgress : 'Select a topic'}
                         </span>
                         {continueModule?.topicName && (
-                          <>
-                            <span className="text-slate-300">|</span>
-                            <Link
-                              href={`/learn/${continueModule.topicSlug}`}
-                              className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
-                              title="Go to topic roadmap"
-                            >
-                              Topic: {continueModule.topicName}
-                            </Link>
-                          </>
+                          <Link
+                            href={`/learn/${continueModule.topicSlug}`}
+                            className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1 shrink-0"
+                            title="Go to topic roadmap"
+                          >
+                            Topic: {continueModule.topicName}
+                          </Link>
                         )}
                       </div>
                     </div>
@@ -723,111 +687,92 @@ export default function LearnPage() {
               </AnimatePresence>
             </div>
 
-            {/* Right Side: Responsive Stats Grid & Actions */}
-            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-              {/* Stats Cards Grid (2x2 on Mobile, Inline Flex on Tablet & Desktop - All cards stretch to uniform height) */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Continue Action Button (Stretched to match exact height of stats cards without upper label) */}
-                <button
-                  onClick={handleResume}
-                  disabled={!continueModule}
-                  className={cn(
-                    "bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2.5 sm:py-2 flex items-center justify-center gap-1.5 self-stretch min-h-[44px] sm:min-h-0 min-w-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
-                    !continueModule && "opacity-60 cursor-not-allowed"
-                  )}
-                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
-                >
-                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
-                    Continue
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                </button>
-
+            {/* Right Side: Reward & Resume */}
+            <div className="flex items-center justify-between lg:justify-end gap-2 sm:gap-3 w-full lg:w-auto pt-2 lg:pt-0 border-t border-slate-200/50 lg:border-none">
+              {/* Badges subset */}
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                 {/* Topics Progress Badge */}
-                <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
+                <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0284c7]" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
                       TOPICS
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                       {currentTopicIndex} / {topics.length}
                     </span>
                   </div>
                 </div>
 
                 {/* Total XP Badge */}
-                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <Trophy className="w-4 h-4 text-indigo-650 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
+                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2">
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-650" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
                       SCORE
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                       {userXP} XP
                     </span>
                   </div>
                 </div>
 
-                {/* Reward XP Badge */}
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
-                      REWARD
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
-                      +{continueModule ? continueXPReward : 50} XP
-                    </span>
-                  </div>
-                </div>
-
-                {/* Level badge (Shown on Tablet & Desktop) */}
-                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
+                {/* Level badge */}
+                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 items-center gap-1.5 sm:gap-2">
+                  <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+                  <div>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none">
                       LEVEL
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-0.5 sm:mt-1">
                       {continueDisplayLevel}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Guidelines Action Button */}
-              <AnimatePresence>
-                {!isPlatformCompletedVisual && (
-                  <motion.button
-                    key="resume-learning-btn"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    onClick={() => setShowGuidelines(true)}
-                    className="w-full sm:w-auto font-bold text-xs px-4 sm:px-5 py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0] flex items-center justify-center min-h-[44px] sm:min-h-0 flex-shrink-0"
-                  >
-                    Guidelines
-                  </motion.button>
-                )}
-              </AnimatePresence>
+              {/* Action Buttons subset */}
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/enthusiasts/dashboard'}
+                  className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-lg sm:rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
+                >
+                  <Home className="w-4 h-4" />
+                </Link>
+
+                <AnimatePresence>
+                  {!isPlatformCompletedVisual && (
+                    <motion.button
+                      key="resume-learning-btn"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => setShowGuidelines(true)}
+                      className="font-bold text-[10px] sm:text-xs px-3 sm:px-5 py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0] whitespace-nowrap"
+                    >
+                      Guidelines
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </header>
 
           {/* TWO-COLUMN LAYOUT: Topic rail + Learning Guide */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-2 lg:pb-6">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:flex-1 lg:min-h-0 lg:overflow-hidden pb-6">
             {/* Left Column: Search + Topic Rail */}
-            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-0 lg:pr-2 no-scrollbar-mobile lg:custom-scrollbar">
-              <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
-                <div className="relative min-w-0 flex-1">
+            <div ref={railRef} className="flex-[1.5] min-w-0 lg:overflow-y-auto lg:h-full pr-2 custom-scrollbar">
+              <div className="flex items-stretch gap-2 sm:gap-3 w-full pointer-events-auto h-9 sm:h-10">
+                <div className="relative min-w-0 flex-1 h-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search Topics"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-8 sm:pl-10 sm:pr-9 py-1.5 sm:py-2 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
+                    className="w-full h-full pl-9 pr-8 sm:pl-10 sm:pr-9 bg-white/90 border border-slate-200/80 rounded-full text-[11px] sm:text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100 shadow-sm transition-all"
                   />
                   {searchQuery && (
                     <button
@@ -842,7 +787,7 @@ export default function LearnPage() {
                 {userRole === 'crew' && (
                   <Link
                     href="/crew/learners"
-                    className="flex items-center gap-1.5 px-3 sm:px-4.5 py-1.5 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
+                    className="flex items-center justify-center gap-1.5 px-4 sm:px-4.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-[10px] sm:text-xs cursor-pointer flex-shrink-0 h-full"
                     title="View Learner Progress"
                   >
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -860,7 +805,7 @@ export default function LearnPage() {
                     <p className="text-xs text-slate-400 mt-1">Try search with a different keyword</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-4 pt-4 pb-2 sm:py-6 animate-fade-in">
+                  <div className="flex flex-col items-center gap-4 w-full px-0 sm:px-2 py-6 animate-fade-in">
                     {filteredTopics.map((topic, index) => {
                       const status = getDialStatus(topic);
                       const isCompleted = status === 'COMPLETED';
@@ -964,7 +909,7 @@ export default function LearnPage() {
                                     </div>
 
                                     {/* AWS Swoosh Progress Illustration */}
-                                    <div className="w-32 h-16 md:w-36 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
+                                    <div className="w-36 h-16 md:w-40 md:h-16 flex-shrink-0 flex items-center justify-center bg-white/10 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden backdrop-blur-sm shadow-[0_0_12px_rgba(255,153,0,0.08)]">
                                       <svg viewBox="0 100 310 90" className="w-full h-auto text-slate-200/50 select-none">
                                         <defs>
                                           <clipPath id={`aws-swoosh-clip-${topic.id}`}>
@@ -1096,29 +1041,29 @@ export default function LearnPage() {
                             )}
 
                             {renderLocked && (
-                              <motion.div
-                                key={`${topic.id}-locked`}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-start sm:items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
-                              >
-                                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0">
-                                    <Lock className="w-4 h-4" />
-                                  </div>
-                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
-                                    <span className="font-semibold text-slate-700 text-sm leading-snug">
-                                      {topic.name}
-                                    </span>
-                                    <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
-                                      {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
+                               <motion.div
+                                 key={`${topic.id}-locked`}
+                                 initial={{ opacity: 0, y: 10 }}
+                                 animate={{ opacity: 1, y: 0 }}
+                                 exit={{ opacity: 0, y: -10 }}
+                                 transition={{ duration: 0.45 }}
+                                 className="w-full bg-white/[0.08] backdrop-blur-[20px] border border-white/15 rounded-[20px] p-4 sm:py-3.5 sm:px-6 flex items-center shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.05)] select-none opacity-80 text-left"
+                               >
+                                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                   <div className="w-8 h-8 rounded-full bg-slate-500/10 border border-slate-500/15 flex items-center justify-center text-slate-600 flex-shrink-0">
+                                     <Lock className="w-4 h-4" />
+                                   </div>
+                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                     <span className="font-semibold text-slate-700 text-sm leading-snug">
+                                       {topic.name}
+                                     </span>
+                                     <span className="inline-block text-[10px] font-extrabold text-slate-500 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide self-start sm:self-auto flex-shrink-0">
+                                       {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
+                                     </span>
+                                   </div>
+                                 </div>
+                               </motion.div>
+                             )}
                           </AnimatePresence>
                         </div>
                       );
@@ -1263,30 +1208,44 @@ export default function LearnPage() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.25 }}
-                  className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
+                  className="relative w-full max-w-md max-h-[80vh] flex flex-col rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Sky Background from Roadmaps */}
                   <SkyBackground />
 
-                  <button
-                    onClick={() => setShowGuidelines(false)}
-                    className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm"
-                  >
-                    <X className="w-4 h-4 text-slate-650" />
-                  </button>
-                  <div className="p-5 relative z-10">
+                  {/* Fixed Modal Header */}
+                  <div className="p-5 pb-3 border-b border-slate-200/10 flex items-center justify-between relative z-20 bg-white/30 backdrop-blur-md">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center border border-amber-500/20 flex-shrink-0">
+                          <Lightbulb className="w-4 h-4 text-amber-600" />
+                        </div>
+                        <h2 className="text-[12px] font-black text-slate-800 uppercase tracking-widest font-heading">
+                          GUIDELINES
+                        </h2>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-semibold tracking-tight pl-10 -mt-1 leading-normal">
+                        Platform learning rules and progression guidelines
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setShowGuidelines(false)}
+                      className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm cursor-pointer flex-shrink-0"
+                    >
+                      <X className="w-4 h-4 text-slate-650" />
+                    </button>
+                  </div>
+
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 relative z-10 custom-scrollbar">
                     <LearningGuidePanel />
                   </div>
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Smart Scroll Navigation (Mobile & Tablet /learn page only - hidden when searching) */}
-          {!searchQuery.trim() && (
-            <SmartScrollNavigation containerRef={railRef} onScrollDown={scrollToActiveTopic} />
-          )}
 
         </div>
       </div>
@@ -1298,8 +1257,7 @@ export default function LearnPage() {
 function FlippingBook({ className }: { className?: string }) {
   return (
     <span className={cn("relative inline-block w-5 h-5", className)} style={{ perspective: '120px' }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes page-flip-y {
           0% {
             transform: rotateY(0deg);
@@ -1309,7 +1267,7 @@ function FlippingBook({ className }: { className?: string }) {
           }
         }
       `}} />
-
+      
       {/* Background static book */}
       <svg
         viewBox="0 0 24 24"

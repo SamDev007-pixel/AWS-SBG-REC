@@ -55,11 +55,5 @@ export default function TopicRoadmapPage() {
     );
   }
 
-  return (
-    <RoadmapBuilder
-      topicId={topicId}
-      topicName={topic.name}
-      topicNumber={topic.orderIndex !== undefined ? topic.orderIndex + 1 : undefined}
-    />
-  );
+  return <RoadmapBuilder topicId={topicId} topicName={topic.name} />;
 }

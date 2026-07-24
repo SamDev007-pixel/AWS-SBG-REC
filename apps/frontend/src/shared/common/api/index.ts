@@ -4,6 +4,7 @@ import type {
   Ticket,
   AttendanceLog,
   Announcement,
+  CrewMember,
   CreateEventDto,
   UpdateEventDto,
   CreateRegistrationDto,
@@ -98,6 +99,13 @@ export async function closeRegistration(id: string): Promise<Event> {
 
 export async function reopenRegistration(id: string): Promise<Event> {
   return fetcher(`/events/${id}/reopen-registration`, { method: 'PATCH' });
+}
+
+export async function toggleOnSpot(id: string, enabled: boolean): Promise<Event> {
+  return fetcher(`/events/${id}/toggle-on-spot`, {
+    method: 'PATCH',
+    body: JSON.stringify({ enabled }),
+  });
 }
 
 export async function duplicateEvent(id: string): Promise<Event> {
@@ -282,4 +290,19 @@ export async function createAnnouncement(data: CreateAnnouncementDto): Promise<A
 
 export async function deleteAnnouncement(id: string): Promise<void> {
   return fetcher(`/announcements/${id}`, { method: 'DELETE' });
+}
+
+/** All crew-targeted announcements (for Core Admin feed) */
+export async function fetchAllCrewAnnouncements(): Promise<Announcement[]> {
+  return fetcher('/announcements/crew');
+}
+
+/** Announcements visible to a specific crew member */
+export async function fetchCrewAnnouncementsForMember(userId: string): Promise<Announcement[]> {
+  return fetcher(`/announcements/crew/me?userId=${encodeURIComponent(userId)}`);
+}
+
+/** List of crew members (role=crew users) for the targeting dropdown */
+export async function fetchCrewMembers(): Promise<CrewMember[]> {
+  return fetcher('/announcements/crew/members');
 }

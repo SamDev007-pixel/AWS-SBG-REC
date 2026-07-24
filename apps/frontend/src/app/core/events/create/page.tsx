@@ -7,6 +7,7 @@ import { useCreateEvent } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 import {
   ChevronRight,
+  ChevronDown,
   ChevronLeft,
   Plus,
   Trash2,
@@ -26,6 +27,11 @@ import {
   Clock,
   MapPin,
   Calendar,
+  Globe,
+  Laptop,
+  Video,
+  Network,
+  Layers,
 } from 'lucide-react';
 import type {
   CreateEventDto,
@@ -113,8 +119,8 @@ function PosterImageInput({
         <div className="w-full">
           <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[8px] p-6 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[120px] bg-slate-50/50">
             <Upload className="h-6 w-6 text-slate-400 mb-2" />
-            <span className="text-xs text-slate-550 font-bold">Select Image file</span>
-            <span className="text-[10px] text-slate-400 mt-1">
+            <span className="text-sm text-slate-600 font-bold">Select Image file</span>
+            <span className="text-[11.5px] text-slate-450 mt-1.5">
               PNG, JPG up to 5MB (Converts to Base64)
             </span>
             <input type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
@@ -162,25 +168,30 @@ function PosterImageInput({
             </div>
 
             {/* Adjustment Slider */}
-             <div className="md:col-span-4 space-y-3 bg-white border border-slate-200/80 rounded-[8px] p-3.5 flex flex-col justify-center">
-              <div className="space-y-1 text-center md:text-left">
-                <label className="block text-[10.5px] font-bold text-[#FF9900] uppercase tracking-wider">
-                  Align Position
-                </label>
-                <p className="text-[10px] text-slate-400 leading-normal">
+            <div className="md:col-span-4 space-y-3.5 bg-slate-50/50 border border-slate-200/60 rounded-[8px] p-4 flex flex-col justify-center">
+              <div>
+                <div className="flex items-center justify-between mb-0.5">
+                  <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
+                    Align Position
+                  </label>
+                  <span className="text-xs font-semibold text-[#FF9900]">
+                    {posVal}%
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-normal font-normal">
                   Adjust vertical framing (0% Top to 100% Bottom)
                 </p>
               </div>
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="space-y-2">
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={posVal}
                   onChange={handlePositionChange}
-                  className="w-full h-1.5 bg-slate-100 rounded-[4px] appearance-none cursor-pointer accent-[#FF9900] focus:outline-none"
+                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#FF9900] focus:outline-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF9900] [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#FF9900] [&::-moz-range-thumb]:border-0"
                 />
-                <div className="flex justify-between w-full text-[9px] font-bold text-slate-400 uppercase tracking-widest px-0.5">
+                <div className="flex justify-between text-[10px] font-medium text-slate-400 px-0.5">
                   <span>Top</span>
                   <span>Center</span>
                   <span>Bottom</span>
@@ -211,6 +222,34 @@ function BasicInfoStep({
   const [date, setDate] = useState(formData.date || '');
   const [time, setTime] = useState(formData.time || '');
   const [deadline, setDeadline] = useState(formData.registrationDeadline || '');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const PREDEFINED_CATEGORIES = ['Workshop', 'Bootcamp', 'AI/ML', 'DevOps'];
+
+  useEffect(() => {
+    if (formData.category) {
+      if (!PREDEFINED_CATEGORIES.includes(formData.category)) {
+        setShowCustomInput(true);
+        setCustomCategory(formData.category);
+      } else {
+        setShowCustomInput(false);
+        setCustomCategory('');
+      }
+    }
+  }, [formData.category]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Refs to avoid stale closures in setTimeout
   const formDataRef = useRef(formData);
@@ -264,7 +303,7 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('title', title)}
           placeholder="Event title"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
         {errors.title && <p className="text-[10px] text-rose-500 mt-1.5">{errors.title}</p>}
       </div>
@@ -281,7 +320,7 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('shortDescription', shortDesc)}
           placeholder="Brief description (shown in cards)"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
       </div>
 
@@ -297,32 +336,73 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('description', description)}
           placeholder="Detailed event description..."
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
         />
       </div>
 
       {/* Category & Venue row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Category</label>
-          <div className="relative">
-            <select
-              value={formData.category || ''}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Quick Select</label>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className="w-full flex items-center justify-between border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer text-left"
             >
-              <option value="">Select category</option>
-              <option value="Business">Business</option>
-              <option value="Health">Health</option>
-              <option value="Technology">Technology</option>
-              <option value="Workshop">Workshop</option>
-              <option value="Bootcamp">Bootcamp</option>
-              <option value="AI/ML">AI/ML</option>
-              <option value="DevOps">DevOps</option>
-              <option value="Analytics">Analytics</option>
-            </select>
-            <ChevronRight className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
+              <span>
+                {formData.category || 'Select category'}
+              </span>
+              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+              <div className="absolute left-0 mt-1 w-full bg-white border border-slate-200 rounded-[8px] shadow-lg z-50 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150 max-h-52 overflow-y-auto premium-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({ ...formData, category: '' });
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3.5 py-2 text-sm transition-colors duration-150 cursor-pointer ${
+                    !formData.category ? 'bg-[#FF9900]/5 text-[#FF9900] font-medium' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  Select category
+                </button>
+                {PREDEFINED_CATEGORIES.map((cat) => {
+                  const isSelected = formData.category === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, category: cat });
+                        setIsOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-sm transition-colors duration-150 cursor-pointer ${
+                        isSelected ? 'bg-[#FF9900]/5 text-[#FF9900] font-medium' : 'text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Category <span className="text-rose-500">*</span></label>
+          <input
+            type="text"
+            value={formData.category || ''}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            placeholder="Enter category..."
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+          />
+          {errors.category && <p className="text-[10px] text-rose-500 mt-1.5">{errors.category}</p>}
         </div>
 
         <div>
@@ -336,36 +416,59 @@ function BasicInfoStep({
             }}
             onBlur={() => handleBlur('venue', venue)}
             placeholder="Event venue"
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
           />
         </div>
       </div>
 
       {/* Mode */}
       <div>
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-2">Mode</label>
-        <div className="flex gap-3">
-          {(['ONLINE', 'OFFLINE', 'HYBRID'] as EventMode[]).map((m) => (
-            <label
-              key={m}
-              className={`flex items-center gap-2 border rounded-[8px] px-5 py-2.5 text-xs font-semibold cursor-pointer transition-all duration-200 ${
-                formData.mode === m
-                  ? 'border-[#FF9900] bg-[#FF9900]/5 text-[#FF9900]'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'
-              }`}
-            >
-              <input
-                type="radio"
-                name="mode"
-                value={m}
-                checked={formData.mode === m}
-                onChange={() => setFormData({ ...formData, mode: m })}
-                className="sr-only"
-              />
-              {m.charAt(0) + m.slice(1).toLowerCase()}
-            </label>
-          ))}
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-2">Mode <span className="text-rose-500">*</span></label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {(['ONLINE', 'OFFLINE', 'HYBRID'] as EventMode[]).map((m) => {
+            const config = {
+              ONLINE: { label: 'Online', desc: 'Virtual livestream', icon: <Laptop size={22} className={formData.mode === 'ONLINE' ? 'text-[#FF9900]' : 'text-slate-400'} /> },
+              OFFLINE: { label: 'Offline', desc: 'In-person venue', icon: <MapPin size={22} className={formData.mode === 'OFFLINE' ? 'text-[#FF9900]' : 'text-slate-400'} /> },
+              HYBRID: { label: 'Hybrid', desc: 'Mixed attendance', icon: <Users size={22} className={formData.mode === 'HYBRID' ? 'text-[#FF9900]' : 'text-slate-400'} /> },
+            }[m];
+            return (
+              <label
+                key={m}
+                className={cn(
+                  "flex items-start gap-3 border rounded-[8px] p-4 cursor-pointer transition-all duration-200 select-none",
+                  formData.mode === m
+                    ? "border-[#FF9900] bg-[#FF9900]/5 text-[#FF9900]"
+                    : "border-slate-200 text-slate-700 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-300"
+                )}
+              >
+                <input
+                  type="radio"
+                  name="mode"
+                  value={m}
+                  checked={formData.mode === m}
+                  onChange={() => setFormData({ ...formData, mode: m })}
+                  className="sr-only"
+                />
+                <div className={cn(
+                  "p-2.5 rounded-[8px] shrink-0 transition-all duration-200 border",
+                  formData.mode === m ? "bg-[#FF9900]/10 border-transparent" : "bg-white border-slate-100"
+                )}>
+                  {config.icon}
+                </div>
+                <div className="flex flex-col text-left gap-0.5 font-sans">
+                  <span className={cn(
+                    "text-[14.5px] tracking-tight leading-tight transition-all duration-200",
+                    formData.mode === m 
+                      ? "font-semibold text-[#FF9900]" 
+                      : "font-medium text-slate-600/90"
+                  )}>{config.label}</span>
+                  <span className="text-[11.5px] text-slate-400 font-normal leading-normal">{config.desc}</span>
+                </div>
+              </label>
+            );
+          })}
         </div>
+        {errors.mode && <p className="text-[10px] text-rose-500 mt-1.5">{errors.mode}</p>}
       </div>
 
       {/* Capacity */}
@@ -382,14 +485,14 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('capacity', capacity === '' ? undefined : Number(capacity))}
           placeholder="Max attendees"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
       </div>
 
       {/* Date, Time, Registration Deadline */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Date</label>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Date <span className="text-rose-500">*</span></label>
           <div className="relative">
             <input
               type="date"
@@ -399,13 +502,14 @@ function BasicInfoStep({
                 triggerChange('date', e.target.value);
               }}
               onBlur={() => handleBlur('date', date)}
-              className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+              className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
             />
           </div>
+          {errors.date && <p className="text-[10px] text-rose-500 mt-1.5">{errors.date}</p>}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Time</label>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Time <span className="text-rose-500">*</span></label>
           <input
             type="time"
             value={time}
@@ -414,8 +518,9 @@ function BasicInfoStep({
               triggerChange('time', e.target.value);
             }}
             onBlur={() => handleBlur('time', time)}
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
           />
+          {errors.time && <p className="text-[10px] text-rose-500 mt-1.5">{errors.time}</p>}
         </div>
 
         <div>
@@ -430,7 +535,7 @@ function BasicInfoStep({
               triggerChange('registrationDeadline', e.target.value);
             }}
             onBlur={() => handleBlur('registrationDeadline', deadline)}
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
           />
         </div>
       </div>
@@ -480,14 +585,17 @@ function AgendaStep({
   return (
     <div className="space-y-4">
       {agenda.length === 0 && (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
-          <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-xs text-slate-500 mb-3 font-medium">
-            No agenda items yet. Add your first session.
+        <div className="flex flex-col items-center justify-center text-center py-10 px-4 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/30 hover:bg-slate-50/60 transition-colors duration-200 min-h-[190px]">
+          <div className="p-3 bg-slate-100/60 rounded-full mb-3 shadow-inner">
+            <FileText className="h-6 w-6 text-slate-400" />
+          </div>
+          <p className="text-[13.5px] font-bold text-slate-700 mb-1">No Agenda Items</p>
+          <p className="text-[11.5px] text-slate-400 mb-4 max-w-[280px] leading-relaxed">
+            Create and organize the schedule for your event. Add your first session to get started.
           </p>
           <button
             onClick={addItem}
-            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
+            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 active:scale-[0.97] hover:scale-[1.03] text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Item
@@ -538,7 +646,7 @@ function AgendaStep({
                 value={item.title}
                 onChange={(e) => updateItem(item._key, 'title', e.target.value)}
                 placeholder="Session title"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
@@ -548,7 +656,7 @@ function AgendaStep({
                 value={item.speaker || ''}
                 onChange={(e) => updateItem(item._key, 'speaker', e.target.value)}
                 placeholder="Speaker name"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div>
@@ -559,7 +667,7 @@ function AgendaStep({
                 type="time"
                 value={item.startTime}
                 onChange={(e) => updateItem(item._key, 'startTime', e.target.value)}
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               />
             </div>
             <div>
@@ -568,7 +676,7 @@ function AgendaStep({
                 type="time"
                 value={item.endTime}
                 onChange={(e) => updateItem(item._key, 'endTime', e.target.value)}
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               />
             </div>
           </div>
@@ -628,14 +736,17 @@ function SpeakersStep({
   return (
     <div className="space-y-4">
       {speakers.length === 0 && (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
-          <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-xs text-slate-500 mb-3 font-medium">
-            No speakers added yet. Add your first speaker.
+        <div className="flex flex-col items-center justify-center text-center py-10 px-4 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/30 hover:bg-slate-50/60 transition-colors duration-200 min-h-[190px]">
+          <div className="p-3 bg-slate-100/60 rounded-full mb-3 shadow-inner">
+            <Users className="h-6 w-6 text-slate-400" />
+          </div>
+          <p className="text-[13.5px] font-bold text-slate-700 mb-1">No Speakers Added</p>
+          <p className="text-[11.5px] text-slate-400 mb-4 max-w-[280px] leading-relaxed">
+            Highlight the speakers or hosts for this event. Add your first speaker to get started.
           </p>
           <button
             onClick={addItem}
-            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
+            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 active:scale-[0.97] hover:scale-[1.03] text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Speaker
@@ -686,7 +797,7 @@ function SpeakersStep({
                 value={item.name}
                 onChange={(e) => updateItem(item._key, 'name', e.target.value)}
                 placeholder="Speaker name"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div>
@@ -696,7 +807,7 @@ function SpeakersStep({
                 value={item.role || ''}
                 onChange={(e) => updateItem(item._key, 'role', e.target.value)}
                 placeholder="e.g. Keynote Speaker"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
@@ -708,7 +819,19 @@ function SpeakersStep({
                 value={item.organization || ''}
                 onChange={(e) => updateItem(item._key, 'organization', e.target.value)}
                 placeholder="Company or institution"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
+                LinkedIn URL
+              </label>
+              <input
+                type="url"
+                value={item.linkedinUrl || ''}
+                onChange={(e) => updateItem(item._key, 'linkedinUrl', e.target.value)}
+                placeholder="https://linkedin.com/in/username"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
@@ -718,16 +841,49 @@ function SpeakersStep({
                 value={item.bio || ''}
                 onChange={(e) => updateItem(item._key, 'bio', e.target.value)}
                 placeholder="Speaker biography..."
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Photo</label>
-              <div className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[10px] p-4 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
-                <Upload className="h-6 w-6 text-slate-400 mb-1.5" />
-                <p className="text-xs text-slate-500 font-medium">Click to upload photo</p>
-                <p className="text-[9px] text-slate-400 mt-0.5">PNG, JPG up to 2MB</p>
-              </div>
+               <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Photo</label>
+               {item.photo ? (
+                 <div className="border border-slate-200 rounded-[10px] p-2 flex items-center gap-3 min-h-[96px] bg-slate-50/50">
+                   <div className="h-16 w-16 rounded-full overflow-hidden border border-slate-200/80 bg-slate-100 flex-shrink-0">
+                     <img src={item.photo} alt="Speaker preview" className="w-full h-full object-cover" />
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <p className="text-xs font-semibold text-slate-600 truncate">Speaker Photo Uploaded</p>
+                     <button
+                       type="button"
+                       onClick={() => updateItem(item._key, 'photo', '')}
+                       className="text-[11px] font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/50 border border-rose-100 rounded-[4px] px-2 py-1 mt-1 transition-colors cursor-pointer"
+                     >
+                       Remove Photo
+                     </button>
+                   </div>
+                 </div>
+               ) : (
+                 <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[10px] p-4 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50 relative">
+                   <Upload className="h-6 w-6 text-slate-400 mb-1.5" />
+                   <p className="text-xs text-slate-500 font-medium">Click to upload photo</p>
+                   <p className="text-[9px] text-slate-400 mt-0.5">PNG, JPG up to 2MB</p>
+                   <input
+                     type="file"
+                     accept="image/*"
+                     onChange={(e) => {
+                       const file = e.target.files?.[0];
+                       if (file) {
+                         const reader = new FileReader();
+                         reader.onloadend = () => {
+                           updateItem(item._key, 'photo', reader.result as string);
+                         };
+                         reader.readAsDataURL(file);
+                       }
+                     }}
+                     className="sr-only"
+                   />
+                 </label>
+               )}
             </div>
           </div>
         </div>
@@ -751,11 +907,20 @@ function FormBuilderStep({
   setFields,
   registrationFormType,
   setRegistrationFormType,
+  baseFieldsConfig,
+  setBaseFieldsConfig,
 }: {
   fields: FormFieldItem[];
   setFields: (items: FormFieldItem[]) => void;
   registrationFormType: 'DEFAULT' | 'CUSTOM';
   setRegistrationFormType: (type: 'DEFAULT' | 'CUSTOM') => void;
+  baseFieldsConfig: {
+    nameRequired: boolean;
+    rollNumberRequired: boolean;
+    emailRequired: boolean;
+    departmentRequired: boolean;
+  };
+  setBaseFieldsConfig: (config: any) => void;
 }) {
   function addField() {
     setFields([
@@ -824,47 +989,67 @@ function FormBuilderStep({
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label
-            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/50 ${
+            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/40 ${
               registrationFormType === 'DEFAULT'
-                ? 'border-[#FF9900] bg-[#FF9900]/5 ring-1 ring-[#FF9900]'
+                ? 'border-[#FF9900]/40 bg-[#FF9900]/2'
                 : 'border-slate-200 bg-white'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-800">Default Form</span>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-sm font-medium text-slate-700">Default Form</span>
               <input
                 type="radio"
                 name="registrationFormType"
                 value="DEFAULT"
                 checked={registrationFormType === 'DEFAULT'}
                 onChange={() => setRegistrationFormType('DEFAULT')}
-                className="h-4 w-4 text-[#FF9900] border-slate-300 focus:ring-[#FF9900] focus:ring-offset-0 focus:outline-none cursor-pointer"
+                className="sr-only"
               />
+              <div className={cn(
+                "w-4 h-4 rounded-full border flex items-center justify-center transition-all duration-200 shrink-0",
+                registrationFormType === 'DEFAULT'
+                  ? "border-[#FF9900] bg-white"
+                  : "border-slate-300 bg-white"
+              )}>
+                {registrationFormType === 'DEFAULT' && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF9900]" />
+                )}
+              </div>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed font-normal">
               Standard registration with mandatory fields: Name, Roll Number, Email, and Department.
             </p>
           </label>
 
           <label
-            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/50 ${
+            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/40 ${
               registrationFormType === 'CUSTOM'
-                ? 'border-[#FF9900] bg-[#FF9900]/5 ring-1 ring-[#FF9900]'
+                ? 'border-[#FF9900]/40 bg-[#FF9900]/2'
                 : 'border-slate-200 bg-white'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-800">Custom Form</span>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-sm font-medium text-slate-700">Custom Form</span>
               <input
                 type="radio"
                 name="registrationFormType"
                 value="CUSTOM"
                 checked={registrationFormType === 'CUSTOM'}
                 onChange={() => setRegistrationFormType('CUSTOM')}
-                className="h-4 w-4 text-[#FF9900] border-slate-300 focus:ring-[#FF9900] focus:ring-offset-0 focus:outline-none cursor-pointer"
+                className="sr-only"
               />
+              <div className={cn(
+                "w-4 h-4 rounded-full border flex items-center justify-center transition-all duration-200 shrink-0",
+                registrationFormType === 'CUSTOM'
+                  ? "border-[#FF9900] bg-white"
+                  : "border-slate-300 bg-white"
+              )}>
+                {registrationFormType === 'CUSTOM' && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF9900]" />
+                )}
+              </div>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-400 leading-relaxed font-normal">
               Include the 4 mandatory fields plus add, edit, and reorder additional custom fields.
             </p>
           </label>
@@ -926,20 +1111,112 @@ function FormBuilderStep({
         ) : (
           <div>
             <div className="mb-6">
-              <h3 className="text-xs font-semibold text-slate-555 uppercase tracking-wider mb-2.5 pl-0.5">Mandatory Base Fields</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 border border-slate-200 rounded-[8px] p-3 text-[11px] font-semibold text-slate-600">
-                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
-                  Name (Required)
-                </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
-                  Roll Number (Required)
-                </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
-                  Email (Required)
-                </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
-                  Department (Required)
-                </div>
+              <h3 className="text-xs font-semibold text-slate-555 uppercase tracking-wider mb-2.5 pl-0.5">Base Form Fields Requirements</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Name */}
+                <label className={cn(
+                  "flex items-center gap-3 cursor-pointer select-none border rounded-[8px] p-3 transition duration-200",
+                  baseFieldsConfig.nameRequired
+                    ? "bg-[#FF9900]/5 border-[#FF9900]/30 hover:bg-[#FF9900]/10"
+                    : "bg-white border-slate-200 hover:bg-slate-50/50"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={baseFieldsConfig.nameRequired}
+                    onChange={(e) => setBaseFieldsConfig({ ...baseFieldsConfig, nameRequired: e.target.checked })}
+                    className="sr-only"
+                  />
+                  <div className={cn(
+                    "w-4 h-4 rounded-[4px] border flex items-center justify-center transition-all duration-200 shrink-0",
+                    baseFieldsConfig.nameRequired
+                      ? "bg-[#FF9900] border-[#FF9900] text-white"
+                      : "border-slate-300 bg-white"
+                  )}>
+                    {baseFieldsConfig.nameRequired && <Check className="w-3 h-3 stroke-[3.5]" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-slate-600">Name</span>
+                    <span className="text-[10px] text-slate-400 font-normal">{baseFieldsConfig.nameRequired ? 'Required' : 'Optional'}</span>
+                  </div>
+                </label>
+                {/* Roll Number */}
+                <label className={cn(
+                  "flex items-center gap-3 cursor-pointer select-none border rounded-[8px] p-3 transition duration-200",
+                  baseFieldsConfig.rollNumberRequired
+                    ? "bg-[#FF9900]/5 border-[#FF9900]/30 hover:bg-[#FF9900]/10"
+                    : "bg-white border-slate-200 hover:bg-slate-50/50"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={baseFieldsConfig.rollNumberRequired}
+                    onChange={(e) => setBaseFieldsConfig({ ...baseFieldsConfig, rollNumberRequired: e.target.checked })}
+                    className="sr-only"
+                  />
+                  <div className={cn(
+                    "w-4 h-4 rounded-[4px] border flex items-center justify-center transition-all duration-200 shrink-0",
+                    baseFieldsConfig.rollNumberRequired
+                      ? "bg-[#FF9900] border-[#FF9900] text-white"
+                      : "border-slate-300 bg-white"
+                  )}>
+                    {baseFieldsConfig.rollNumberRequired && <Check className="w-3 h-3 stroke-[3.5]" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-slate-600">Roll Number</span>
+                    <span className="text-[10px] text-slate-400 font-normal">{baseFieldsConfig.rollNumberRequired ? 'Required' : 'Optional'}</span>
+                  </div>
+                </label>
+                {/* Email */}
+                <label className={cn(
+                  "flex items-center gap-3 cursor-pointer select-none border rounded-[8px] p-3 transition duration-200",
+                  baseFieldsConfig.emailRequired
+                    ? "bg-[#FF9900]/5 border-[#FF9900]/30 hover:bg-[#FF9900]/10"
+                    : "bg-white border-slate-200 hover:bg-slate-50/50"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={baseFieldsConfig.emailRequired}
+                    onChange={(e) => setBaseFieldsConfig({ ...baseFieldsConfig, emailRequired: e.target.checked })}
+                    className="sr-only"
+                  />
+                  <div className={cn(
+                    "w-4 h-4 rounded-[4px] border flex items-center justify-center transition-all duration-200 shrink-0",
+                    baseFieldsConfig.emailRequired
+                      ? "bg-[#FF9900] border-[#FF9900] text-white"
+                      : "border-slate-300 bg-white"
+                  )}>
+                    {baseFieldsConfig.emailRequired && <Check className="w-3 h-3 stroke-[3.5]" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-slate-600">Email</span>
+                    <span className="text-[10px] text-slate-400 font-normal">{baseFieldsConfig.emailRequired ? 'Required' : 'Optional'}</span>
+                  </div>
+                </label>
+                {/* Department */}
+                <label className={cn(
+                  "flex items-center gap-3 cursor-pointer select-none border rounded-[8px] p-3 transition duration-200",
+                  baseFieldsConfig.departmentRequired
+                    ? "bg-[#FF9900]/5 border-[#FF9900]/30 hover:bg-[#FF9900]/10"
+                    : "bg-white border-slate-200 hover:bg-slate-50/50"
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={baseFieldsConfig.departmentRequired}
+                    onChange={(e) => setBaseFieldsConfig({ ...baseFieldsConfig, departmentRequired: e.target.checked })}
+                    className="sr-only"
+                  />
+                  <div className={cn(
+                    "w-4 h-4 rounded-[4px] border flex items-center justify-center transition-all duration-200 shrink-0",
+                    baseFieldsConfig.departmentRequired
+                      ? "bg-[#FF9900] border-[#FF9900] text-white"
+                      : "border-slate-300 bg-white"
+                  )}>
+                    {baseFieldsConfig.departmentRequired && <Check className="w-3 h-3 stroke-[3.5]" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-slate-600">Department</span>
+                    <span className="text-[10px] text-slate-400 font-normal">{baseFieldsConfig.departmentRequired ? 'Required' : 'Optional'}</span>
+                  </div>
+                </label>
               </div>
             </div>
 
@@ -949,16 +1226,18 @@ function FormBuilderStep({
 
             <div className="space-y-4">
               {fields.length === 0 && (
-                <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
-                  <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-xs text-slate-500 mb-3 font-medium">
-                    No custom fields added yet. Add additional fields for your custom form if
-                    needed.
+                <div className="flex flex-col items-center justify-center text-center py-10 px-4 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/30 hover:bg-slate-50/60 transition-colors duration-200 min-h-[190px]">
+                  <div className="p-3 bg-slate-100/60 rounded-full mb-3 shadow-inner">
+                    <FileText className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <p className="text-[13.5px] font-bold text-slate-700 mb-1">No Custom Fields</p>
+                  <p className="text-[11.5px] text-slate-400 mb-4 max-w-[280px] leading-relaxed">
+                    Collect additional custom information from attendees. Add custom fields if needed.
                   </p>
                   <button
                     type="button"
                     onClick={addField}
-                    className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
+                    className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 active:scale-[0.97] hover:scale-[1.03] text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Custom Field
@@ -1015,7 +1294,7 @@ function FormBuilderStep({
                         value={field.label}
                         onChange={(e) => updateField(field._key, { label: e.target.value })}
                         placeholder="Field label"
-                        className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                        className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
                       />
                     </div>
                     <div>
@@ -1033,7 +1312,7 @@ function FormBuilderStep({
                                 : [],
                             })
                           }
-                          className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+                          className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
                         >
                           {FIELD_TYPES.map((ft) => (
                             <option key={ft.value} value={ft.value}>
@@ -1070,7 +1349,7 @@ function FormBuilderStep({
                             value={opt}
                             onChange={(e) => updateOption(field._key, optIdx, e.target.value)}
                             placeholder={`Option ${optIdx + 1}`}
-                            className="flex-1 border border-slate-200 rounded-[8px] text-sm px-3.5 py-1.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                            className="flex-1 border border-slate-200 rounded-[8px] text-sm px-3.5 py-1.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9900]/10 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
                           />
                           <button
                             type="button"
@@ -1149,21 +1428,39 @@ export default function CreateEventPage() {
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [speakers, setSpeakers] = useState<SpeakerItem[]>([]);
   const [formFields, setFormFields] = useState<FormFieldItem[]>([]);
+  const [baseFieldsConfig, setBaseFieldsConfig] = useState({
+    nameRequired: true,
+    rollNumberRequired: true,
+    emailRequired: true,
+    departmentRequired: true,
+  });
 
   const validateStep = useCallback(
     (step: number): boolean => {
       const newErrors: Record<string, string> = {};
 
       if (step === 0) {
-        if (!formData.title.trim()) {
+        if (!formData.title?.trim()) {
           newErrors.title = 'Title is required';
+        }
+        if (!formData.category?.trim()) {
+          newErrors.category = 'Category is required';
+        }
+        if (!formData.mode) {
+          newErrors.mode = 'Event mode is required';
+        }
+        if (!formData.date) {
+          newErrors.date = 'Date is required';
+        }
+        if (!formData.time) {
+          newErrors.time = 'Time is required';
         }
       }
 
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     },
-    [formData.title],
+    [formData],
   );
 
   function handleNext() {
@@ -1212,10 +1509,16 @@ export default function CreateEventPage() {
       formFields:
         formData.registrationFormType === 'DEFAULT'
           ? []
-          : formFields.map(({ _key, optionsList, ...rest }) => ({
-              ...rest,
-              options: optionsList && optionsList.length > 0 ? { choices: optionsList } : undefined,
-            })),
+          : [
+              { label: 'Name', type: 'TEXT', isRequired: baseFieldsConfig.nameRequired, fieldOrder: -4 },
+              { label: 'Roll Number', type: 'TEXT', isRequired: baseFieldsConfig.rollNumberRequired, fieldOrder: -3 },
+              { label: 'Email', type: 'EMAIL', isRequired: baseFieldsConfig.emailRequired, fieldOrder: -2 },
+              { label: 'Department', type: 'TEXT', isRequired: baseFieldsConfig.departmentRequired, fieldOrder: -1 },
+              ...formFields.map(({ _key, optionsList, ...rest }) => ({
+                ...rest,
+                options: optionsList && optionsList.length > 0 ? { choices: optionsList } : undefined,
+              })),
+            ],
     };
 
     createEvent.mutate(payload, {
@@ -1524,6 +1827,8 @@ export default function CreateEventPage() {
                       setRegistrationFormType={(type) =>
                         setFormData({ ...formData, registrationFormType: type })
                       }
+                      baseFieldsConfig={baseFieldsConfig}
+                      setBaseFieldsConfig={setBaseFieldsConfig}
                     />
 
                     {/* Error summary */}

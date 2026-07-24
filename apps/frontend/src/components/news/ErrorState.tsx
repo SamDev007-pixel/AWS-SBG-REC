@@ -1,6 +1,4 @@
-"use client";
-
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Newspaper } from "lucide-react";
 import { memo } from "react";
 
 type ErrorStateProps = {
@@ -17,26 +15,30 @@ export const ErrorState = memo(function ErrorState({
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="gradient-container mx-auto flex min-h-[420px] w-full max-w-2xl flex-col items-center justify-center p-1 text-center">
-      <div className="gradient-overlay" />
-      <div className="relative flex min-h-[412px] w-full flex-col items-center justify-center rounded-[calc(var(--radius-xl)-4px)] border border-white/50 bg-card p-8 backdrop-blur-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
-          AWS Community Newsroom
-        </p>
-        <p className="mt-4 font-display text-3xl font-semibold tracking-tight">
+    <div className="mx-auto flex min-h-[380px] w-full max-w-md flex-col items-center justify-center p-6 text-center">
+      <div className="w-full flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        
+        {/* Minimalist Icon */}
+        <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-4 text-slate-400">
+          <Newspaper className="h-5 w-5" />
+        </div>
+
+        <h3 className="text-base font-bold text-[#232F3E] tracking-tight">
           {title}
-        </p>
-        <p className="mt-4 max-w-md text-base leading-7 text-muted">
+        </h3>
+
+        <p className="mt-1.5 max-w-xs text-xs text-slate-500 leading-relaxed">
           {message}
         </p>
+
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-white/75 px-5 py-3 text-sm font-semibold text-foreground [box-shadow:var(--shadow-soft)] transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-[#232F3E] hover:border-slate-350 transition-all active:scale-95 cursor-pointer shadow-xs select-none group"
           >
-            <RefreshCw className="size-4" aria-hidden="true" />
-            {actionLabel}
+            <RefreshCw className="h-3 w-3 text-slate-500 group-hover:rotate-180 transition-transform duration-500 ease-out" />
+            <span>{actionLabel}</span>
           </button>
         ) : null}
       </div>

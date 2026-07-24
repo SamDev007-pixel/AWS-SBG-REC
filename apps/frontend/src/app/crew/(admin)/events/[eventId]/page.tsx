@@ -329,25 +329,25 @@ export default function EventDetailsPage() {
                   Event Details
                 </h3>
 
-                <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-y-5 gap-x-6">
                   {/* Date */}
                   {event.date && (
-                    <div className="flex items-start gap-3.5">
+                    <div className="flex items-start gap-3">
                       <Calendar className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                       <div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Date</span>
-                        <span className="text-sm sm:text-base font-extrabold text-slate-800 block mt-1">{formatDate(event.date)}</span>
+                        <span className="text-[14.5px] font-bold text-slate-800 block mt-0.5">{formatDate(event.date)}</span>
                       </div>
                     </div>
                   )}
 
                   {/* Time */}
                   {event.time && (
-                    <div className="flex items-start gap-3.5">
+                    <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                       <div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Time & Mode</span>
-                        <span className="text-sm sm:text-base font-extrabold text-slate-800 block mt-1">
+                        <span className="text-[14.5px] font-bold text-slate-800 block mt-0.5">
                           {event.time}{event.mode ? ` (${event.mode})` : ''}
                         </span>
                       </div>
@@ -356,22 +356,22 @@ export default function EventDetailsPage() {
 
                   {/* Venue */}
                   {event.venue && (
-                    <div className="flex items-start gap-3.5">
+                    <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-1">
                       <MapPin className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                       <div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Location / Venue</span>
-                        <span className="text-sm sm:text-base font-extrabold text-slate-800 block mt-1 leading-snug">{event.venue}</span>
+                        <span className="text-[14.5px] font-bold text-slate-800 block mt-0.5 leading-snug">{event.venue}</span>
                       </div>
                     </div>
                   )}
 
                   {/* Registration Deadline */}
                   {event.registrationDeadline && (
-                    <div className="flex items-start gap-3.5 pt-4 border-t border-slate-100">
+                    <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-1 pt-4 border-t border-slate-100 sm:border-none sm:pt-0">
                       <AlertCircle className="w-5 h-5 text-rose-500 mt-0.5 shrink-0" />
                       <div>
                         <span className="text-[11px] font-bold text-rose-500 uppercase tracking-wider block">Registration Deadline</span>
-                        <span className="text-sm sm:text-base font-extrabold text-rose-600 block mt-1 leading-snug">
+                        <span className="text-[14.5px] font-bold text-rose-600 block mt-0.5 leading-snug">
                           {formatDateTime(event.registrationDeadline)}
                         </span>
                       </div>
@@ -408,7 +408,7 @@ export default function EventDetailsPage() {
 
               {/* Agenda Quick Summary (Desktop) */}
               {agenda.length > 0 && (
-                <div className="pt-6 border-t border-slate-100 space-y-3">
+                <div className="hidden lg:block pt-6 border-t border-slate-100 space-y-3">
                   <div className="flex items-center gap-2">
                     <List className="w-4 h-4 text-slate-400" />
                     <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Agenda</h3>

@@ -85,7 +85,7 @@ export function CertificationSelector({
                   
                   {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12.5px] font-semibold text-slate-700 truncate m-0 leading-tight">
+                    <p className="text-[12.5px] font-semibold text-slate-800 line-clamp-2 sm:line-clamp-1 sm:truncate m-0 leading-snug">
                       {cert.title.replace("AWS Certified ", "")}
                     </p>
                     <span className="text-[10px] text-slate-400 font-mono mt-0.5 inline-block">

@@ -67,7 +67,7 @@ export default function CrewChatPage() {
   }
 
   return (
-    <div className="h-screen w-full box-border select-none flex flex-col overflow-hidden pl-2 bg-[#F8FAFC]">
+    <div className="h-full w-full box-border select-none flex flex-col overflow-hidden bg-[#F8FAFC]">
       <style>{`
         .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
