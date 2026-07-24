@@ -15,15 +15,8 @@ const COLS = [
     h: "Resources",
     links: [
       { label: "Our Team", href: "/#team" },
-      { label: "Community", href: "/#about" }
-    ]
-  },
-  {
-    h: "Connect",
-    links: [
-      { label: "Instagram", href: "https://www.instagram.com/aws_sbg_rec/" },
-      { label: "LinkedIn", href: "https://www.linkedin.com/company/aws-sbg-rec/" },
-      { label: "WhatsApp", href: "https://chat.whatsapp.com/KSFvYJKRYyB31aL0lZMugK" }
+      { label: "Community", href: "/#community" },
+      { label: "Faculty Coordinator", href: "/#faculty-coordinator" }
     ]
   },
 ];
@@ -77,7 +70,7 @@ export default function Footer() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.8fr 1fr 1fr 1fr",
+            gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr 1fr",
             gap: isMobile ? "24px" : "48px",
           }}
         >
@@ -88,8 +81,8 @@ export default function Footer() {
                 whileHover={{ rotate: -5, scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "26px",
+                  height: "26px",
                   borderRadius: "8px",
                   overflow: "hidden",
                   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
@@ -98,9 +91,9 @@ export default function Footer() {
                 }}
               >
                 <img 
-                  src="/sbg-logo-latest.png" 
+                  src="/sbg_logo.svg" 
                   alt="AWS SBG REC Logo" 
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                  style={{ width: "100%", height: "100%", objectFit: "contain", padding: "2px" }} 
                 />
               </motion.div>
               <div>

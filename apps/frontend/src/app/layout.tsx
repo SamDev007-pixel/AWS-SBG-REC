@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
 import { Toaster } from "sonner";
+
+import PwaRegistrar from "@/components/PwaRegistrar";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -13,19 +15,34 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
+};
+
 export const metadata: Metadata = {
   title: "AWS SBG REC Event Registration",
   description: "Register for AWS Cloud Practitioner bootcamps, serverless workshops, and container orchestration bootcamps.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AWS SBG REC",
+  },
   icons: {
-    icon: '/brand-logo.png',
+    icon: '/sbg_logo.svg',
+    apple: '/sbg_logo.svg',
   },
 };
 
 function LayoutSpinner() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-[3px] border-[#FF9900] border-t-transparent rounded-full animate-spin" />
+    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+      <div className="flex items-center justify-center">
+        <img
+          src="/sbg-logo-latest.png"
+          alt="AWS SBG REC Logo"
+          className="w-28 h-28 object-contain"
+        />
       </div>
     </div>
   );
@@ -45,6 +62,7 @@ export default function RootLayout({
               {children}
             </Suspense>
             <Toaster position="top-center" richColors />
+            <PwaRegistrar />
           </AuthWrapper>
         </Providers>
       </body>
