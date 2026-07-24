@@ -61,6 +61,19 @@ const parseBulletPoints = (text: string): string[] => {
   return bulletItems.length > 0 ? bulletItems : [text.trim()];
 };
 
+// Helper to determine dial status of a topic
+function getDialStatus(topic?: TopicSummary | null): 'LOCKED' | 'COMPLETED' | 'CURRENT' | 'AVAILABLE' {
+  if (!topic) return 'LOCKED';
+  const isLocked = !topic.unlocked;
+  const isCompleted = topic.status === 'COMPLETED' || (topic.totalModules > 0 && topic.completedModules >= topic.totalModules);
+  const isCurrent = topic.unlocked && !isCompleted;
+
+  if (isLocked) return 'LOCKED';
+  if (isCompleted) return 'COMPLETED';
+  if (isCurrent) return 'CURRENT';
+  return 'AVAILABLE';
+}
+
 export default function LearnPage() {
   const router = useRouter();
 
@@ -519,7 +532,7 @@ export default function LearnPage() {
   }, [continueModule]);
 
   const topicsCompletedCount = useMemo(() => {
-    return presentationTopics.filter(t => t.completedModules > 0 && t.completedModules === t.totalModules).length;
+    return presentationTopics.filter(t => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)).length;
   }, [presentationTopics]);
 
   const currentTopicIndex = useMemo(() => {
@@ -541,18 +554,6 @@ export default function LearnPage() {
   }, [presentationTopics, continueModule]);
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
-
-  // Check dial states
-  const getDialStatus = (topic: TopicSummary) => {
-    const isLocked = !topic.unlocked;
-    const isCompleted = topic.status === 'COMPLETED';
-    const isCurrent = topic.unlocked && !isCompleted;
-
-    if (isLocked) return 'LOCKED';
-    if (isCompleted) return 'COMPLETED';
-    if (isCurrent) return 'CURRENT';
-    return 'AVAILABLE';
-  };
 
   const renderWithSidebar = (children: React.ReactNode) => {
     if (!mounted) {
