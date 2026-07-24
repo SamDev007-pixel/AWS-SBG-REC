@@ -432,6 +432,12 @@ export default function LearnPage() {
   // Find current topic
   const currentTopic = useMemo(() => {
     if (presentationTopics.length === 0) return null;
+    const isAllCompleted = presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted) {
+      return presentationTopics[presentationTopics.length - 1];
+    }
     if (continueModule?.topicSlug) {
       const found = presentationTopics.find((t) => t.slug === continueModule.topicSlug);
       if (found) return found;
@@ -512,40 +518,6 @@ export default function LearnPage() {
     };
   }, [currentTopic?.id, animatingTopicId, isCompletedVisual, loading]);
 
-  // Map display level for continue module
-  const continueDisplayLevel = useMemo(() => {
-    if (!continueModule) return 'Beginner';
-    const mapping: Record<string, string> = {
-      BEGINNER: 'Beginner',
-      INTERMEDIATE: 'Intermediate',
-      ADVANCED: 'Advanced',
-    };
-    return mapping[continueModule.level] || 'Beginner';
-  }, [continueModule]);
-
-  // Fallback reward calculation
-  const continueXPReward = useMemo(() => {
-    if (!continueModule) return 50;
-    if (continueModule.level === 'ADVANCED') return 100;
-    if (continueModule.level === 'INTERMEDIATE') return 75;
-    return 50;
-  }, [continueModule]);
-
-  const topicsCompletedCount = useMemo(() => {
-    return presentationTopics.filter(t => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)).length;
-  }, [presentationTopics]);
-
-  const currentTopicIndex = useMemo(() => {
-    if (presentationTopics.length === 0) return 0;
-    const activeIndex = presentationTopics.findIndex(t => t.id === currentTopic?.id);
-    if (activeIndex !== -1) return activeIndex + 1;
-    return 1;
-  }, [presentationTopics, currentTopic]);
-
-  const modulesCompletedCount = useMemo(() => {
-    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
-  }, [presentationTopics]);
-
   const isPlatformCompleted = useMemo(() => {
     if (presentationTopics.length === 0) return false;
     const totalCompleted = presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
@@ -554,6 +526,44 @@ export default function LearnPage() {
   }, [presentationTopics, continueModule]);
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
+
+  // Map display level for continue module or completed platform
+  const continueDisplayLevel = useMemo(() => {
+    const isAllCompleted = presentationTopics.length > 0 && presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted || isPlatformCompleted) {
+      return 'Advanced';
+    }
+    if (!continueModule) return 'Beginner';
+    const mapping: Record<string, string> = {
+      BEGINNER: 'Beginner',
+      INTERMEDIATE: 'Intermediate',
+      ADVANCED: 'Advanced',
+    };
+    return mapping[continueModule.level] || 'Beginner';
+  }, [continueModule, isPlatformCompleted, presentationTopics]);
+
+  const topicsCompletedCount = useMemo(() => {
+    return presentationTopics.filter(t => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)).length;
+  }, [presentationTopics]);
+
+  const currentTopicIndex = useMemo(() => {
+    if (presentationTopics.length === 0) return 0;
+    const isAllCompleted = presentationTopics.every(
+      (t) => t.status === 'COMPLETED' || (t.totalModules > 0 && t.completedModules >= t.totalModules)
+    );
+    if (isAllCompleted) {
+      return presentationTopics.length;
+    }
+    const activeIndex = presentationTopics.findIndex(t => t.id === currentTopic?.id);
+    if (activeIndex !== -1) return activeIndex + 1;
+    return 1;
+  }, [presentationTopics, currentTopic]);
+
+  const modulesCompletedCount = useMemo(() => {
+    return presentationTopics.reduce((sum, t) => sum + (t.completedModules || 0), 0);
+  }, [presentationTopics]);
 
   const renderWithSidebar = (children: React.ReactNode) => {
     if (!mounted) {
@@ -721,24 +731,8 @@ export default function LearnPage() {
 
             {/* Right Side: Responsive Stats Grid & Actions */}
             <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-              {/* Stats Cards Grid (2x2 on Mobile, Inline Flex on Tablet & Desktop - All cards stretch to uniform height) */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Continue Action Button (Stretched to match exact height of stats cards without upper label) */}
-                <button
-                  onClick={handleResume}
-                  disabled={!continueModule}
-                  className={cn(
-                    "bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2.5 sm:py-2 flex items-center justify-center gap-1.5 self-stretch min-h-[44px] sm:min-h-0 min-w-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
-                    !continueModule && "opacity-60 cursor-not-allowed"
-                  )}
-                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
-                >
-                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
-                    Continue
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                </button>
-
+              {/* Stats Cards Grid */}
+              <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
                 {/* Topics Progress Badge */}
                 <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
@@ -765,21 +759,8 @@ export default function LearnPage() {
                   </div>
                 </div>
 
-                {/* Reward XP Badge */}
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
-                  <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
-                      REWARD
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
-                      +{continueModule ? continueXPReward : 50} XP
-                    </span>
-                  </div>
-                </div>
-
-                {/* Level badge (Shown on Tablet & Desktop) */}
-                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
+                {/* Level badge */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
