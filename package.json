@@ -13,6 +13,12 @@
     "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgCyan.bold\" --kill-others-on-fail \"npm run backend\" \"npm run frontend\"",
     "dev:fast": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgCyan.bold\" --kill-others-on-fail \"npm run start:dev -w backend\" \"npm run frontend\""
   },
+  "dependencies": {
+    "@nestjs/cli": "^10.4.0",
+    "prisma": "^5.20.0",
+    "typescript": "^5.5.0",
+    "ts-node": "^10.9.2"
+  },
   "devDependencies": {
     "@types/multer": "^2.2.0",
     "concurrently": "^10.0.3"
