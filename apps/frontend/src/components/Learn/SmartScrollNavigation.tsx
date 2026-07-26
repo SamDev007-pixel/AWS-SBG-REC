@@ -9,9 +9,11 @@ interface SmartScrollNavigationProps {
   containerRef?: React.RefObject<HTMLElement | null>;
   /** Optional custom scroll down handler. */
   onScrollDown?: () => void;
+  /** Optional custom scroll up handler. */
+  onScrollUp?: () => void;
 }
 
-export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrollNavigationProps) {
+export function SmartScrollNavigation({ containerRef, onScrollDown, onScrollUp }: SmartScrollNavigationProps) {
   const [showUp, setShowUp] = useState(false);
   const [showDown, setShowDown] = useState(false);
   const activeContainerRef = useRef<HTMLElement | Window | null>(null);
@@ -85,12 +87,15 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 40;
 
     if (isAtTop) {
+      // Top of page: ONLY Down arrow appears
       setShowUp(false);
       setShowDown(true);
     } else if (isAtBottom) {
+      // Bottom of page: ONLY Up arrow appears
       setShowUp(true);
       setShowDown(false);
     } else {
+      // Current topic / middle of page: BOTH Up and Down arrows appear
       setShowUp(true);
       setShowDown(true);
     }
@@ -121,15 +126,65 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
     };
   }, [updateScrollState]);
 
+  type TopicPosition = 'above' | 'at' | 'below';
+
+  // Helper to determine if current page scroll position is ABOVE, AT, or BELOW current active topic
+  const getTopicPosition = useCallback((activeCard: HTMLElement): TopicPosition => {
+    const info = getScrollContainer();
+    const rect = activeCard.getBoundingClientRect();
+
+    let elementCenter: number;
+    let viewportCenter: number;
+
+    if (info && info.container !== window && info.container instanceof HTMLElement) {
+      const containerRect = info.container.getBoundingClientRect();
+      elementCenter = rect.top + rect.height / 2;
+      viewportCenter = containerRect.top + containerRect.height / 2;
+    } else {
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      elementCenter = rect.top + rect.height / 2;
+      viewportCenter = viewportHeight / 2;
+    }
+
+    const diff = elementCenter - viewportCenter;
+
+    if (Math.abs(diff) <= 120) {
+      return 'at';
+    }
+
+    // diff > 120 means the topic element is further down -> current page scroll is ABOVE topic
+    if (diff > 120) {
+      return 'above';
+    }
+
+    // diff < -120 means the topic element is further up -> current page scroll is BELOW topic
+    return 'below';
+  }, [getScrollContainer]);
+
   const handleScrollUp = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (onScrollUp) {
+      onScrollUp();
+      return;
     }
 
-    if (containerRef?.current) {
+    const activeCard = document.querySelector<HTMLElement>('[data-active-topic="true"], [data-topic-status="CURRENT"]');
+    const pos = activeCard ? getTopicPosition(activeCard) : 'at';
+
+    // Rule 4: If page is BELOW current topic, bring page to current topic
+    if (activeCard && pos === 'below') {
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Rule 3: If page is ABOVE current topic or ON current topic, bring to header (top = 0)
+    if (containerRef?.current && containerRef.current.scrollTop > 0) {
       containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     const candidates = document.querySelectorAll<HTMLElement>('.overflow-y-auto, main, div');
@@ -148,23 +203,23 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
       return;
     }
 
-    const activeCard = document.querySelector<HTMLElement>('[data-active-topic="true"]');
-    if (activeCard) {
-      const rect = activeCard.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const elementCenter = rect.top + rect.height / 2;
-      const viewportCenter = viewportHeight / 2;
+    const activeCard = document.querySelector<HTMLElement>('[data-active-topic="true"], [data-topic-status="CURRENT"]');
+    const pos = activeCard ? getTopicPosition(activeCard) : 'at';
 
-      const isAlreadyAtTopic = Math.abs(elementCenter - viewportCenter) < 150 || (rect.top >= 40 && rect.bottom <= viewportHeight - 40);
+    // Rule 1: If page is ABOVE current topic, bring page to current topic
+    if (activeCard && pos === 'above') {
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
 
-      if (!isAlreadyAtTopic) {
-        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
+    // Rule 2: If topic/page is ON current topic or BELOW it, bring page to bottom
+    if (containerRef?.current && containerRef.current.scrollHeight > containerRef.current.clientHeight + 40) {
+      containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
     }
 
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+      const targetScroll = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     }
 
     const candidates = document.querySelectorAll<HTMLElement>('.overflow-y-auto, main, div');
@@ -179,7 +234,7 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
 
   return (
     <div
-      className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex lg:hidden flex-row items-center gap-3 sm:gap-3.5 pointer-events-none pb-[env(safe-area-inset-bottom,0px)]"
+      className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-row items-center gap-3 sm:gap-3.5 pointer-events-none pb-[env(safe-area-inset-bottom,0px)]"
       style={{ isolation: 'isolate' }}
     >
       <AnimatePresence>
@@ -193,9 +248,9 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
             onClick={handleScrollUp}
             aria-label="Scroll Up"
             type="button"
-            className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-900/60 backdrop-blur-[16px] border border-white/25 text-slate-100 flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_8px_20px_rgba(0,0,0,0.25)] hover:bg-slate-900/80 hover:border-white/40 hover:text-white hover:shadow-[0_0_15px_rgba(255,153,0,0.3)] transition-all duration-200 cursor-pointer active:scale-95 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
+            className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/40 hover:bg-white/70 backdrop-blur-xl border border-white/50 text-black flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_8px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] transition-all duration-200 cursor-pointer active:scale-95 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
           >
-            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-slate-100 group-hover:text-white transition-transform group-hover:-translate-y-0.5" />
+            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-black group-hover:scale-110 transition-transform group-hover:-translate-y-0.5" />
           </motion.button>
         )}
 
@@ -209,9 +264,9 @@ export function SmartScrollNavigation({ containerRef, onScrollDown }: SmartScrol
             onClick={handleScrollDown}
             aria-label="Scroll Down"
             type="button"
-            className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-900/60 backdrop-blur-[16px] border border-white/25 text-slate-100 flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_8px_20px_rgba(0,0,0,0.25)] hover:bg-slate-900/80 hover:border-white/40 hover:text-white hover:shadow-[0_0_15px_rgba(255,153,0,0.3)] transition-all duration-200 cursor-pointer active:scale-95 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
+            className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/40 hover:bg-white/70 backdrop-blur-xl border border-white/50 text-black flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_8px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] transition-all duration-200 cursor-pointer active:scale-95 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
           >
-            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-slate-100 group-hover:text-white transition-transform group-hover:translate-y-0.5" />
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] text-black group-hover:scale-110 transition-transform group-hover:translate-y-0.5" />
           </motion.button>
         )}
       </AnimatePresence>

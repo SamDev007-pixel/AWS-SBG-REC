@@ -527,6 +527,16 @@ export default function LearnPage() {
 
   const isPlatformCompletedVisual = isPlatformCompleted && !animatingTopicId;
 
+
+
+  // Fallback reward calculation
+  const continueXPReward = useMemo(() => {
+    if (!continueModule) return 50;
+    if (continueModule.level === 'ADVANCED') return 100;
+    if (continueModule.level === 'INTERMEDIATE') return 75;
+    return 50;
+  }, [continueModule]);
+
   // Map display level for continue module or completed platform
   const continueDisplayLevel = useMemo(() => {
     const isAllCompleted = presentationTopics.length > 0 && presentationTopics.every(
@@ -630,8 +640,8 @@ export default function LearnPage() {
 
         <div ref={contentRef} className="max-w-full mx-auto px-4 sm:px-6 xl:px-12 pt-4 sm:pt-6 pb-4 md:pb-6 flex flex-col gap-4 sm:gap-6 relative z-10 w-full h-full flex-1 min-h-0 overflow-hidden">
 
-          {/* ROADMAP PROGRESS HEADER PANEL */}
-          <header className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto flex-shrink-0">
+          {/* ROADMAP PROGRESS HEADER PANEL (Desktop Only) */}
+          <header className="hidden md:flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 w-full pointer-events-auto py-2 h-auto flex-shrink-0">
             {/* Left Side: Navigation & Current Mission Info */}
             <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto h-auto min-w-0">
               {/* Back to Dashboard Link Button (White/Grey Circle Button) */}
@@ -713,6 +723,11 @@ export default function LearnPage() {
                         {continueModule?.topicName && (
                           <>
                             <span className="text-slate-300">|</span>
+                            <span className="flex items-center gap-1 text-amber-600 bg-amber-50/80 hover:bg-amber-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight border border-amber-100/30 font-bold" title="Reward XP">
+                              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                              +{continueXPReward} XP
+                            </span>
+                            <span className="text-slate-300">|</span>
                             <Link
                               href={`/learn/${continueModule.topicSlug}`}
                               className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
@@ -732,7 +747,23 @@ export default function LearnPage() {
             {/* Right Side: Responsive Stats Grid & Actions */}
             <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
               {/* Stats Cards Grid */}
-              <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* Continue Action Button (Desktop Only) */}
+                <button
+                  onClick={handleResume}
+                  disabled={!continueModule}
+                  className={cn(
+                    "hidden md:flex bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2.5 sm:py-2 items-center justify-center gap-1.5 self-stretch min-h-[44px] sm:min-h-0 min-w-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
+                    !continueModule && "opacity-60 cursor-not-allowed"
+                  )}
+                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
+                >
+                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
+                    Continue
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </button>
+
                 {/* Topics Progress Badge */}
                 <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
@@ -759,8 +790,10 @@ export default function LearnPage() {
                   </div>
                 </div>
 
+                {/* Reward XP Badge moved to left header per request */}
+
                 {/* Level badge */}
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
+                <div className="hidden sm:flex bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
                   <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
@@ -796,6 +829,144 @@ export default function LearnPage() {
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-1 min-h-0 overflow-hidden pb-2 md:pb-6">
             {/* Left Column: Search + Topic Rail */}
             <div ref={railRef} className="flex-[1.5] min-w-0 overflow-y-auto h-full pr-1.5 md:pr-3 custom-scrollbar scroll-smooth flex flex-col">
+              {/* ROADMAP PROGRESS HEADER PANEL (Mobile Only - Scrolls with rail) */}
+              <div className="flex md:hidden flex-col gap-4 w-full pointer-events-auto py-2 mb-3 flex-shrink-0">
+                {/* Left Side: Navigation & Current Mission Info */}
+                <div className="flex items-center gap-3 sm:gap-4 w-full min-w-0">
+                  <Link
+                    href={userRole === 'core' ? '/core/topics' : userRole === 'crew' ? '/core/learners' : '/events/dashboard'}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white border border-slate-200/80 hover:border-slate-300 flex items-center justify-center text-slate-600 hover:text-slate-900 shadow-xs hover:shadow-md transition-all duration-200 flex-shrink-0 cursor-pointer active:scale-95 group"
+                    title={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
+                    aria-label={userRole === 'core' ? "Back to Admin Portal" : userRole === 'crew' ? "Back to Crew Portal" : "Back to Events Dashboard"}
+                  >
+                    <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
+                  </Link>
+
+                  <AnimatePresence mode="wait">
+                    {isPlatformCompletedVisual ? (
+                      <motion.div
+                        key="completed-header-mobile"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-center gap-3 sm:gap-4 w-full min-w-0"
+                      >
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 border border-slate-200/80 flex items-center justify-center shadow-lg flex-shrink-0">
+                          <svg viewBox="0 0 304 182" className="w-8 h-auto" fill="none">
+                            <path fill="#252F3E" d="M86.4,66.4c0,3.7,0.4,6.7,1.1,8.9c0.8,2.2,1.8,4.6,3.2,7.2c0.5,0.8,0.7,1.6,0.7,2.3c0,1-0.6,2-1.9,3l-6.3,4.2c-0.9,0.6-1.8,0.9-2.6,0.9c-1,0-2-0.5-3-1.4C76.2,90,75,88.4,74,86.8c-1-1.7-2-3.6-3.1-5.9c-7.8,9.2-17.6,13.8-29.4,13.8c-8.4,0-15.1-2.4-20-7.2c-4.9-4.8-7.4-11.2-7.4-19.2c0-8.5,3-15.4,9.1-20.6c6.1-5.2,14.2-7.8,24.5-7.8c3.4,0,6.9,0.3,10.6,0.8c3.7,0.5,7.5,1.3,11.5,2.2v-7.3c0-7.6-1.6-12.9-4.7-16c-3.2-3.1-8.6-4.6-16.3-4.6c-3.5,0-7.1,0.4-10.8,1.3c-3.7,0.9-7.3,2-10.8,3.4c-1.6,0.7-2.8,1.1-3.5,1.3c-0.7,0.2-1.2,0.3-1.6,0.3c-1.4,0-2.1-1-2.1-3.1v-4.9c0-1.6,0.2-2.8,0.7-3.5c0.5-0.7,1.4-1.4,2.8-2.1c3.5-1.8,7.7-3.3,12.6-4.5c4.9-1.3,10.1-1.9,15.6-1.9c11.9,0,20.6,2.7,26.2,8.1c5.5,5.4,8.3,13.6,8.3,24.6V66.4z M45.8,81.6c3.3,0,6.7-0.6,10.3-1.8c3.6-1.2,6.8-3.4,9.5-6.4c1.6-1.9,2.8-4,3.4-6.4c0.6-2.4,1-5.3,1-8.7v-4.2c-2.9-0.7-6-1.3-9.2-1.7c-3.2-0.4-6.3-0.6-9.4-0.6c-6.7,0-11.6,1.3-14.9,4c-3.3,2.7-4.9,6.5-4.9,11.5c0,4.7,1.2,8.2,3.7,10.6C37.7,80.4,41.2,81.6,45.8,81.6z M126.1,92.4c-1.8,0-3-0.3-3.8-1c-0.8-0.6-1.5-2-2.1-3.9L96.7,10.2c-0.6-2-0.9-3.3-0.9-4c0-1.6,0.8-2.5,2.4-2.5h9.8c1.9,0,3.2,0.3,3.9,1c0.8,0.6,1.4,2,2,3.9l16.8,66.2l15.6-66.2c0.5-2,1.1-3.3,1.9-3.9c0.8-0.6,2.2-1,4-1h8c1.9,0,3.2,0.3,4,1c0.8,0.6,1.5,2,1.9,3.9l15.8,67l17.3-67c0.6-2,1.3-3.3,2-3.9c0.8-0.6,2.1-1,3.9-1h9.3c1.6,0,2.5,0.8,2.5,2.5c0,0.5-0.1,1-0.2,1.6c-0.1,0.6-0.3,1.4-0.7,2.5l-24.1,77.3c-0.6,2-1.3,3.3-2.1,3.9c-0.8,0.6-2.1,1-3.8,1h-8.6c-1.9,0-3.2-0.3-4-1c-0.8-0.7-1.5-2-1.9-4L156,23l-15.4,64.4c-0.5,2-1.1,3.3-1.9,4c-0.8,0.7-2.2,1-4,1H126.1z M254.6,95.1c-5.2,0-10.4-0.6-15.4-1.8c-5-1.2-8.9-2.5-11.5-4c-1.6-0.9-2.7-1.9-3.1-2.8c-0.4-0.9-0.6-1.9-0.6-2.8v-5.1c0-2.1,0.8-3.1,2.3-3.1c0.6,0,1.2,0.1,1.8,0.3c0.6,0.2,1.5,0.6,2.5,1c3.4,1.5,7.1,2.7,11,3.5c4,0.8,7.9,1.2,11.9,1.2c6.3,0,11.2-1.1,14.6-3.3c3.4-2.2,5.2-5.4,5.2-9.5c0-2.8-0.9-5.1-2.7-7c-1.8-1.9-5.2-3.6-10.1-5.2L246,52c-7.3-2.3-12.7-5.7-16-10.2c-3.3-4.4-5-9.3-5-14.5c0-4.2,0.9-7.9,2.7-11.1c1.8-3.2,4.2-6,7.2-8.2c3-2.3,6.4-4,10.4-5.2c4-1.2,8.2-1.7,12.6-1.7c2.2,0,4.5,0.1,6.7,0.4c2.3,0.3,4.4,0.7,6.5,1.1c2,0.5,3.9,1,5.7,1.6c1.8,0.6,3.2,1.2,4.2,1.8c1.4,0.8,2.4,1.6,3,2.5c0.6,0.8,0.9,1.9,0.9,3.3v4.7c0,2.1-0.8,3.2-2.3,3.2c-0.8,0-2.1-0.4-3.8-1.2c-5.7-2.6-12.1-3.9-19.2-3.9c-5.7,0-10.2,0.9-13.3,2.8c-3.1,1.9-4.7,4.8-4.7,8.9c0,2.8,1,5.2,3,7.1c2,1.9,5.7,3.8,11,5.5l14.2,4.5c7.2,2.3,12.4,5.5,15.5,9.6c3.1,4.1,4.6,8.8,4.6,14c0,4.3-0.9,8.2-2.6,11.6c-1.8,3.4-4.2,6.4-7.3,8.8c-3.1,2.5-6.8,4.3-11.1,5.6C264.4,94.4,259.7,95.1,254.6,95.1z" />
+                            <path fill="#FF9900" d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z" />
+                            <path fill="#FF9900" d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z" />
+                          </svg>
+                        </div>
+                        <div className="flex flex-col text-slate-800 min-w-0">
+                          <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 break-words">
+                            🎉 AWS Journey Complete
+                          </span>
+                          <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block break-words">
+                            Congratulations! You've completed every available topic.
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-extrabold">
+                            <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50/80 border border-emerald-100/30 px-2 py-0.5 rounded-md">
+                              {topicsCompletedCount} {topicsCompletedCount === 1 ? 'Topic' : 'Topics'}
+                            </span>
+                            <span className="text-slate-300">|</span>
+                            <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50/80 border border-cyan-100/30 px-2 py-0.5 rounded-md">
+                              {modulesCompletedCount} {modulesCompletedCount === 1 ? 'Module' : 'Modules'}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="current-header-mobile"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0"
+                      >
+                        <div className="flex flex-col text-slate-800 min-w-0 flex-1">
+                          <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
+                            CONTINUE YOUR JOURNEY
+                          </span>
+                          <span className="text-sm sm:text-base font-black text-slate-900 block leading-snug font-heading mt-0.5 break-words whitespace-normal [text-wrap:balance]">
+                            {continueModule ? `Current Mission: ${continueModule.name}` : 'Ready to start your AWS journey'}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-[10px] sm:text-[11px] font-extrabold text-slate-500">
+                            <span className="flex items-center gap-1 text-cyan-600">
+                              <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" /> {continueModule ? continueTopicProgress : 'Select a topic'}
+                            </span>
+                            {continueModule?.topicName && (
+                              <>
+                                <span className="text-slate-300">|</span>
+                                <span className="flex items-center gap-1 text-amber-600 bg-amber-50/80 hover:bg-amber-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight border border-amber-100/30 font-bold" title="Reward XP">
+                                  <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                  +{continueXPReward} XP
+                                </span>
+                                <span className="text-slate-300">|</span>
+                                <Link
+                                  href={`/learn/${continueModule.topicSlug}`}
+                                  className="text-indigo-650 font-bold bg-indigo-50/80 hover:bg-indigo-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight cursor-pointer transition-all hover:scale-105 inline-flex items-center gap-1"
+                                  title="Go to topic roadmap"
+                                >
+                                  Topic: {continueModule.topicName}
+                                </Link>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Right Side: Responsive Stats Grid & Actions */}
+                <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
+                    <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
+                      <CheckCircle2 className="w-4 h-4 text-[#0284c7] flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
+                          TOPICS
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
+                          {currentTopicIndex} / {topics.length}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0">
+                      <Trophy className="w-4 h-4 text-indigo-650 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">
+                          SCORE
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-900 block leading-none mt-1 sm:mt-1 truncate">
+                          {userXP} XP
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {!isPlatformCompletedVisual && (
+                      <motion.button
+                        key="resume-learning-btn-mobile"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setShowGuidelines(true)}
+                        className="w-full sm:w-auto font-bold text-xs px-4 sm:px-5 py-2.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 tracking-wider font-heading cursor-pointer text-white bg-[#00cba9] hover:bg-[#00bda0] flex items-center justify-center min-h-[44px] sm:min-h-0 flex-shrink-0"
+                      >
+                        Guidelines
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
               <div className="flex items-center gap-2 sm:gap-3 w-full pointer-events-auto">
                 <div className="relative min-w-0 flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
@@ -837,7 +1008,7 @@ export default function LearnPage() {
                     <p className="text-xs text-slate-400 mt-1">Try search with a different keyword</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 w-full px-2 sm:px-4 pt-4 pb-2 sm:py-6 animate-fade-in">
+                  <div ref={railRef} className="flex flex-col items-center gap-4 w-full px-2 sm:px-4 pt-4 pb-2 sm:py-6 animate-fade-in">
                     {filteredTopics.map((topic, index) => {
                       const status = getDialStatus(topic);
                       const isCompleted = status === 'COMPLETED';
@@ -889,6 +1060,7 @@ export default function LearnPage() {
                         <div
                           key={topic.id}
                           ref={statusToRender === 'CURRENT' ? activeCardRef : undefined}
+                          data-active-topic={statusToRender === 'CURRENT' ? "true" : undefined}
                           className="w-full"
                         >
                           {isFirstLocked && (
@@ -1106,18 +1278,18 @@ export default function LearnPage() {
             </div>
 
             {/* Right Column: Description of current Topic */}
-            <div className="hidden md:flex w-full md:flex-1 flex-shrink-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
+            <div className="hidden md:flex w-full md:flex-1 min-w-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
               {displayTopic ? (
                 <div className={cn(
-                  "w-full backdrop-blur-[20px] border rounded-2xl p-6 md:p-8 flex flex-col gap-6 text-left transition-all duration-600",
+                  "w-full min-w-0 backdrop-blur-[20px] border rounded-2xl p-5 md:p-6 lg:p-8 flex flex-col gap-6 text-left transition-all duration-600",
                   displayTopic.status === 'COMPLETED' || (isAnimatingCompleted && isArrowSuccessVisual)
                     ? "bg-emerald-500/[0.06] border-emerald-500/20 shadow-[inset_0_0_35px_rgba(16,185,129,0.2),inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
                     : "bg-white/[0.15] border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)]"
                 )}>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-full min-w-0">
                     {/* Book Icon: Turns green on completion */}
                     <div className={cn(
-                      "p-2.5 rounded-xl flex items-center justify-center border transition-colors duration-600",
+                      "p-2.5 rounded-xl flex items-center justify-center border transition-colors duration-600 flex-shrink-0",
                       isAnimatingCompleted && isArrowSuccessVisual
                         ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600"
                         : "bg-[#FF9900]/10 border-[#FF9900]/20 text-[#FF9900]"
@@ -1134,7 +1306,7 @@ export default function LearnPage() {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 50 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className="flex flex-col"
+                          className="flex flex-col min-w-0"
                         >
                           <div className="relative h-3.5 w-full">
                             <AnimatePresence initial={false}>
@@ -1163,7 +1335,7 @@ export default function LearnPage() {
                             </AnimatePresence>
                           </div>
 
-                          <h3 className="text-lg font-black text-slate-900 leading-tight font-heading mt-0.5 truncate">
+                          <h3 className="text-base md:text-lg font-black text-slate-900 leading-tight font-heading mt-0.5 whitespace-normal break-words">
                             {displayTopic.name}
                           </h3>
                         </motion.div>
@@ -1171,8 +1343,8 @@ export default function LearnPage() {
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4">
-                    <div className="relative">
+                  <div className="border-t border-slate-200/50 pt-5 flex flex-col gap-4 w-full min-w-0">
+                    <div className="relative w-full min-w-0">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-heading block mb-2.5">
                         Description
                       </span>
@@ -1183,18 +1355,18 @@ export default function LearnPage() {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 50 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="w-full min-w-0"
                         >
                           {displayTopic.description ? (
-                            <ul className="list-none pl-0 flex flex-col gap-2.5">
+                            <ul className="list-none pl-0 flex flex-col gap-2.5 w-full min-w-0">
                               {parseBulletPoints(displayTopic.description).map((item, index) => (
-                                <li key={index} className="flex items-start gap-2.5">
+                                <li key={index} className="flex items-start gap-2.5 w-full min-w-0">
                                   <span className={cn(
                                     "w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 transition-colors duration-600",
                                     isAnimatingCompleted && isArrowSuccessVisual ? "bg-emerald-500" : "bg-[#FF9900]"
                                   )} />
                                   <span
-                                    className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-pre-line break-words"
-                                    style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                                    className="text-xs text-slate-700 leading-relaxed font-semibold whitespace-normal break-words flex-1 min-w-0 [overflow-wrap:anywhere] [word-break:break-word]"
                                   >
                                     {item}
                                   </span>
@@ -1260,9 +1432,9 @@ export default function LearnPage() {
             )}
           </AnimatePresence>
 
-          {/* Smart Scroll Navigation (Mobile & Tablet /learn page only - hidden when searching) */}
+          {/* Smart Scroll Navigation (Hidden when searching) */}
           {!searchQuery.trim() && (
-            <SmartScrollNavigation containerRef={railRef} onScrollDown={scrollToActiveTopic} />
+            <SmartScrollNavigation containerRef={railRef} />
           )}
 
         </div>
