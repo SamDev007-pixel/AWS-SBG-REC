@@ -19,7 +19,8 @@ import {
   Lock,
   Home,
   Users,
-  ArrowDown
+  ArrowDown,
+  Sparkles
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
 import { getAuthSession } from '@/lib/authHelper';
@@ -684,7 +685,7 @@ export default function LearnPage() {
                     </div>
                     <div className="flex flex-col text-slate-800 min-w-0">
                       <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 break-words">
-                        🎉 AWS Journey Complete
+                        AWS Journey Complete
                       </span>
                       <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block break-words">
                         Congratulations! You've completed every available topic.
@@ -748,21 +749,23 @@ export default function LearnPage() {
             <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
               {/* Stats Cards Grid (Strict 2x2 on Tablet, 1x4 on Desktop) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 items-stretch gap-2.5 sm:gap-3 w-full lg:w-auto">
-                {/* Continue Action Button */}
-                <button
-                  onClick={handleResume}
-                  disabled={!continueModule}
-                  className={cn(
-                    "flex bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2 sm:py-1.5 items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0 min-w-0 w-full transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
-                    !continueModule && "opacity-60 cursor-not-allowed"
-                  )}
-                  title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
-                >
-                  <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
-                    Continue
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                </button>
+                {/* Continue Action Button (Hidden when all topics completed) */}
+                {!isPlatformCompleted && (
+                  <button
+                    onClick={handleResume}
+                    disabled={!continueModule}
+                    className={cn(
+                      "flex bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2 sm:py-1.5 items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0 min-w-0 w-full transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
+                      !continueModule && "opacity-60 cursor-not-allowed"
+                    )}
+                    title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
+                  >
+                    <span className="text-[10px] sm:text-xs font-bold text-white leading-none font-heading truncate">
+                      Continue
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-white stroke-[3] flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                )}
 
                 {/* Topics Progress Badge */}
                 <div className="bg-[#0284c7]/10 border border-[#0284c7]/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0 w-full">
@@ -859,7 +862,7 @@ export default function LearnPage() {
                         </div>
                         <div className="flex flex-col text-slate-800 min-w-0">
                           <span className="text-sm sm:text-base font-black text-slate-900 block leading-tight font-heading mt-0.5 break-words">
-                            🎉 AWS Journey Complete
+                            AWS Journey Complete
                           </span>
                           <span className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 block break-words">
                             Congratulations! You've completed every available topic.
@@ -1275,9 +1278,33 @@ export default function LearnPage() {
               </main>
             </div>
 
-            {/* Right Column: Description of current Topic */}
+            {/* Right Column: Description of current Topic OR Topics Coming Soon when all completed */}
             <div className="hidden md:flex w-full md:flex-1 min-w-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
-              {displayTopic ? (
+              {isPlatformCompleted ? (
+                <div className="w-full min-w-0 backdrop-blur-[20px] bg-white/[0.15] border border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center my-auto space-y-4 select-none">
+                  <div className="w-16 h-16 rounded-2xl bg-white/95 border border-slate-200/80 p-2.5 flex items-center justify-center shadow-md relative flex-shrink-0">
+                    <img src="/aws-logo.svg" alt="AWS Logo" className="w-full h-auto object-contain" />
+                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[9px] text-white font-black shadow-sm">
+                      ✓
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 max-w-xs">
+                    <h3 className="text-base md:text-lg font-black text-slate-900 font-heading tracking-tight">
+                      Topics Coming Soon
+                    </h3>
+                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                      You've completed every available topic! New learning modules and advanced curriculum topics are coming soon.
+                    </p>
+                  </div>
+
+                  <div className="pt-2">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-wider font-heading">
+                      {topicsCompletedCount} / {presentationTopics.length} Topics Completed
+                    </span>
+                  </div>
+                </div>
+              ) : displayTopic ? (
                 <div className={cn(
                   "w-full min-w-0 backdrop-blur-[20px] border rounded-2xl p-5 md:p-6 lg:p-8 flex flex-col gap-6 text-left transition-all duration-600",
                   displayTopic.status === 'COMPLETED' || (isAnimatingCompleted && isArrowSuccessVisual)
