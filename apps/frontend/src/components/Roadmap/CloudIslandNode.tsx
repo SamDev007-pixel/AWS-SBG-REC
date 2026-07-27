@@ -273,7 +273,7 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
             </span>
 
             <span className={cn(
-              "text-[8px] font-extrabold mt-0.5 uppercase tracking-wider font-heading",
+              "text-[8px] font-extrabold mt-0.5 uppercase tracking-wider font-heading whitespace-nowrap flex-shrink-0",
               status === 'completed' ? "text-emerald-700" : "text-cyan-700"
             )}>
               +{points} XP

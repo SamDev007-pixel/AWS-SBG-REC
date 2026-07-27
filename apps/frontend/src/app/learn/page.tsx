@@ -901,8 +901,8 @@ export default function LearnPage() {
                             {continueModule?.topicName && (
                               <>
                                 <span className="text-slate-300">|</span>
-                                <span className="flex items-center gap-1 text-amber-600 bg-amber-50/80 hover:bg-amber-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight border border-amber-100/30 font-bold" title="Reward XP">
-                                  <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                <span className="flex items-center gap-1 text-amber-600 bg-amber-50/80 hover:bg-amber-100/80 px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] tracking-tight border border-amber-100/30 font-bold whitespace-nowrap flex-shrink-0" title="Reward XP">
+                                  <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
                                   +{continueXPReward} XP
                                 </span>
                                 <span className="text-slate-300">|</span>

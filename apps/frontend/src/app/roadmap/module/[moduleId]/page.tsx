@@ -511,9 +511,9 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full flex items-center gap-1">
-              <Icons.Zap className="w-3.5 h-3.5 fill-current" />
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-[9px] min-[443px]:text-[10px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+              <Icons.Zap className="w-3 h-3 min-[443px]:w-3.5 min-[443px]:h-3.5 fill-current flex-shrink-0" />
               +{module.points} XP
             </span>
           </div>

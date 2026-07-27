@@ -157,9 +157,9 @@ export const MissionDetailsDrawer: React.FC<MissionDetailsDrawerProps> = ({
                   {/* XP Reward row */}
                   <div className="flex justify-between items-center py-3">
                     <span className="text-xs text-slate-500">XP Reward</span>
-                    <span className="text-xs font-bold text-amber-600 flex items-center gap-1 font-outfit">
-                      <Icons.Zap className="w-3.5 h-3.5 fill-current" />
-                      +{module.xpPoints} XP
+                    <span className="text-xs font-bold text-amber-600 flex items-center gap-1 font-outfit whitespace-nowrap flex-shrink-0">
+                      <Icons.Zap className="w-3.5 h-3.5 fill-current flex-shrink-0" />
+                      +{loading && !(module as any).xpPoints && !(module as any).points && !(module as any).xp && !detail?.xpPoints ? '...' : ((module as any).xpPoints ?? (module as any).points ?? (module as any).xp ?? detail?.xpPoints ?? 100)} XP
                     </span>
                   </div>
                 </div>
