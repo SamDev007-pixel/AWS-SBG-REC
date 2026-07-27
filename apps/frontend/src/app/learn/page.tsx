@@ -749,13 +749,13 @@ export default function LearnPage() {
             <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
               {/* Stats Cards Grid (Strict 2x2 on Tablet, 1x4 on Desktop) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 items-stretch gap-2.5 sm:gap-3 w-full lg:w-auto">
-                {/* Continue Action Button (Hidden when all topics completed) */}
+                {/* Continue Action Button (Hidden when all topics completed or on tablet 768px-842px) */}
                 {!isPlatformCompleted && (
                   <button
                     onClick={handleResume}
                     disabled={!continueModule}
                     className={cn(
-                      "flex bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2 sm:py-1.5 items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0 min-w-0 w-full transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group",
+                      "flex bg-gradient-to-r from-[#FF9900] to-[#ff7700] hover:from-[#ffaa1a] hover:to-[#ff8811] border border-amber-500/30 rounded-lg sm:rounded-xl px-3 sm:px-3.5 py-2 sm:py-1.5 items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0 min-w-0 w-full transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 text-white flex-shrink-0 group tablet-767-843-hidden",
                       !continueModule && "opacity-60 cursor-not-allowed"
                     )}
                     title={continueModule ? `Continue: ${continueModule.name}` : "Continue Learning"}
@@ -793,8 +793,8 @@ export default function LearnPage() {
                   </div>
                 </div>
 
-                {/* Level Badge */}
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0 w-full">
+                {/* Level Badge (Hidden on tablet 768px-842px) */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-2 sm:py-1.5 flex items-center gap-2 min-h-[44px] sm:min-h-0 min-w-0 w-full tablet-767-843-hidden">
                   <Layers className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-500 uppercase tracking-wider block leading-none truncate">

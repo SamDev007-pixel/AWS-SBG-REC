@@ -15,6 +15,14 @@ body {
   overflow-x: clip;
 }
 
+@media (min-width: 767px) and (max-width: 843px) {
+  .tablet-768-842-hidden,
+  .tablet-768-843-hidden,
+  .tablet-767-843-hidden {
+    display: none !important;
+  }
+}
+
 :root {
   --font-sans: var(--font-plus-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
