@@ -6,46 +6,25 @@ import { api } from "@/lib/api";
 /* ─── Card data ─────────────────────────────────────────────────────────── */
 const DEFAULT_CARDS = [
   {
-    gradient: "linear-gradient(135deg,rgb(130,68,239),#4a7a9b)",
+    gradient: "linear-gradient(135deg, rgb(130,68,239), #4a7a9b)",
     label: "Cloud Matrix",
-    sublabel: "120+ builders · Oct 2025 · 24 hours",
+    sublabel: "Cloud Computing Awareness Session",
     image: "/images/cloud_jam.jpg",
-    description: "An intensive cloud computing hackathon challenge where student builders collaborate in teams to architect, deploy, and scale innovative solutions on AWS. A true 24-hour sprint from concept to a production-ready application.",
+    description: "CLOUD MATRIX was an engaging cloud computing awareness session organized by AWS Cloud Club REC. The event introduced participants to cloud fundamentals, career opportunities, and industry-recognized certifications through practical insights shared by a DevOps professional. The session concluded with an interactive live quiz, making learning both informative and enjoyable.",
   },
   {
-    gradient: "linear-gradient(135deg,#0073BB,#005f9e)",
-    label: "AI Workshop",
-    sublabel: "Bedrock & LLMs · Feb 2026",
-    image: "/images/ai_workshop.jpg",
-    description: "A comprehensive generative AI hands-on session focusing on Amazon Bedrock. Students explored building applications using large language models (LLMs), prompt engineering, and building agentic assistants.",
-  },
-  {
-    gradient: "linear-gradient(135deg,#FF9900,#E68900)",
-    label: "Community Meetup",
-    sublabel: "150+ members · Networking",
-    image: "/images/community_meetup.jpg",
-    description: "A community gathering bringing together cloud practitioners, student developers, and tech professionals to network, share case studies, and discuss the latest industry innovations.",
-  },
-  {
-    gradient: "linear-gradient(135deg,#2c4a62,#3d6680)",
-    label: "Certification Bootcamp",
-    sublabel: "100+ students certified",
-    image: "/images/bootcamp.jpg",
-    description: "A focused interactive workspace session where students collaborated on preparation for AWS certifications, shared learnings from technical bootcamps, and engaged in peer mentoring.",
-  },
-  {
-    gradient: "linear-gradient(135deg,#005f9e,#0073BB)",
-    label: "re:Invent Watch Party",
-    sublabel: "Cloud Matrix Event",
-    image: "/images/ai_workshop.jpg",
-    description: "An expert panel discussion and watch party highlighting the most exciting announcements and technical breakthroughs from AWS re:Invent, sharing actionable insights for developers.",
-  },
-  {
-    gradient: "linear-gradient(135deg,#243448,#2d4f6b)",
+    gradient: "linear-gradient(135deg, #243448, #2d4f6b)",
     label: "Robo Wolke",
-    sublabel: "Robotics & IoT Showcase · Dobot Magician",
+    sublabel: "From Pixels to Motion Workshop",
     image: "/images/robo_wolke_journey.jpg",
-    description: "An experimental robotics exhibition demonstrating the integration of cloud computing with physical hardware. The showcase highlighted controlling Dobot Magician robotic arms using AWS-backed cloud services.",
+    description: "ROBO WOLKE – From Pixels to Motion is a hands-on technical workshop jointly organized by The Robotics Society and AWS Cloud Club REC. The session introduces participants to computer vision, motion planning, inverse kinematics, and intelligent cloud-powered robotics through live demonstrations and practical learning experiences.",
+  },
+  {
+    gradient: "linear-gradient(135deg, #FF9900, #E68900)",
+    label: "AWS Student Community Day",
+    sublabel: "St. Joseph's Institute of Technology",
+    image: "/images/community_meetup.jpg",
+    description: "AWS Student Community Day at St. Joseph's Institute of Technology was a community-driven event that brought together students, AWS experts, and cloud enthusiasts. The event featured insightful technical sessions, real-world AWS use cases, networking opportunities, and hands-on learning, enabling participants to enhance their cloud knowledge and connect with the AWS community.",
   },
 ];
 
@@ -139,7 +118,9 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
           setOrder(res.map((_, i) => i));
         }
       })
-      .catch((err) => console.error("Journeys dynamic fetch error:", err));
+      .catch((err) => {
+        // Silently use fallback default journeys data
+      });
     return () => { active = false; };
   }, [previewData]);
 

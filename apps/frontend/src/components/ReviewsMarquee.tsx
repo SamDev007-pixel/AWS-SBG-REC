@@ -71,7 +71,7 @@ interface ReviewCardProps {
   half: "a" | "b";
   isZoomed: boolean;
   isDimmed: boolean;
-  onClick: () => void;
+  onClick: (targetEl: HTMLElement) => void;
 }
 
 const ReviewCard = ({ review, idx, half, isZoomed, isDimmed, onClick }: ReviewCardProps) => {
@@ -80,21 +80,22 @@ const ReviewCard = ({ review, idx, half, isZoomed, isDimmed, onClick }: ReviewCa
       key={`${half}-${idx}`}
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        onClick(e.currentTarget as HTMLElement);
       }}
       whileHover={!isZoomed ? {
         borderColor: "rgba(255, 153, 0, 0.4)",
         boxShadow: "0 10px 20px -10px rgba(255, 153, 0, 0.08)",
       } : undefined}
       animate={{
-        scale: isZoomed ? 1.06 : 1,
-        borderColor: isZoomed ? "#FF9900" : "rgba(15, 23, 42, 0.06)",
+        scale: isZoomed ? 1.04 : 1,
+        borderColor: isZoomed ? "rgba(255, 153, 0, 0.35)" : "rgba(15, 23, 42, 0.08)",
         boxShadow: isZoomed 
-          ? "0 12px 30px rgba(255, 153, 0, 0.15)" 
+          ? "0 14px 32px -6px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(255, 153, 0, 0.06)" 
           : "0 2px 8px rgba(15, 23, 42, 0.02)",
-        opacity: isDimmed ? 0.4 : 1,
+        opacity: isDimmed ? 0.5 : 1,
+        y: isZoomed ? -4 : 0,
       }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       style={{
         width: 340,
         height: 190,
@@ -256,13 +257,16 @@ export default function ReviewsMarquee({ previewData }: ReviewsMarqueeProps = {}
           setReviews(mapData(res));
         }
       })
-      .catch((err) => console.error("Testimonials dynamic fetch error:", err));
+      .catch((err) => {
+        // Silently use fallback default testimonials data
+      });
     return () => { active = false; };
   }, [previewData, mapData]);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const firstHalfRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   // Filter and order reviews so Prathakshanaa ("Captain") is always first
   const marqueeReviews = React.useMemo(() => {
@@ -310,37 +314,57 @@ export default function ReviewsMarquee({ previewData }: ReviewsMarqueeProps = {}
     };
   }, []);
 
-  // Calculate translation required to center the clicked card
-  const clickedTranslation = useMemo(() => {
-    if (!clickedIndex || !containerRef.current) return 0;
-    const cardWidth = 340;
-    const cardGap = GAP;
-    const containerWidth = containerRef.current.offsetWidth;
-    
-    // Calculate the left position of the clicked card inside the track
-    const baseOffset = clickedIndex.idx * (cardWidth + cardGap);
-    const absoluteLeft = clickedIndex.half === "a" ? trackOffset + baseOffset : baseOffset;
-    
-    // Center of the card
-    const cardCenter = absoluteLeft + cardWidth / 2;
-    
-    // Translation needed to align cardCenter with containerWidth / 2
-    return (containerWidth / 2) - cardCenter;
-  }, [clickedIndex, trackOffset]);
+  const [cardTranslateX, setCardTranslateX] = useState(0);
 
-  const handleCardClick = (idx: number, half: "a" | "b") => {
+  const handleCardClick = (idx: number, half: "a" | "b", targetEl: HTMLElement) => {
     if (clickedIndex && clickedIndex.idx === idx && clickedIndex.half === half) {
-      setClickedIndex(null);
+      // Move forward to the next review card
+      const nextIdx = (idx + 1) % marqueeReviews.length;
+      const nextHalf = idx + 1 >= marqueeReviews.length ? (half === "a" ? "b" : "a") : half;
+      
+      const nextCardEl = (targetEl.nextElementSibling as HTMLElement) || targetEl;
+      if (nextCardEl) {
+        const rect = nextCardEl.getBoundingClientRect();
+        const currentCardCenter = rect.left + rect.width / 2;
+        const screenCenter = window.innerWidth / 2;
+        const shift = screenCenter - currentCardCenter;
+        setCardTranslateX((prev) => prev + shift);
+      }
+      setClickedIndex({ idx: nextIdx, half: nextHalf });
     } else {
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        const currentCardCenter = rect.left + rect.width / 2;
+        const screenCenter = window.innerWidth / 2;
+        const shift = screenCenter - currentCardCenter;
+        setCardTranslateX(shift);
+      }
       setClickedIndex({ idx, half });
+      setIsPaused(true);
     }
   };
+
+  // Close zoomed card when clicking anywhere outside & resume scroll
+  useEffect(() => {
+    if (!clickedIndex) return;
+    const handleOutsideClick = () => {
+      setClickedIndex(null);
+      setIsPaused(false);
+      setCardTranslateX(0);
+    };
+    const timeoutId = setTimeout(() => {
+      window.addEventListener("click", handleOutsideClick);
+    }, 10);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("click", handleOutsideClick);
+    };
+  }, [clickedIndex]);
 
   return (
     <section
       id="reviews"
       ref={sectionRef}
-      onClick={() => setClickedIndex(null)}
       style={{
         width: "100%",
         background: "linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%)",
@@ -422,59 +446,66 @@ export default function ReviewsMarquee({ previewData }: ReviewsMarqueeProps = {}
         <div className="reviews-gradient-overlay" style={{ position: "absolute", left: 0, top: 0, bottom: 0, background: "linear-gradient(90deg, #f8fafc, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
         <div className="reviews-gradient-overlay" style={{ position: "absolute", right: 0, top: 0, bottom: 0, background: "linear-gradient(270deg, #ffffff, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
 
-        <div
-          style={{
-            display: "flex",
-            gap: GAP,
-            width: "max-content",
-            animationName: (trackOffset > 0 && !clickedIndex) ? "marquee-scroll" : "none",
-            animationDuration: "30s",
-            animationTimingFunction: "linear",
-            animationIterationCount: "infinite",
-            animationPlayState: (isPaused || !isInView) ? "paused" : "running",
-            transform: clickedIndex ? `translateX(${clickedTranslation}px)` : undefined,
-            transition: clickedIndex ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
-            willChange: "transform",
-          }}
+        {/* Outer Centering Wrapper */}
+        <motion.div
+          animate={{ x: clickedIndex ? cardTranslateX : 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          style={{ display: "flex", width: "max-content" }}
         >
-          {/* Second half — starts visible on left */}
-          <div style={{ display: "flex", gap: GAP }}>
-            {marqueeReviews.map((review, idx) => {
-              const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "b";
-              const isDimmed = !!clickedIndex && !isZoomed;
-              return (
-                <ReviewCard
-                  key={`b-${idx}`}
-                  review={review}
-                  idx={idx}
-                  half="b"
-                  isZoomed={isZoomed}
-                  isDimmed={isDimmed}
-                  onClick={() => handleCardClick(idx, "b")}
-                />
-              );
-            })}
-          </div>
+          {/* Inner Marquee Track */}
+          <div
+            ref={trackRef}
+            style={{
+              display: "flex",
+              gap: GAP,
+              width: "max-content",
+              animationName: trackOffset > 0 ? "marquee-scroll" : "none",
+              animationDuration: "30s",
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              animationPlayState: (isPaused || !isInView || !!clickedIndex) ? "paused" : "running",
+              willChange: "transform",
+            }}
+          >
+            {/* Second half — starts visible on left */}
+            <div style={{ display: "flex", gap: GAP }}>
+              {marqueeReviews.map((review, idx) => {
+                const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "b";
+                const isDimmed = !!clickedIndex && !isZoomed;
+                return (
+                  <ReviewCard
+                    key={`b-${idx}`}
+                    review={review}
+                    idx={idx}
+                    half="b"
+                    isZoomed={isZoomed}
+                    isDimmed={isDimmed}
+                    onClick={(targetEl) => handleCardClick(idx, "b", targetEl)}
+                  />
+                );
+              })}
+            </div>
 
-          {/* First half — slides in from left */}
-          <div ref={firstHalfRef} style={{ display: "flex", gap: GAP }}>
-            {marqueeReviews.map((review, idx) => {
-              const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "a";
-              const isDimmed = !!clickedIndex && !isZoomed;
-              return (
-                <ReviewCard
-                  key={`a-${idx}`}
-                  review={review}
-                  idx={idx}
-                  half="a"
-                  isZoomed={isZoomed}
-                  isDimmed={isDimmed}
-                  onClick={() => handleCardClick(idx, "a")}
-                />
-              );
-            })}
+            {/* First half — slides in from left */}
+            <div ref={firstHalfRef} style={{ display: "flex", gap: GAP }}>
+              {marqueeReviews.map((review, idx) => {
+                const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "a";
+                const isDimmed = !!clickedIndex && !isZoomed;
+                return (
+                  <ReviewCard
+                    key={`a-${idx}`}
+                    review={review}
+                    idx={idx}
+                    half="a"
+                    isZoomed={isZoomed}
+                    isDimmed={isDimmed}
+                    onClick={(targetEl) => handleCardClick(idx, "a", targetEl)}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

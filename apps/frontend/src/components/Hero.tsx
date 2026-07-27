@@ -92,7 +92,9 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           setHeroData(res);
         }
       })
-      .catch((err) => console.error("Hero dynamic fetch error:", err));
+      .catch((err) => {
+        // Silently use fallback default hero data
+      });
     return () => { active = false; };
   }, [previewData]);
 
@@ -593,7 +595,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
 
               {/* Explore Roadmap button */}
               <motion.button
-                onClick={() => router.push("/roadmap")}
+                onClick={() => router.push("/login")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 style={{
@@ -882,7 +884,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
 
               {/* Explore Roadmap button */}
               <motion.button
-                onClick={() => router.push("/roadmap")}
+                onClick={() => router.push("/login")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 style={{

@@ -50,7 +50,7 @@ export default function ServicesMarquee() {
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
-          minHeight: "90px",
+          minHeight: "96px",
         }}
       >
         {/* ── Hover info overlay ───────────────────────────────────────── */}
@@ -151,10 +151,15 @@ export default function ServicesMarquee() {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: "12.5px",
+                      fontSize: "12px",
                       color: "#cbd5e1",
-                      lineHeight: 1.45,
+                      lineHeight: 1.4,
                       fontWeight: 400,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical" as const,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                       fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                     }}
                   >

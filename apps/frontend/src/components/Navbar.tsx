@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 const LINKS = [
-  { label: "Home", href: "/", sectionId: "home" },
+  { label: "Home", href: "/#home", sectionId: "home" },
   { label: "About Us", href: "/#about", sectionId: "about" },
   { label: "Gallery", href: "/#gallery", sectionId: "gallery" },
   { label: "Review", href: "/#reviews", sectionId: "reviews" },
-  { label: "Team", href: "/#team", sectionId: "team" }
+  { label: "Team", href: "/#developers", sectionId: "developers" }
 ];
 
 export default function Navbar() {
@@ -44,7 +44,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sections = ["home", "about", "gallery", "reviews", "team"];
+    const sections = ["home", "about", "gallery", "reviews", "developers", "team-bottom"];
     const handleScrollSpy = () => {
       if (window.scrollY < 50) {
         setActiveSection("home");
@@ -59,7 +59,7 @@ export default function Navbar() {
           const top = el.offsetTop;
           const height = el.offsetHeight;
           if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
+            setActiveSection(sectionId === "team-bottom" ? "developers" : sectionId);
             break;
           }
         }
@@ -90,12 +90,10 @@ export default function Navbar() {
           top: 0,
           left: 0,
           right: 0,
-          height: isMobile ? "64px" : (scrolled ? "64px" : "80px"),
-          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.65)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: scrolled ? "1px solid rgba(15, 23, 42, 0.08)" : "1px solid rgba(15, 23, 42, 0.04)",
-          boxShadow: scrolled ? "0 4px 24px rgba(15, 23, 42, 0.03)" : "none",
+          height: isMobile ? "60px" : (scrolled ? "60px" : "68px"),
+          backgroundColor: "#FFFFFF",
+          borderBottom: "1px solid #E2E8F0",
+          boxShadow: scrolled ? "0 4px 20px rgba(15, 23, 42, 0.06)" : "0 2px 10px rgba(15, 23, 42, 0.03)",
           display: "flex",
           alignItems: "center",
           zIndex: 1000,
@@ -126,22 +124,33 @@ export default function Navbar() {
               userSelect: "none",
             }}
           >
-            <img
-              src="/sbg-logo-new.png"
-              alt="AWS SBG REC Logo"
+            <div
               style={{
-                height: isMobile ? "28px" : scrolled ? "28px" : "34px",
-                width: "auto",
-                objectFit: "contain",
-                display: "block",
-                transition: "height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                width: isMobile ? "30px" : (scrolled ? "30px" : "33px"),
+                height: isMobile ? "30px" : (scrolled ? "30px" : "33px"),
+                borderRadius: "7.5px",
+                overflow: "hidden",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.18)",
+                flexShrink: 0,
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
-            />
+            >
+              <img
+                src="/sbg-logo-latest.png"
+                alt="AWS SBG REC Logo"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+            </div>
             <span 
               style={{ 
                 fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                 fontWeight: 700,
-                fontSize: isMobile ? "16px" : scrolled ? "17px" : "19px",
+                fontSize: isMobile ? "15.5px" : (scrolled ? "16.5px" : "17.5px"),
                 color: "#0F172A",
                 letterSpacing: "-0.015em",
                 whiteSpace: "nowrap",

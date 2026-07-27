@@ -65,14 +65,6 @@ const CREW_MEMBERS: TeamMember[] = [
     accent: "#0073BB",
   },
   {
-    id: "crew-2",
-    name: "Abhijith K",
-    role: "Technical Associate",
-    department: "Projects & Innovation",
-    image: "/images/crew/abhijith_k.jpg",
-    accent: "#FF9900",
-  },
-  {
     id: "crew-3",
     name: "Balaambiga C A",
     role: "Operations Lead",
@@ -103,14 +95,6 @@ const CREW_MEMBERS: TeamMember[] = [
     department: "Marketing & Media",
     image: "/images/crew/jaiganesh_g.jpg",
     accent: "#FF9900",
-  },
-  {
-    id: "crew-7",
-    name: "Lakshminarasimhan",
-    role: "Technical Associate",
-    department: "Projects & Innovation",
-    image: "/images/crew/lakshminarasimhan.jpg",
-    accent: "#0073BB",
   },
   {
     id: "crew-8",
@@ -160,7 +144,7 @@ const CREW_MEMBERS: TeamMember[] = [
     image: "/images/crew/vs_thamizh_selvan.jpg",
     accent: "#0073BB",
   },
-];
+].sort((a, b) => a.name.localeCompare(b.name));
 
 const DEFAULT_MEMBERS = [
   ...CORE_MEMBERS.map((m) => ({ ...m, type: "core" as const })),
@@ -217,6 +201,9 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             height: (!member.image || imageError) ? "auto" : "100%",
             display: "block",
             objectFit: (!member.image || imageError) ? "contain" : "cover",
+            objectPosition: (member.name?.includes("Neil") || member.image?.includes("neil"))
+              ? "22% center"
+              : "center center",
             transition: "transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         />
@@ -292,10 +279,22 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
 
 interface OurTeamShowcaseProps {
   previewData?: any[];
+  filterType?: "core" | "crew" | "developers" | "all";
+  title?: string;
+  subtitle?: string;
+  badge?: string;
+  id?: string;
 }
 
-export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = {}) {
-  const [allMembers, setAllMembers] = useState<(TeamMember & { type: "core" | "crew" })[]>(previewData as any || DEFAULT_MEMBERS);
+export default function OurTeamShowcase({
+  previewData,
+  filterType = "all",
+  title,
+  subtitle,
+  badge,
+  id = "team",
+}: OurTeamShowcaseProps = {}) {
+  const [fetchedMembers, setFetchedMembers] = useState<(TeamMember & { type: "core" | "crew" })[]>(previewData as any || DEFAULT_MEMBERS);
   const [currentIndex, setCurrentIndex] = useState(PAD);
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [hasReached, setHasReached] = useState(false);
@@ -304,7 +303,7 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
 
   useEffect(() => {
     if (previewData) {
-      setAllMembers(previewData as any);
+      setFetchedMembers(previewData as any);
     }
   }, [previewData]);
 
@@ -314,12 +313,51 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
     api.get<any[]>("/homepage/team")
       .then((res) => {
         if (active && res && res.length > 0) {
-          setAllMembers(res as any);
+          setFetchedMembers(res as any);
         }
       })
-      .catch((err) => console.error("Team dynamic fetch error:", err));
+      .catch((err) => {
+        // Silently use fallback default team data
+      });
     return () => { active = false; };
   }, [previewData]);
+
+  const allMembers = useMemo(() => {
+    if (!fetchedMembers || fetchedMembers.length === 0) return [];
+    if (filterType === "developers") {
+      const orderKeys = [
+        "sam devaraja",
+        "rannesh",
+        "jaiganesh",
+        "neil",
+        "sudhish",
+        "balaambiga",
+        "sunchitha",
+        "abimithren",
+        "harini",
+        "thamizh",
+      ];
+      const devList = fetchedMembers.filter(
+        (m) =>
+          m.type === "crew" &&
+          !m.name.toLowerCase().includes("lakshminarasimhan") &&
+          !m.name.toLowerCase().includes("goutham")
+      );
+      devList.sort((a, b) => {
+        const idxA = orderKeys.findIndex((k) => a.name.toLowerCase().includes(k));
+        const idxB = orderKeys.findIndex((k) => b.name.toLowerCase().includes(k));
+        return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+      });
+      return devList;
+    }
+    if (filterType === "core") {
+      return fetchedMembers.filter((m) => m.type === "core");
+    }
+    if (filterType === "crew") {
+      return fetchedMembers.filter((m) => m.type === "crew");
+    }
+    return fetchedMembers;
+  }, [fetchedMembers, filterType]);
 
   const displayMembers = useMemo(() => {
     if (allMembers.length === 0) return [];
@@ -333,9 +371,14 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
   // Adjust current index on members load/update
   useEffect(() => {
     if (allMembers.length === 0) return;
-    const captIdx = allMembers.findIndex((m) => m.role === "Captain");
-    setCurrentIndex(captIdx !== -1 ? captIdx + PAD : PAD);
-  }, [allMembers]);
+    if (filterType === "developers") {
+      const samIdx = allMembers.findIndex((m) => m.name.toLowerCase().includes("sam devaraja"));
+      setCurrentIndex(samIdx !== -1 ? samIdx + PAD : PAD);
+    } else {
+      const captIdx = allMembers.findIndex((m) => m.role === "Captain");
+      setCurrentIndex(captIdx !== -1 ? captIdx + PAD : PAD);
+    }
+  }, [allMembers, filterType]);
 
   // Intersection Observer to detect when section reaches the viewport
   useEffect(() => {
@@ -343,9 +386,16 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
       ([entry]) => {
         if (entry.isIntersecting) {
           setHasReached(true);
-          const captIdx = allMembers.findIndex((m) => m.role === "Captain");
-          if (captIdx !== -1) {
-            setCurrentIndex(captIdx + PAD);
+          if (filterType === "developers") {
+            const samIdx = allMembers.findIndex((m) => m.name.toLowerCase().includes("sam devaraja"));
+            if (samIdx !== -1) {
+              setCurrentIndex(samIdx + PAD);
+            }
+          } else {
+            const captIdx = allMembers.findIndex((m) => m.role === "Captain");
+            if (captIdx !== -1) {
+              setCurrentIndex(captIdx + PAD);
+            }
           }
         }
       },
@@ -401,12 +451,17 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
     }
   };
 
+  const isSamActive = useMemo(() => {
+    if (!displayMembers || !displayMembers[currentIndex]) return false;
+    return displayMembers[currentIndex].name.toLowerCase().includes("sam devaraja");
+  }, [displayMembers, currentIndex]);
+
   if (allMembers.length === 0) return null;
 
   return (
     <section
       ref={sectionRef}
-      id="team"
+      id={id}
       style={{
         width: "100%",
         background: "#f8fafc",
@@ -463,7 +518,7 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
           display: "block",
           marginBottom: "8px",
         }}>
-          OUR TEAM
+          {badge || (filterType === "core" ? "CORE TEAM" : filterType === "crew" ? "CREW MEMBERS" : "OUR TEAM")}
         </span>
 
         <h2 style={{
@@ -474,19 +529,25 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
           letterSpacing: "-0.025em",
           lineHeight: 1.2
         }}>
-          Meet the Team
+          {title || (filterType === "core" ? "Core Leadership" : filterType === "crew" ? "Crew Members" : "Meet the Team")}
         </h2>
         <p style={{
           fontSize: "15px",
           color: "#475569",
           margin: 0,
           fontWeight: 400,
-          maxWidth: "480px",
+          maxWidth: "520px",
           marginLeft: "auto",
           marginRight: "auto",
           lineHeight: 1.6,
         }}>
-          The talented student leaders, developers, and designers driving the AWS Cloud Club community at REC.
+          {subtitle || (
+            filterType === "core"
+              ? "The student leaders, captains, and technical leads guiding AWS Cloud Club REC."
+              : filterType === "crew"
+              ? "The passionate associates, developers, and team contributors building innovations and events."
+              : "The talented student leaders, developers, and designers driving the AWS Cloud Club community at REC."
+          )}
         </p>
       </div>
 
@@ -598,7 +659,9 @@ export default function OurTeamShowcase({ previewData }: OurTeamShowcaseProps = 
             style={{
               display: "flex",
               gap: "20px",
-              transition: isTransitioning ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
+              transition: isTransitioning
+                ? `transform ${isSamActive ? "1.2s" : "0.6s"} cubic-bezier(0.16, 1, 0.3, 1)`
+                : "none",
               transform: `translateX(calc(50% - 120px - ${currentIndex * 260}px))`,
               width: "100%",
             }}

@@ -14,18 +14,10 @@ const COLS = [
   {
     h: "Resources",
     links: [
-      { label: "Our Team", href: "/#team" },
-      { label: "Community", href: "/#about" }
+      { label: "Our Team", href: "/#team-bottom" },
+      { label: "Community", href: "/#community" }
     ]
-  },
-  {
-    h: "Connect",
-    links: [
-      { label: "Instagram", href: "https://www.instagram.com/aws_sbg_rec/" },
-      { label: "LinkedIn", href: "https://www.linkedin.com/company/aws-sbg-rec/" },
-      { label: "WhatsApp", href: "https://chat.whatsapp.com/KSFvYJKRYyB31aL0lZMugK" }
-    ]
-  },
+  }
 ];
 
 export default function Footer() {
@@ -43,7 +35,7 @@ export default function Footer() {
       style={{
         width: "100%",
         background: "#0a0e1a", // Sidebar background color
-        padding: isMobile ? "32px 0 24px" : "48px 0 36px",
+        padding: isMobile ? "24px 0 16px" : "32px 0 20px",
         position: "relative",
         zIndex: 30,
         overflow: "hidden",
@@ -66,23 +58,26 @@ export default function Footer() {
           width: "100%",
           maxWidth: "1280px",
           margin: "0 auto",
-          padding: "0 24px",
+          padding: isMobile ? "0 24px" : "0 48px",
           display: "flex",
           flexDirection: "column",
-          gap: "32px",
+          gap: "28px",
           boxSizing: "border-box",
         }}
       >
-        {/* Responsive Grid */}
+        {/* Responsive Flex Layout */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1.8fr 1fr 1fr 1fr",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            justifyContent: "space-between",
+            alignItems: isMobile ? "flex-start" : "flex-start",
             gap: isMobile ? "24px" : "48px",
+            width: "100%",
           }}
         >
           {/* Brand Column */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: isMobile ? "100%" : "380px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
               <motion.div
                 whileHover={{ rotate: -5, scale: 1.05 }}
@@ -113,7 +108,7 @@ export default function Footer() {
               </div>
             </div>
             
-            <p style={{ fontSize: "13px", color: "#94A3B8", lineHeight: 1.7, maxWidth: "280px", margin: "0 0 16px 0", fontWeight: 500 }}>
+            <p style={{ fontSize: "13px", color: "#94A3B8", lineHeight: 1.7, margin: "0 0 16px 0", fontWeight: 500 }}>
               Empowering the next generation of cloud professionals through community, learning, and innovation.
             </p>
 
@@ -166,44 +161,50 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Link Columns */}
-          {COLS.map((col) => (
-            <div key={col.h} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-              <h4
-                style={{
-                  fontWeight: 800,
-                  fontSize: "12px",
-                  color: "#FFFFFF",
-                  marginBottom: "10px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                {col.h}
-              </h4>
-              {col.links.map((link) => (
-                <motion.a
-                  key={link.label}
-                  href={link.href}
-                  target={col.h === "Connect" ? "_blank" : undefined}
-                  rel={col.h === "Connect" ? "noopener noreferrer" : undefined}
-                  whileHover={{ color: "#FF9900", x: 4 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
+          {/* Link Columns Container */}
+          <div
+            style={{
+              display: "flex",
+              gap: isMobile ? "36px" : "72px",
+              flexShrink: 0,
+            }}
+          >
+            {COLS.map((col) => (
+              <div key={col.h} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <h4
                   style={{
-                    display: "block",
-                    color: "#94A3B8",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    marginBottom: "6px",
-                    cursor: "pointer",
+                    fontWeight: 800,
+                    fontSize: "12px",
+                    color: "#FFFFFF",
+                    marginBottom: "10px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
                   }}
                 >
-                  {link.label}
-                </motion.a>
-              ))}
-            </div>
-          ))}
+                  {col.h}
+                </h4>
+                {col.links.map((link) => (
+                  <motion.a
+                    key={link.label}
+                    href={link.href}
+                    whileHover={{ color: "#FF9900", x: 4 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    style={{
+                      display: "block",
+                      color: "#94A3B8",
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      marginBottom: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom Bar */}

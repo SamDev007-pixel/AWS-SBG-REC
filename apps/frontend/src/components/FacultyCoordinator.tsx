@@ -48,7 +48,9 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           setCoord(res);
         }
       })
-      .catch((err) => console.error("Coordinator dynamic fetch error:", err));
+      .catch((err) => {
+        // Silently use fallback default coordinator data
+      });
     return () => { active = false; };
   }, [previewData]);
 

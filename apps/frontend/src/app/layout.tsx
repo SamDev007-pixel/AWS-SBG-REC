@@ -6,6 +6,8 @@ import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
 import { Toaster } from "sonner";
 
+import DeviceNoticeTooltip from "@/components/DeviceNoticeTooltip";
+
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -41,6 +43,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col cloud-mesh-bg antialiased">
         <Providers>
           <AuthWrapper>
+            <DeviceNoticeTooltip />
             <Suspense fallback={<LayoutSpinner />}>
               {children}
             </Suspense>

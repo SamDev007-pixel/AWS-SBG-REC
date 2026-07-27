@@ -21,8 +21,15 @@ export default function Home() {
         <ServicesMarquee />
         <Gallery />
         <ReviewsMarquee />
+        <OurTeamShowcase
+          id="developers"
+          badge="DEVELOPERS"
+          title="Meet the Developers"
+          subtitle="The talented student developers, engineers, and creators building the AWS Cloud Club web platform at REC."
+          filterType="developers"
+        />
         <FacultyCoordinator />
-        <OurTeamShowcase />
+        <OurTeamShowcase id="team-bottom" />
       </main>
       <Footer />
     </>

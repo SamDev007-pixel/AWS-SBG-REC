@@ -167,15 +167,7 @@ export default function SidebarLayout({
           className="fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-5 border-b border-slate-200/40 backdrop-blur-md bg-white/95"
           style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}
         >
-          {/* Left: Brand Identity */}
-          <span 
-            className="text-[14.5px] font-black text-slate-800 tracking-wider font-display uppercase ml-1"
-            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-          >
-            AWS <span className="text-[#FF9900]">SBG</span> REC
-          </span>
-
-          {/* Right: Menu Trigger */}
+          {/* Left: Menu Trigger */}
           <button
             onClick={() => setIsMobileOpen(true)}
             className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-100/80 text-slate-700 transition-all cursor-pointer active:scale-95 select-none"
@@ -183,6 +175,14 @@ export default function SidebarLayout({
           >
             <Menu size={20} strokeWidth={2.2} className="shrink-0" />
           </button>
+
+          {/* Right: Brand Identity */}
+          <span 
+            className="text-[14.5px] font-black text-slate-800 tracking-wider font-display uppercase mr-1"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          >
+            AWS <span className="text-[#FF9900]">SBG</span> REC
+          </span>
         </header>
       )}
 

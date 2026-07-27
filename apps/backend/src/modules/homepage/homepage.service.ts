@@ -117,20 +117,17 @@ const DEFAULT_TEAM = [
   { name: 'Prathakshanaa T', role: 'Captain', department: 'AWS Cloud Clubs REC', image: '/images/core/prathakshanaa_t.jpg', accent: '#E68A00', type: 'core', order: 2 },
   { name: 'K N Pranav Ranjan', role: 'Tech Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/pranav_ranjan.jpg', accent: '#E68A00', type: 'core', order: 3 },
   { name: 'V Thirunavukkarasu', role: 'Social Media Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/thirunavukkarasu.jpg', accent: '#16A34A', type: 'core', order: 4 },
-  // CREW
-  { name: 'Abimithren', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/abimithren.jpg', accent: '#0073BB', type: 'crew', order: 5 },
-  { name: 'Abhijith K', role: 'Technical Associate', department: 'Projects & Innovation', image: '/images/crew/abhijith_k.jpg', accent: '#E68A00', type: 'crew', order: 6 },
-  { name: 'Balaambiga C A', role: 'Operations Lead', department: 'Events & Outreach', image: '/images/crew/balaambiga_c_a.jpg', accent: '#16A34A', type: 'crew', order: 7 },
-  { name: 'Goutham R', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/goutham_r.jpg', accent: '#0073BB', type: 'crew', order: 8 },
-  { name: 'Harini S', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/harini_s.jpg', accent: '#7C3AED', type: 'crew', order: 9 },
-  { name: 'Jaiganesh G', role: 'Marketing Associate', department: 'Marketing & Media', image: '/images/crew/jaiganesh_g.jpg', accent: '#E68A00', type: 'crew', order: 10 },
-  { name: 'Lakshminarasimhan', role: 'Technical Associate', department: 'Projects & Innovation', image: '/images/crew/lakshminarasimhan.jpg', accent: '#0073BB', type: 'crew', order: 11 },
-  { name: 'Neil Daniel', role: 'Content Strategist', department: 'Marketing & Media', image: '/images/crew/neil_daniel.jpg', accent: '#7C3AED', type: 'crew', order: 12 },
-  { name: 'Rannesh Khumar B R', role: 'Web Developer', department: 'Projects & Innovation', image: '/images/crew/rannesh_khumar_b_r.jpg', accent: '#E68A00', type: 'crew', order: 13 },
-  { name: 'Sam Devaraja J', role: 'Lead Developer', department: 'Projects & Innovation', image: '/images/crew/sam_devaraja_j.jpg', accent: '#0073BB', type: 'crew', order: 14 },
-  { name: 'Sudhish', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/sudhish.jpg', accent: '#16A34A', type: 'crew', order: 15 },
-  { name: 'Sunchitha V K', role: 'Design Lead', department: 'Marketing & Media', image: '/images/crew/sunchitha_vk.jpg', accent: '#E68A00', type: 'crew', order: 16 },
-  { name: 'Vs Thamizh Selvan', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/vs_thamizh_selvan.jpg', accent: '#0073BB', type: 'crew', order: 17 },
+  { name: 'Sam Devaraja J', role: 'Lead Developer', department: 'Projects & Innovation', image: '/images/crew/sam_devaraja_j.jpg', accent: '#0073BB', type: 'crew', order: 5 },
+  { name: 'Rannesh Khumar B R', role: 'Web Developer', department: 'Projects & Innovation', image: '/images/crew/rannesh_khumar_b_r.jpg', accent: '#E68A00', type: 'crew', order: 6 },
+  { name: 'Jaiganesh G', role: 'Marketing Associate', department: 'Marketing & Media', image: '/images/crew/jaiganesh_g.jpg', accent: '#E68A00', type: 'crew', order: 7 },
+  { name: 'Neil Daniel', role: 'Content Strategist', department: 'Marketing & Media', image: '/images/crew/neil_daniel.jpg', accent: '#7C3AED', type: 'crew', order: 8 },
+  { name: 'Sudhish', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/sudhish.jpg', accent: '#16A34A', type: 'crew', order: 9 },
+  { name: 'Balaambiga C A', role: 'Operations Lead', department: 'Events & Outreach', image: '/images/crew/balaambiga_c_a.jpg', accent: '#16A34A', type: 'crew', order: 10 },
+  { name: 'Sunchitha V K', role: 'Design Lead', department: 'Marketing & Media', image: '/images/crew/sunchitha_vk.jpg', accent: '#E68A00', type: 'crew', order: 11 },
+  { name: 'Abimithren', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/abimithren.jpg', accent: '#0073BB', type: 'crew', order: 12 },
+  { name: 'Harini S', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/harini_s.jpg', accent: '#7C3AED', type: 'crew', order: 13 },
+  { name: 'Goutham R', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/goutham_r.jpg', accent: '#0073BB', type: 'crew', order: 14 },
+  { name: 'Vs Thamizh Selvan', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/vs_thamizh_selvan.jpg', accent: '#0073BB', type: 'crew', order: 15 },
 ];
 
 @Injectable()
@@ -147,54 +144,54 @@ export class HomepageService implements OnModuleInit {
 
   async ensureSeeded() {
     // 1. Hero
-    const heroCount = await this.prisma.homepageHero.count();
+    const heroCount = await (this.prisma as any).homepage_hero.count();
     if (heroCount === 0) {
-      await this.prisma.homepageHero.create({ data: DEFAULT_HERO });
+      await (this.prisma as any).homepage_hero.create({ data: DEFAULT_HERO });
     }
 
     // 2. Coordinator
-    const coordCount = await this.prisma.homepageCoordinator.count();
+    const coordCount = await (this.prisma as any).homepage_coordinator.count();
     if (coordCount === 0) {
-      await this.prisma.homepageCoordinator.create({ data: DEFAULT_COORDINATOR });
+      await (this.prisma as any).homepage_coordinator.create({ data: DEFAULT_COORDINATOR });
     }
 
     // 3. Journeys
-    const journeyCount = await this.prisma.homepageJourney.count();
+    const journeyCount = await (this.prisma as any).homepage_journeys.count();
     if (journeyCount === 0) {
       for (const item of DEFAULT_JOURNEYS) {
-        await this.prisma.homepageJourney.create({ data: item });
+        await (this.prisma as any).homepage_journeys.create({ data: item });
       }
     }
 
     // 4. Testimonials
-    const testCount = await this.prisma.homepageTestimonial.count();
+    const testCount = await (this.prisma as any).homepage_testimonials.count();
     if (testCount === 0) {
       for (const item of DEFAULT_TESTIMONIALS) {
-        await this.prisma.homepageTestimonial.create({ data: item });
+        await (this.prisma as any).homepage_testimonials.create({ data: item });
       }
     }
 
     // 5. Team
-    const teamCount = await this.prisma.homepageTeam.count();
+    const teamCount = await (this.prisma as any).homepage_team.count();
     if (teamCount === 0) {
       for (const item of DEFAULT_TEAM) {
-        await this.prisma.homepageTeam.create({ data: item });
+        await (this.prisma as any).homepage_team.create({ data: item });
       }
     }
   }
 
   // ── Hero ─────────────────────────────────────────────────────────────────
   async getHero() {
-    const hero = await this.prisma.homepageHero.findFirst();
+    const hero = await (this.prisma as any).homepage_hero.findFirst();
     if (!hero) {
-      return this.prisma.homepageHero.create({ data: DEFAULT_HERO });
+      return (this.prisma as any).homepage_hero.create({ data: DEFAULT_HERO });
     }
     return hero;
   }
 
   async updateHero(dto: { badge: string; titleHighlight: string; subtitle: string }) {
     const hero = await this.getHero();
-    return this.prisma.homepageHero.update({
+    return (this.prisma as any).homepage_hero.update({
       where: { id: hero.id },
       data: dto,
     });
@@ -202,16 +199,16 @@ export class HomepageService implements OnModuleInit {
 
   // ── Coordinator ──────────────────────────────────────────────────────────
   async getCoordinator() {
-    const coord = await this.prisma.homepageCoordinator.findFirst();
+    const coord = await (this.prisma as any).homepage_coordinator.findFirst();
     if (!coord) {
-      return this.prisma.homepageCoordinator.create({ data: DEFAULT_COORDINATOR });
+      return (this.prisma as any).homepage_coordinator.create({ data: DEFAULT_COORDINATOR });
     }
     return coord;
   }
 
   async updateCoordinator(dto: { name: string; role: string; department: string; image: string; bio: string; linkedin: string }) {
     const coord = await this.getCoordinator();
-    return this.prisma.homepageCoordinator.update({
+    return (this.prisma as any).homepage_coordinator.update({
       where: { id: coord.id },
       data: dto,
     });
@@ -219,78 +216,78 @@ export class HomepageService implements OnModuleInit {
 
   // ── Journeys ─────────────────────────────────────────────────────────────
   async getJourneys() {
-    return this.prisma.homepageJourney.findMany({
+    return (this.prisma as any).homepage_journeys.findMany({
       orderBy: { order: 'asc' },
     });
   }
 
   async createJourney(dto: { label: string; sublabel: string; image: string; description: string; gradient: string; order?: number }) {
-    return this.prisma.homepageJourney.create({
+    return (this.prisma as any).homepage_journeys.create({
       data: dto,
     });
   }
 
   async updateJourney(id: string, dto: { label: string; sublabel: string; image: string; description: string; gradient: string; order?: number }) {
-    return this.prisma.homepageJourney.update({
+    return (this.prisma as any).homepage_journeys.update({
       where: { id },
       data: dto,
     });
   }
 
   async deleteJourney(id: string) {
-    return this.prisma.homepageJourney.delete({
+    return (this.prisma as any).homepage_journeys.delete({
       where: { id },
     });
   }
 
   // ── Testimonials ──────────────────────────────────────────────────────────
   async getTestimonials() {
-    return this.prisma.homepageTestimonial.findMany({
+    return (this.prisma as any).homepage_testimonials.findMany({
       orderBy: { order: 'asc' },
     });
   }
 
   async createTestimonial(dto: { name: string; role: string; rating: number; text: string; type: string; order?: number }) {
-    return this.prisma.homepageTestimonial.create({
+    return (this.prisma as any).homepage_testimonials.create({
       data: dto,
     });
   }
 
   async updateTestimonial(id: string, dto: { name: string; role: string; rating: number; text: string; type: string; order?: number }) {
-    return this.prisma.homepageTestimonial.update({
+    return (this.prisma as any).homepage_testimonials.update({
       where: { id },
       data: dto,
     });
   }
 
   async deleteTestimonial(id: string) {
-    return this.prisma.homepageTestimonial.delete({
+    return (this.prisma as any).homepage_testimonials.delete({
       where: { id },
     });
   }
 
   // ── Team ─────────────────────────────────────────────────────────────────
   async getTeam() {
-    return this.prisma.homepageTeam.findMany({
+    return (this.prisma as any).homepage_team.findMany({
       orderBy: { order: 'asc' },
     });
   }
 
   async createTeamMember(dto: { name: string; role: string; department: string; image: string; accent: string; type: string; order?: number }) {
-    return this.prisma.homepageTeam.create({
+    return (this.prisma as any).homepage_team.create({
       data: dto,
     });
   }
 
   async updateTeamMember(id: string, dto: { name: string; role: string; department: string; image: string; accent: string; type: string; order?: number }) {
-    return this.prisma.homepageTeam.update({
+    return (this.prisma as any).homepage_team.update({
       where: { id },
       data: dto,
     });
   }
 
   async deleteTeamMember(id: string) {
-    return this.prisma.homepageTeam.delete({
+    return (this.prisma as any).homepage_team.delete({
       where: { id },
     });
   }
