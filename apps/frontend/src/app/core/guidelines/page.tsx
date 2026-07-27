@@ -153,8 +153,8 @@ export default function LearningGuidelinesCMSPage() {
         mobileRightAction={null}
       />
 
-      {/* Mobile action bar below header */}
-      <div className="flex sm:hidden items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0 select-none">
+      {/* Mobile & Tablet action bar below header */}
+      <div className="flex lg:hidden items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0 select-none">
         <button
           onClick={() => setIsPreviewOpen(true)}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all font-heading uppercase tracking-wider cursor-pointer"

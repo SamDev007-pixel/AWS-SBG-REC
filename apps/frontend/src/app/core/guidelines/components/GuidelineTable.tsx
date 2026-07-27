@@ -46,8 +46,8 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
 
   return (
     <>
-      {/* Desktop/Tablet Table View */}
-      <div className="hidden md:block rounded-2xl bg-white border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block rounded-2xl bg-white border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100 table-fixed">
             <thead className="bg-slate-50/70">
@@ -93,8 +93,8 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
         </div>
       </div>
 
-      {/* Mobile Card List View (Only order, title & description visible initially. Rest is card details on click) */}
-      <div className="block md:hidden space-y-3">
+      {/* Mobile Card List View (Visible on Mobile & Tablet) */}
+      <div className="block lg:hidden space-y-3">
         {guidelines.map((guideline, index) => {
           const isExpanded = expandedId === guideline.id;
           return (

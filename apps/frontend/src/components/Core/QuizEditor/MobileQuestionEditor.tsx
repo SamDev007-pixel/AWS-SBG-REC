@@ -37,7 +37,7 @@ export default function MobileQuestionEditor({
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'tween', duration: 0.25 }}
-      className="fixed inset-0 z-50 bg-white flex flex-col md:hidden overflow-y-auto"
+      className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden overflow-y-auto"
     >
       {/* Editor Header Navigation */}
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm">
@@ -55,7 +55,7 @@ export default function MobileQuestionEditor({
 
         <button
           onClick={onPreview}
-          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2 px-4 rounded-xl min-h-[44px] shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 bg-[#FF6B00] hover:bg-orange-600 text-white font-extrabold text-xs py-2 px-4 rounded-xl min-h-[44px] shadow-sm cursor-pointer"
         >
           <Icons.Eye className="w-4 h-4" />
           Preview
@@ -71,7 +71,7 @@ export default function MobileQuestionEditor({
           </span>
           <div className="flex items-center gap-1.5 text-[10px] font-bold">
             {saveStatus === 'saving' && (
-              <span className="text-indigo-500 animate-pulse flex items-center gap-1">
+              <span className="text-[#FF6B00] animate-pulse flex items-center gap-1">
                 <Icons.Loader2 className="w-3 h-3 animate-spin" /> saving...
               </span>
             )}
@@ -97,7 +97,7 @@ export default function MobileQuestionEditor({
             rows={4}
             value={question.question}
             onChange={(e) => updateActiveQuestion({ question: e.target.value })}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed min-h-[96px]"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed min-h-[96px]"
             placeholder="Type question context and details here..."
           />
         </div>
@@ -138,7 +138,7 @@ export default function MobileQuestionEditor({
                       'flex-1 bg-slate-50 border rounded-xl px-4 py-3 text-slate-800 transition-colors focus:bg-white focus:outline-none text-xs min-h-[44px]',
                       isCorrect
                         ? 'border-emerald-500/50 focus:border-emerald-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                        : 'border-slate-200 focus:border-[#FF6B00]'
                     )}
                   />
                 </div>
@@ -156,7 +156,7 @@ export default function MobileQuestionEditor({
             rows={4}
             value={question.explanation}
             onChange={(e) => updateActiveQuestion({ explanation: e.target.value })}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed min-h-[96px]"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed min-h-[96px]"
             placeholder="Provide context for why the marked answer is correct..."
           />
         </div>

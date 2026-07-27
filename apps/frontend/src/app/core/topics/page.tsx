@@ -108,9 +108,9 @@ export default function TopicsDirectoryPage() {
         const el = document.getElementById(`topic-card-${newTopic.id}`);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.add('ring-2', 'ring-indigo-500', 'scale-[1.01]', 'shadow-lg');
+          el.classList.add('ring-2', 'ring-[#FF6B00]', 'scale-[1.01]', 'shadow-lg');
           setTimeout(() => {
-            el.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]', 'shadow-lg');
+            el.classList.remove('ring-2', 'ring-[#FF6B00]', 'scale-[1.01]', 'shadow-lg');
           }, 2000);
         }
       }, 150);
@@ -201,7 +201,7 @@ export default function TopicsDirectoryPage() {
         {loading && topics.length === 0 ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+              <div className="w-8 h-8 rounded-full border-2 border-[#FF6B00] border-t-transparent animate-spin" />
               <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Topics...</span>
             </div>
           </div>

@@ -31,12 +31,12 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
           <Link href={`/core/topics/${topic.id}/roadmap`} className="flex-1 min-w-0">
             {topicNumber !== undefined && (
               <div className="mb-1">
-                <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider inline-block">
-                  Topic #{topicNumber}
+                <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider inline-block">
+                  Topic {topicNumber}
                 </span>
               </div>
             )}
-            <h3 className="text-sm font-black text-slate-900 font-heading tracking-tight truncate group-hover:text-indigo-600 transition-colors">
+            <h3 className="text-sm font-black text-slate-900 font-heading tracking-tight truncate group-hover:text-[#FF6B00] transition-colors">
               {topic.name}
             </h3>
             <p className="text-[11px] text-slate-550 mt-1 line-clamp-2 leading-relaxed font-semibold">
@@ -87,7 +87,7 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
       <div className="border-t border-slate-100 px-5 py-3 bg-slate-55/50 bg-slate-50/50 flex items-center justify-between">
         <Link
           href={`/core/topics/${topic.id}/roadmap`}
-          className="text-[11px] font-black text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 font-heading"
+          className="text-[11px] font-black text-[#FF6B00] hover:text-orange-700 transition-colors flex items-center gap-1 font-heading"
         >
           Open Builder
           <Icons.ArrowRight className="w-3.5 h-3.5" />

@@ -40,7 +40,7 @@ export default function MobileQuestionPreview({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 15 }}
       transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-50 bg-slate-50 flex flex-col md:hidden overflow-y-auto"
+      className="fixed inset-0 z-50 bg-slate-50 flex flex-col lg:hidden overflow-y-auto"
     >
       {/* Header Row */}
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm">
@@ -95,7 +95,7 @@ export default function MobileQuestionPreview({
                     'bg-rose-50 border-rose-300 text-rose-800 font-bold shadow-none';
                 }
               } else if (isSelected) {
-                btnStyle = 'bg-indigo-50 border-indigo-300 text-indigo-750 font-bold';
+                btnStyle = 'bg-amber-50 border-amber-300 text-[#FF6B00] font-bold';
               }
 
               return (
@@ -112,7 +112,7 @@ export default function MobileQuestionPreview({
                     className={cn(
                       'w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border flex-shrink-0',
                       isSelected
-                        ? 'bg-indigo-500 text-white border-indigo-500'
+                        ? 'bg-[#FF6B00] text-white border-[#FF6B00]'
                         : 'bg-slate-100 border-slate-200 text-slate-400'
                     )}
                   >

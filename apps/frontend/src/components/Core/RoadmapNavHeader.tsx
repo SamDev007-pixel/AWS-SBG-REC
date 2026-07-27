@@ -55,8 +55,8 @@ export default function RoadmapNavHeader({
                 aria-selected={isActive}
                 className={
                   isActive
-                    ? "transition-all duration-150 h-full flex items-center px-1 border-b-2 text-indigo-650 font-extrabold border-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                    : "transition-all duration-150 h-full flex items-center px-1 text-slate-500 hover:text-indigo-600 hover:border-b-2 hover:border-indigo-300 border-b-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                    ? "transition-all duration-150 h-full flex items-center px-1 border-b-2 text-[#FF6B00] font-extrabold border-[#FF6B00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B00]"
+                    : "transition-all duration-150 h-full flex items-center px-1 text-slate-500 hover:text-[#FF6B00] hover:border-b-2 hover:border-[#FF6B00]/40 border-b-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B00]"
                 }
               >
                 {tab.desktopLabel}
@@ -80,8 +80,8 @@ export default function RoadmapNavHeader({
               Roadmap Builder
             </span>
             {topicNumber !== undefined && (
-              <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
-                Topic #{topicNumber}
+              <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
+                Topic {topicNumber}
               </span>
             )}
           </div>
@@ -106,17 +106,17 @@ export default function RoadmapNavHeader({
                 href={tab.href}
                 role="tab"
                 aria-selected={isActive}
-                className={`relative transition-colors duration-150 h-full min-h-[44px] flex items-center px-3 text-xs font-bold whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`relative transition-colors duration-150 h-full min-h-[44px] flex items-center px-3 text-xs font-bold whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B00] ${
                   isActive
-                    ? "text-indigo-650 font-extrabold"
-                    : "text-slate-500 hover:text-indigo-600"
+                    ? "text-[#FF6B00] font-extrabold"
+                    : "text-slate-500 hover:text-[#FF6B00]"
                 }`}
               >
                 <span>{tab.mobileLabel}</span>
                 {isActive && (
                   <motion.div
                     layoutId="activeRoadmapSubTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B00] rounded-t-full"
                     transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                   />
                 )}

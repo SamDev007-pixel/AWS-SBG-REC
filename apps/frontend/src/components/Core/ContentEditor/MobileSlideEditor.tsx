@@ -45,7 +45,7 @@ export default function MobileSlideEditor({
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'tween', duration: 0.25 }}
-      className="fixed inset-0 z-50 bg-white flex flex-col md:hidden overflow-y-auto"
+      className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden overflow-y-auto"
     >
       {/* Editor Header Navigation */}
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm">
@@ -63,7 +63,7 @@ export default function MobileSlideEditor({
 
         <button
           onClick={onPreview}
-          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-2 px-4 rounded-xl min-h-[44px] shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 bg-[#FF6B00] hover:bg-orange-600 text-white font-extrabold text-xs py-2 px-4 rounded-xl min-h-[44px] shadow-sm cursor-pointer"
         >
           <Icons.Eye className="w-4 h-4" />
           Preview
@@ -79,7 +79,7 @@ export default function MobileSlideEditor({
           </span>
           <div className="flex items-center gap-1.5 text-[10px] font-bold">
             {saveStatus === 'saving' && (
-              <span className="text-indigo-500 animate-pulse flex items-center gap-1">
+              <span className="text-[#FF6B00] animate-pulse flex items-center gap-1">
                 <Icons.Loader2 className="w-3 h-3 animate-spin" /> saving...
               </span>
             )}
@@ -114,7 +114,7 @@ export default function MobileSlideEditor({
                 className={cn(
                   'py-3 px-2 border rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all font-bold text-[10px] min-h-[48px] cursor-pointer',
                   slide.layoutType === layout.value
-                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-bold'
+                    ? 'bg-amber-50 border-amber-300 text-[#FF6B00] font-bold'
                     : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                 )}
               >
@@ -134,7 +134,7 @@ export default function MobileSlideEditor({
             type="text"
             value={slide.title}
             onChange={(e) => updateActiveSlide({ title: e.target.value })}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-850 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors min-h-[44px]"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-850 text-xs focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors min-h-[44px]"
             placeholder="Slide Title"
           />
         </div>
@@ -166,7 +166,7 @@ export default function MobileSlideEditor({
                     type="text"
                     value={bullet}
                     onChange={(e) => handleUpdateBullet(bulletIdx, e.target.value)}
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors min-h-[44px]"
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors min-h-[44px]"
                   />
                   <button
                     type="button"
@@ -216,7 +216,7 @@ export default function MobileSlideEditor({
                 </div>
               </div>
             ) : (
-              <label className="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-50/40 hover:bg-indigo-50/20 transition-all text-center min-h-[120px]">
+              <label className="border-2 border-dashed border-slate-200 hover:border-[#FF6B00] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-50/40 hover:bg-amber-50/30 transition-all text-center min-h-[120px]">
                 <Icons.UploadCloud className="w-8 h-8 text-slate-400" />
                 <span className="text-[11px] font-black text-slate-600">
                   Upload Concept Image

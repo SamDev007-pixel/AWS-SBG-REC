@@ -64,8 +64,8 @@ export default function EditTopicModal({ isOpen, topic, onClose, onSubmit }: Edi
             Edit Topic
           </h3>
           {topic.orderIndex !== undefined && (
-            <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
-              Topic #{topic.orderIndex + 1}
+            <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
+              Topic {topic.orderIndex + 1}
             </span>
           )}
         </div>
@@ -81,7 +81,7 @@ export default function EditTopicModal({ isOpen, topic, onClose, onSubmit }: Edi
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors"
             />
           </div>
 

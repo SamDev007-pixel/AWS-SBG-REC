@@ -233,7 +233,7 @@ export default function CrewLearnersDirectoryPage() {
                   <th className="py-4 px-6">Learner Account</th>
                   <th className="py-4 px-6 text-center">XP</th>
                   <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
-                  <th className="py-4 px-6 text-center">Topic #</th>
+                  <th className="py-4 px-6 text-center">Topic</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
                   <th className="py-4 px-6 text-center">Progress</th>

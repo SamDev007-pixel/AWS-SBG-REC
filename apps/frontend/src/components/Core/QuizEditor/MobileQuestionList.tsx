@@ -33,7 +33,7 @@ export default function MobileQuestionList({
         </p>
         <button
           onClick={onAddQuestion}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 px-6 rounded-xl flex items-center gap-1.5 shadow-sm min-h-[44px] cursor-pointer"
+          className="bg-[#FF6B00] hover:bg-orange-600 text-white font-extrabold text-xs py-3 px-6 rounded-xl flex items-center gap-1.5 shadow-sm min-h-[44px] cursor-pointer"
         >
           <Icons.Plus className="w-4 h-4" />
           Add Question

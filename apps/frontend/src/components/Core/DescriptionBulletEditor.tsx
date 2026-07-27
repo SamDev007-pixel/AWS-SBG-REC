@@ -166,7 +166,7 @@ export default function DescriptionBulletEditor({
                     adjustHeight(e.target);
                   }}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed overflow-hidden py-2"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed overflow-hidden py-2"
                 />
               </div>
 
@@ -189,7 +189,7 @@ export default function DescriptionBulletEditor({
       <button
         type="button"
         onClick={addBulletRow}
-        className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors py-1 pl-1 mt-1"
+        className="flex items-center gap-1 text-[10px] font-bold text-[#FF6B00] hover:text-orange-700 transition-colors py-1 pl-1 mt-1"
       >
         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
         Add Bullet

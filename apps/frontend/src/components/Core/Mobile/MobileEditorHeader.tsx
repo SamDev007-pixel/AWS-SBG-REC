@@ -43,7 +43,7 @@ export default function MobileEditorHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-200 px-6 py-4 flex flex-col gap-4 shadow-sm md:hidden">
+    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-200 px-6 py-4 flex flex-col gap-4 shadow-sm lg:hidden">
       {/* Top row: Back button & Title details */}
       <div className="flex items-center gap-3">
         <button

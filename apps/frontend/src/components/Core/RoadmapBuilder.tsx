@@ -528,7 +528,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
               )}
               <Icons.Settings className="w-4 h-4 text-cyan-600 flex-shrink-0" />
               <h3 className="text-xs font-black text-slate-800 tracking-tight font-heading uppercase flex-shrink-0">Module Settings</h3>
-              {saveStatus === 'saving' && <span className="text-[10px] text-indigo-500 font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
+              {saveStatus === 'saving' && <span className="text-[10px] text-[#FF6B00] font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
               {saveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-bold font-heading lowercase tracking-normal flex-shrink-0">(saved)</span>}
               {saveStatus === 'failed' && <span className="text-[10px] text-rose-500 font-bold font-heading lowercase tracking-normal flex-shrink-0">(failed)</span>}
             </div>
@@ -555,18 +555,18 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
 
           <div className="space-y-1">
             <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Module Name</label>
-            <input type="text" value={editName} onChange={(e) => handleFieldChange('name', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+            <input type="text" value={editName} onChange={(e) => handleFieldChange('name', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors" />
           </div>
 
           <div className="space-y-1">
             <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Description</label>
-            <textarea rows={3} value={editDescription} onChange={(e) => handleFieldChange('description', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed" />
+            <textarea rows={3} value={editDescription} onChange={(e) => handleFieldChange('description', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed" />
           </div>
 
           <div className="grid grid-cols-2 gap-3.5">
             <div className="space-y-1">
               <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">XP Points</label>
-              <input type="number" min={10} max={500} value={editPoints} onChange={(e) => handleFieldChange('points', Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+              <input type="number" min={10} max={500} value={editPoints} onChange={(e) => handleFieldChange('points', Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors" />
             </div>
             <div className="flex items-end">
               <Link href={`/core/module/${selectedModule.dbId}/content?topicId=${topicId}`} className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-black text-slate-700 py-2.5 rounded-xl text-center flex items-center justify-center gap-1.5 transition-all shadow-xs">
@@ -578,7 +578,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
           <div className="space-y-1">
             <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Curriculum Tier</label>
             <div className="relative">
-              <select value={editLevel} onChange={(e) => handleFieldChange('level', e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none font-bold">
+              <select value={editLevel} onChange={(e) => handleFieldChange('level', e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors cursor-pointer appearance-none font-bold">
                 <option value="Beginner">Beginner Level</option>
                 <option value="Intermediate">Intermediate Level</option>
                 <option value="Advanced">Advanced Level</option>
@@ -642,7 +642,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
     return (
       <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-[#FF6B00] border-t-transparent animate-spin" />
           <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Builder Canvas...</span>
         </div>
       </div>
@@ -654,7 +654,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
 
       <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 flex-shrink-0 select-none">
         <div className="flex items-center gap-2.5 md:gap-4 h-full text-xs font-bold min-w-0 pr-2">
-          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors flex-shrink-0">
+          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-[#FF6B00] transition-colors flex-shrink-0">
             <Icons.ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Topics</span>
           </Link>
@@ -663,8 +663,8 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-slate-300 hidden sm:inline">•</span>
               {topicNumber !== undefined && (
-                <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
-                  Topic #{topicNumber}
+                <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
+                  Topic {topicNumber}
                 </span>
               )}
               {topicName && (
@@ -684,12 +684,12 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden p-4 md:p-6 gap-4 md:gap-6">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden p-4 lg:p-6 gap-4 lg:gap-6">
 
-        {/* DESKTOP VIEW CANVAS (Hidden on Mobile) */}
-        <div className="hidden md:flex w-[72%] bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-xs h-full flex-col">
+        {/* DESKTOP VIEW CANVAS (Hidden on Mobile & Tablet) */}
+        <div className="hidden lg:flex w-[72%] bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-xs h-full flex-col">
           <div className="px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between flex-shrink-0">
-            <span className="text-[9px] font-black tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 px-3 py-1 rounded-lg font-heading">LIVE PREVIEW CANVAS</span>
+            <span className="text-[9px] font-black tracking-widest text-[#FF6B00] bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg font-heading">LIVE PREVIEW CANVAS</span>
             <span className="text-[10px] text-slate-400 font-bold">{modules.length} Modules Registered</span>
           </div>
 
@@ -784,8 +784,8 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
           </div>
         </div>
 
-        {/* MOBILE VIEW LIST CARDS (Visible only on Mobile) */}
-        <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto space-y-4">
+        {/* MOBILE & TABLET VIEW LIST CARDS (Visible on Mobile & Tablet) */}
+        <div className="flex lg:hidden flex-col flex-1 min-h-0 overflow-y-auto space-y-4">
           <div className="flex items-center justify-between px-2 py-1 flex-shrink-0 select-none">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-heading">{modules.length} Modules Registered</span>
           </div>
@@ -796,7 +796,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                 ? 'bg-emerald-50 text-emerald-600 border-emerald-150'
                 : module.level === 'Intermediate'
                   ? 'bg-cyan-50 text-cyan-600 border-cyan-150'
-                  : 'bg-indigo-50 text-indigo-650 border-indigo-150';
+                  : 'bg-amber-50 text-[#FF6B00] border-amber-200';
 
               return (
                 <div 
@@ -804,7 +804,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                   id={`mobile-card-${module.id}`}
                   className={cn(
                     "bg-white border rounded-3xl p-5 shadow-xs space-y-4 transition-all",
-                    selectedModuleId === module.id ? "border-indigo-500 ring-2 ring-indigo-500/10 shadow-sm" : "border-slate-200"
+                    selectedModuleId === module.id ? "border-[#FF6B00] ring-2 ring-[#FF6B00]/10 shadow-sm" : "border-slate-200"
                   )}
                   onClick={() => selectModule(module.id)}
                 >
@@ -828,7 +828,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                       {module.description}
                     </p>
                     {/* Slides & Quiz Count */}
-                    <div className="flex items-center gap-1.5 pt-1.5 text-[9px] font-black text-indigo-650/90 uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 pt-1.5 text-[9px] font-black text-[#FF6B00] uppercase tracking-wider">
                       <Icons.BookOpen className="w-3 h-3 stroke-[2.5]" />
                       <span>{module.learningPagesCount} Slides</span>
                       <span className="text-slate-300 font-normal">•</span>
@@ -846,7 +846,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                           selectModule(module.id);
                           setIsMobileEditing(true);
                         }} 
-                        className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                        className="text-[#FF6B00] hover:text-orange-700 flex items-center gap-1"
                       >
                         <Icons.FileEdit className="w-3.5 h-3.5" />
                         Edit
@@ -873,8 +873,8 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
           </div>
         </div>
 
-        {/* DESKTOP RIGHT SIDEBAR (EDITOR) (Hidden on Mobile) */}
-        <div className="hidden md:flex w-[28%] bg-white border border-slate-200 rounded-[32px] shadow-xs h-full flex-col overflow-hidden">
+        {/* DESKTOP RIGHT SIDEBAR (EDITOR) (Hidden on Mobile & Tablet) */}
+        <div className="hidden lg:flex w-[28%] bg-white border border-slate-200 rounded-[32px] shadow-xs h-full flex-col overflow-hidden">
           {selectedModule ? (
             renderModuleEditor(false)
           ) : (
@@ -903,17 +903,17 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
               <form onSubmit={handleCreateModule} className="space-y-4 text-xs font-semibold">
                 <div className="space-y-1">
                   <label className="font-extrabold text-slate-555 block">Module Name</label>
-                  <input type="text" required placeholder="e.g. Amazon CloudFront CDN" value={name} onChange={(e) => setName(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50" />
+                  <input type="text" required placeholder="e.g. Amazon CloudFront CDN" value={name} onChange={(e) => setName(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors disabled:opacity-50" />
                 </div>
                 <div className="space-y-1">
                   <label className="font-extrabold text-slate-555 block">Description</label>
-                  <textarea required rows={2} placeholder="Provide module objectives overview..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed disabled:opacity-50" />
+                  <textarea required rows={2} placeholder="Provide module objectives overview..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed disabled:opacity-50" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="font-extrabold text-slate-555 block">Curriculum Level</label>
                     <div className="relative">
-                      <select value={level} onChange={(e: any) => setLevel(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none font-bold disabled:opacity-50">
+                      <select value={level} onChange={(e: any) => setLevel(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors cursor-pointer appearance-none font-bold disabled:opacity-50">
                         <option value="Beginner">Beginner Level</option>
                         <option value="Intermediate">Intermediate Level</option>
                         <option value="Advanced">Advanced Level</option>
@@ -924,7 +924,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                 </div>
                 <div className="space-y-1">
                   <label className="font-extrabold text-slate-555 block">XP Reward Points</label>
-                  <input type="number" required min={10} max={500} value={points} onChange={(e) => setPoints(Number(e.target.value))} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50" />
+                  <input type="number" required min={10} max={500} value={points} onChange={(e) => setPoints(Number(e.target.value))} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors disabled:opacity-50" />
                 </div>
                 <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 mt-5">
                   <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating} className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-[8px] transition-all disabled:opacity-50">Cancel</button>
@@ -945,7 +945,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
         )}
 
         {isMobileEditing && selectedModule && (
-          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs z-50 flex flex-col justify-end md:hidden">
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs z-50 flex flex-col justify-end lg:hidden">
             <motion.div 
               initial={{ y: "100%" }} 
               animate={{ y: 0 }} 

@@ -39,11 +39,11 @@ export default function SlideCard({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-indigo-100 transition-colors">
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-amber-200 transition-colors">
       {/* Top Header Section */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="space-y-0.5">
-          <span className="text-[10px] font-black uppercase text-indigo-500 tracking-wider">
+          <span className="text-[10px] font-black uppercase text-[#FF6B00] tracking-wider">
             Slide {index + 1}
           </span>
           <span className="text-[9.5px] text-slate-400 block font-medium">
@@ -69,7 +69,7 @@ export default function SlideCard({
       <div className="flex gap-2 pt-2">
         <button
           onClick={onEdit}
-          className="flex-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-750 font-extrabold text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 min-h-[44px] transition-all cursor-pointer"
+          className="flex-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[#FF6B00] font-extrabold text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 min-h-[44px] transition-all cursor-pointer"
         >
           <Icons.Edit2 className="w-3.5 h-3.5" />
           Edit

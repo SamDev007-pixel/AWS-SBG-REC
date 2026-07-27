@@ -85,7 +85,7 @@ export default function CoreLearnersDirectoryPage() {
               placeholder="Search learner name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors shadow-inner"
             />
             <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
           </div>
@@ -125,7 +125,7 @@ export default function CoreLearnersDirectoryPage() {
                           ? "bg-[#232F3E] border-[#232F3E] text-white"
                           : tab.id === 'CREW'
                             ? "bg-amber-600 border-amber-600 text-white"
-                            : "bg-indigo-600 border-indigo-600 text-white"
+                            : "bg-[#FF6B00] border-[#FF6B00] text-white"
                         : tab.color
                     )}
                   >
@@ -183,7 +183,7 @@ export default function CoreLearnersDirectoryPage() {
             placeholder="Search learner name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors shadow-sm"
+            className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-850 placeholder-slate-450 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors shadow-sm"
           />
           <Icons.Search className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-450" />
         </div>
@@ -191,7 +191,7 @@ export default function CoreLearnersDirectoryPage() {
         {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: 'Total Learners', value: learners.length, icon: Icons.Users, color: 'text-indigo-650 bg-white border-slate-200 shadow-sm' },
+            { label: 'Total Learners', value: learners.length, icon: Icons.Users, color: 'text-[#FF6B00] bg-white border-slate-200 shadow-sm' },
             { label: 'Total Modules', value: totalModulesCount, icon: Icons.Layers, color: 'text-emerald-600 bg-white border-slate-200 shadow-sm' },
             { label: 'Total Topics', value: totalTopicsCount, icon: Icons.BookOpen, color: 'text-sky-600 bg-white border-slate-200 shadow-sm' },
           ].map((stat, idx) => (
@@ -210,7 +210,7 @@ export default function CoreLearnersDirectoryPage() {
         </div>
 
         {/* TABLE (Desktop View) */}
-        <div className="hidden md:block bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="hidden lg:block bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -218,7 +218,7 @@ export default function CoreLearnersDirectoryPage() {
                   <th className="py-4 px-6">Learner Account</th>
                   <th className="py-4 pl-6 pr-12 text-right md:px-6 md:text-center">XP</th>
                   <th className="py-4 px-6 hidden md:table-cell">Current Topic</th>
-                  <th className="py-4 px-6 text-center hidden md:table-cell">Topic #</th>
+                  <th className="py-4 px-6 text-center hidden md:table-cell">Topic</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Level</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Current Module</th>
                   <th className="py-4 px-6 text-center hidden md:table-cell">Progress</th>
@@ -258,7 +258,7 @@ export default function CoreLearnersDirectoryPage() {
                       ? "bg-emerald-100 text-emerald-700 border-emerald-200"
                       : isCrewLearner
                         ? "bg-amber-100 text-amber-700 border-amber-200"
-                        : "bg-indigo-50 text-indigo-650 border-indigo-100";
+                        : "bg-amber-50 text-[#FF6B00] border-amber-200";
 
                     const nameColor = isComplete
                       ? "text-emerald-800"
@@ -333,7 +333,7 @@ export default function CoreLearnersDirectoryPage() {
                                 ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                 : learner.currentLevel === 'INTERMEDIATE'
                                   ? "bg-cyan-50 text-cyan-600 border-cyan-100"
-                                  : "bg-indigo-50 text-indigo-650 border-indigo-100"
+                                  : "bg-amber-50 text-[#FF6B00] border-amber-200"
                             )}>
                               {learner.currentLevel}
                             </span>
@@ -378,7 +378,7 @@ export default function CoreLearnersDirectoryPage() {
         </div>
 
         {/* MOBILE VIEW LIST */}
-        <div className="block md:hidden bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="block lg:hidden bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           {/* Mobile Header Row */}
           <div className="border-b border-slate-200 text-xs font-semibold tracking-wider text-slate-550 text-slate-500 bg-slate-50/50 flex justify-between items-center py-3.5 px-8 select-none">
             <span>Learner</span>
@@ -412,7 +412,7 @@ export default function CoreLearnersDirectoryPage() {
                   ? "bg-emerald-100 text-emerald-700 border-emerald-200"
                   : isCrewLearner
                     ? "bg-amber-100 text-amber-700 border-amber-200"
-                    : "bg-indigo-50 text-indigo-650 border-indigo-100";
+                    : "bg-amber-50 text-[#FF6B00] border-amber-200";
 
                 const nameColor = isComplete
                   ? "text-emerald-800"
@@ -479,9 +479,9 @@ export default function CoreLearnersDirectoryPage() {
                             <span className="text-slate-750 font-bold">{learner.currentTopic ?? '—'}</span>
                           </div>
 
-                          {/* Topic # */}
+                          {/* Topic */}
                           <div className="flex justify-between items-center py-1.5 border-b border-slate-100/50">
-                            <span className="text-slate-400 font-bold">Topic #</span>
+                            <span className="text-slate-400 font-bold">Topic</span>
                             <span className="text-slate-750 font-bold">
                               {learner.currentTopicNumber ? `${learner.currentTopicNumber}/${learner.totalTopicsCount}` : '—'}
                             </span>
@@ -497,7 +497,7 @@ export default function CoreLearnersDirectoryPage() {
                                   ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                   : learner.currentLevel === 'INTERMEDIATE'
                                     ? "bg-cyan-50 text-cyan-600 border-cyan-100"
-                                    : "bg-indigo-50 text-indigo-650 border-indigo-100"
+                                    : "bg-amber-50 text-[#FF6B00] border-amber-200"
                               )}>
                                 {learner.currentLevel}
                               </span>

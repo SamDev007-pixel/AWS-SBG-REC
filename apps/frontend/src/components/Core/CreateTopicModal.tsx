@@ -56,14 +56,14 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit, nextTopicN
             Create Topic
           </h3>
           {nextTopicNumber !== undefined && (
-            <span className="text-[10px] font-black text-indigo-650 bg-indigo-50 border border-indigo-150 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
-              Topic #{nextTopicNumber}
+            <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider">
+              Topic {nextTopicNumber}
             </span>
           )}
         </div>
         <p className="text-[10px] text-slate-550 mb-4 leading-normal">
           {nextTopicNumber !== undefined 
-            ? `Topic #${nextTopicNumber} will be automatically assigned and provisioned with 3 starter modules.`
+            ? `Topic ${nextTopicNumber} will be automatically assigned and provisioned with 3 starter modules.`
             : 'A new topic automatically gets assigned the next topic number in sequence.'}
         </p>
 
@@ -76,7 +76,7 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit, nextTopicN
               placeholder="e.g. Amazon EC2 Fundamentals"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors"
             />
           </div>
 
