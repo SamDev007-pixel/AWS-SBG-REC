@@ -8,7 +8,6 @@ import { SkyBackground } from '@/components/Roadmap/SkyBackground';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
 import { LearningGuideline } from '@/types/guideline.types';
 import { useLearningGuidelines } from './hooks/useLearningGuidelines';
-import { GuidelineStats } from './components/GuidelineStats';
 import { GuidelineFilters } from './components/GuidelineFilters';
 import { GuidelineTable } from './components/GuidelineTable';
 import { GuidelineEditorDrawer } from './components/GuidelineEditorDrawer';
@@ -130,6 +129,18 @@ export default function LearningGuidelinesCMSPage() {
     await reorderGuidelines(ids);
   };
 
+  // 5. Drag and Drop Reorder
+  const handleDropRow = async (draggedIndex: number, targetIndex: number) => {
+    if (draggedIndex === targetIndex) return;
+
+    const reorderedList = [...guidelines];
+    const [movedItem] = reorderedList.splice(draggedIndex, 1);
+    reorderedList.splice(targetIndex, 0, movedItem);
+
+    const ids = reorderedList.map((g) => g.id);
+    await reorderGuidelines(ids);
+  };
+
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
       <RoadmapNavHeader
@@ -138,15 +149,15 @@ export default function LearningGuidelinesCMSPage() {
           <div className="flex items-center gap-2.5 flex-shrink-0">
             <button
               onClick={() => setIsPreviewOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all font-heading uppercase tracking-wider cursor-pointer"
+              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs px-4 py-2.5 rounded-[8px] shadow-sm transition-all duration-200 flex items-center gap-1.5 font-heading"
             >
-              <Eye className="w-4 h-4" /> Preview Modal
+              <Eye className="w-4 h-4 text-slate-600" /> Preview Modal
             </button>
             <button
               onClick={handleAddNew}
-              className="flex items-center gap-1.5 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all font-heading uppercase tracking-wider cursor-pointer"
+              className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
             >
-              <Plus className="w-4 h-4" /> Add Guideline
+              <Plus className="w-4 h-4 stroke-[3]" /> Add Guideline
             </button>
           </div>
         }
@@ -157,23 +168,20 @@ export default function LearningGuidelinesCMSPage() {
       <div className="flex sm:hidden items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0 select-none">
         <button
           onClick={() => setIsPreviewOpen(true)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all font-heading uppercase tracking-wider cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-[8px] shadow-sm transition-all font-heading"
         >
-          <Eye className="w-4 h-4" /> Preview Modal
+          <Eye className="w-4 h-4 text-slate-600" /> Preview Modal
         </button>
         <button
           onClick={handleAddNew}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all font-heading uppercase tracking-wider cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#232F3E] hover:bg-slate-800 text-white text-xs font-bold rounded-[8px] shadow-sm transition-all font-heading"
         >
-          <Plus className="w-4 h-4" /> Add Guideline
+          <Plus className="w-4 h-4 stroke-[3]" /> Add Guideline
         </button>
       </div>
 
       {/* Main body scroll area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* Stats segment */}
-        <GuidelineStats guidelines={guidelines} />
-
         {/* Settings card segment */}
         <GuidelineSettingsCard
           settings={settings}
@@ -192,9 +200,32 @@ export default function LearningGuidelinesCMSPage() {
 
         {/* Table segment */}
         {loading && guidelines.length === 0 ? (
-          <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center text-slate-450 gap-2.5">
-            <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-sky-500 animate-spin" />
-            <span className="text-xs font-semibold font-heading">Loading guidelines...</span>
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs animate-pulse">
+            <div className="bg-slate-50/70 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+              <div className="w-12 h-3 bg-slate-200/80 rounded-md" />
+              <div className="w-12 h-3 bg-slate-200/80 rounded-md" />
+              <div className="w-48 h-3 bg-slate-200/80 rounded-md" />
+              <div className="w-20 h-3 bg-slate-200/80 rounded-md" />
+            </div>
+            <div className="divide-y divide-slate-100 p-2 space-y-3">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <div key={n} className="flex items-center justify-between px-6 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-4 bg-slate-100 rounded-md" />
+                    <div className="w-8 h-8 bg-amber-100/50 rounded-lg" />
+                    <div className="space-y-1.5">
+                      <div className="w-48 h-4 bg-slate-200/70 rounded-md" />
+                      <div className="w-72 h-3 bg-slate-100 rounded-md" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-5 bg-slate-100 rounded-md" />
+                    <div className="w-16 h-5 bg-emerald-100/50 rounded-md" />
+                    <div className="w-14 h-6 bg-slate-100 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <GuidelineTable
@@ -202,6 +233,7 @@ export default function LearningGuidelinesCMSPage() {
             onEdit={handleEdit}
             onDelete={handleDeleteTrigger}
             onMove={handleMove}
+            onDropRow={handleDropRow}
           />
         )}
       </div>
@@ -246,18 +278,19 @@ export default function LearningGuidelinesCMSPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#e0f2fe] shadow-2xl border border-sky-200/50 overflow-hidden z-10"
+              className="relative w-full max-w-md rounded-2xl bg-[#e0f2fe] border border-sky-200/60 shadow-lg overflow-hidden z-10 p-1.5"
               onClick={(e) => e.stopPropagation()}
             >
               <SkyBackground />
 
               <button
                 onClick={() => setIsPreviewOpen(false)}
-                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm cursor-pointer"
+                className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center transition-colors border border-sky-100/50 shadow-sm cursor-pointer"
               >
                 <X className="w-4 h-4 text-slate-650" />
               </button>
-              <div className="p-5 relative z-10">
+
+              <div className="relative z-10 max-h-[80vh] overflow-y-auto no-scrollbar">
                 <LearningGuidePanel
                   previewHeaderIcon={draftSettings.headerIcon}
                   previewHeaderTitle={draftSettings.headerTitle}

@@ -11,6 +11,11 @@ import * as Icons from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConfirmDeleteModal from '@/components/Core/ConfirmDeleteModal';
 import { showToast } from '@/components/Core/Toast';
+import { AnimatePresence } from 'framer-motion';
+import MobileEditorHeader from '@/components/Core/Mobile/MobileEditorHeader';
+import MobileSlideList from '@/components/Core/ContentEditor/MobileSlideList';
+import MobileSlideEditor from '@/components/Core/ContentEditor/MobileSlideEditor';
+import MobileSlidePreview from '@/components/Core/ContentEditor/MobileSlidePreview';
 
 const tierToLevel = (tier: string): 'Beginner' | 'Intermediate' | 'Advanced' => {
   const map: Record<string, 'Beginner' | 'Intermediate' | 'Advanced'> = {
@@ -58,6 +63,7 @@ export default function ContentEditorPage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [isDeleteSlideModalOpen, setIsDeleteSlideModalOpen] = useState(false);
   const [pendingDeleteSlideIdx, setPendingDeleteSlideIdx] = useState<number | null>(null);
+  const [mobileView, setMobileView] = useState<'list' | 'edit' | 'preview'>('list');
 
   // References for debounced save
   const isDirtyRef = useRef(false);
@@ -413,10 +419,10 @@ export default function ContentEditorPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-slate-400">
+      <div className="flex items-center justify-center min-h-[60vh] text-slate-500">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-400 font-bold uppercase animate-pulse">
+          <div className="w-9 h-9 rounded-full border-2 border-amber-200 border-t-[#FF9900] animate-spin shadow-2xs" />
+          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider font-heading animate-pulse">
             Loading slide content editor...
           </span>
         </div>
@@ -426,334 +432,444 @@ export default function ContentEditorPage() {
 
   if (!module) return null;
 
+  const handleMobileBack = () => {
+    const backUrl = module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics';
+    router.push(backUrl);
+  };
+
+  const handleMobileTabChange = (tab: 'slides' | 'quiz') => {
+    if (tab === 'quiz') {
+      router.push(`/core/module/${module.dbId}/quiz`);
+    }
+  };
+
   return (
-    <div className="p-6 md:p-8 space-y-6 flex flex-col h-full">
-      
-      {/* Top Navigation Row */}
-      <div className="flex items-start justify-between border-b border-slate-200 pb-4 flex-shrink-0 relative">
-        <div className="flex items-start gap-3">
-          <Link
-            href={module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics'}
-            className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-colors shadow-sm mt-0.5"
-          >
-            <Icons.ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase text-cyan-600 tracking-widest bg-cyan-50 border border-cyan-100 px-2 py-0.5 rounded-md font-heading">
-                {module.level}
-              </span>
-              <h2 className="text-base font-black text-slate-800 font-heading tracking-tight leading-tight">
-                {module.name} Content Editor
-              </h2>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-1 font-semibold">
-              Curate the slide deck that students view when launching this roadmap island.
-            </p>
-          </div>
-        </div>
+    <div className="p-0 lg:p-6 lg:md:p-8 space-y-0 lg:space-y-6 flex flex-col h-full bg-white select-none">
+      <style>{`
+        /* Hide layout sidebar container scrollbars */
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-none {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
 
-        {/* Editor tab navigation */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center bg-slate-100 rounded-xl p-1 gap-1">
-          <Link
-            href={`/core/module/${module.dbId}/content`}
-            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all bg-white text-slate-900 shadow-sm flex items-center justify-center"
-          >
-            <Icons.FileText className="w-3.5 h-3.5 mr-1.5" />
-            Slides
-          </Link>
-          <Link
-            href={`/core/module/${module.dbId}/quiz`}
-            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-white/50 flex items-center justify-center"
-          >
-            <Icons.HelpCircle className="w-3.5 h-3.5 mr-1.5" />
-            Quiz
-          </Link>
-        </div>
-      </div>
-
-      {/* Main workspace splits */}
-      <div className="flex-1 flex gap-6 min-h-0">
-        
-        {/* Pane 1: SLIDE TIMELINE SIDEBAR (20% width) */}
-        <div className="w-60 bg-white border border-slate-200 rounded-3xl p-4 flex flex-col justify-between overflow-y-auto flex-shrink-0 shadow-sm">
-          <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block font-heading">
-              Slides Timeline
-            </span>
-
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1 scrollbar-thin">
-              {slides.map((slide, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setActiveSlideIndex(idx)}
-                  className={cn(
-                    "p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col gap-2 relative group",
-                    activeSlideIndex === idx
-                      ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-bold"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-extrabold uppercase text-slate-400">
-                      Slide {idx + 1}
-                    </span>
-                    
-                    {/* Control Overlay for duplicate/delete/order */}
-                    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                      <button
-                        onClick={(e) => handleMoveSlide(idx, 'up', e)}
-                        disabled={idx === 0}
-                        className="p-0.5 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
-                      >
-                        <Icons.ChevronUp className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => handleMoveSlide(idx, 'down', e)}
-                        disabled={idx === slides.length - 1}
-                        className="p-0.5 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
-                      >
-                        <Icons.ChevronDown className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDeleteSlide(idx, e)}
-                        disabled={slides.length <= 1}
-                        className="p-0.5 rounded bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 disabled:opacity-30 disabled:pointer-events-none"
-                        title="Delete"
-                      >
-                        <Icons.Trash className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <span className="text-xs font-black truncate pr-1">
-                    {slide.title || 'Untitled Slide'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={handleAddSlide}
-            className="w-full mt-4 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-black py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-slate-700"
-          >
-            <Icons.Plus className="w-4 h-4 font-bold" />
-            Add Slide
-          </button>
-        </div>
-
-        {/* Pane 2: SLIDE EDITOR (40% width) */}
-        {activeSlide ? (
-          <div className="flex-1 bg-white border border-slate-200 rounded-3xl p-6 overflow-y-auto flex flex-col gap-5 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-heading">
-                Slide Configuration
-              </span>
-              <div className="flex items-center gap-1.5">
-                {saveStatus === 'saving' && <span className="text-[9px] text-indigo-500 font-bold animate-pulse font-heading lowercase tracking-normal">(saving...)</span>}
-                {saveStatus === 'saved' && <span className="text-[9px] text-emerald-600 font-bold font-heading lowercase tracking-normal">(saved)</span>}
-                {saveStatus === 'failed' && <span className="text-[9px] text-rose-500 font-bold font-heading lowercase tracking-normal">(failed to save)</span>}
+      {/* Desktop Experience */}
+      <div className="hidden lg:flex flex-col h-full space-y-6 flex-1 min-h-0">
+        {/* Top Navigation Row */}
+        <div className="flex items-center justify-between border-b border-slate-200/80 pb-4 flex-shrink-0 relative">
+          <div className="flex items-center gap-3">
+            <Link
+              href={module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics'}
+              className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl text-slate-600 hover:text-slate-900 transition-colors shadow-2xs"
+              onClick={(e) => {
+                if (isDirtyRef.current) {
+                  const proceed = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+                  if (!proceed) e.preventDefault();
+                }
+              }}
+            >
+              <Icons.ArrowLeft className="w-4 h-4" />
+            </Link>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900 font-heading tracking-tight leading-tight">
+                  {module.name}
+                </h2>
+                <span className="text-[10px] font-bold uppercase text-amber-700 tracking-wider bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md font-heading">
+                  {module.level}
+                </span>
               </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Curate the slide deck that students view when launching this module.
+              </p>
             </div>
+          </div>
 
-            {/* Layout type selector */}
-            <div className="space-y-1.5 font-bold">
-              <label className="font-extrabold text-slate-500 text-xs block">Layout Structure</label>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { value: 'text-only', label: 'Text Only', icon: Icons.AlignLeft },
-                  { value: 'text-image', label: 'Text + Image', icon: Icons.ImagePlay },
-                  { value: 'image-only', label: 'Image Only', icon: Icons.Image }
-                ].map((layout) => (
-                  <button
-                    key={layout.value}
-                    type="button"
-                    onClick={() => updateActiveSlide({ layoutType: layout.value as any })}
+          {/* Editor tab navigation */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center bg-slate-100/80 rounded-xl p-1 gap-1 border border-slate-200/50">
+            <Link
+              href={`/core/module/${module.dbId}/content`}
+              className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#232F3E] text-white shadow-2xs flex items-center justify-center font-heading"
+            >
+              <Icons.FileText className="w-3.5 h-3.5 mr-1.5" />
+              Slides
+            </Link>
+            <Link
+              href={`/core/module/${module.dbId}/quiz`}
+              className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900 hover:bg-white/60 flex items-center justify-center font-heading"
+              onClick={(e) => {
+                if (isDirtyRef.current) {
+                  const proceed = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+                  if (!proceed) e.preventDefault();
+                }
+              }}
+            >
+              <Icons.HelpCircle className="w-3.5 h-3.5 mr-1.5" />
+              Quiz
+            </Link>
+          </div>
+        </div>
+
+        {/* Main workspace splits */}
+        <div className="flex-1 flex gap-6 min-h-0">
+          
+          {/* Pane 1: SLIDE TIMELINE SIDEBAR */}
+          <div className="w-64 bg-white border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between overflow-y-auto flex-shrink-0 shadow-2xs">
+            <div className="space-y-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block font-heading">
+                Slides Timeline
+              </span>
+
+              <div className="space-y-2 max-h-[52vh] overflow-y-auto pr-1 scrollbar-thin">
+                {slides.map((slide, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setActiveSlideIndex(idx)}
                     className={cn(
-                      "py-2 px-3 border rounded-xl flex flex-col items-center gap-1.5 transition-all font-bold text-[10px]",
-                      activeSlide.layoutType === layout.value || (!activeSlide.layoutType && layout.value === 'text-only')
-                        ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-bold"
-                        : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                      "p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col gap-1.5 relative group shadow-2xs",
+                      activeSlideIndex === idx
+                        ? "bg-amber-50/60 border border-[#FF9900]/60 shadow-2xs"
+                        : "bg-slate-50/50 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300"
                     )}
                   >
-                    <layout.icon className="w-4 h-4" />
-                    {layout.label}
-                  </button>
+                    <div className="flex items-center justify-between">
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase font-heading px-1.5 py-0.5 rounded-md border",
+                        activeSlideIndex === idx
+                          ? "bg-amber-50 text-amber-700 border-amber-200/80"
+                          : "bg-slate-100 text-slate-400 border-slate-200/60"
+                      )}>
+                        SLIDE-{String(idx + 1).padStart(2, '0')}
+                      </span>
+                      
+                      {/* Control Overlay for order/delete */}
+                      <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                        <button
+                          onClick={(e) => handleMoveSlide(idx, 'up', e)}
+                          disabled={idx === 0}
+                          className="p-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-600 disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          <Icons.ChevronUp className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => handleMoveSlide(idx, 'down', e)}
+                          disabled={idx === slides.length - 1}
+                          className="p-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-600 disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          <Icons.ChevronDown className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteSlide(idx, e)}
+                          disabled={slides.length <= 1}
+                          className="p-1 rounded-lg bg-white hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 text-slate-500 hover:text-rose-600 disabled:opacity-30 disabled:pointer-events-none"
+                          title="Delete"
+                        >
+                          <Icons.Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <span className={cn(
+                      "text-xs truncate font-heading transition-colors",
+                      activeSlideIndex === idx ? "font-semibold text-slate-800" : "font-medium text-slate-600"
+                    )}>
+                      {slide.title || 'Untitled Slide'}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Title field */}
-            <div className="space-y-1 font-bold">
-              <label className="font-extrabold text-slate-500 text-xs">Slide Title</label>
-              <input
-                type="text"
-                value={activeSlide.title}
-                onChange={(e) => updateActiveSlide({ title: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-            </div>
+            <button
+              onClick={handleAddSlide}
+              className="w-full mt-4 bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200/80 hover:border-amber-300 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer font-heading"
+            >
+              <Icons.Plus className="w-4 h-4 text-slate-400" />
+              Add Slide
+            </button>
+          </div>
 
-            {/* Bullet points editor */}
-            {activeSlide.layoutType !== 'image-only' && (
-              <div className="space-y-3 font-semibold">
-                <div className="flex items-center justify-between">
-                  <label className="font-extrabold text-slate-500 text-xs">Curriculum Bullet Points</label>
-                  <button
-                    type="button"
-                    onClick={handleAddBullet}
-                    className="text-[10px] font-black text-cyan-600 hover:underline flex items-center gap-1"
-                  >
-                    <Icons.Plus className="w-3.5 h-3.5" />
-                    Add Bullet
-                  </button>
+          {/* Pane 2: SLIDE CONFIGURATION */}
+          {activeSlide ? (
+            <div className="flex-1 bg-white border border-slate-200/80 rounded-2xl p-6 overflow-y-auto flex flex-col gap-5 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-heading">
+                  Slide Configuration
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {saveStatus === 'saving' && <span className="text-[10px] text-[#FF9900] font-bold animate-pulse font-heading lowercase tracking-normal">(saving...)</span>}
+                  {saveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-bold font-heading lowercase tracking-normal">(saved)</span>}
+                  {saveStatus === 'failed' && <span className="text-[10px] text-rose-500 font-bold font-heading lowercase tracking-normal">(failed to save)</span>}
                 </div>
+              </div>
 
-                <div className="space-y-2.5">
-                  {(activeSlide.content || []).map((bullet: string, bulletIdx: number) => (
-                    <div key={bulletIdx} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold">
-                        {bulletIdx + 1}
-                      </div>
-                      <input
-                        type="text"
-                        value={bullet}
-                        onChange={(e) => handleUpdateBullet(bulletIdx, e.target.value)}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteBullet(bulletIdx)}
-                        disabled={activeSlide.content.length <= 1}
-                        className="p-2 bg-slate-100 hover:bg-rose-550 border border-slate-200 hover:border-rose-100 text-slate-450 hover:text-rose-600 rounded-xl disabled:opacity-30 disabled:pointer-events-none"
-                      >
-                        <Icons.Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+              {/* Layout type selector */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 text-xs block font-heading">Layout Structure</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: 'text-only', label: 'Text Only', icon: Icons.AlignLeft },
+                    { value: 'text-image', label: 'Text + Image', icon: Icons.ImagePlay },
+                    { value: 'image-only', label: 'Image Only', icon: Icons.Image }
+                  ].map((layout) => (
+                    <button
+                      key={layout.value}
+                      type="button"
+                      onClick={() => updateActiveSlide({ layoutType: layout.value as any })}
+                      className={cn(
+                        "py-2.5 px-3 border rounded-xl flex flex-col items-center gap-1.5 transition-all font-bold text-xs cursor-pointer font-heading shadow-2xs",
+                        activeSlide.layoutType === layout.value || (!activeSlide.layoutType && layout.value === 'text-only')
+                          ? "bg-amber-50/60 border-[#FF9900] text-amber-800 ring-2 ring-[#FF9900]/15"
+                          : "bg-slate-50/50 border-slate-200/80 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      )}
+                    >
+                      <layout.icon className="w-4 h-4 text-slate-500" />
+                      {layout.label}
+                    </button>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Image selector */}
-            {(activeSlide.layoutType === 'text-image' || activeSlide.layoutType === 'image-only') && (
-              <div className="space-y-2 border-t border-slate-100 pt-4 mt-2 font-semibold">
-                <label className="font-extrabold text-slate-500 text-xs block">Architectural Image Component</label>
-                
-                {activeSlide.imageUrl ? (
-                  <div className="relative border border-slate-200 rounded-2xl p-4 bg-slate-50/50 flex flex-col items-center gap-3">
-                    <img
-                      src={activeSlide.imageUrl}
-                      alt="Current Slide View"
-                      className="max-h-[120px] object-contain rounded-lg border border-slate-200"
-                    />
-                    <div className="flex items-center gap-2 w-full">
-                      <label className="flex-1 py-2 px-3 border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black rounded-xl cursor-pointer text-center">
-                        Change Image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="py-2 px-3 border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-black rounded-xl"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <label className="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-50/40 hover:bg-indigo-50/20 transition-all text-center">
-                    <Icons.UploadCloud className="w-8 h-8 text-slate-400" />
-                    <span className="text-[11px] font-black text-slate-650">Upload Concept Image</span>
-                    <span className="text-[9px] text-slate-400">JPG, PNG, WebP (Max 5MB)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            )}
-
-          </div>
-        ) : (
-          <div className="flex-1 bg-white border border-slate-200 rounded-3xl p-6 flex items-center justify-center text-slate-400 text-xs shadow-sm">
-            Select or create a slide to begin editing.
-          </div>
-        )}
-
-        {/* Pane 3: STUDENT PREVIEW FRAME (40% width) */}
-        <div className="w-[380px] border border-slate-200 rounded-3xl overflow-hidden flex flex-col bg-slate-50 flex-shrink-0 shadow-sm">
-          <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-[10px] text-slate-550 font-extrabold tracking-wider">
-            <Icons.Smartphone className="w-4 h-4 text-cyan-600" />
-            STUDENT PREVIEW PANE
-          </div>
-
-          <div className="flex-1 p-6 flex flex-col justify-between overflow-y-auto">
-            {/* Simulating the slide modal layout */}
-            <div className="space-y-4">
-              
-              {/* Top progress indicator bar */}
-              <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
-                <span>Slide {activeSlideIndex + 1} of {slides.length}</span>
-                <span className="text-emerald-650 font-bold">Curriculum Path</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-300"
-                  style={{ width: `${((activeSlideIndex + 1) / (slides.length || 1)) * 100}%` }}
+              {/* Title field */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 text-xs block font-heading">Slide Title</label>
+                <input
+                  type="text"
+                  value={activeSlide.title}
+                  onChange={(e) => updateActiveSlide({ title: e.target.value })}
+                  className="w-full bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] transition-all shadow-2xs"
                 />
               </div>
 
-              {/* Learning slide core */}
-              {activeSlide ? (
-                <div className="bg-white rounded-3xl p-5 shadow-xl text-slate-800 min-h-[340px] flex flex-col justify-between border border-slate-100 select-text">
-                  <LearningContentRenderer
-                    title={activeSlide.title}
-                    bullets={activeSlide.layoutType === 'image-only' ? [] : activeSlide.content}
-                    layout={activeSlide.layoutType || 'text-only'}
-                    iconName={module.iconName || 'Boxes'}
-                    imageUrl={activeSlide.imageUrl}
-                  />
-                </div>
-              ) : (
-                <div className="bg-slate-100 border border-slate-200 rounded-3xl p-8 text-center text-slate-400 text-xs min-h-[300px] flex items-center justify-center">
-                  No slide selected
+              {/* Bullet points editor */}
+              {activeSlide.layoutType !== 'image-only' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-slate-700 text-xs block font-heading">Curriculum Bullet Points</label>
+                    <button
+                      type="button"
+                      onClick={handleAddBullet}
+                      className="text-xs font-bold text-[#FF9900] hover:underline flex items-center gap-1 cursor-pointer font-heading"
+                    >
+                      <Icons.Plus className="w-3.5 h-3.5" />
+                      Add Bullet
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {(activeSlide.content || []).map((bullet: string, bulletIdx: number) => (
+                      <div key={bulletIdx} className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-700 flex items-center justify-center flex-shrink-0 text-xs font-bold font-heading">
+                          {bulletIdx + 1}
+                        </div>
+                        <input
+                          type="text"
+                          value={bullet}
+                          onChange={(e) => handleUpdateBullet(bulletIdx, e.target.value)}
+                          className="flex-1 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] transition-all shadow-2xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteBullet(bulletIdx)}
+                          disabled={activeSlide.content.length <= 1}
+                          className="p-2 bg-slate-50 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 text-slate-500 hover:text-rose-600 rounded-xl transition-all shadow-2xs cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          <Icons.Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              {/* Image selector */}
+              {(activeSlide.layoutType === 'text-image' || activeSlide.layoutType === 'image-only') && (
+                <div className="space-y-2 border-t border-slate-100 pt-4 mt-2">
+                  <label className="font-bold text-slate-700 text-xs block font-heading">Architectural Image Component</label>
+                  
+                  {activeSlide.imageUrl ? (
+                    <div className="relative border border-slate-200/80 rounded-2xl p-4 bg-slate-50/50 flex flex-col items-center gap-3">
+                      <img
+                        src={activeSlide.imageUrl}
+                        alt="Current Slide View"
+                        className="max-h-[120px] object-contain rounded-lg border border-slate-200"
+                      />
+                      <div className="flex items-center gap-2 w-full">
+                        <label className="flex-1 py-2 px-3 border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl cursor-pointer text-center shadow-2xs font-heading">
+                          Change Image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="py-2 px-3 border border-rose-200/80 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl cursor-pointer shadow-2xs font-heading"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-50/40 hover:bg-amber-50/20 transition-all text-center">
+                      <Icons.UploadCloud className="w-7 h-7 text-slate-400" />
+                      <span className="text-xs font-bold text-slate-700 font-heading">Upload Concept Image</span>
+                      <span className="text-[10px] text-slate-400">JPG, PNG, WebP (Max 5MB)</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
+            </div>
+          ) : (
+            <div className="flex-1 bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-center text-slate-400 text-xs shadow-2xs font-medium">
+              Select or create a slide to begin editing.
+            </div>
+          )}
+
+          {/* Pane 3: STUDENT PREVIEW FRAME */}
+          <div className="w-[380px] border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col bg-slate-50/60 flex-shrink-0 shadow-2xs">
+            <div className="bg-white px-4 py-3 border-b border-slate-200/80 flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider font-heading">
+              <Icons.Smartphone className="w-4 h-4 text-[#FF9900]" />
+              Student Preview Pane
             </div>
 
-            {/* Modal Bottom buttons simulation */}
-            <div className="flex items-center justify-between border-t border-slate-200 pt-4 mt-6 flex-shrink-0">
-              <button
-                disabled={activeSlideIndex === 0}
-                onClick={() => setActiveSlideIndex(prev => Math.max(0, prev - 1))}
-                className="px-4.5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
-              >
-                <Icons.ArrowLeft className="w-3.5 h-3.5" />
-                Previous
-              </button>
-              
-              <button
-                disabled={activeSlideIndex === slides.length - 1}
-                onClick={() => setActiveSlideIndex(prev => Math.min(slides.length - 1, prev + 1))}
-                className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
-              >
-                Next Slide
-                <Icons.ArrowRight className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex-1 p-5 flex flex-col justify-between overflow-y-auto">
+              <div className="space-y-4">
+                
+                {/* Top progress indicator bar */}
+                <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 font-heading">
+                  <span>Slide {activeSlideIndex + 1} of {slides.length}</span>
+                  <span className="text-amber-700 uppercase tracking-wider">Curriculum Path</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-200/70 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-[#FF9900] transition-all duration-300"
+                    style={{ width: `${((activeSlideIndex + 1) / (slides.length || 1)) * 100}%` }}
+                  />
+                </div>
+
+                {/* Learning slide core */}
+                {activeSlide ? (
+                  <div className="bg-white rounded-2xl p-5 shadow-sm text-slate-800 min-h-[340px] flex flex-col justify-between border border-slate-200/80 select-text">
+                    <LearningContentRenderer
+                      title={activeSlide.title}
+                      bullets={activeSlide.layoutType === 'image-only' ? [] : activeSlide.content}
+                      layout={activeSlide.layoutType || 'text-only'}
+                      iconName={module.iconName || 'Boxes'}
+                      imageUrl={activeSlide.imageUrl}
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-8 text-center text-slate-400 text-xs min-h-[300px] flex items-center justify-center">
+                    No slide selected
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Bottom buttons simulation */}
+              <div className="flex items-center justify-between border-t border-slate-200/80 pt-4 mt-6 flex-shrink-0">
+                <button
+                  disabled={activeSlideIndex === 0}
+                  onClick={() => setActiveSlideIndex(prev => Math.max(0, prev - 1))}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200/80 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer font-heading"
+                >
+                  <Icons.ArrowLeft className="w-3.5 h-3.5" />
+                  Previous
+                </button>
+                
+                <button
+                  disabled={activeSlideIndex === slides.length - 1}
+                  onClick={() => setActiveSlideIndex(prev => Math.min(slides.length - 1, prev + 1))}
+                  className="px-5 py-2.5 rounded-xl bg-[#232F3E] hover:bg-slate-800 text-white disabled:opacity-30 disabled:pointer-events-none text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer font-heading"
+                >
+                  Next Slide
+                  <Icons.ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
+        </div>
+      </div>
+
+      {/* Mobile Experience (Refactored Layout) */}
+      <div className="lg:hidden flex flex-col h-full min-h-screen">
+        <MobileEditorHeader
+          title={`${module.name} Content Editor`}
+          badge={module.level}
+          currentTab="slides"
+          isDirty={isDirtyRef.current}
+          onBack={handleMobileBack}
+          onTabChange={handleMobileTabChange}
+        />
+        <div className="flex-1 bg-slate-50">
+          {mobileView === 'list' && (
+            <MobileSlideList
+              slides={slides}
+              onEditSlide={(idx) => {
+                setActiveSlideIndex(idx);
+                setMobileView('edit');
+              }}
+              onMoveSlide={async (idx, direction) => {
+                const fakeEvent = { stopPropagation: () => {} } as React.MouseEvent;
+                await handleMoveSlide(idx, direction, fakeEvent);
+              }}
+              onDeleteSlide={async (idx) => {
+                const fakeEvent = { stopPropagation: () => {} } as React.MouseEvent;
+                await handleDeleteSlide(idx, fakeEvent);
+              }}
+              onAddSlide={async () => {
+                await handleAddSlide();
+                setMobileView('edit');
+              }}
+            />
+          )}
+
+          <AnimatePresence mode="wait">
+            {mobileView === 'edit' && activeSlide && (
+              <MobileSlideEditor
+                key="editor"
+                slide={activeSlide}
+                slideIndex={activeSlideIndex}
+                onBack={() => setMobileView('list')}
+                onPreview={() => setMobileView('preview')}
+                updateActiveSlide={updateActiveSlide}
+                handleUpdateBullet={handleUpdateBullet}
+                handleAddBullet={handleAddBullet}
+                handleDeleteBullet={handleDeleteBullet}
+                handleImageUpload={handleImageUpload}
+                handleRemoveImage={handleRemoveImage}
+                saveStatus={saveStatus}
+              />
+            )}
+
+            {mobileView === 'preview' && activeSlide && (
+              <MobileSlidePreview
+                key="preview"
+                slide={activeSlide}
+                slideIndex={activeSlideIndex}
+                totalSlides={slides.length}
+                iconName={module.iconName || 'Boxes'}
+                onBack={() => setMobileView('edit')}
+                onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
+                onNextSlide={() => setActiveSlideIndex((prev) => Math.min(slides.length - 1, prev + 1))}
+              />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <ConfirmDeleteModal

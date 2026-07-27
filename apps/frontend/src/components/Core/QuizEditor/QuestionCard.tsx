@@ -28,11 +28,11 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-indigo-100 transition-colors">
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-amber-200 transition-colors">
       {/* Card Header details */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="space-y-0.5">
-          <span className="text-[10px] font-black uppercase text-indigo-500 tracking-wider">
+          <span className="text-[10px] font-black uppercase text-[#FF6B00] tracking-wider">
             Question {index + 1}
           </span>
           <span className="text-[9.5px] text-slate-400 block font-medium">
@@ -60,24 +60,24 @@ export default function QuestionCard({
         </p>
       </div>
 
-      {/* Question Actions (Min height 44px) */}
-      <div className="flex gap-2 pt-2">
+      {/* Question Actions */}
+      <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
         <button
           onClick={onEdit}
-          className="flex-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-750 font-extrabold text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer transition-colors"
+          className="flex-1 h-9 rounded-xl bg-amber-50/80 hover:bg-amber-100/80 text-amber-800 border border-amber-200/80 hover:border-amber-300 text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer font-heading"
         >
-          <Icons.Edit2 className="w-3.5 h-3.5" />
+          <Icons.Edit2 className="w-3.5 h-3.5 text-amber-600" />
           Edit Question
         </button>
 
         <button
           onClick={onDelete}
           disabled={totalQuestions <= 1}
-          className="bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 disabled:opacity-30 disabled:pointer-events-none rounded-xl px-3 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer transition-colors"
+          className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200/80 hover:border-rose-200 transition-all shadow-2xs flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
           title="Delete Question"
           aria-label="Delete Question"
         >
-          <Icons.Trash className="w-4 h-4" />
+          <Icons.Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

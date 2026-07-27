@@ -54,29 +54,29 @@ const calculateCompactRoadmapGeometry = (modulesList: any[]) => {
   let currentY = 260; // Starts at 260 to prevent overlap with Beginner Track card
   beginnerList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[idx % WAVE_X_PATTERN.length], y: currentY };
-    currentY += 135;
+    currentY += (idx === beginnerList.length - 1 ? 210 : 160);
   });
   coordinates['summit_beginner'] = { x: 50, y: currentY };
 
-  currentY += 180;
+  currentY += 240;
   const startIntermediateY = currentY;
   intermediateList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[(idx + 1) % WAVE_X_PATTERN.length], y: currentY };
-    currentY += 135;
+    currentY += (idx === intermediateList.length - 1 ? 210 : 160);
   });
   coordinates['summit_intermediate'] = { x: 50, y: currentY };
 
-  currentY += 180;
+  currentY += 240;
   const startAdvancedY = currentY;
   advancedList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[(idx + 2) % WAVE_X_PATTERN.length], y: currentY };
-    currentY += 135;
+    currentY += (idx === advancedList.length - 1 ? 210 : 160);
   });
   coordinates['summit_advanced'] = { x: 50, y: currentY };
 
   return {
     coordinates,
-    totalHeight: currentY + 120,
+    totalHeight: currentY + 160,
     intermediateStartY: startIntermediateY - 90,
     intermediateHeight: startAdvancedY - startIntermediateY + 60,
     advancedStartY: startAdvancedY - 90,
@@ -87,9 +87,10 @@ const calculateCompactRoadmapGeometry = (modulesList: any[]) => {
 interface RoadmapBuilderProps {
   topicId: string;
   topicName?: string;
+  topicNumber?: number;
 }
 
-export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderProps) {
+export default function RoadmapBuilder({ topicId, topicName, topicNumber }: RoadmapBuilderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [modules, setModules] = useState<any[]>([]);
@@ -99,6 +100,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isMobileEditing, setIsMobileEditing] = useState(false);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -157,8 +159,8 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
         level: tierToLevel(m.tier),
         description: m.description,
         iconName: getIconForSlug(m.slug),
-        learningPagesCount: 4,
-        quizQuestionsCount: 3,
+        learningPagesCount: (m as any)._count?.slides ?? 0,
+        quizQuestionsCount: (m as any)._count?.questions ?? 0,
         tasks: [],
         quiz: { question: '', options: [], answerIndex: 0, explanation: '' },
         learningContent: [],
@@ -234,8 +236,8 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
         level: tierToLevel(m.tier),
         description: m.description,
         iconName: getIconForSlug(m.slug),
-        learningPagesCount: 4,
-        quizQuestionsCount: 3,
+        learningPagesCount: (m as any)._count?.slides ?? 0,
+        quizQuestionsCount: (m as any)._count?.questions ?? 0,
         tasks: [],
         quiz: { question: '', options: [], answerIndex: 0, explanation: '' },
         learningContent: [],
@@ -386,6 +388,15 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
     centerRef.current.scrollTo({ top: Math.max(0, scrollPos), behavior: 'smooth' });
   }, [selectedModuleId, modules, coordinates, fitScale]);
 
+  // Scroll to the selected module card on mobile
+  useEffect(() => {
+    if (!selectedModuleId) return;
+    const element = document.getElementById(`mobile-card-${selectedModuleId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedModuleId]);
+
   const visualNodesList = [
     ...beginnerList.map((m) => ({ ...m, type: 'module' as const })),
     { id: 'summit_beginner', name: 'Beginner Summit', level: 'Beginner' as const, type: 'summit' as const },
@@ -496,6 +507,116 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
   const isLastInTier = tierIndex === currentTierModules.length - 1;
   const selectedModuleIndex = selectedModule ? modules.findIndex((m) => m.id === selectedModule.id) : -1;
 
+  const renderModuleEditor = (isMobile: boolean = false) => {
+    if (!selectedModule) return null;
+
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-start justify-between flex-shrink-0 bg-slate-50/50">
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              {isMobile && (
+                <button 
+                  onClick={() => {
+                    flushChanges().catch(console.error);
+                    setIsMobileEditing(false);
+                  }}
+                  className="p-1 rounded-lg hover:bg-slate-100 mr-1 flex-shrink-0"
+                >
+                  <Icons.ChevronDown className="w-5 h-5 text-slate-500" />
+                </button>
+              )}
+              <Icons.Settings className="w-4 h-4 text-[#FF9900] flex-shrink-0" />
+              <h3 className="text-xs font-bold text-slate-800 tracking-tight font-heading uppercase flex-shrink-0">Module Settings</h3>
+              {saveStatus === 'saving' && <span className="text-[10px] text-[#FF9900] font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
+              {saveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-bold font-heading lowercase tracking-normal flex-shrink-0">(saved)</span>}
+              {saveStatus === 'failed' && <span className="text-[10px] text-rose-500 font-bold font-heading lowercase tracking-normal flex-shrink-0">(failed)</span>}
+            </div>
+            <span className="text-[10px] font-bold text-slate-500 font-heading uppercase tracking-wider mt-0.5">{selectedModule.level}</span>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-lg font-black text-slate-800 font-heading">{selectedModuleIndex !== -1 ? String(selectedModuleIndex + 1).padStart(2, '0') : '--'}</span>
+            <span className="text-[9px] font-bold font-heading text-slate-500 uppercase tracking-widest bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md self-center">{selectedModule.id.slice(0, 5).toUpperCase()}</span>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-4 text-xs font-semibold text-slate-655 pb-12">
+          {/* Content Summary */}
+          <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider pb-2.5 border-b border-slate-100 flex-shrink-0 select-none">
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <Icons.BookOpen className="w-3.5 h-3.5 text-[#FF9900]" /> Slides:{' '}
+              <span className="text-slate-800 font-bold font-heading text-xs ml-0.5">{selectedModule.learningPagesCount ?? 0}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <Icons.HelpCircle className="w-3.5 h-3.5 text-[#FF9900]" /> Quiz Questions:{' '}
+              <span className="text-slate-800 font-bold font-heading text-xs ml-0.5">{selectedModule.quizQuestionsCount ?? 0}</span>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Module Name</label>
+            <input type="text" value={editName} onChange={(e) => handleFieldChange('name', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors" />
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Description</label>
+            <textarea rows={3} value={editDescription} onChange={(e) => handleFieldChange('description', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">XP Points</label>
+              <input type="number" min={10} max={500} value={editPoints} onChange={(e) => handleFieldChange('points', Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors" />
+            </div>
+            <div className="flex items-end">
+              <Link href={`/core/module/${selectedModule.dbId}/content?topicId=${topicId}`} className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-black text-slate-700 py-2.5 rounded-xl text-center flex items-center justify-center gap-1.5 transition-all shadow-xs">
+                <Icons.FileEdit className="w-3.5 h-3.5 text-cyan-600" /> Edit Content
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Curriculum Tier</label>
+            <div className="relative">
+              <select value={editLevel} onChange={(e) => handleFieldChange('level', e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors cursor-pointer appearance-none font-bold">
+                <option value="Beginner">Beginner Level</option>
+                <option value="Intermediate">Intermediate Level</option>
+                <option value="Advanced">Advanced Level</option>
+              </select>
+              <Icons.ChevronDown className="absolute right-3.5 top-3 w-4 h-4 text-slate-500 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5 border-t border-slate-100 pt-3">
+            <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider block">Path Order Control</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => handleReorder('up')} disabled={isFirstInTier} className={cn("py-2 rounded-xl border font-bold flex items-center justify-center gap-1 transition-all text-[11px]", isFirstInTier ? "bg-slate-50 border-slate-200/50 text-slate-400 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 shadow-xs")}>
+                <Icons.ArrowUp className="w-3.5 h-3.5" /> Move Up
+              </button>
+              <button onClick={() => handleReorder('down')} disabled={isLastInTier} className={cn("py-2 rounded-xl border font-bold flex items-center justify-center gap-1 transition-all text-[11px]", isLastInTier ? "bg-slate-50 border-slate-200/50 text-slate-400 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 shadow-xs")}>
+                <Icons.ArrowDown className="w-3.5 h-3.5" /> Move Down
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 pt-3">
+            <div className="grid grid-cols-2 gap-2">
+              <button 
+                onClick={() => {
+                  if (isMobile) setIsMobileEditing(false);
+                  handleDeleteModule();
+                }} 
+                className="bg-rose-50 hover:bg-rose-100 border border-rose-100 text-[11px] font-black text-rose-600 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs"
+              >
+                <Icons.Trash2 className="w-3.5 h-3.5" /> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 40%, #e0f2fe 100%)';
 
   if (error) {
@@ -521,7 +642,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
     return (
       <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-[#FF6B00] border-t-transparent animate-spin" />
           <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Builder Canvas...</span>
         </div>
       </div>
@@ -531,44 +652,65 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
   return (
     <div className="h-full flex flex-col bg-slate-50 text-slate-800 overflow-hidden font-sans">
 
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 select-none">
-        <div className="flex items-center gap-4 h-full text-xs font-bold">
-          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors">
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 flex-shrink-0 select-none">
+        <div className="flex items-center gap-2.5 md:gap-4 h-full text-xs font-bold min-w-0 pr-2">
+          <Link href="/core/topics" className="flex items-center gap-1.5 text-slate-500 hover:text-[#FF6B00] transition-colors flex-shrink-0">
             <Icons.ArrowLeft className="w-4 h-4" />
-            Back to Topics
+            <span className="hidden sm:inline">Back to Topics</span>
           </Link>
+
+          {(topicNumber !== undefined || topicName) && (
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              {topicNumber !== undefined && (
+                <span className="text-[10px] font-black text-[#FF6B00] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-heading uppercase tracking-wider flex-shrink-0">
+                  Topic {topicNumber}
+                </span>
+              )}
+              {topicName && (
+                <span className="text-xs font-extrabold text-slate-900 font-heading tracking-tight truncate max-w-[130px] sm:max-w-[200px] md:max-w-xs">
+                  {topicName}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex items-center flex-shrink-0">
-          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
+          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 md:px-5 md:py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
-            Create Module
+            <span className="hidden sm:inline">Create Module</span>
+            <span className="inline sm:hidden">Create</span>
           </button>
         </div>
       </header>
 
-      <div className="flex-1 flex min-h-0 overflow-hidden p-6 gap-6">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden p-4 lg:p-6 gap-4 lg:gap-6">
 
-        <div className="w-[72%] bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-xs h-full flex flex-col">
+        {/* DESKTOP VIEW CANVAS (Hidden on Mobile & Tablet) */}
+        <div className="hidden lg:flex w-[72%] bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-xs h-full flex-col">
           <div className="px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between flex-shrink-0">
-            <span className="text-[9px] font-black tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 px-3 py-1 rounded-lg font-heading">LIVE PREVIEW CANVAS</span>
+            <span className="text-[9px] font-black tracking-widest text-[#FF6B00] bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg font-heading">LIVE PREVIEW CANVAS</span>
             <span className="text-[10px] text-slate-400 font-bold">{modules.length} Modules Registered</span>
           </div>
 
           <div 
             ref={centerRef} 
-            className="flex-1 overflow-y-auto overflow-x-hidden relative rounded-b-[32px]"
+            className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar relative rounded-b-[32px]"
             style={{ background: backgroundGradient }}
           >
+            {/* Full-width seamless sky background */}
+            <div className="absolute inset-0 w-full pointer-events-none z-0 overflow-hidden">
+              <SkyBackground height={totalHeight * fitScale} />
+            </div>
+
             <div 
-              className="absolute top-0 left-1/2 origin-top" 
+              className="absolute top-0 left-1/2 origin-top z-10" 
               style={{ 
                 transform: `translateX(-50%) scale(${fitScale})`, 
                 width: CANVAS_WIDTH, 
-                height: canvasHeight, 
-                background: backgroundGradient 
+                height: canvasHeight
               }}
             >
-              <SkyBackground />
               <div className="relative w-full z-10" style={{ height: totalHeight }}>
                 <RoadmapPath nodes={pathNodes} width={CANVAS_WIDTH} />
 
@@ -645,80 +787,105 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
           </div>
         </div>
 
-        <div className="w-[28%] bg-white border border-slate-200 rounded-[32px] shadow-xs h-full flex flex-col overflow-hidden">
-          {selectedModule ? (
-            <div className="flex flex-col h-full overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-start justify-between flex-shrink-0 bg-slate-50/50">
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Icons.Settings className="w-4 h-4 text-cyan-600 flex-shrink-0" />
-                    <h3 className="text-xs font-black text-slate-800 tracking-tight font-heading uppercase flex-shrink-0">Module Settings</h3>
-                    {saveStatus === 'saving' && <span className="text-[10px] text-indigo-500 font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
-                    {saveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-bold font-heading lowercase tracking-normal flex-shrink-0">(saved)</span>}
-                    {saveStatus === 'failed' && <span className="text-[10px] text-rose-500 font-bold font-heading lowercase tracking-normal flex-shrink-0">(failed to save)</span>}
+        {/* MOBILE & TABLET VIEW LIST CARDS (Visible on Mobile & Tablet) */}
+        <div className="flex lg:hidden flex-col flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4">
+          <div className="flex items-center justify-between px-2 py-1 flex-shrink-0 select-none">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-heading">{modules.length} Modules Registered</span>
+          </div>
+
+          <div className="space-y-4 pb-12">
+            {modules.map((module, index) => {
+              const badgeColor = module.level === 'Beginner'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
+                : module.level === 'Intermediate'
+                  ? 'bg-sky-50 text-sky-700 border-sky-200/80'
+                  : 'bg-amber-50 text-amber-700 border-amber-200/80';
+
+              const isSelected = selectedModuleId === module.id;
+
+              return (
+                <div 
+                  key={module.id} 
+                  id={`mobile-card-${module.id}`}
+                  className={cn(
+                    "bg-white border rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 transition-all cursor-pointer",
+                    isSelected ? "border-[#FF9900] ring-2 ring-[#FF9900]/15 bg-amber-50/20" : "border-slate-200/80 hover:border-slate-300"
+                  )}
+                  onClick={() => selectModule(module.id)}
+                >
+                  {/* Top Meta Line: MOD number, Level, XP */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-700 font-heading">MOD-{index + 1}</span>
+                      <span className={cn("px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase tracking-wider font-heading", badgeColor)}>
+                        {module.level}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold bg-amber-50/80 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md uppercase font-heading">
+                      +{module.points} XP
+                    </span>
                   </div>
-                  <span className="text-[10px] font-black text-slate-555 font-heading uppercase tracking-wider mt-0.5">{selectedModule.level}</span>
-                </div>
-                <span className="text-lg font-black text-slate-800 font-heading flex-shrink-0">{selectedModuleIndex !== -1 ? String(selectedModuleIndex + 1).padStart(2, '0') : '--'}</span>
-                <span className="text-[9px] font-black font-heading text-slate-555 uppercase tracking-widest bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md flex-shrink-0 self-center">{selectedModule.id.slice(0, 5).toUpperCase()}</span>
-              </div>
 
-              <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs font-semibold text-slate-655">
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-550 text-[10px] uppercase tracking-wider">Module Name</label>
-                  <input type="text" value={editName} onChange={(e) => handleFieldChange('name', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-550 text-[10px] uppercase tracking-wider">Description</label>
-                  <textarea rows={3} value={editDescription} onChange={(e) => handleFieldChange('description', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3.5">
+                  {/* Name and Description */}
                   <div className="space-y-1">
-                    <label className="font-extrabold text-slate-550 text-[10px] uppercase tracking-wider">XP Points</label>
-                    <input type="number" min={10} max={500} value={editPoints} onChange={(e) => handleFieldChange('points', Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight font-heading line-clamp-1">{module.name}</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
+                      {module.description}
+                    </p>
+                    {/* Slides & Quiz Count */}
+                    <div className="flex items-center gap-3 pt-1.5 text-xs font-medium text-slate-500">
+                      <span className="flex items-center gap-1.5">
+                        <Icons.BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{module.learningPagesCount} Slides</span>
+                      </span>
+                      <span className="text-slate-300 font-normal">•</span>
+                      <span className="flex items-center gap-1.5">
+                        <Icons.HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{module.quizQuestionsCount} Quizzes</span>
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-end">
-                    <Link href={`/core/module/${selectedModule.dbId}/content?topicId=${topicId}`} className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-black text-slate-700 py-2.5 rounded-xl text-center flex items-center justify-center gap-1.5 transition-all shadow-xs">
-                      <Icons.FileEdit className="w-3.5 h-3.5 text-cyan-600" /> Edit Content
-                    </Link>
-                  </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider">Curriculum Tier</label>
-                  <div className="relative">
-                    <select value={editLevel} onChange={(e) => handleFieldChange('level', e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-855 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none font-bold">
-                      <option value="Beginner">Beginner Level</option>
-                      <option value="Intermediate">Intermediate Level</option>
-                      <option value="Advanced">Advanced Level</option>
-                    </select>
-                    <Icons.ChevronDown className="absolute right-3.5 top-3 w-4 h-4 text-slate-500 pointer-events-none" />
+                  {/* Bottom Action Bar: Edit, Delete */}
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          selectModule(module.id);
+                          setIsMobileEditing(true);
+                        }} 
+                        className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-700 border border-slate-200/80 hover:border-amber-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer font-heading"
+                      >
+                        <Icons.FileEdit className="w-3.5 h-3.5 text-slate-400" />
+                        Edit
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedModuleId(module.id);
+                          setIsDeleteModalOpen(true);
+                        }} 
+                        className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200/80 hover:border-rose-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer font-heading"
+                      >
+                        <Icons.Trash2 className="w-3.5 h-3.5 text-slate-400" />
+                        Delete
+                      </button>
+                    </div>
+                    {module.orderIndex !== undefined && (
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order #{module.orderIndex + 1}</span>
+                    )}
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
 
-                <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                  <label className="font-extrabold text-slate-555 text-[10px] uppercase tracking-wider block">Path Order Control</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => handleReorder('up')} disabled={isFirstInTier} className={cn("py-2 rounded-xl border font-bold flex items-center justify-center gap-1 transition-all text-[11px]", isFirstInTier ? "bg-slate-50 border-slate-200/50 text-slate-400 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 shadow-xs")}>
-                      <Icons.ArrowUp className="w-3.5 h-3.5" /> Move Up
-                    </button>
-                    <button onClick={() => handleReorder('down')} disabled={isLastInTier} className={cn("py-2 rounded-xl border font-bold flex items-center justify-center gap-1 transition-all text-[11px]", isLastInTier ? "bg-slate-50 border-slate-200/50 text-slate-400 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 shadow-xs")}>
-                      <Icons.ArrowDown className="w-3.5 h-3.5" /> Move Down
-                    </button>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 pt-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={handleDeleteModule} className="bg-rose-50 hover:bg-rose-100 border border-rose-100 text-[11px] font-black text-rose-600 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs">
-                      <Icons.Trash2 className="w-3.5 h-3.5" /> Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* DESKTOP RIGHT SIDEBAR (EDITOR) (Hidden on Mobile & Tablet) */}
+        <div className="hidden lg:flex w-[28%] bg-white border border-slate-200 rounded-[32px] shadow-xs h-full flex-col overflow-hidden">
+          {selectedModule ? (
+            renderModuleEditor(false)
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
               <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
@@ -744,18 +911,18 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
               <p className="text-[10px] text-slate-550 mb-5 leading-normal">Create a new module for this topic. A roadmap island will be generated automatically.</p>
               <form onSubmit={handleCreateModule} className="space-y-4 text-xs font-semibold">
                 <div className="space-y-1">
-                  <label className="font-extrabold text-slate-500 block">Module Name</label>
-                  <input type="text" required placeholder="e.g. Amazon CloudFront CDN" value={name} onChange={(e) => setName(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50" />
+                  <label className="font-extrabold text-slate-555 block">Module Name</label>
+                  <input type="text" required placeholder="e.g. Amazon CloudFront CDN" value={name} onChange={(e) => setName(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors disabled:opacity-50" />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-extrabold text-slate-550 block">Description</label>
-                  <textarea required rows={2} placeholder="Provide module objectives overview..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed disabled:opacity-50" />
+                  <label className="font-extrabold text-slate-555 block">Description</label>
+                  <textarea required rows={2} placeholder="Provide module objectives overview..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors resize-none leading-relaxed disabled:opacity-50" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="font-extrabold text-slate-555 block">Curriculum Level</label>
                     <div className="relative">
-                      <select value={level} onChange={(e: any) => setLevel(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer appearance-none font-bold disabled:opacity-50">
+                      <select value={level} onChange={(e: any) => setLevel(e.target.value)} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors cursor-pointer appearance-none font-bold disabled:opacity-50">
                         <option value="Beginner">Beginner Level</option>
                         <option value="Intermediate">Intermediate Level</option>
                         <option value="Advanced">Advanced Level</option>
@@ -765,8 +932,8 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="font-extrabold text-slate-550 block">XP Reward Points</label>
-                  <input type="number" required min={10} max={500} value={points} onChange={(e) => setPoints(Number(e.target.value))} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50" />
+                  <label className="font-extrabold text-slate-555 block">XP Reward Points</label>
+                  <input type="number" required min={10} max={500} value={points} onChange={(e) => setPoints(Number(e.target.value))} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors disabled:opacity-50" />
                 </div>
                 <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 mt-5">
                   <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating} className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-[8px] transition-all disabled:opacity-50">Cancel</button>
@@ -782,6 +949,20 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+
+        {isMobileEditing && selectedModule && (
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-xs z-50 flex flex-col justify-end lg:hidden">
+            <motion.div 
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="bg-white border-t border-slate-200 rounded-t-[32px] h-[90vh] flex flex-col overflow-hidden shadow-2xl"
+            >
+              {renderModuleEditor(true)}
             </motion.div>
           </div>
         )}

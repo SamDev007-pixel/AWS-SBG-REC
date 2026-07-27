@@ -72,7 +72,7 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
       {/* Accordion Trigger */}
       <button
         type="button"
@@ -80,7 +80,7 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
         className="w-full flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors text-left"
       >
         <div className="flex items-center gap-2.5">
-          <Settings className="w-4 h-4 text-slate-500 animate-[spin_8s_linear_infinite]" />
+          <Settings className="w-4 h-4 text-slate-500" />
           <div>
             <h3 className="text-xs font-bold text-slate-800 tracking-tight font-heading">
               Learning Guide Header Settings
@@ -113,13 +113,13 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
                 placeholder="e.g., GUIDELINES"
                 maxLength={80}
                 required
-                className="block w-full border border-slate-250/60 text-xs px-3.5 py-2.5 rounded-xl bg-slate-50/30 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 font-semibold"
+                className="block w-full border border-slate-200 hover:border-slate-300 text-xs px-3.5 py-2.5 rounded-lg bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] font-semibold transition-all shadow-2xs"
               />
             </div>
 
             {/* Header Description */}
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-heading">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 Header Description
               </label>
               <textarea
@@ -128,7 +128,7 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
                 placeholder="e.g., Platform learning rules and progression guidelines"
                 maxLength={200}
                 rows={2}
-                className="block w-full border border-slate-255/60 text-xs px-3.5 py-2 rounded-xl bg-slate-50/30 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 font-medium"
+                className="block w-full border border-slate-200 hover:border-slate-300 text-xs px-3.5 py-2 rounded-lg bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] font-medium transition-all shadow-2xs"
               />
             </div>
           </div>
@@ -146,10 +146,10 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
                     key={ic.value}
                     type="button"
                     onClick={() => handleIconSelect(ic.value)}
-                    className={`px-4 py-2.5 rounded-xl border flex items-center gap-2.5 transition-all ${
+                    className={`px-4 py-2.5 rounded-lg border flex items-center gap-2.5 transition-all ${
                       isSelected
-                        ? 'border-sky-500 bg-sky-50/35 text-sky-600 ring-1 ring-sky-500/50 shadow-sm font-semibold'
-                        : 'border-slate-200 bg-slate-50/20 text-slate-600 hover:bg-slate-50 hover:border-slate-350'
+                        ? 'border-[#FF9900] bg-amber-50/50 text-amber-700 font-semibold ring-1 ring-[#FF9900]/30'
+                        : 'border-slate-200 bg-slate-50/20 text-slate-600 hover:bg-slate-50'
                     }`}
                     title={ic.label}
                   >
@@ -172,11 +172,11 @@ export const GuidelineSettingsCard: React.FC<GuidelineSettingsCardProps> = ({
           </div>
 
           {/* Action Row */}
-          <div className="flex justify-end pt-2 border-t border-slate-100/50">
+          <div className="flex justify-end pt-2 border-t border-slate-100">
             <button
               type="submit"
               disabled={isSaving || !headerTitle.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 rounded-xl transition-all shadow-[0_4px_12px_rgba(14,165,233,0.15)] hover:shadow-[0_4px_16px_rgba(14,165,233,0.25)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white bg-[#232F3E] hover:bg-slate-800 rounded-[8px] transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed font-heading"
             >
               {isSaving ? (
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

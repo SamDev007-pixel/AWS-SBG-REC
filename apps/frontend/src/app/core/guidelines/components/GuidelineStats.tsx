@@ -44,17 +44,17 @@ export const GuidelineStats: React.FC<GuidelineStatsProps> = ({ guidelines }) =>
       {stats.map((stat, i) => (
         <div
           key={i}
-          className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex items-center justify-between transition-all duration-300 hover:shadow-md hover:scale-[1.01]"
+          className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between transition-all duration-200 hover:shadow-md"
         >
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 font-heading">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 font-heading">
               {stat.label}
             </span>
-            <span className="text-xl font-bold font-heading text-slate-800 mt-1 tabular-nums">
+            <span className="text-xl font-black font-heading text-slate-900 mt-1 tabular-nums">
               {stat.value}
             </span>
           </div>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${stat.bg}`}>
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${stat.bg}`}>
             {stat.icon}
           </div>
         </div>

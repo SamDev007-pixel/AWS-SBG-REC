@@ -33,7 +33,7 @@ export default function MobileQuestionList({
         </p>
         <button
           onClick={onAddQuestion}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs py-3 px-6 rounded-xl flex items-center gap-1.5 shadow-sm min-h-[44px] cursor-pointer"
+          className="bg-[#FF6B00] hover:bg-orange-600 text-white font-extrabold text-xs py-3 px-6 rounded-xl flex items-center gap-1.5 shadow-sm min-h-[44px] cursor-pointer"
         >
           <Icons.Plus className="w-4 h-4" />
           Add Question
@@ -47,7 +47,7 @@ export default function MobileQuestionList({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="p-6 space-y-4 pb-24"
+      className="p-4 sm:p-5 max-w-4xl mx-auto space-y-4 pb-24 w-full"
     >
       <div className="space-y-4">
         {questions.map((question, idx) => (

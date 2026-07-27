@@ -37,10 +37,10 @@ export default function MobileSlidePreview({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 15 }}
       transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-50 bg-slate-50 flex flex-col md:hidden overflow-y-auto"
+      className="fixed inset-x-0 bottom-0 top-[56px] z-30 bg-slate-50 flex flex-col lg:hidden overflow-y-auto no-scrollbar"
     >
       {/* Sticky Header Row */}
-      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="sticky top-0 z-20 bg-white border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs flex-shrink-0">
         <span className="text-xs font-black text-slate-800 font-heading">
           Student Preview
         </span>

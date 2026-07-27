@@ -133,9 +133,11 @@ export default function DescriptionBulletEditor({
 
   return (
     <div className="space-y-2">
-      <label className="font-extrabold text-slate-555 block text-[11px] sm:text-xs">Description Bullets</label>
+      <label className="text-[11px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block font-heading">
+        Description Bullets
+      </label>
       
-      <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+      <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-0.5">
         <AnimatePresence initial={false}>
           {bullets.map((bullet, idx) => (
             <motion.div
@@ -146,13 +148,11 @@ export default function DescriptionBulletEditor({
               transition={{ duration: 0.15 }}
               className="flex items-start gap-2 group"
             >
-              {/* Bullet indicator */}
-              <div className="flex items-center justify-center h-8 text-slate-400 font-extrabold text-sm select-none pt-0.5">
-                •
-              </div>
-
-              {/* Autogrowing textarea input */}
-              <div className="flex-1 min-w-0">
+              {/* Autogrowing textarea input with integrated bullet prefix */}
+              <div className="flex-1 min-w-0 relative flex items-center">
+                <div className="absolute left-3 top-2.5 pointer-events-none flex items-center justify-center text-[#FF9900] font-black text-sm select-none">
+                  •
+                </div>
                 <textarea
                   ref={(el) => {
                     inputRefs.current[idx] = el;
@@ -166,7 +166,7 @@ export default function DescriptionBulletEditor({
                     adjustHeight(e.target);
                   }}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors resize-none leading-relaxed overflow-hidden py-2"
+                  className="w-full bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] transition-all resize-none leading-relaxed overflow-hidden font-medium shadow-2xs"
                 />
               </div>
 
@@ -175,7 +175,7 @@ export default function DescriptionBulletEditor({
                 <button
                   type="button"
                   onClick={() => removeBulletRow(idx)}
-                  className="p-2 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 flex-shrink-0"
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 flex-shrink-0 flex items-center justify-center cursor-pointer mt-0.5"
                   title="Remove bullet"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -189,7 +189,7 @@ export default function DescriptionBulletEditor({
       <button
         type="button"
         onClick={addBulletRow}
-        className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors py-1 pl-1 mt-1"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50/80 hover:bg-amber-100/80 border border-amber-200/80 text-[#FF9900] text-xs font-bold transition-all cursor-pointer shadow-2xs mt-1"
       >
         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
         Add Bullet

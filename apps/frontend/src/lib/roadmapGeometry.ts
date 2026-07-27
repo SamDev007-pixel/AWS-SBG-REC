@@ -12,17 +12,17 @@ export interface RoadmapGeometry {
   advancedHeight: number;
 }
 
-export const calculateRoadmapGeometry = (modules: any[], isMobile = false): RoadmapGeometry => {
+export const calculateRoadmapGeometry = (modules: any[]): RoadmapGeometry => {
   const coordinates: { [key: string]: Coordinate } = {};
-  
+
   const beginnerList = modules.filter(m => m.level === 'Beginner');
   const intermediateList = modules.filter(m => m.level === 'Intermediate');
   const advancedList = modules.filter(m => m.level === 'Advanced');
-  
+
   const WAVE_X_PATTERN = [30, 55, 75, 60, 35, 24];
-  
-  // 1. Beginner Region (y starts at 230 to prevent overlap with track card)
-  let currentY = 230;
+
+  // 1. Beginner Region (y starts at 300 to prevent overlap with track card)
+  let currentY = 300;
   beginnerList.forEach((mod, idx) => {
     coordinates[mod.id] = {
       x: WAVE_X_PATTERN[idx % WAVE_X_PATTERN.length],
@@ -31,9 +31,9 @@ export const calculateRoadmapGeometry = (modules: any[], isMobile = false): Road
     currentY += 220;
   });
   coordinates['summit_beginner'] = { x: 50, y: currentY };
-  
+
   // 2. Intermediate Region
-  currentY += isMobile ? 380 : 240;
+  currentY += 300;
   const startIntermediateY = currentY;
   intermediateList.forEach((mod, idx) => {
     coordinates[mod.id] = {
@@ -43,9 +43,9 @@ export const calculateRoadmapGeometry = (modules: any[], isMobile = false): Road
     currentY += 220;
   });
   coordinates['summit_intermediate'] = { x: 50, y: currentY };
-  
+
   // 3. Advanced Region
-  currentY += isMobile ? 420 : 240;
+  currentY += 300;
   const startAdvancedY = currentY;
   advancedList.forEach((mod, idx) => {
     coordinates[mod.id] = {
@@ -55,7 +55,7 @@ export const calculateRoadmapGeometry = (modules: any[], isMobile = false): Road
     currentY += 220;
   });
   coordinates['summit_advanced'] = { x: 50, y: currentY };
-  
+
   return {
     coordinates,
     totalHeight: currentY + 240,

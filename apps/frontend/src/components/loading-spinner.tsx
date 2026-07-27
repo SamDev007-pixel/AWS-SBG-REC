@@ -14,9 +14,9 @@ export function LoadingSpinner({ className, text }: LoadingSpinnerProps) {
         className
       )}
     >
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="w-9 h-9 rounded-full border-2 border-amber-200 border-t-[#FF9900] animate-spin shadow-2xs" />
       {text && (
-        <p className="mt-3 text-sm text-muted-foreground">{text}</p>
+        <p className="mt-3 text-xs text-slate-600 font-bold uppercase tracking-wider font-heading animate-pulse">{text}</p>
       )}
     </div>
   );
