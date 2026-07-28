@@ -232,34 +232,43 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           {/* Right Column: Name, Designation, Mentorship Statement & LinkedIn Button */}
           <div className="spotlight-right-content">
             <h3 style={{
-              fontSize: "clamp(22px, 2.5vw, 26px)", fontWeight: 800, color: "#ffffff",
+              fontSize: "clamp(23px, 2.5vw, 28px)", fontWeight: 800, color: "#ffffff",
               margin: "0 0 6px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
             }}>
               {coord.name}
             </h3>
 
-            <p style={{ fontSize: "13.5px", fontWeight: 650, color: "#cbd5e1", margin: "0 0 4px 0", lineHeight: 1.4 }}>
+            {/* Role: Vibrant AWS Amber Gold */}
+            <p style={{ fontSize: "14px", fontWeight: 700, color: "#FBBF24", margin: "0 0 4px 0", lineHeight: 1.4, letterSpacing: "0.01em" }}>
               {coord.role}
             </p>
             
-            <p style={{ fontSize: "12px", color: "#94a3b8", margin: "0 0 16px 0", fontWeight: 500, lineHeight: 1.4 }}>
+            {/* Department: Cool Sky Blue */}
+            <p style={{ fontSize: "12.5px", color: "#38BDF8", margin: "0 0 18px 0", fontWeight: 500, lineHeight: 1.4 }}>
               {coord.department}
             </p>
 
-            {/* Clean Mentorship Vision Quote Block */}
+            {/* Sleek Mentorship Vision Quote Container */}
             <div className="spotlight-quote-box" style={{
+              background: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 153, 0, 0.22)",
               borderLeft: "3px solid #FF9900",
-              paddingLeft: "16px",
+              borderRadius: "14px",
+              padding: "16px 20px",
+              width: "100%",
+              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
             }}>
               <span style={{
-                fontSize: "11px", fontWeight: 800, letterSpacing: "0.12em",
-                textTransform: "uppercase", color: "#FF9900", display: "block", marginBottom: 6,
+                fontSize: "10.5px", fontWeight: 800, letterSpacing: "0.12em",
+                textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 8,
               }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900" }} />
                 MENTORSHIP VISION & IMPACT
               </span>
               <p style={{
-                fontSize: "13.5px", lineHeight: "1.7", color: "#e2e8f0",
-                fontWeight: 400, margin: 0, fontStyle: "italic",
+                fontSize: "13.5px", lineHeight: "1.75", color: "#F8FAFC",
+                fontWeight: 400, margin: 0, fontStyle: "normal",
+                letterSpacing: "-0.01em",
               }}>
                 "{coord.bio}"
               </p>
