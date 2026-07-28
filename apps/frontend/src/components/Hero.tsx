@@ -232,12 +232,28 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
       
+      // Boost near-white render background pixels to pure #ffffff
+      ctx.filter = "brightness(1.04) contrast(1.05)";
       ctx.drawImage(img, sx, sy, sw, sh, roundedOffsetX, roundedOffsetY, roundedDrawWidth, roundedDrawHeight);
+      ctx.filter = "none";
 
-      // Draw a white border around the image bounds to cover any bilinear edge seams or texture bleed lines
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 6;
-      ctx.strokeRect(roundedOffsetX, roundedOffsetY, roundedDrawWidth, roundedDrawHeight);
+      // Feather the left edge of the image (roundedOffsetX) to dissolve any ambient shadow box boundaries smoothly into pure white
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      const leftFade = ctx.createLinearGradient(roundedOffsetX - 5, 0, roundedOffsetX + 120, 0);
+      leftFade.addColorStop(0, "rgba(0, 0, 0, 1)");
+      leftFade.addColorStop(0.5, "rgba(0, 0, 0, 0.6)");
+      leftFade.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = leftFade;
+      ctx.fillRect(roundedOffsetX - 10, 0, 140, canvasHeight);
+
+      // Feather bottom edge
+      const bottomFade = ctx.createLinearGradient(0, roundedOffsetY + roundedDrawHeight - 70, 0, roundedOffsetY + roundedDrawHeight + 5);
+      bottomFade.addColorStop(0, "rgba(0, 0, 0, 0)");
+      bottomFade.addColorStop(1, "rgba(0, 0, 0, 1)");
+      ctx.fillStyle = bottomFade;
+      ctx.fillRect(0, roundedOffsetY + roundedDrawHeight - 75, canvasWidth, 85);
+      ctx.restore();
     }
   }, [images]);
 
@@ -320,7 +336,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
     );
   }
 
-  // Mobile Fallback: Standard layout with grid background
+  // Mobile View: Clean responsive layout with single static image fallback
   if (isMobile) {
     return (
       <section
@@ -332,9 +348,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "#ffffff",
-          backgroundImage: previewData
-            ? "linear-gradient(to bottom, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.97) 100%), url('/assets/hero-sequence/0.webp')"
-            : "linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.95) 75%, #ffffff 100%), url('/assets/hero-sequence/0.webp')",
+          backgroundImage: "linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, #ffffff 100%)",
           backgroundSize: "200% auto",
           backgroundPosition: "center 85%",
           backgroundRepeat: "no-repeat",

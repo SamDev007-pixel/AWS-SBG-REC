@@ -1,3 +1,3 @@
 # Project Rules
 
-- Do NOT perform git commits. Keep all changes local without creating commits.
+- Perform git commits when explicitly requested by the user.

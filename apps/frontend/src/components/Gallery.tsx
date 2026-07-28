@@ -37,51 +37,29 @@ const AUTO_MS    = 3200;  // auto-advance interval (ms)
 /* ─── Shared card face ──────────────────────────────────────────────────── */
 function CardFace({
   card,
-  index,
-  total,
 }: {
   card: (typeof DEFAULT_CARDS)[0];
-  index: number;
-  total: number;
 }) {
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 2 }}>
-      {/* Text Content */}
-      <div style={{ position: "relative", zIndex: 2 }}>
-        <div
-          style={{
-            fontSize: "11px",
-            fontWeight: 800,
-            color: "#FF9900",
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            marginBottom: "4px",
-          }}
-        >
-          {card.sublabel}
+    <div className="flex flex-col justify-center h-full w-full">
+      {/* Eyebrow Tag */}
+      {card.sublabel && (
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#FF9900]">
+            {card.sublabel}
+          </span>
         </div>
-        <div
-          style={{
-            fontSize: "clamp(16px, 2.5vw, 19px)",
-            fontWeight: 800,
-            color: "#FFFFFF",
-            marginBottom: "7px",
-            lineHeight: 1.2,
-          }}
-        >
-          {card.label}
-        </div>
-        <p
-          style={{
-            fontSize: "clamp(11.5px, 1.5vw, 13px)",
-            color: "rgba(255, 255, 255, 0.82)",
-            lineHeight: 1.5,
-            margin: 0,
-          }}
-        >
-          {card.description}
-        </p>
-      </div>
+      )}
+
+      {/* Main Title */}
+      <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug mb-2 font-display">
+        {card.label}
+      </h3>
+
+      {/* Description */}
+      <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed font-normal m-0 line-clamp-4">
+        {card.description}
+      </p>
     </div>
   );
 }
@@ -354,9 +332,9 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
                 style={{
                   height: "190px",
                   width: "100%",
-                  background: "#111622",
+                  background: "linear-gradient(180deg, #111726 0%, #0B0F19 100%)",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  padding: "20px 24px",
+                  padding: "22px 28px",
                   boxSizing: "border-box",
                   position: "relative",
                   display: "flex",
@@ -364,7 +342,7 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
                   justifyContent: "center",
                 }}
               >
-                <CardFace card={card} index={cardIdx} total={N} />
+                <CardFace card={card} />
               </div>
 
               {/* Dimming shadow for cards deeper in stack */}

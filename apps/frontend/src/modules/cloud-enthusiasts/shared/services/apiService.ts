@@ -1,4 +1,4 @@
-import { Event, DynamicFormField, Registration, Ticket } from '../types';
+import type { Event, DynamicFormField, Registration, Ticket } from '../types';
 
 export interface RegisterPayload {
   fullName: string;
@@ -13,6 +13,10 @@ export interface RegisterPayload {
 
 function mapBackendEventToFrontend(e: any): Event {
   if (!e) return e;
+  const isPast = e.date ? new Date(e.date).getTime() < Date.now() : false;
+  const isEnded = e.status === 'COMPLETED' || e.status === 'ARCHIVED' || e.status === 'Ended' || isPast;
+  const isOngoing = !isEnded && (e.status === 'ONGOING' || e.status === 'Ongoing');
+
   return {
     event_id: e.id,
     title: e.title,
@@ -26,7 +30,7 @@ function mapBackendEventToFrontend(e: any): Event {
     start_datetime: e.date || '',
     end_datetime: e.endDatetime || '',
     registration_deadline: e.registrationDeadline || '',
-    event_status: e.status === 'COMPLETED' || e.status === 'ARCHIVED' || e.status === 'Ended' ? 'Ended' : (e.status === 'ONGOING' || e.status === 'Ongoing' ? 'Ongoing' : 'Upcoming'),
+    event_status: isEnded ? 'Ended' : (isOngoing ? 'Ongoing' : 'Upcoming'),
     registered: e._count?.registrations || e.registered || 0,
     created_at: e.createdAt || '',
     updated_at: e.updatedAt || '',
@@ -101,9 +105,10 @@ export const apiService = {
     availability?: string;
   }): Promise<Event[]> {
     const params = new URLSearchParams();
+    params.append('limit', '100');
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.availability) params.append('availability', filters.availability);
+    if (filters?.category && filters.category !== 'All') params.append('category', filters.category);
+    if (filters?.availability && filters.availability !== 'All') params.append('availability', filters.availability);
 
     try {
       const res = await fetch(`/api/events?${params.toString()}`);

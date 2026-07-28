@@ -458,24 +458,30 @@ export default function OurTeamShowcase({
 
   if (allMembers.length === 0) return null;
 
+  const isDevelopersSection = filterType === "developers";
+  const bgImage = isDevelopersSection ? "/images/tech_doodle_white_bg.png" : "/images/crew_doodle_white_bg.png";
+
   return (
     <section
       ref={sectionRef}
       id={id}
       style={{
         width: "100%",
-        background: "#f8fafc",
-        backgroundImage: "radial-gradient(circle at 10% 20%, rgba(255, 153, 0, 0.04) 0%, transparent 45%), radial-gradient(circle at 90% 80%, rgba(0, 115, 187, 0.04) 0%, transparent 45%), radial-gradient(#e2e8f0 1px, transparent 1px)",
-        backgroundSize: "100% 100%, 100% 100%, 24px 24px",
+        backgroundColor: "#ffffff",
+        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.9) 100%), url('${bgImage}')`,
+        backgroundSize: "450px auto",
+        backgroundRepeat: "repeat",
+        backgroundPosition: "center",
         position: "relative",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "36px 0 44px",
+        padding: "44px 0 52px",
         scrollMarginTop: "100px",
-        borderTop: previewData ? "none" : "1px solid #e2e8f0",
+        borderTop: previewData ? "none" : "1px solid #f1f5f9",
+        borderBottom: previewData ? "none" : "1px solid #f1f5f9",
       }}
     >
       <style>{`
@@ -494,18 +500,6 @@ export default function OurTeamShowcase({
           }
         }
       `}</style>
-
-      {/* ── DOT GRID RADIAL FADE MASK ── */}
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "radial-gradient(circle at center, transparent 40%, #ffffff 90%)",
-        pointerEvents: "none",
-        zIndex: 1,
-      }} />
 
       {/* ── HEADER ── */}
       <div style={{ textAlign: "center", marginBottom: 28, position: "relative", zIndex: 10, padding: "0 24px" }}>

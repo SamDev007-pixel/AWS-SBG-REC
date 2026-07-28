@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
-const DESCRIPTION = `The driving force behind the AWS Student Builder Group at Rajalakshmi Engineering College, he has played a pivotal role in establishing and nurturing the community since its inception. By mentoring the core and crew teams, reviewing ideas, monitoring progress, providing valuable feedback, and ensuring the successful execution of every initiative, he has fostered a culture of innovation, collaboration, and continuous learning. Through his unwavering guidance and commitment to excellence, he empowers students to grow, lead impactful initiatives, and contribute to the sustained success of the AWS Student Builder Group.`;
+const DESCRIPTION = `The driving force behind the AWS Student Builder Group at Rajalakshmi Engineering College, he has played a pivotal role in establishing and nurturing the community. Through his guidance, he empowers students to innovate, collaborate, and execute impactful cloud initiatives.`;
 
 const DEFAULT_COORD = {
   name: "Bhuvaneswaran B.",
@@ -27,11 +27,7 @@ interface FacultyCoordinatorProps {
 }
 
 export default function FacultyCoordinator({ previewData, forceMobile }: FacultyCoordinatorProps = {}) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [coord, setCoord] = useState(previewData || DEFAULT_COORD);
-
-  const shouldGlow = isHovered && !isFlipped;
 
   useEffect(() => {
     if (previewData) {
@@ -48,9 +44,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           setCoord(res);
         }
       })
-      .catch((err) => {
-        // Silently use fallback default coordinator data
-      });
+      .catch(() => {});
     return () => { active = false; };
   }, [previewData]);
 
@@ -60,414 +54,260 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
       className={forceMobile ? "force-mobile" : ""}
       style={{
         width: "100%",
-        background: "#f8fafc",
-        backgroundImage:
-          "radial-gradient(circle at 10% 20%, rgba(255, 153, 0, 0.04) 0%, transparent 45%), radial-gradient(circle at 90% 80%, rgba(0, 115, 187, 0.04) 0%, transparent 45%), radial-gradient(#e2e8f0 1px, transparent 1px)",
-        backgroundSize: "100% 100%, 100% 100%, 24px 24px",
+        backgroundColor: "#0B0F19",
+        backgroundImage: `
+          linear-gradient(to bottom, rgba(11, 15, 25, 0.88) 0%, rgba(11, 15, 25, 0.82) 50%, rgba(11, 15, 25, 0.9) 100%),
+          url('/images/crew_doodle_black_bg.png')
+        `,
+        backgroundSize: "450px auto",
+        backgroundRepeat: "repeat",
+        backgroundPosition: "center",
         position: "relative",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "64px 24px",
-        borderTop: previewData ? "none" : "1px solid #e2e8f0",
+        padding: "48px 20px 56px",
+        borderTop: previewData ? "none" : "1px solid rgba(255, 153, 0, 0.15)",
+        borderBottom: previewData ? "none" : "1px solid rgba(255, 153, 0, 0.15)",
         scrollMarginTop: "100px",
       }}
     >
       <style>{`
-        .faculty-card-container {
+        .spotlight-banner-wrapper {
           width: 100%;
-          max-width: 680px;
-          height: 230px;
-          perspective: 1200px;
-          cursor: pointer;
+          max-width: 1240px;
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 153, 0, 0.25);
+          border-radius: 24px;
+          box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 153, 0, 0.08);
+          padding: 32px 36px;
           position: relative;
           z-index: 10;
+          transition: all 0.3s ease;
         }
-        .faculty-card-inner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          transform-style: preserve-3d;
-          transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        .spotlight-banner-wrapper:hover {
+          border-color: rgba(255, 153, 0, 0.45);
+          box-shadow: 0 25px 60px -10px rgba(255, 153, 0, 0.15), 0 0 40px rgba(255, 153, 0, 0.1);
         }
-        .faculty-card-front, .faculty-card-back {
-          position: absolute;
-          inset: 0;
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-          border-radius: 16px;
-          overflow: hidden;
-        }
-        .faculty-card-front {
+        .spotlight-grid {
           display: flex;
           flex-direction: row;
           align-items: stretch;
-          background: linear-gradient(to bottom, #ffffff, #f8fafc);
+          gap: 32px;
         }
-        .faculty-photo-wrapper {
-          width: 190px;
-          height: 100%;
-          overflow: hidden;
-          position: relative;
+        .spotlight-left-card {
+          width: 270px;
           flex-shrink: 0;
           display: flex;
-          align-items: stretch;
-          justify-content: stretch;
+          flex-direction: column;
+          align-items: flex-start;
         }
-        .faculty-photo-img {
+        .spotlight-img-frame {
+          width: 240px;
+          height: 240px;
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(255, 153, 0, 0.3);
+          margin-bottom: 14px;
+        }
+        .spotlight-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           object-position: top center;
+          transition: transform 0.5s ease;
         }
-        .faculty-info-wrapper {
+        .spotlight-banner-wrapper:hover .spotlight-img {
+          transform: scale(1.03);
+        }
+        .spotlight-right-content {
           flex: 1;
-          padding: 24px;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          gap: 8px;
-          min-width: 0;
-          align-items: flex-start;
-          text-align: left;
-        }
-        .faculty-actions-row {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-top: 4px;
-          width: 100%;
-          justify-content: flex-start;
+          justify-content: space-between;
         }
 
-        @media (max-width: 580px) {
-          .faculty-card-container {
-            height: 360px !important;
-            perspective: 1200px !important;
-            cursor: pointer !important;
-          }
-          .faculty-card-inner {
-            transform-style: preserve-3d !important;
-            height: 100% !important;
-          }
-          .faculty-card-front, .faculty-card-back {
-            position: absolute !important;
-            inset: 0 !important;
-            backface-visibility: hidden !important;
-            -webkit-backface-visibility: hidden !important;
-            height: 100% !important;
-            width: 100% !important;
-            display: flex !important;
-          }
-          .faculty-card-front {
+        @media (max-width: 780px) {
+          .spotlight-grid {
             flex-direction: column !important;
-            align-items: stretch !important;
+            gap: 20px !important;
           }
-          .faculty-card-back {
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            padding: 20px !important;
-          }
-          .faculty-photo-wrapper {
+          .spotlight-left-card {
             width: 100% !important;
-            height: 170px !important;
+            align-items: center !important;
+            text-align: center !important;
           }
-          .faculty-photo-img {
-            border-radius: 16px 16px 0 0 !important;
+          .spotlight-img-frame {
+            width: 160px !important;
+            height: 160px !important;
+            margin: 0 auto 12px auto !important;
+            border-radius: 14px !important;
           }
-          .faculty-info-wrapper {
-            padding: 16px 16px 20px 16px !important;
-            gap: 6px !important;
-            align-items: flex-start !important;
-            text-align: left !important;
+          .spotlight-banner-wrapper {
+            padding: 18px 16px !important;
+            border-radius: 18px !important;
           }
-          .faculty-actions-row {
-            justify-content: flex-start !important;
-            gap: 12px !important;
-            margin-top: 8px !important;
+          .spotlight-quote-card {
+            padding: 14px 16px !important;
+            margin-bottom: 0 !important;
+            border-radius: 12px !important;
           }
-          .faculty-mobile-bio {
-            display: none !important;
+          .spotlight-quote-text {
+            font-size: 12.5px !important;
+            line-height: 1.55 !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 3 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
           }
-        }
-
-        /* Force mobile layout overrides for preview container */
-        .force-mobile .faculty-card-container {
-          height: 360px !important;
-          perspective: 1200px !important;
-          cursor: pointer !important;
-        }
-        .force-mobile .faculty-card-inner {
-          transform-style: preserve-3d !important;
-          height: 100% !important;
-        }
-        .force-mobile .faculty-card-front, .force-mobile .faculty-card-back {
-          position: absolute !important;
-          inset: 0 !important;
-          backface-visibility: hidden !important;
-          -webkit-backface-visibility: hidden !important;
-          height: 100% !important;
-          width: 100% !important;
-          display: flex !important;
-        }
-        .force-mobile .faculty-card-front {
-          flex-direction: column !important;
-          align-items: stretch !important;
-        }
-        .force-mobile .faculty-card-back {
-          flex-direction: column !important;
-          justify-content: space-between !important;
-          padding: 20px !important;
-        }
-        .force-mobile .faculty-photo-wrapper {
-          width: 100% !important;
-          height: 170px !important;
-        }
-        .force-mobile .faculty-photo-img {
-          border-radius: 16px 16px 0 0 !important;
-        }
-        .force-mobile .faculty-info-wrapper {
-          padding: 16px 16px 20px 16px !important;
-          gap: 6px !important;
-          align-items: flex-start !important;
-          text-align: left !important;
-        }
-        .force-mobile .faculty-actions-row {
-          justify-content: flex-start !important;
-          gap: 12px !important;
-          margin-top: 8px !important;
-        }
-        .force-mobile .faculty-mobile-bio {
-          display: none !important;
+          .spotlight-header-container {
+            margin-bottom: 18px !important;
+          }
+          .spotlight-right-header {
+            justify-content: center !important;
+          }
         }
       `}</style>
 
-      {/* Radial fade mask */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-        background: "radial-gradient(ellipse at center, transparent 60%, #f8fafc 95%)",
-        pointerEvents: "none", zIndex: 1,
-      }} />
-
-      {/* Header */}
-      <div style={{ position: "relative", zIndex: 10, textAlign: "center", marginBottom: 32 }}>
+      {/* Section Header */}
+      <div className="spotlight-header-container" style={{ position: "relative", zIndex: 10, textAlign: "center", marginBottom: 28 }}>
         <span style={{
           fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em",
-          textTransform: "uppercase", color: "#E68A00", display: "block", marginBottom: 6,
+          textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 5,
+          background: "rgba(255, 153, 0, 0.12)", border: "1px solid rgba(255, 153, 0, 0.3)",
+          padding: "4px 12px", borderRadius: 20, marginBottom: 8,
         }}>
-          FACULTY ADVISOR
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF9900" }} />
+          FACULTY LEADERSHIP
         </span>
         <h2 style={{
-          fontSize: "clamp(24px, 2.5vw, 32px)", fontWeight: 800,
-          color: "#0f172a", margin: 0, letterSpacing: "-0.025em", lineHeight: 1.2,
+          fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 800,
+          color: "#ffffff", margin: "0 0 6px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
         }}>
           Meet Our Faculty Coordinator
         </h2>
+        <p style={{ fontSize: "13.5px", color: "#94a3b8", margin: 0, fontWeight: 450, maxWidth: "520px" }}>
+          Guiding innovation, fostering community excellence, and mentoring student cloud leaders at REC.
+        </p>
       </div>
 
-      {/* Flip Card Container */}
-      <div
-        className="faculty-card-container"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          transform: shouldGlow ? "translateY(-4px)" : "translateY(0)",
-          transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      >
-        {/* Inner flip wrapper */}
-        <div
-          className="faculty-card-inner"
-          style={{
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          }}
-        >
-
-          {/* ── FRONT FACE ── */}
-          <div
-            className="faculty-card-front"
-            onClick={() => setIsFlipped(!isFlipped)}
-            style={{
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden",
-              border: shouldGlow ? "1px solid #E68A00" : "1px solid rgba(15, 23, 42, 0.12)",
-              boxShadow: shouldGlow
-                ? "0 12px 24px -6px rgba(230, 138, 0, 0.16), 0 4px 12px -4px rgba(230, 138, 0, 0.12)"
-                : "0 1px 3px rgba(15, 23, 42, 0.015), 0 1px 2px rgba(15, 23, 42, 0.01)",
-              transition: "border-color 0.4s ease, box-shadow 0.4s ease",
-            }}
-          >
-            {/* Photo wrapper */}
-            <div className="faculty-photo-wrapper">
+      {/* Spotlight Banner Container */}
+      <div className="spotlight-banner-wrapper">
+        <div className="spotlight-grid">
+          
+          {/* Left Column: Portrait & Credentials */}
+          <div className="spotlight-left-card">
+            <div className="spotlight-img-frame">
               <img
-                className="faculty-photo-img"
+                className="spotlight-img"
                 src={coord.image}
                 alt={coord.name}
-                style={{
-                  transform: shouldGlow ? "scale(1.04)" : "scale(1)",
-                  transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
               />
             </div>
 
-            {/* Info — vertically centered */}
-            <div className="faculty-info-wrapper">
-              {/* Badge */}
-              <span style={{
-                fontSize: 9, fontWeight: 800, letterSpacing: "0.08em",
-                textTransform: "uppercase", color: "#E68A00",
-                background: "rgba(230, 138, 0, 0.08)",
-                border: "1px solid rgba(230, 138, 0, 0.2)",
-                borderRadius: 4, padding: "3px 8px", alignSelf: "flex-start",
-              }}>
-                Faculty Coordinator
-              </span>
+            <span style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+              textTransform: "uppercase", color: "#FF9900",
+              background: "rgba(255, 153, 0, 0.12)",
+              border: "1px solid rgba(255, 153, 0, 0.3)",
+              borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5,
+              marginBottom: 8,
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900" }} />
+              FACULTY COORDINATOR
+            </span>
 
-              {/* Name */}
-              <h3 style={{
-                fontSize: 20, fontWeight: 800,
-                color: shouldGlow ? "#E68A00" : "#0f172a",
-                margin: 0, letterSpacing: "-0.02em", lineHeight: 1.2,
-                transition: "color 0.3s ease",
-              }}>
-                {coord.name}
-              </h3>
+            <h3 style={{
+              fontSize: 22, fontWeight: 800, color: "#ffffff",
+              margin: "0 0 6px 0", letterSpacing: "-0.025em", lineHeight: 1.25,
+            }}>
+              {coord.name}
+            </h3>
 
-              {/* Role */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                <span style={{
-                  fontSize: 12, fontWeight: 600, color: "#334155",
-                  display: "flex", alignItems: "center", gap: 6,
-                  lineHeight: 1.3,
-                }}>
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#0073BB", flexShrink: 0 }} />
-                  {coord.role}
-                </span>
-                <span style={{ fontSize: 11, color: "#64748b", fontWeight: 400, paddingLeft: 11 }}>
-                  {coord.department}
-                </span>
-              </div>
-
-              {/* Mobile Description (Hidden on Desktop) */}
-              <p
-                className="faculty-mobile-bio"
-                style={{
-                  display: "none",
-                  margin: "8px 0 0 0",
-                  fontSize: "12px",
-                  lineHeight: "1.6",
-                  color: "#475569",
-                  fontWeight: 450,
-                }}
-              >
-                {coord.bio}
-              </p>
-
-              {/* Actions row */}
-              <div className="faculty-actions-row">
-                <a
-                  href={coord.linkedin}
-                  target="_blank" rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 5,
-                    fontSize: 11, fontWeight: 700, color: "#0073BB",
-                    textDecoration: "none",
-                    background: "rgba(0, 115, 187, 0.06)",
-                    border: "1px solid rgba(0, 115, 187, 0.16)",
-                    borderRadius: 6, padding: "5px 11px",
-                    transition: "background 0.2s ease, border-color 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(0, 115, 187, 0.12)";
-                    e.currentTarget.style.borderColor = "rgba(0, 115, 187, 0.32)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(0, 115, 187, 0.06)";
-                    e.currentTarget.style.borderColor = "rgba(0, 115, 187, 0.16)";
-                  }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                  View LinkedIn
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* ── BACK FACE ── */}
-          <div
-            className="faculty-card-back"
-            onClick={() => setIsFlipped(!isFlipped)}
-            style={{
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden",
-              transform: "rotateY(180deg)",
-              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)",
-              border: "1px solid rgba(230, 138, 0, 0.25)",
-              boxShadow: "0 12px 24px -6px rgba(230, 138, 0, 0.16), 0 4px 12px -4px rgba(230, 138, 0, 0.12)",
-              display: "flex", flexDirection: "column",
-              justifyContent: "space-between",
-              padding: "20px 24px 16px",
-            }}
-          >
-            {/* Decorative glows */}
-            <div style={{
-              position: "absolute", top: -50, right: -50,
-              width: 180, height: 180, borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(255,153,0,0.08) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }} />
-            <div style={{
-              position: "absolute", bottom: -30, left: -30,
-              width: 140, height: 140, borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(0,115,187,0.06) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }} />
-
-            {/* Back header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 2 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                background: "rgba(230,138,0,0.15)", border: "1px solid rgba(230,138,0,0.3)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E68A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <div>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#E68A00" }}>
-                  Faculty Coordinator – AWS SBG REC
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#f1f5f9", marginTop: 1 }}>
-                  {coord.name}
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p
-              className="faculty-bio-paragraph"
-              style={{
-                fontSize: 11.5, lineHeight: 1.65, color: "#cbd5e1",
-                margin: 0, fontWeight: 400,
-                position: "relative", zIndex: 2,
-              }}
-            >
-              {coord.bio}
+            <p style={{ fontSize: 12.5, fontWeight: 650, color: "#cbd5e1", margin: "0 0 3px 0", lineHeight: 1.4 }}>
+              {coord.role}
+            </p>
+            <p style={{ fontSize: 11.5, color: "#94a3b8", margin: "0 0 16px 0", fontWeight: 500, lineHeight: 1.4 }}>
+              {coord.department}
             </p>
 
-            {/* Flip back hint */}
-            <div style={{ display: "flex", alignItems: "center", gap: 4, position: "relative", zIndex: 2 }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />
+            <a
+              href={coord.linkedin}
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: 12, fontWeight: 700, color: "#ffffff",
+                textDecoration: "none",
+                background: "#0A66C2",
+                borderRadius: 8, padding: "7px 14px",
+                boxShadow: "0 4px 14px rgba(10, 102, 194, 0.35)",
+                transition: "all 0.2s ease",
+                width: "100%", justifyContent: "center",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#084E96";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#0A66C2";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
-              <span style={{ fontSize: 10, color: "#475569", fontWeight: 500 }}>Click to flip back</span>
+              Connect on LinkedIn
+            </a>
+          </div>
+
+          {/* Right Column: Message & Mentorship Impact */}
+          <div className="spotlight-right-content">
+            <div>
+              <div className="spotlight-right-header" style={{
+                display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
+              }}>
+                <div style={{
+                  width: 26, height: 26, borderRadius: 7,
+                  background: "rgba(255, 153, 0, 0.15)", border: "1px solid rgba(255, 153, 0, 0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#FF9900" }}>
+                  MENTORSHIP VISION & IMPACT
+                </span>
+              </div>
+
+              {/* Quote Card */}
+              <div className="spotlight-quote-card" style={{
+                background: "rgba(30, 41, 59, 0.65)",
+                border: "1px solid rgba(255, 153, 0, 0.2)",
+                borderRadius: 14, padding: "20px 24px",
+                position: "relative", marginBottom: 0,
+                boxShadow: "0 8px 20px -5px rgba(0, 0, 0, 0.3)",
+              }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF9900" opacity="0.2" style={{ position: "absolute", top: 14, right: 18 }}>
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+
+                <p className="spotlight-quote-text" style={{
+                  fontSize: "14px", lineHeight: "1.75", color: "#e2e8f0",
+                  fontWeight: 400, margin: 0, fontStyle: "normal",
+                  letterSpacing: "-0.01em",
+                }}>
+                  "{coord.bio}"
+                </p>
+              </div>
             </div>
+
           </div>
 
         </div>

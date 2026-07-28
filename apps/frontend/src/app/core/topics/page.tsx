@@ -155,17 +155,21 @@ export default function TopicsDirectoryPage() {
 
   if (error) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center p-6">
-        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="max-w-xl w-full border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
-            <Icons.AlertTriangle className="w-9 h-9" />
+      <div className="min-h-[60vh] flex items-center justify-center p-6 bg-slate-50/50">
+        <div className="max-w-md w-full bg-white border border-slate-200/80 rounded-2xl p-8 shadow-xl shadow-slate-200/40 flex flex-col items-center text-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100/80 flex items-center justify-center text-rose-500 shadow-xs">
+            <Icons.AlertTriangle className="w-7 h-7 stroke-[2.2]" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-extrabold tracking-tight text-slate-900 font-heading">Error Loading Topics</h2>
-            <p className="text-xs text-slate-650 leading-relaxed max-w-md mx-auto">{error}</p>
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 font-heading">Error Loading Topics</h2>
+            <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">{error}</p>
           </div>
-          <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading">
-            Retry
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center justify-center gap-2 bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs hover:shadow transition-all duration-200 font-heading cursor-pointer active:scale-98 select-none"
+          >
+            <Icons.RefreshCw className="w-3.5 h-3.5" />
+            Retry Connection
           </button>
         </div>
       </div>

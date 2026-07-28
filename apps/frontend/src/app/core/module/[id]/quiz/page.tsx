@@ -296,23 +296,24 @@ export default function QuizEditorPage() {
   // CMS Error Banner render block
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
-        <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 animate-bounce">
-            <Icons.AlertTriangle className="w-9 h-9" />
+      <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-6 text-slate-100">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-xs">
+            <Icons.AlertTriangle className="w-7 h-7 stroke-[2.2]" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-bold tracking-tight text-white font-heading">
               CMS Runtime Contract Mismatch
             </h2>
-            <p className="text-xs text-rose-400 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
               {error}
             </p>
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading"
+            className="inline-flex items-center justify-center gap-2 bg-[#FF9900] hover:bg-[#E68A00] text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm transition-all duration-200 font-heading cursor-pointer active:scale-98 select-none"
           >
+            <Icons.RefreshCw className="w-3.5 h-3.5" />
             Retry Connection
           </button>
         </div>
