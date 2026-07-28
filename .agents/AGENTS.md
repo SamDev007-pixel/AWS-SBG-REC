@@ -1,3 +1,3 @@
 # Project Rules
 
-- Perform git commits when explicitly requested by the user.
+- Do not Perform git commits when explicitly requested by the user.
