@@ -266,9 +266,10 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
                 MENTORSHIP VISION & IMPACT
               </span>
               <p style={{
-                fontSize: "13.5px", lineHeight: "1.75", color: "#F8FAFC",
-                fontWeight: 400, margin: 0, fontStyle: "normal",
-                letterSpacing: "-0.01em",
+                fontSize: "14px", lineHeight: "1.7", color: "#E2E8F0",
+                fontWeight: 450, margin: 0, fontStyle: "normal",
+                fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+                letterSpacing: "-0.005em",
               }}>
                 "{coord.bio}"
               </p>
