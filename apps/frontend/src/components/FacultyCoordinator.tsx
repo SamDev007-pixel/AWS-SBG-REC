@@ -238,13 +238,13 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               {coord.name}
             </h3>
 
-            {/* Role: Vibrant AWS Amber Gold */}
-            <p style={{ fontSize: "14px", fontWeight: 700, color: "#FBBF24", margin: "0 0 4px 0", lineHeight: 1.4, letterSpacing: "0.01em" }}>
+            {/* Role: Standard Project Secondary Slate */}
+            <p style={{ fontSize: "13.5px", fontWeight: 600, color: "#CBD5E1", margin: "0 0 3px 0", lineHeight: 1.4 }}>
               {coord.role}
             </p>
             
-            {/* Department: Cool Sky Blue */}
-            <p style={{ fontSize: "12.5px", color: "#38BDF8", margin: "0 0 18px 0", fontWeight: 500, lineHeight: 1.4 }}>
+            {/* Department: Standard Project Muted Slate */}
+            <p style={{ fontSize: "12px", color: "#94A3B8", margin: "0 0 18px 0", fontWeight: 500, lineHeight: 1.4 }}>
               {coord.department}
             </p>
 
