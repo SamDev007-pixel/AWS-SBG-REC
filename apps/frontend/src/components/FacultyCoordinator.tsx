@@ -81,17 +81,17 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 153, 0, 0.45);
+          border: 1px solid rgba(255, 153, 0, 0.2);
           border-radius: 8px;
-          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.15);
+          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.08);
           padding: 24px 28px;
           position: relative;
           z-index: 10;
           transition: all 0.3s ease;
         }
         .spotlight-banner-wrapper:hover {
-          border-color: rgba(255, 153, 0, 0.65);
-          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.2);
+          border-color: rgba(255, 153, 0, 0.35);
+          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.12);
         }
         .spotlight-grid {
           display: flex;
@@ -113,7 +113,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           overflow: hidden;
           position: relative;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-          border: 1px solid rgba(255, 153, 0, 0.45);
+          border: 1px solid rgba(255, 153, 0, 0.35);
           margin-bottom: 12px;
         }
         .spotlight-img {
@@ -190,7 +190,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             margin-top: 10px !important;
             text-align: left !important;
             border-radius: 8px !important;
-            border: 1px solid rgba(255, 153, 0, 0.45) !important;
+            border: 1px solid rgba(255, 153, 0, 0.55) !important;
           }
           .spotlight-header-container {
             margin-bottom: 16px !important;
@@ -263,39 +263,28 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             </span>
 
             <h3 style={{
-              fontSize: "clamp(22px, 2.4vw, 26px)", fontWeight: 750, color: "#ffffff",
-              margin: "0 0 5px 0", letterSpacing: "-0.015em", lineHeight: 1.25,
-              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+              fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, color: "#ffffff",
+              margin: "0 0 4px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
             }}>
               {coord.name}
             </h3>
 
-            <p style={{
-              fontSize: "13.5px", fontWeight: 600, color: "#e2e8f0",
-              margin: "0 0 3px 0", lineHeight: 1.4,
-              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.005em",
-            }}>
+            <p style={{ fontSize: "13px", fontWeight: 650, color: "#cbd5e1", margin: "0 0 2px 0", lineHeight: 1.4 }}>
               {coord.role}
             </p>
             
-            <p style={{
-              fontSize: "12px", color: "#94a3b8",
-              margin: "0 0 14px 0", fontWeight: 450, lineHeight: 1.4,
-              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
-              letterSpacing: "0.005em",
-            }}>
+            <p style={{ fontSize: "11.5px", color: "#94a3b8", margin: "0 0 14px 0", fontWeight: 500, lineHeight: 1.4 }}>
               {coord.department}
             </p>
 
             {/* Sleek Mentorship Vision Quote Container */}
             <div className="spotlight-quote-card" style={{
-              background: "rgba(22, 30, 46, 0.75)",
-              border: "1px solid rgba(255, 153, 0, 0.45)",
+              background: "rgba(30, 41, 59, 0.65)",
+              border: "1px solid rgba(255, 153, 0, 0.55)",
               borderRadius: "8px",
               padding: "16px 20px",
               width: "100%",
-              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35), 0 0 14px rgba(255, 153, 0, 0.1)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(255, 153, 0, 0.15)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <div style={{
