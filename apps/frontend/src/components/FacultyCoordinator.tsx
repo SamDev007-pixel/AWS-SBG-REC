@@ -270,21 +270,34 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               {coord.department}
             </p>
 
-            {/* Sleek Mentorship Vision Quote Container */}
+            {/* Sleek Glassmorphism Mentorship Vision Quote Container */}
             <div className="spotlight-quote-card" style={{
-              background: "rgba(30, 41, 59, 0.65)",
-              border: "1px solid rgba(255, 153, 0, 0.22)",
-              borderLeft: "3.5px solid #FF9900",
-              borderRadius: "4px",
-              padding: "14px 18px",
+              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.75) 100%)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255, 153, 0, 0.28)",
+              borderTop: "2px solid #FF9900",
+              borderRadius: "8px",
+              padding: "16px 20px",
               width: "100%",
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 16px rgba(255, 153, 0, 0.06)",
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+              {/* Subtle background quotation watermark */}
+              <svg
+                width="48" height="48" viewBox="0 0 24 24" fill="#FF9900" opacity="0.1"
+                style={{ position: "absolute", top: 8, right: 12, pointerEvents: "none" }}
+              >
+                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+              </svg>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, position: "relative", zIndex: 2 }}>
                 <div style={{
-                  width: 20, height: 20, borderRadius: 5,
-                  background: "rgba(255, 153, 0, 0.15)", border: "1px solid rgba(255, 153, 0, 0.3)",
+                  width: 20, height: 20, borderRadius: 4,
+                  background: "rgba(255, 153, 0, 0.15)", border: "1px solid rgba(255, 153, 0, 0.35)",
                   display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 0 8px rgba(255, 153, 0, 0.2)",
                 }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -303,6 +316,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
                 fontWeight: 400, margin: 0, fontStyle: "normal",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
                 letterSpacing: "-0.005em",
+                position: "relative", zIndex: 2,
               }}>
                 "{coord.bio}"
               </p>
