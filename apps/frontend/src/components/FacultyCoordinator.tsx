@@ -263,17 +263,28 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             </span>
 
             <h3 style={{
-              fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, color: "#ffffff",
-              margin: "0 0 4px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
+              fontSize: "clamp(22px, 2.4vw, 26px)", fontWeight: 750, color: "#ffffff",
+              margin: "0 0 5px 0", letterSpacing: "-0.015em", lineHeight: 1.25,
+              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
             }}>
               {coord.name}
             </h3>
 
-            <p style={{ fontSize: "13px", fontWeight: 650, color: "#cbd5e1", margin: "0 0 2px 0", lineHeight: 1.4 }}>
+            <p style={{
+              fontSize: "13.5px", fontWeight: 600, color: "#e2e8f0",
+              margin: "0 0 3px 0", lineHeight: 1.4,
+              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+              letterSpacing: "-0.005em",
+            }}>
               {coord.role}
             </p>
             
-            <p style={{ fontSize: "11.5px", color: "#94a3b8", margin: "0 0 14px 0", fontWeight: 500, lineHeight: 1.4 }}>
+            <p style={{
+              fontSize: "12px", color: "#94a3b8",
+              margin: "0 0 14px 0", fontWeight: 450, lineHeight: 1.4,
+              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+              letterSpacing: "0.005em",
+            }}>
               {coord.department}
             </p>
 
