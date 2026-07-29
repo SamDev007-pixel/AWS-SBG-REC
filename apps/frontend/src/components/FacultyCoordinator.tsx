@@ -82,7 +82,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 153, 0, 0.25);
-          border-radius: 20px;
+          border-radius: 8px;
           box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.08);
           padding: 24px 28px;
           position: relative;
@@ -109,7 +109,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         .spotlight-img-frame {
           width: 200px;
           height: 200px;
-          border-radius: 16px;
+          border-radius: 8px;
           overflow: hidden;
           position: relative;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
@@ -142,7 +142,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           color: #ffffff;
           text-decoration: none;
           background: #0A66C2;
-          border-radius: 7px;
+          border-radius: 4px;
           padding: 7.5px 14px;
           box-shadow: 0 3px 10px rgba(10, 102, 194, 0.35);
           transition: all 0.2s ease;
@@ -166,7 +166,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           .spotlight-img-frame {
             width: 150px !important;
             height: 150px !important;
-            border-radius: 14px !important;
+            border-radius: 6px !important;
             margin-bottom: 0 !important;
           }
           .spotlight-right-content {
@@ -176,12 +176,13 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           }
           .spotlight-banner-wrapper {
             padding: 18px 16px !important;
-            border-radius: 16px !important;
+            border-radius: 8px !important;
           }
           .spotlight-quote-card {
             padding: 12px 14px !important;
             margin-top: 10px !important;
             text-align: center !important;
+            border-radius: 4px !important;
             border-left: 1px solid rgba(255, 153, 0, 0.2) !important;
           }
           .spotlight-header-container {
@@ -197,7 +198,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 6,
           background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           border: "1px solid rgba(255, 153, 0, 0.4)", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 153, 0, 0.15)",
-          padding: "4.5px 14px", borderRadius: 20, marginBottom: 10,
+          padding: "4.5px 14px", borderRadius: 4, marginBottom: 10,
         }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF9900", boxShadow: "0 0 8px #FF9900" }} />
           FACULTY LEADERSHIP
@@ -248,7 +249,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 5,
               background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
               border: "1px solid rgba(255, 153, 0, 0.4)", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 153, 0, 0.12)",
-              borderRadius: 20, padding: "3.5px 11px", marginBottom: 8,
+              borderRadius: 4, padding: "3.5px 11px", marginBottom: 8,
             }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900", boxShadow: "0 0 6px #FF9900" }} />
               FACULTY COORDINATOR
@@ -274,7 +275,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               background: "rgba(30, 41, 59, 0.65)",
               border: "1px solid rgba(255, 153, 0, 0.22)",
               borderLeft: "3.5px solid #FF9900",
-              borderRadius: "14px",
+              borderRadius: "4px",
               padding: "14px 18px",
               width: "100%",
               boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
