@@ -68,7 +68,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "48px 20px 56px",
+        padding: "36px 20px 42px",
         borderTop: previewData ? "none" : "1px solid rgba(255, 153, 0, 0.15)",
         borderBottom: previewData ? "none" : "1px solid rgba(255, 153, 0, 0.15)",
         scrollMarginTop: "100px",
@@ -77,44 +77,44 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
       <style>{`
         .spotlight-banner-wrapper {
           width: 100%;
-          max-width: 1140px;
+          max-width: 980px;
           background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 153, 0, 0.25);
-          border-radius: 24px;
-          box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 153, 0, 0.08);
-          padding: 36px 40px;
+          border-radius: 20px;
+          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.08);
+          padding: 24px 28px;
           position: relative;
           z-index: 10;
           transition: all 0.3s ease;
         }
         .spotlight-banner-wrapper:hover {
           border-color: rgba(255, 153, 0, 0.45);
-          box-shadow: 0 25px 60px -10px rgba(255, 153, 0, 0.15);
+          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.15);
         }
         .spotlight-grid {
           display: flex;
           flex-direction: row;
           align-items: center;
-          gap: 36px;
+          gap: 28px;
         }
         .spotlight-left-card {
-          width: 260px;
+          width: 200px;
           flex-shrink: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
         }
         .spotlight-img-frame {
-          width: 260px;
-          height: 260px;
-          border-radius: 20px;
+          width: 200px;
+          height: 200px;
+          border-radius: 16px;
           overflow: hidden;
           position: relative;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
           border: 1px solid rgba(255, 153, 0, 0.3);
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
         .spotlight-img {
           width: 100%;
@@ -136,15 +136,15 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         .spotlight-linkedin-btn {
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          font-size: 12.5px;
+          gap: 6px;
+          font-size: 11.5px;
           font-weight: 700;
           color: #ffffff;
           text-decoration: none;
           background: #0A66C2;
-          border-radius: 8px;
-          padding: 9px 18px;
-          box-shadow: 0 4px 14px rgba(10, 102, 194, 0.35);
+          border-radius: 7px;
+          padding: 7.5px 14px;
+          box-shadow: 0 3px 10px rgba(10, 102, 194, 0.35);
           transition: all 0.2s ease;
           width: 100%;
           justify-content: center;
@@ -157,15 +157,15 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         @media (max-width: 780px) {
           .spotlight-grid {
             flex-direction: column !important;
-            gap: 20px !important;
+            gap: 16px !important;
           }
           .spotlight-left-card {
             width: 100% !important;
             align-items: center !important;
           }
           .spotlight-img-frame {
-            width: 170px !important;
-            height: 170px !important;
+            width: 150px !important;
+            height: 150px !important;
             border-radius: 14px !important;
             margin-bottom: 0 !important;
           }
@@ -175,39 +175,39 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             text-align: center !important;
           }
           .spotlight-banner-wrapper {
-            padding: 24px 20px !important;
-            border-radius: 20px !important;
+            padding: 18px 16px !important;
+            border-radius: 16px !important;
           }
           .spotlight-quote-card {
-            padding: 16px 18px !important;
-            margin-top: 14px !important;
+            padding: 12px 14px !important;
+            margin-top: 10px !important;
             text-align: center !important;
             border-left: 1px solid rgba(255, 153, 0, 0.2) !important;
           }
           .spotlight-header-container {
-            margin-bottom: 22px !important;
+            margin-bottom: 18px !important;
           }
         }
       `}</style>
 
       {/* Section Header */}
-      <div className="spotlight-header-container" style={{ position: "relative", zIndex: 10, textAlign: "center", marginBottom: 32 }}>
+      <div className="spotlight-header-container" style={{ position: "relative", zIndex: 10, textAlign: "center", marginBottom: 22 }}>
         <span style={{
-          fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em",
+          fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em",
           textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 5,
           background: "rgba(255, 153, 0, 0.12)", border: "1px solid rgba(255, 153, 0, 0.3)",
-          padding: "5px 14px", borderRadius: 20, marginBottom: 10,
+          padding: "4px 12px", borderRadius: 20, marginBottom: 8,
         }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF9900" }} />
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900" }} />
           FACULTY LEADERSHIP
         </span>
         <h2 style={{
-          fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 800,
-          color: "#ffffff", margin: "0 0 6px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
+          fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800,
+          color: "#ffffff", margin: "0 0 4px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
         }}>
           Meet Our Faculty Coordinator
         </h2>
-        <p style={{ fontSize: "13.5px", color: "#94a3b8", margin: 0, fontWeight: 450, maxWidth: "540px" }}>
+        <p style={{ fontSize: "12.5px", color: "#94a3b8", margin: 0, fontWeight: 450, maxWidth: "480px" }}>
           Guiding innovation, fostering community excellence, and mentoring student cloud leaders at REC.
         </p>
       </div>
@@ -232,7 +232,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               rel="noopener noreferrer"
               className="spotlight-linkedin-btn"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
               Connect on LinkedIn
@@ -243,29 +243,29 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           <div className="spotlight-right-content">
             
             <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+              fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em",
               textTransform: "uppercase", color: "#FF9900",
               background: "rgba(255, 153, 0, 0.12)",
               border: "1px solid rgba(255, 153, 0, 0.3)",
-              borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5,
-              marginBottom: 8,
+              borderRadius: 20, padding: "2.5px 9px", display: "inline-flex", alignItems: "center", gap: 4,
+              marginBottom: 6,
             }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900" }} />
+              <span style={{ width: 4.5, height: 4.5, borderRadius: "50%", background: "#FF9900" }} />
               FACULTY COORDINATOR
             </span>
 
             <h3 style={{
-              fontSize: "clamp(24px, 2.5vw, 30px)", fontWeight: 800, color: "#ffffff",
-              margin: "0 0 6px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
+              fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, color: "#ffffff",
+              margin: "0 0 4px 0", letterSpacing: "-0.025em", lineHeight: 1.2,
             }}>
               {coord.name}
             </h3>
 
-            <p style={{ fontSize: "14px", fontWeight: 650, color: "#cbd5e1", margin: "0 0 3px 0", lineHeight: 1.4 }}>
+            <p style={{ fontSize: "13px", fontWeight: 650, color: "#cbd5e1", margin: "0 0 2px 0", lineHeight: 1.4 }}>
               {coord.role}
             </p>
             
-            <p style={{ fontSize: "12.5px", color: "#94a3b8", margin: "0 0 20px 0", fontWeight: 500, lineHeight: 1.4 }}>
+            <p style={{ fontSize: "11.5px", color: "#94a3b8", margin: "0 0 14px 0", fontWeight: 500, lineHeight: 1.4 }}>
               {coord.department}
             </p>
 
@@ -273,24 +273,24 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             <div className="spotlight-quote-card" style={{
               background: "rgba(30, 41, 59, 0.65)",
               border: "1px solid rgba(255, 153, 0, 0.22)",
-              borderLeft: "4px solid #FF9900",
-              borderRadius: "16px",
-              padding: "20px 24px",
+              borderLeft: "3.5px solid #FF9900",
+              borderRadius: "14px",
+              padding: "14px 18px",
               width: "100%",
-              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35)",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                 <div style={{
-                  width: 24, height: 24, borderRadius: 6,
+                  width: 20, height: 20, borderRadius: 5,
                   background: "rgba(255, 153, 0, 0.15)", border: "1px solid rgba(255, 153, 0, 0.3)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
                 <span style={{
-                  fontSize: "10.5px", fontWeight: 800, letterSpacing: "0.12em",
+                  fontSize: "10px", fontWeight: 800, letterSpacing: "0.12em",
                   textTransform: "uppercase", color: "#FF9900",
                 }}>
                   MENTORSHIP VISION & IMPACT
@@ -298,7 +298,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               </div>
 
               <p style={{
-                fontSize: "13.5px", lineHeight: "1.75", color: "#e2e8f0",
+                fontSize: "12.5px", lineHeight: "1.65", color: "#e2e8f0",
                 fontWeight: 400, margin: 0, fontStyle: "normal",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
                 letterSpacing: "-0.005em",
