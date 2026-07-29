@@ -321,7 +321,7 @@ export default function LearnPage() {
       setIsNextUnlockedVisual(true);
     }, 6400); // 4800ms + 1600ms buffer/transitions
 
-    // Clean up animation states after 6.3 seconds total
+    // Clean up animation states after 7.2 seconds total (after crossfade completes)
     const cleanupTimer = setTimeout(() => {
       localStorage.setItem("lastAnimatedCompletionKey", currentSig);
       sessionStorage.removeItem("recentTopicCompletion");
@@ -331,7 +331,7 @@ export default function LearnPage() {
       setIsCompletedVisual(false);
       setIsNextUnlockedVisual(false);
       setIsArrowSuccessVisual(false);
-    }, 6300);
+    }, 7200);
 
     return () => {
       clearTimeout(fillTimer);
@@ -458,6 +458,7 @@ export default function LearnPage() {
   }, [animatingTopicId, presentationTopics, currentTopic]);
 
   const isAnimatingCompleted = animatingTopicId !== null && animatingTopicId === displayTopic?.id;
+  const isTopicCompletionAnimating = animatingTopicId !== null && !isNextUnlockedVisual;
 
   // Auto-scroll current topic and its predecessors into view
   useEffect(() => {
@@ -749,8 +750,8 @@ export default function LearnPage() {
             <div className="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
               {/* Stats Cards Grid (Strict 2x2 on Tablet, 1x4 on Desktop) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 items-stretch gap-2.5 sm:gap-3 w-full lg:w-auto">
-                {/* Continue Action Button (Hidden when all topics completed or on tablet 768px-842px) */}
-                {!isPlatformCompleted && (
+                {/* Continue Action Button (Hidden when all topics completed, during loader transition, or on tablet 768px-842px) */}
+                {!isPlatformCompleted && !isTopicCompletionAnimating && (
                   <button
                     onClick={handleResume}
                     disabled={!continueModule}
@@ -1190,21 +1191,23 @@ export default function LearnPage() {
                                   </div>
                                 </div>
 
-                                {/* Bottom Row: Action */}
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
-                                  <Link
-                                    href={`/learn/${topic.slug}`}
-                                    className={cn(
-                                      "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
-                                      topic.id === animatingTopicId && isArrowSuccessVisual
-                                        ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
-                                        : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
-                                    )}
-                                  >
-                                    <span>Continue</span>
-                                    <span className="text-xs">→</span>
-                                  </Link>
-                                </div>
+                                {/* Bottom Row: Action (Hidden during loader transition) */}
+                                {!isTopicCompletionAnimating && (
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3.5 border-t border-white/10">
+                                    <Link
+                                      href={`/learn/${topic.slug}`}
+                                      className={cn(
+                                        "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 border transition-all duration-600 active:scale-[0.98] cursor-pointer",
+                                        topic.id === animatingTopicId && isArrowSuccessVisual
+                                          ? "border-emerald-500 text-emerald-650 hover:bg-emerald-500/5"
+                                          : "border-[#FF9900] text-[#FF9900] hover:bg-[#FF9900]/5"
+                                      )}
+                                    >
+                                      <span>Continue</span>
+                                      <span className="text-xs">→</span>
+                                    </Link>
+                                  </div>
+                                )}
                               </motion.div>
                             )}
 
@@ -1457,9 +1460,9 @@ export default function LearnPage() {
             )}
           </AnimatePresence>
 
-          {/* Smart Scroll Navigation (Hidden when searching) */}
+          {/* Smart Scroll Navigation (Hidden when searching or during loader transition) */}
           {!searchQuery.trim() && (
-            <SmartScrollNavigation containerRef={railRef} />
+            <SmartScrollNavigation containerRef={railRef} disabled={isTopicCompletionAnimating} />
           )}
 
         </div>

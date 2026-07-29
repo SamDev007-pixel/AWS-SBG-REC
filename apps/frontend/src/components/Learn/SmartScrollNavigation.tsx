@@ -11,9 +11,11 @@ interface SmartScrollNavigationProps {
   onScrollDown?: () => void;
   /** Optional custom scroll up handler. */
   onScrollUp?: () => void;
+  /** Optional disabled flag to hide navigation arrows during transitions. */
+  disabled?: boolean;
 }
 
-export function SmartScrollNavigation({ containerRef, onScrollDown, onScrollUp }: SmartScrollNavigationProps) {
+export function SmartScrollNavigation({ containerRef, onScrollDown, onScrollUp, disabled = false }: SmartScrollNavigationProps) {
   const [showUp, setShowUp] = useState(false);
   const [showDown, setShowDown] = useState(false);
   const activeContainerRef = useRef<HTMLElement | Window | null>(null);
@@ -238,7 +240,7 @@ export function SmartScrollNavigation({ containerRef, onScrollDown, onScrollUp }
       style={{ isolation: 'isolate' }}
     >
       <AnimatePresence>
-        {showUp && (
+        {!disabled && showUp && (
           <motion.button
             key="scroll-up-arrow"
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -254,7 +256,7 @@ export function SmartScrollNavigation({ containerRef, onScrollDown, onScrollUp }
           </motion.button>
         )}
 
-        {showDown && (
+        {!disabled && showDown && (
           <motion.button
             key="scroll-down-arrow"
             initial={{ opacity: 0, scale: 0.8, y: -10 }}

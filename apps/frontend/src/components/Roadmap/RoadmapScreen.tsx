@@ -140,6 +140,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('guest');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -156,6 +157,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   useEffect(() => {
     const session = getAuthSession();
     setRole(session.role);
+    if (session.user) {
+      setUserId(session.user.id || session.user.email || 'guest');
+    }
 
     let active = true;
     const loadData = async () => {
@@ -218,46 +222,6 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     };
   }, [topicSlug]);
 
-  // Scroll to the active module after data loads and roadmap renders
-  useEffect(() => {
-    if (loading || modules.length === 0) return;
-
-    const queryParams = new URLSearchParams(window.location.search);
-    const fromSlug = queryParams.get('from');
-
-    let targetId: string | null = null;
-
-    // Flow 2: returning from quiz completion — scroll to the next module
-    if (fromSlug) {
-      const fromIdx = modules.findIndex(
-        (m) => m.id.toLowerCase() === fromSlug.toLowerCase(),
-      );
-      if (fromIdx >= 0 && fromIdx < modules.length - 1) {
-        targetId = modules[fromIdx + 1].id;
-      }
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-
-    // Flow 1: normal navigation — scroll to first 'current' module
-    if (!targetId) {
-      const lastCompletedIdx = modules.reduce(
-        (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
-        -1,
-      );
-      const target = modules.find(
-        (m, idx) => idx > lastCompletedIdx && moduleStates[m.id] === 'current',
-      );
-      targetId = target?.id ?? null;
-    }
-
-    if (!targetId) return;
-
-    const el = moduleNodeRefs.current.get(targetId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [loading, modules, moduleStates]);
-
   const handleLogout = () => {
     if (authService.logout(true)) {
       router.push('/login');
@@ -268,6 +232,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [boardWidth, setBoardWidth] = useState(1000);
   const [activeTab, setActiveTab] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+
+  // Cinematic Level-Up Unlock Transition State Machine
+  const [transitionPhase, setTransitionPhase] = useState<
+    'idle' | 'phase1_summit_pause' | 'phase2_trophy_award' | 'phase3_storm_tearing' | 'phase4_post_reveal_pause' | 'phase5_camera_descent' | 'complete'
+  >('idle');
+  const [transitionTargetLevel, setTransitionTargetLevel] = useState<'intermediate' | 'advanced' | null>(null);
 
   // Viewport refs for scrolling and path rendering
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -286,6 +256,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     advancedStartY,
     advancedHeight
   } = geometry;
+
+  // User & Topic Persistence Keys
+  const userKey = userId || 'guest';
+  const interKey = `transition_played_intermediate_${userKey}_${topicSlug}`;
+  const advKey = `transition_played_advanced_${userKey}_${topicSlug}`;
 
   // Resize handler to measure container width
   useEffect(() => {
@@ -324,10 +299,214 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const isIntermediateLocked = beginnerCompleted < beginnerList.length;
   const isAdvancedLocked = intermediateCompleted < intermediateList.length;
 
+  // Detect unlock trigger condition when returning from quiz completion
+  const fromParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('from') : null;
+  const isFromLastBeginner = fromParam ? beginnerList.length > 0 && beginnerList[beginnerList.length - 1].id.toLowerCase() === fromParam.toLowerCase() : false;
+  const isFromLastIntermediate = fromParam ? intermediateList.length > 0 && intermediateList[intermediateList.length - 1].id.toLowerCase() === fromParam.toLowerCase() : false;
+
+  const isInterPlayed = typeof window !== 'undefined' && (localStorage.getItem(interKey) === 'true' || sessionStorage.getItem(interKey) === 'true');
+  const isAdvPlayed = typeof window !== 'undefined' && (localStorage.getItem(advKey) === 'true' || sessionStorage.getItem(advKey) === 'true');
+
+  const isIntermediateTransitionQueued = isFromLastBeginner && !isInterPlayed;
+  const isAdvancedTransitionQueued = isFromLastIntermediate && !isAdvPlayed;
+
+  // Visual lock states (STRICT SEQUENCING GUARDS)
+  // 1. Cloud Cover Overlay: stays locked in phase1 & phase2, parts in phase3, phase4, phase5, complete.
+  const isIntermediateCloudCoverLocked = isIntermediateLocked || (
+    isIntermediateTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award')
+  );
+  const isAdvancedCloudCoverLocked = isAdvancedLocked || (
+    isAdvancedTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award')
+  );
+
+  // 2. Background Sky Gradient: stays dark in phase1, phase2, phase3, crossfades in phase4, phase5, complete.
+  const isIntermediateBackgroundLocked = isIntermediateLocked || (
+    isIntermediateTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award' || transitionPhase === 'phase3_storm_tearing')
+  );
+  const isAdvancedBackgroundLocked = isAdvancedLocked || (
+    isAdvancedTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award' || transitionPhase === 'phase3_storm_tearing')
+  );
+
+  // 3. Module Node & Headers: stays 100% locked/hidden in phase1, phase2, phase3, AND phase4!
+  // ONLY unlocks in phase5_camera_descent when sky background crossfade is 100% complete!
+  const isIntermediateNodeVisuallyLocked = isIntermediateLocked || (
+    isIntermediateTransitionQueued && transitionPhase !== 'phase5_camera_descent' && transitionPhase !== 'complete'
+  );
+  const isAdvancedNodeVisuallyLocked = isAdvancedLocked || (
+    isAdvancedTransitionQueued && transitionPhase !== 'phase5_camera_descent' && transitionPhase !== 'complete'
+  );
+
+  const scrollTarget = (topValue: number) => {
+    if (mapContainerRef.current) {
+      mapContainerRef.current.scrollTo({ top: topValue, behavior: 'smooth' });
+    }
+    const element = mapContainerRef.current;
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const targetY = rect.top + scrollTop + topValue;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
+  };
+
+  const handleSkipTransition = () => {
+    if (!transitionTargetLevel) return;
+    const key = transitionTargetLevel === 'intermediate' ? interKey : advKey;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, 'true');
+      sessionStorage.setItem(key, 'true');
+    }
+    setTransitionPhase('complete');
+
+    const targetModule = transitionTargetLevel === 'intermediate' ? intermediateList[0] : advancedList[0];
+    if (targetModule) {
+      const el = moduleNodeRefs.current.get(targetModule.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
+  // 1. Trigger Level Transition on Mount when queued
+  useEffect(() => {
+    if (loading || modules.length === 0) return;
+
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (isIntermediateTransitionQueued && transitionPhase === 'idle') {
+      setTransitionTargetLevel('intermediate');
+      if (prefersReducedMotion) {
+        localStorage.setItem(interKey, 'true');
+        sessionStorage.setItem(interKey, 'true');
+        setTransitionPhase('complete');
+        return;
+      }
+      const summitCoord = coordinates['summit_beginner'];
+      if (summitCoord) {
+        scrollTarget(summitCoord.y - 140);
+      }
+      setTransitionPhase('phase1_summit_pause');
+      return;
+    }
+
+    if (isAdvancedTransitionQueued && transitionPhase === 'idle') {
+      setTransitionTargetLevel('advanced');
+      if (prefersReducedMotion) {
+        localStorage.setItem(advKey, 'true');
+        sessionStorage.setItem(advKey, 'true');
+        setTransitionPhase('complete');
+        return;
+      }
+      const summitCoord = coordinates['summit_intermediate'];
+      if (summitCoord) {
+        scrollTarget(summitCoord.y - 140);
+      }
+      setTransitionPhase('phase1_summit_pause');
+      return;
+    }
+
+    // Normal navigation scrolling when not running cinematic transition
+    if (transitionPhase === 'idle' || transitionPhase === 'complete') {
+      let targetId: string | null = null;
+      if (fromParam) {
+        const fromIdx = modules.findIndex(
+          (m) => m.id.toLowerCase() === fromParam.toLowerCase(),
+        );
+        if (fromIdx >= 0 && fromIdx < modules.length - 1) {
+          targetId = modules[fromIdx + 1].id;
+        }
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      if (!targetId) {
+        const lastCompletedIdx = modules.reduce(
+          (latest, m, idx) => (moduleStates[m.id] === 'completed' ? idx : latest),
+          -1,
+        );
+        const target = modules.find(
+          (m, idx) => idx > lastCompletedIdx && moduleStates[m.id] === 'current',
+        );
+        targetId = target?.id ?? null;
+      }
+
+      if (!targetId) return;
+
+      const el = moduleNodeRefs.current.get(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [loading, modules, moduleStates, transitionPhase, coordinates, isIntermediateTransitionQueued, isAdvancedTransitionQueued, fromParam, interKey, advKey]);
+
+  // 2. Automatic 5-Phase Progression State Machine Timers
+  useEffect(() => {
+    if (transitionPhase === 'idle' || transitionPhase === 'complete') return;
+
+    let timer: NodeJS.Timeout;
+
+    // Phase 1: Summit Focus Pause (800ms) -> Phase 2 (Padlock Unlock Animation)
+    if (transitionPhase === 'phase1_summit_pause') {
+      timer = setTimeout(() => {
+        setTransitionPhase('phase2_trophy_award');
+      }, 800);
+    }
+    // Phase 2: Padlock Shake & Click Open Animation (1400ms) -> Phase 3 (Storm Clouds Dissipate)
+    else if (transitionPhase === 'phase2_trophy_award') {
+      timer = setTimeout(() => {
+        setTransitionPhase('phase3_storm_tearing');
+      }, 1400);
+    }
+    // Phase 3: Storm Clouds Tearing & Dissipation (1800ms) -> Phase 4 (Sky Background Cross-Fade)
+    else if (transitionPhase === 'phase3_storm_tearing') {
+      timer = setTimeout(() => {
+        setTransitionPhase('phase4_post_reveal_pause');
+      }, 1800);
+    }
+    // Phase 4: Sky Background Palette Cross-Fade (1800ms) -> Phase 5 (Camera Descent & Module Unlock)
+    else if (transitionPhase === 'phase4_post_reveal_pause') {
+      timer = setTimeout(() => {
+        setTransitionPhase('phase5_camera_descent');
+      }, 1800);
+    }
+    // Phase 5: Camera Descent & Module Node Reveal (1400ms) -> Complete
+    else if (transitionPhase === 'phase5_camera_descent') {
+      if (transitionTargetLevel === 'intermediate') {
+        setActiveTab('intermediate');
+        const firstIntermediate = intermediateList[0];
+        if (firstIntermediate) {
+          const el = moduleNodeRefs.current.get(firstIntermediate.id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      } else if (transitionTargetLevel === 'advanced') {
+        setActiveTab('advanced');
+        const firstAdvanced = advancedList[0];
+        if (firstAdvanced) {
+          const el = moduleNodeRefs.current.get(firstAdvanced.id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+
+      timer = setTimeout(() => {
+        if (transitionTargetLevel) {
+          const key = transitionTargetLevel === 'intermediate' ? interKey : advKey;
+          localStorage.setItem(key, 'true');
+          sessionStorage.setItem(key, 'true');
+        }
+        setTransitionPhase('complete');
+      }, 1400);
+    }
+
+    return () => clearTimeout(timer);
+  }, [transitionPhase, transitionTargetLevel, intermediateList, advancedList, interKey, advKey]);
+
   let backgroundGradient = '';
-  if (isIntermediateLocked && isAdvancedLocked) {
+  if (isIntermediateBackgroundLocked && isAdvancedBackgroundLocked) {
     backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 25%, #5a6578 38%, #202735 48%, #1b202e 65%, #05070a 80%, #000000 100%)';
-  } else if (isAdvancedLocked) {
+  } else if (isAdvancedBackgroundLocked) {
     backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 30%, #f0f9ff 45%, #ffffff 58%, #1f2430 68%, #05070a 76%, #000000 100%)';
   } else {
     backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 40%, #f0f9ff 70%, #e0f2fe 100%)';
@@ -352,7 +531,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         : node.id === 'summit_intermediate'
           ? (intermediateCompleted === intermediateList.length ? 'completed' as const : 'locked' as const)
           : (totalCompleted === modules.length ? 'completed' as const : 'locked' as const))
-      : (moduleStates[node.id] || 'locked');
+      : (node.level === 'Intermediate' && isIntermediateNodeVisuallyLocked
+        ? 'locked' as const
+        : node.level === 'Advanced' && isAdvancedNodeVisuallyLocked
+          ? 'locked' as const
+          : (moduleStates[node.id] || 'locked'));
 
     return {
       id: node.id,
@@ -398,13 +581,13 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
   // Unlocked states (colors gained)
   const isBeginnerUnlocked = true;
-  const isIntermediateUnlocked = !isIntermediateLocked;
-  const isAdvancedUnlocked = !isAdvancedLocked;
+  const isIntermediateUnlocked = !isIntermediateNodeVisuallyLocked;
+  const isAdvancedUnlocked = !isAdvancedNodeVisuallyLocked;
 
   // Current levels user is in (glowing shadow)
-  const isBeginnerCurrent = isIntermediateLocked;
-  const isIntermediateCurrent = !isIntermediateLocked && isAdvancedLocked;
-  const isAdvancedCurrent = !isAdvancedLocked;
+  const isBeginnerCurrent = isIntermediateNodeVisuallyLocked;
+  const isIntermediateCurrent = !isIntermediateNodeVisuallyLocked && isAdvancedNodeVisuallyLocked;
+  const isAdvancedCurrent = !isAdvancedNodeVisuallyLocked;
 
   const isAdvancedSummitActualLocked = totalCompleted < modules.length;
   const [isAdvancedSummitLockedVisual, setIsAdvancedSummitLockedVisual] = useState(true);
@@ -445,19 +628,6 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
       setIsAdvancedSummitLockedVisual(isAdvancedSummitActualLocked);
     }
   }, [loading, isAdvancedSummitActualLocked, animationTriggered, totalHeight, router]);
-
-  const scrollTarget = (topValue: number) => {
-    if (mapContainerRef.current) {
-      mapContainerRef.current.scrollTo({ top: topValue, behavior: 'smooth' });
-    }
-    const element = mapContainerRef.current;
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const targetY = rect.top + scrollTop + topValue;
-      window.scrollTo({ top: targetY, behavior: 'smooth' });
-    }
-  };
 
 
   // Ambient Particles definition for sky depth
@@ -601,7 +771,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               WebkitBackdropFilter: 'blur(8px)',
             }}
           >
-            {isIntermediateLocked ? (
+            {isIntermediateNodeVisuallyLocked ? (
               <Icons.Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
             ) : (
               <Icons.Zap className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-blue-900" />
@@ -635,7 +805,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               WebkitBackdropFilter: 'blur(8px)',
             }}
           >
-            {isAdvancedLocked ? (
+            {isAdvancedNodeVisuallyLocked ? (
               <Icons.Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
             ) : (
               <Icons.Trophy className="w-3 h-3 sm:w-4 sm:h-4 fill-current text-amber-950" />
@@ -755,7 +925,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               total={intermediateList.length}
               description="Deepen your knowledge and build real-world cloud solutions."
               levelColor="intermediate"
-              locked={isIntermediateLocked}
+              locked={isIntermediateNodeVisuallyLocked}
             />
           </div>
 
@@ -771,7 +941,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               total={advancedList.length}
               description="Master advanced services and become a cloud architect."
               levelColor="advanced"
-              locked={isAdvancedLocked}
+              locked={isAdvancedNodeVisuallyLocked}
             />
           </div>
 
@@ -782,7 +952,8 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <BeginnerSummitLandmark
               x={coordinates['summit_beginner'].x}
               y={coordinates['summit_beginner'].y}
-              locked={isIntermediateLocked}
+              locked={isIntermediateNodeVisuallyLocked}
+              isCelebrating={transitionTargetLevel === 'intermediate' && transitionPhase === 'phase2_trophy_award'}
             />
           )}
 
@@ -791,20 +962,21 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <IntermediateSummitLandmark
               x={coordinates['summit_intermediate'].x}
               y={coordinates['summit_intermediate'].y}
-              locked={isAdvancedLocked}
+              locked={isAdvancedNodeVisuallyLocked}
+              isCelebrating={transitionTargetLevel === 'advanced' && transitionPhase === 'phase2_trophy_award'}
             />
           )}
 
           {/* Intermediate region cloud cover overlay */}
           <IntermediateCloudsOverlay
-            locked={isIntermediateLocked}
+            locked={isIntermediateCloudCoverLocked}
             top={intermediateStartY}
             height={intermediateHeight}
           />
 
           {/* Advanced region cloud cover overlay */}
           <AdvancedCloudsOverlay
-            locked={isAdvancedLocked}
+            locked={isAdvancedCloudCoverLocked}
             top={advancedStartY}
             height={advancedHeight}
           />
@@ -822,7 +994,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
           {modules.map((module, idx) => {
             const coord = coordinates[module.id];
             if (!coord) return null;
-            const status = moduleStates[module.id] || 'locked';
+            const rawStatus = moduleStates[module.id] || 'locked';
+            const status = (module.level === 'Intermediate' && isIntermediateNodeVisuallyLocked)
+              ? 'locked' as const
+              : (module.level === 'Advanced' && isAdvancedNodeVisuallyLocked)
+                ? 'locked' as const
+                : rawStatus;
 
             return (
               <CloudIslandNode

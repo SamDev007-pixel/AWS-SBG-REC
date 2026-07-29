@@ -9,10 +9,18 @@ interface LandmarkProps {
   x: number;
   y: number;
   locked?: boolean;
+  isCelebrating?: boolean;
+  onCelebrationComplete?: () => void;
 }
 
 // 1. Beginner Summit (Mountain Island)
-export const BeginnerSummitLandmark: React.FC<LandmarkProps> = ({ x, y, locked = true }) => {
+export const BeginnerSummitLandmark: React.FC<LandmarkProps> = ({ 
+  x, 
+  y, 
+  locked = true, 
+  isCelebrating = false, 
+  onCelebrationComplete 
+}) => {
   return (
     <div
       className="absolute z-20 -translate-x-1/2 -translate-y-1/2 select-none"
@@ -95,18 +103,33 @@ export const BeginnerSummitLandmark: React.FC<LandmarkProps> = ({ x, y, locked =
           <motion.div
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border relative transition-all duration-300",
-              locked
+              locked && !isCelebrating
                 ? "bg-white/95 border-slate-200 text-slate-400"
-                : "bg-gradient-to-br from-amber-400 to-amber-500 border-white text-slate-950 shadow-amber-500/20"
+                : "bg-gradient-to-br from-amber-400 to-amber-500 border-white text-slate-950 shadow-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.5)]"
             )}
-            animate={!locked ? { scale: [1, 1.08, 1] } : {}}
-            transition={{ duration: 3, repeat: Infinity }}
+            animate={
+              isCelebrating
+                ? {
+                    scale: [1, 1.35, 1.15, 1],
+                    backgroundColor: ['#F8FAFC', '#D97706', '#FBBF24', '#F59E0B'],
+                    borderColor: ['#E2E8F0', '#FCD34D', '#FFFFFF', '#FFFFFF'],
+                    color: ['#94A3B8', '#78350F', '#0F172A', '#0F172A'],
+                  }
+                : !locked
+                ? { scale: [1, 1.08, 1] }
+                : {}
+            }
+            transition={
+              isCelebrating
+                ? { duration: 1.4, ease: [0.16, 1, 0.3, 1] }
+                : { duration: 3, repeat: Infinity }
+            }
           >
             <Icons.Trophy className="w-5 h-5 fill-current" />
           </motion.div>
         </div>
 
-        {/* Premium Summit Sign Plate Overlay (No separate plate beneath, island itself is the node) */}
+        {/* Premium Summit Sign Plate Overlay */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-60 bg-emerald-600 border border-emerald-500 rounded-2xl px-4 py-2.5 text-center shadow-2xl z-30 select-none">
           <h4 className="text-[11px] font-black uppercase tracking-wider text-white font-heading">
             BEGINNER SUMMIT
@@ -114,14 +137,50 @@ export const BeginnerSummitLandmark: React.FC<LandmarkProps> = ({ x, y, locked =
           <p className="text-[9.5px] text-emerald-100 font-semibold leading-snug mt-1 font-sans">
             Complete all Beginner modules to unlock the Intermediate level.
           </p>
-          {locked ? (
+          {locked && !isCelebrating ? (
             <div className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 p-1.5 rounded-full shadow-md">
               <Icons.Lock className="w-3 h-3" />
             </div>
-          ) : (
-            <div className="absolute -top-2 -right-2 bg-emerald-500 border-2 border-white text-white p-1 rounded-full shadow-md animate-bounce">
-              <Icons.Check className="w-3 h-3 stroke-[3]" />
+          ) : isCelebrating ? (
+            <div className="absolute -top-2 -right-2">
+              {/* Radial Glow Burst */}
+              <motion.div
+                className="absolute inset-0 rounded-full bg-amber-400/80 blur-sm pointer-events-none"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: [0.6, 2.2, 0], opacity: [0, 1, 0] }}
+                transition={{ duration: 1.4, times: [0, 0.5, 1], ease: 'easeOut' }}
+              />
+              <motion.div
+                className="relative bg-slate-900 border border-slate-700 text-amber-400 p-1.5 rounded-full shadow-lg"
+                animate={{
+                  rotate: [0, -14, 14, -10, 10, -5, 5, 0],
+                  scale: [1, 1.25, 1.25, 1, 1.15, 1],
+                  backgroundColor: ['#0F172A', '#0F172A', '#1E293B', '#10B981', '#10B981'],
+                  borderColor: ['#334155', '#F59E0B', '#F59E0B', '#FFFFFF', '#FFFFFF'],
+                  color: ['#94A3B8', '#F59E0B', '#FCD34D', '#FFFFFF', '#FFFFFF'],
+                }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <motion.div
+                  animate={{
+                    rotate: [0, 0, -24, 0],
+                    y: [0, 0, -3, 0],
+                  }}
+                  transition={{ duration: 1.4, times: [0, 0.35, 0.55, 1] }}
+                >
+                  <Icons.Lock className="w-3 h-3" />
+                </motion.div>
+              </motion.div>
             </div>
+          ) : (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 15 }}
+              className="absolute -top-2 -right-2 bg-emerald-500 border-2 border-white text-white p-1 rounded-full shadow-md animate-bounce"
+            >
+              <Icons.Check className="w-3 h-3 stroke-[3]" />
+            </motion.div>
           )}
         </div>
       </motion.div>
@@ -130,7 +189,13 @@ export const BeginnerSummitLandmark: React.FC<LandmarkProps> = ({ x, y, locked =
 };
 
 // 2. Intermediate Summit (Larger Mountain Island)
-export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, locked = true }) => {
+export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ 
+  x, 
+  y, 
+  locked = true, 
+  isCelebrating = false, 
+  onCelebrationComplete 
+}) => {
   return (
     <div
       className="absolute z-20 -translate-x-1/2 -translate-y-1/2 select-none"
@@ -159,27 +224,27 @@ export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, lock
             fill="url(#beg-rock-grad)"
             stroke="#1E293B"
             strokeWidth="1.5"
-            opacity={locked ? 0.8 : 1}
+            opacity={locked && !isCelebrating ? 0.8 : 1}
           />
           <path d="M 55,85 L 90,138 L 105,85" fill="none" stroke="#1E293B" strokeWidth="1" opacity="0.3" />
           <path d="M 125,85 L 138,118 M 42,118 L 90,138" fill="none" stroke="#1E293B" strokeWidth="1" opacity="0.3" />
 
           {/* 2. GRASS LAYER (Larger) */}
-          <ellipse cx="90" cy="85" rx="72" ry="19" fill="#065F46" opacity={locked ? 0.8 : 1} />
-          <ellipse cx="90" cy="84" rx="70" ry="18" fill="url(#beg-grass-grad)" stroke="#047857" strokeWidth="1.5" opacity={locked ? 0.8 : 1} />
+          <ellipse cx="90" cy="85" rx="72" ry="19" fill="#065F46" opacity={locked && !isCelebrating ? 0.8 : 1} />
+          <ellipse cx="90" cy="84" rx="70" ry="18" fill="url(#beg-grass-grad)" stroke="#047857" strokeWidth="1.5" opacity={locked && !isCelebrating ? 0.8 : 1} />
 
           {/* 3. PEAKS */}
           {/* Left Peak */}
-          <polygon points="25,84 62,25 98,84" fill="url(#beg-peak-grad)" opacity={locked ? 0.7 : 1} />
-          <polygon points="50,44 62,25 74,44 63,52 56,47" fill="url(#snow-grad)" opacity={locked ? 0.7 : 1} />
+          <polygon points="25,84 62,25 98,84" fill="url(#beg-peak-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
+          <polygon points="50,44 62,25 74,44 63,52 56,47" fill="url(#snow-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
 
           {/* Right Peak */}
-          <polygon points="82,84 118,30 154,84" fill="url(#beg-peak-grad)" opacity={locked ? 0.7 : 1} />
-          <polygon points="106,49 118,30 130,49 120,56 113,52" fill="url(#snow-grad)" opacity={locked ? 0.7 : 1} />
+          <polygon points="82,84 118,30 154,84" fill="url(#beg-peak-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
+          <polygon points="106,49 118,30 130,49 120,56 113,52" fill="url(#snow-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
 
           {/* Center Main Peak */}
-          <polygon points="40,84 90,10 140,84" fill="url(#beg-peak-grad)" opacity={locked ? 0.7 : 1} />
-          <polygon points="73,36 90,10 107,36 93,46 83,41" fill="url(#snow-grad)" opacity={locked ? 0.7 : 1} />
+          <polygon points="40,84 90,10 140,84" fill="url(#beg-peak-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
+          <polygon points="73,36 90,10 107,36 93,46 83,41" fill="url(#snow-grad)" opacity={locked && !isCelebrating ? 0.7 : 1} />
 
           {/* Cloud base drifts */}
           <path d="M 10,88 C 10,78 30,74 50,74 C 70,74 85,79 100,74 C 115,74 130,79 145,79 C 160,79 160,88 150,92 C 140,96 120,98 105,98 C 90,100 70,100 50,98 C 30,100 10,96 10,88 Z" fill="#FFFFFF" opacity="0.9" />
@@ -190,14 +255,26 @@ export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, lock
           <motion.div
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border relative transition-all duration-300",
-              locked
+              locked && !isCelebrating
                 ? "bg-slate-100/90 border-slate-350 text-slate-400"
                 : "bg-gradient-to-br from-orange-400 to-amber-500 border-white text-slate-950 shadow-orange-500/20"
             )}
-            animate={!locked ? { scale: [1, 1.08, 1] } : {}}
-            transition={{ duration: 3, repeat: Infinity }}
+            animate={
+              isCelebrating
+                ? {
+                    scale: [1, 1.35, 1.15, 1],
+                  }
+                : !locked
+                ? { scale: [1, 1.08, 1] }
+                : {}
+            }
+            transition={
+              isCelebrating
+                ? { duration: 1.4, ease: [0.16, 1, 0.3, 1] }
+                : { duration: 3, repeat: Infinity }
+            }
           >
-            {locked ? (
+            {locked && !isCelebrating ? (
               <Icons.Zap className="w-5 h-5 text-yellow-500 fill-yellow-400" />
             ) : (
               <Icons.Zap className="w-6 h-6 text-yellow-500 fill-yellow-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
@@ -208,7 +285,7 @@ export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, lock
         {/* Premium Summit Sign Plate (Matches intermediate sign in reference image) */}
         <div className={cn(
           "absolute bottom-6 left-1/2 -translate-x-1/2 w-60 border rounded-2xl px-4 py-2.5 text-center shadow-2xl z-30 select-none",
-          locked
+          locked && !isCelebrating
             ? "bg-slate-700 border-slate-600 text-slate-200"
             : "bg-orange-600 border-orange-500 text-white"
         )}>
@@ -217,18 +294,54 @@ export const IntermediateSummitLandmark: React.FC<LandmarkProps> = ({ x, y, lock
           </h4>
           <p className={cn(
             "text-[9.5px] font-semibold leading-snug mt-1 font-sans",
-            locked ? "text-slate-300" : "text-orange-100"
+            locked && !isCelebrating ? "text-slate-300" : "text-orange-100"
           )}>
             Complete all Intermediate modules to unlock the Advanced level.
           </p>
-          {locked ? (
+          {locked && !isCelebrating ? (
             <div className="absolute -top-2 -right-2 bg-slate-900 border border-slate-700 text-slate-400 p-1.5 rounded-full shadow-md">
               <Icons.Lock className="w-3.5 h-3.5" />
             </div>
-          ) : (
-            <div className="absolute -top-2 -right-2 bg-emerald-500 border-2 border-white text-white p-1 rounded-full shadow-md animate-bounce">
-              <Icons.Check className="w-3 h-3 stroke-[3]" />
+          ) : isCelebrating ? (
+            <div className="absolute -top-2 -right-2">
+              {/* Radial Glow Burst */}
+              <motion.div
+                className="absolute inset-0 rounded-full bg-amber-400/80 blur-sm pointer-events-none"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: [0.6, 2.2, 0], opacity: [0, 1, 0] }}
+                transition={{ duration: 1.4, times: [0, 0.5, 1], ease: 'easeOut' }}
+              />
+              <motion.div
+                className="relative bg-slate-900 border border-slate-700 text-amber-400 p-1.5 rounded-full shadow-lg"
+                animate={{
+                  rotate: [0, -14, 14, -10, 10, -5, 5, 0],
+                  scale: [1, 1.25, 1.25, 1, 1.15, 1],
+                  backgroundColor: ['#0F172A', '#0F172A', '#1E293B', '#10B981', '#10B981'],
+                  borderColor: ['#334155', '#F59E0B', '#F59E0B', '#FFFFFF', '#FFFFFF'],
+                  color: ['#94A3B8', '#F59E0B', '#FCD34D', '#FFFFFF', '#FFFFFF'],
+                }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <motion.div
+                  animate={{
+                    rotate: [0, 0, -24, 0],
+                    y: [0, 0, -3, 0],
+                  }}
+                  transition={{ duration: 1.4, times: [0, 0.35, 0.55, 1] }}
+                >
+                  <Icons.Lock className="w-3.5 h-3.5" />
+                </motion.div>
+              </motion.div>
             </div>
+          ) : (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 15 }}
+              className="absolute -top-2 -right-2 bg-emerald-500 border-2 border-white text-white p-1 rounded-full shadow-md animate-bounce"
+            >
+              <Icons.Check className="w-3.5 h-3.5 stroke-[3]" />
+            </motion.div>
           )}
         </div>
       </motion.div>
