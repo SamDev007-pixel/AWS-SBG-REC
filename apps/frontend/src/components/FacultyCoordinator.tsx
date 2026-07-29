@@ -81,17 +81,17 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 153, 0, 0.2);
+          border: 1px solid rgba(255, 153, 0, 0.08);
           border-radius: 8px;
-          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.08);
+          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7);
           padding: 24px 28px;
           position: relative;
           z-index: 10;
           transition: all 0.3s ease;
         }
         .spotlight-banner-wrapper:hover {
-          border-color: rgba(255, 153, 0, 0.35);
-          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.12);
+          border-color: rgba(255, 153, 0, 0.2);
+          box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
         }
         .spotlight-grid {
           display: flex;
