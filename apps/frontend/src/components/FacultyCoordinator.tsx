@@ -81,17 +81,17 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           background: rgba(15, 23, 42, 0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 153, 0, 0.25);
+          border: 1px solid rgba(255, 153, 0, 0.45);
           border-radius: 8px;
-          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.08);
+          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 153, 0, 0.15);
           padding: 24px 28px;
           position: relative;
           z-index: 10;
           transition: all 0.3s ease;
         }
         .spotlight-banner-wrapper:hover {
-          border-color: rgba(255, 153, 0, 0.45);
-          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.15);
+          border-color: rgba(255, 153, 0, 0.65);
+          box-shadow: 0 20px 50px -10px rgba(255, 153, 0, 0.2);
         }
         .spotlight-grid {
           display: flex;
@@ -113,7 +113,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           overflow: hidden;
           position: relative;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-          border: 1px solid rgba(255, 153, 0, 0.3);
+          border: 1px solid rgba(255, 153, 0, 0.45);
           margin-bottom: 12px;
         }
         .spotlight-img {
@@ -190,7 +190,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             margin-top: 10px !important;
             text-align: left !important;
             border-radius: 8px !important;
-            border-left: 4px solid #FF9900 !important;
+            border: 1px solid rgba(255, 153, 0, 0.45) !important;
           }
           .spotlight-header-container {
             margin-bottom: 16px !important;
@@ -280,12 +280,11 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             {/* Sleek Mentorship Vision Quote Container */}
             <div className="spotlight-quote-card" style={{
               background: "rgba(22, 30, 46, 0.75)",
-              border: "1px solid rgba(255, 153, 0, 0.25)",
-              borderLeft: "4px solid #FF9900",
+              border: "1px solid rgba(255, 153, 0, 0.45)",
               borderRadius: "8px",
               padding: "16px 20px",
               width: "100%",
-              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35)",
+              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35), 0 0 14px rgba(255, 153, 0, 0.1)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <div style={{
