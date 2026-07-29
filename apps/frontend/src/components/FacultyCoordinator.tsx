@@ -28,6 +28,7 @@ interface FacultyCoordinatorProps {
 
 export default function FacultyCoordinator({ previewData, forceMobile }: FacultyCoordinatorProps = {}) {
   const [coord, setCoord] = useState(previewData || DEFAULT_COORD);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (previewData) {
@@ -47,6 +48,21 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
       .catch(() => {});
     return () => { active = false; };
   }, [previewData]);
+
+  // Handle ESC key to close modal & prevent background scrolling
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setIsModalOpen(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isModalOpen]);
 
   return (
     <section
@@ -287,15 +303,6 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               boxShadow: "0 6px 20px rgba(0, 0, 0, 0.35)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: 6,
-                  background: "rgba(255, 153, 0, 0.12)", border: "1px solid rgba(255, 153, 0, 0.3)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                </div>
                 <span style={{
                   fontSize: "11px", fontWeight: 800, letterSpacing: "0.12em",
                   textTransform: "uppercase", color: "#FF9900",
@@ -306,18 +313,227 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
 
               <p style={{
                 fontSize: "13px", lineHeight: "1.7", color: "#e2e8f0",
-                fontWeight: 400, margin: 0, fontStyle: "normal",
+                fontWeight: 400, margin: "0 0 12px 0", fontStyle: "normal",
                 fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
                 letterSpacing: "-0.005em",
               }}>
                 "{coord.bio}"
               </p>
+
+              {/* Trigger Button for Executive Profile Modal */}
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: "11.5px",
+                  fontWeight: 750,
+                  color: "#FF9900",
+                  background: "rgba(255, 153, 0, 0.08)",
+                  border: "1px solid rgba(255, 153, 0, 0.3)",
+                  borderRadius: "4px",
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.16)";
+                  e.currentTarget.style.borderColor = "rgba(255, 153, 0, 0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.08)";
+                  e.currentTarget.style.borderColor = "rgba(255, 153, 0, 0.3)";
+                }}
+              >
+                <span>Read Full Profile & Tribute</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
 
           </div>
 
         </div>
       </div>
+
+      {/* Executive Profile & Tribute Modal */}
+      {isModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
+            backgroundColor: "rgba(8, 12, 20, 0.85)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: "680px",
+              maxHeight: "85vh",
+              overflowY: "auto",
+              backgroundColor: "#0D1424",
+              border: "1px solid rgba(255, 153, 0, 0.4)",
+              borderRadius: "8px",
+              boxShadow: "0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 153, 0, 0.12)",
+              padding: "28px 32px",
+              color: "#E2E8F0",
+              fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+            }}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                width: "32px",
+                height: "32px",
+                borderRadius: "4px",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#94A3B8",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255, 153, 0, 0.15)";
+                e.currentTarget.style.color = "#FF9900";
+                e.currentTarget.style.borderColor = "rgba(255, 153, 0, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                e.currentTarget.style.color = "#94A3B8";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Modal Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px", paddingBottom: "16px", borderBottom: "1px solid rgba(255, 153, 0, 0.15)" }}>
+              <div style={{ width: "56px", height: "56px", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255, 153, 0, 0.35)", flexShrink: 0 }}>
+                <img src={coord.image} alt={coord.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <div>
+                <span style={{
+                  fontSize: "9.5px", fontWeight: 800, letterSpacing: "0.12em",
+                  textTransform: "uppercase", color: "#FF9900", display: "inline-block", marginBottom: "3px",
+                }}>
+                  FACULTY COORDINATOR SPOTLIGHT
+                </span>
+                <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#FFFFFF", margin: 0, lineHeight: 1.25 }}>
+                  Dr. Bhuvaneshwaran B
+                </h3>
+                <p style={{ fontSize: "12px", color: "#94A3B8", margin: "2px 0 0 0", fontWeight: 500 }}>
+                  Assistant Professor, School of Computer Engineering · REC
+                </p>
+              </div>
+            </div>
+
+            {/* Professional Industry Certifications Badges */}
+            <div style={{ marginBottom: "20px" }}>
+              <span style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", display: "block", marginBottom: "8px" }}>
+                INDUSTRY CERTIFICATIONS & DOMAIN EXPERTISE
+              </span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {["AWS", "IBM", "Oracle", "MongoDB", "Snowflake", "UiPath", "Microsoft", "Artificial Intelligence", "Cloud Computing", "Data Engineering", "Automation", "Software Development"].map((tech) => (
+                  <span
+                    key={tech}
+                    style={{
+                      fontSize: "10.5px",
+                      fontWeight: 700,
+                      color: tech === "AWS" ? "#FF9900" : "#CBD5E1",
+                      background: tech === "AWS" ? "rgba(255, 153, 0, 0.12)" : "rgba(30, 41, 59, 0.8)",
+                      border: tech === "AWS" ? "1px solid rgba(255, 153, 0, 0.4)" : "1px solid rgba(51, 65, 85, 0.8)",
+                      borderRadius: "4px",
+                      padding: "3px 9px",
+                    }}
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Full 5-Paragraph Tribute Content */}
+            <div style={{ fontSize: "13.5px", lineHeight: "1.75", color: "#CBD5E1" }}>
+              <p style={{ marginTop: 0, marginBottom: "14px" }}>
+                At the heart of every thriving student community is a mentor who inspires, guides, and empowers. We are privileged to have <strong style={{ color: "#FFFFFF" }}>Dr. Bhuvaneshwaran B</strong>, Assistant Professor, School of Computer Engineering, Rajalakshmi Engineering College, as the Faculty Coordinator of AWS Student Builders Group (SBG) REC.
+              </p>
+
+              <p style={{ marginBottom: "14px" }}>
+                With extensive expertise in <strong style={{ color: "#FF9900" }}>Artificial Intelligence, Cloud Computing, Data Engineering, Automation, and Software Development</strong>, along with industry-recognized certifications from AWS, IBM, Oracle, MongoDB, Snowflake, UiPath, and Microsoft, he brings invaluable knowledge and vision to our community.
+              </p>
+
+              <p style={{ marginBottom: "14px" }}>
+                Beyond technical mentorship, Sir constantly motivates us to think innovatively, embrace emerging technologies, and transform ideas into impactful solutions. His guidance extends far beyond classrooms—encouraging students to participate in hackathons, cloud-based projects, workshops, certifications, technical events, research initiatives, and collaborative learning opportunities.
+              </p>
+
+              <p style={{ marginBottom: "14px" }}>
+                Through his continuous support, insightful feedback, and unwavering encouragement, he has fostered an environment where students are empowered to explore, experiment, and excel. His mentorship inspires us to strengthen our technical foundations, develop leadership qualities, and build solutions that create meaningful impact.
+              </p>
+
+              <p style={{ marginBottom: 0, padding: "14px 16px", background: "rgba(255, 153, 0, 0.06)", borderLeft: "3px solid #FF9900", borderRadius: "0 4px 4px 0", color: "#E2E8F0" }}>
+                We are deeply grateful for his dedication, encouragement, and belief in our potential. His mentorship continues to shape AWS SBG REC into a community driven by innovation, collaboration, and a passion for lifelong learning.
+              </p>
+            </div>
+
+            {/* Bottom Close Button */}
+            <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid rgba(255, 153, 0, 0.15)", display: "flex", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  background: "rgba(255, 153, 0, 0.2)",
+                  border: "1px solid rgba(255, 153, 0, 0.4)",
+                  borderRadius: "4px",
+                  padding: "7px 18px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#FF9900";
+                  e.currentTarget.style.color = "#0B0F19";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.2)";
+                  e.currentTarget.style.color = "#FFFFFF";
+                }}
+              >
+                Close Profile
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   );
 }
