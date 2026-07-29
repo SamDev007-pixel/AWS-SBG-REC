@@ -193,12 +193,13 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
       {/* Section Header */}
       <div className="spotlight-header-container" style={{ position: "relative", zIndex: 10, textAlign: "center", marginBottom: 22 }}>
         <span style={{
-          fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em",
-          textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 5,
-          background: "rgba(255, 153, 0, 0.12)", border: "1px solid rgba(255, 153, 0, 0.3)",
-          padding: "4px 12px", borderRadius: 20, marginBottom: 8,
+          fontSize: "10.5px", fontWeight: 800, letterSpacing: "0.14em",
+          textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 6,
+          background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(255, 153, 0, 0.4)", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 153, 0, 0.15)",
+          padding: "4.5px 14px", borderRadius: 20, marginBottom: 10,
         }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900" }} />
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF9900", boxShadow: "0 0 8px #FF9900" }} />
           FACULTY LEADERSHIP
         </span>
         <h2 style={{
@@ -243,14 +244,13 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           <div className="spotlight-right-content">
             
             <span style={{
-              fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em",
-              textTransform: "uppercase", color: "#FF9900",
-              background: "rgba(255, 153, 0, 0.12)",
-              border: "1px solid rgba(255, 153, 0, 0.3)",
-              borderRadius: 20, padding: "2.5px 9px", display: "inline-flex", alignItems: "center", gap: 4,
-              marginBottom: 6,
+              fontSize: "10px", fontWeight: 800, letterSpacing: "0.12em",
+              textTransform: "uppercase", color: "#FF9900", display: "inline-flex", alignItems: "center", gap: 5,
+              background: "rgba(15, 23, 42, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255, 153, 0, 0.4)", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 153, 0, 0.12)",
+              borderRadius: 20, padding: "3.5px 11px", marginBottom: 8,
             }}>
-              <span style={{ width: 4.5, height: 4.5, borderRadius: "50%", background: "#FF9900" }} />
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF9900", boxShadow: "0 0 6px #FF9900" }} />
               FACULTY COORDINATOR
             </span>
 
