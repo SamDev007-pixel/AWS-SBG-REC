@@ -157,36 +157,43 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         @media (max-width: 780px) {
           .spotlight-grid {
             flex-direction: column !important;
-            gap: 16px !important;
+            align-items: center !important;
+            gap: 12px !important;
           }
           .spotlight-left-card {
-            width: 100% !important;
-            align-items: center !important;
+            display: contents !important;
           }
           .spotlight-img-frame {
-            width: 150px !important;
-            height: 150px !important;
-            border-radius: 6px !important;
-            margin-bottom: 0 !important;
+            order: 1 !important;
+            width: 160px !important;
+            height: 160px !important;
+            border-radius: 8px !important;
+            margin: 0 auto 4px auto !important;
           }
           .spotlight-right-content {
+            order: 2 !important;
             width: 100% !important;
             align-items: center !important;
             text-align: center !important;
           }
+          .spotlight-linkedin-btn {
+            order: 3 !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+          }
           .spotlight-banner-wrapper {
-            padding: 18px 16px !important;
+            padding: 20px 16px !important;
             border-radius: 8px !important;
           }
           .spotlight-quote-card {
-            padding: 12px 14px !important;
+            padding: 14px 16px !important;
             margin-top: 10px !important;
-            text-align: center !important;
-            border-radius: 4px !important;
-            border-left: 1px solid rgba(255, 153, 0, 0.2) !important;
+            text-align: left !important;
+            border-radius: 8px !important;
+            border-left: 4px solid #FF9900 !important;
           }
           .spotlight-header-container {
-            margin-bottom: 18px !important;
+            margin-bottom: 16px !important;
           }
         }
       `}</style>
