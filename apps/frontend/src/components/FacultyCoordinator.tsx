@@ -56,7 +56,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
         width: "100%",
         backgroundColor: "#0B0F19",
         backgroundImage: `
-          linear-gradient(to bottom, rgba(11, 15, 25, 0.88) 0%, rgba(11, 15, 25, 0.82) 50%, rgba(11, 15, 25, 0.9) 100%),
+          linear-gradient(to bottom, rgba(11, 15, 25, 0.6) 0%, rgba(11, 15, 25, 0.5) 50%, rgba(11, 15, 25, 0.65) 100%),
           url('/images/crew_doodle_black_bg.png')
         `,
         backgroundSize: "450px auto",
