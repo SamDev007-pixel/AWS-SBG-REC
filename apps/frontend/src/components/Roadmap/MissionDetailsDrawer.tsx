@@ -145,7 +145,7 @@ export const MissionDetailsDrawer: React.FC<MissionDetailsDrawerProps> = ({
                     </span>
                   </div>
 
-                  {/* Architecture validations quiz questions row */}
+                  {/* Knowledge Check quiz questions row */}
                   <div className="flex justify-between items-center py-3">
                     <span className="text-xs text-slate-500">Quiz Questions</span>
                     <span className="text-xs font-bold text-slate-800 flex items-center gap-1 font-outfit">

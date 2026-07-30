@@ -18,6 +18,9 @@ import { cn } from '@/lib/utils';
 import { getAuthSession } from '@/lib/authHelper';
 import { authService } from '@/services/auth.service';
 import { motion, AnimatePresence } from 'framer-motion';
+import LearningErrorView from '@/components/Learn/LearningErrorView';
+import { categorizeError, LearningPageError } from '@/app/learn/error-types';
+import { logError } from '@/app/learn/error-logger';
 
 const getIconForSlug = (slug: string): string => {
   const map: Record<string, string> = {
@@ -139,6 +142,8 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const [xp, setXp] = useState<number>(0);
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [errorObj, setErrorObj] = useState<LearningPageError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [role, setRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('guest');
   const [isMobile, setIsMobile] = useState(false);
@@ -164,13 +169,18 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     let active = true;
     const loadData = async () => {
       try {
+        setErrorObj(null);
         setLoading(true);
         const [topicDetail, progress] = await Promise.all([
           learningService.getTopicDetail(topicSlug),
-          progressService.getMyProgress(),
+          progressService.getMyProgress().catch(() => ({ currentXP: 0 })),
         ]);
 
         if (!active) return;
+
+        if (!topicDetail || !topicDetail.modules) {
+          throw new LearningPageError(`Topic "${topicSlug}" was not found.`, 'unknown', 404);
+        }
 
         // Map learning API modules to UI modules format
         const mappedModules = topicDetail.modules.map((m) => ({
@@ -205,12 +215,14 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
           }
         });
 
-        setTopicName(topicDetail.name);
+        setTopicName(topicDetail.name || topicSlug);
         setRoadmapData({ modules: mappedModules, moduleStates: states });
-        setXp(progress.currentXP);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to load roadmap data:', err);
+        setXp(progress?.currentXP || 0);
+        setErrorObj(null);
+      } catch (err: any) {
+        const categorized = categorizeError(err);
+        logError(err, `roadmap-screen-${topicSlug}`);
+        if (active) setErrorObj(categorized);
       } finally {
         if (active) setLoading(false);
       }
@@ -220,7 +232,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     return () => {
       active = false;
     };
-  }, [topicSlug]);
+  }, [topicSlug, retryCount]);
 
   const handleLogout = () => {
     if (authService.logout(true)) {
@@ -256,6 +268,8 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     advancedStartY,
     advancedHeight
   } = geometry;
+
+  const fullCanvasHeight = useMemo(() => Math.max(totalHeight + 400, 1200), [totalHeight]);
 
   // User & Topic Persistence Keys
   const userKey = userId || 'guest';
@@ -319,12 +333,12 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     isAdvancedTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award')
   );
 
-  // 2. Background Sky Gradient: stays dark in phase1, phase2, phase3, crossfades in phase4, phase5, complete.
+  // 2. Background Sky Gradient: stays dark in phase1, phase2, crossfades smoothly starting in phase3.
   const isIntermediateBackgroundLocked = isIntermediateLocked || (
-    isIntermediateTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award' || transitionPhase === 'phase3_storm_tearing')
+    isIntermediateTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award')
   );
   const isAdvancedBackgroundLocked = isAdvancedLocked || (
-    isAdvancedTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award' || transitionPhase === 'phase3_storm_tearing')
+    isAdvancedTransitionQueued && (transitionPhase === 'idle' || transitionPhase === 'phase1_summit_pause' || transitionPhase === 'phase2_trophy_award')
   );
 
   // 3. Module Node & Headers: stays 100% locked/hidden in phase1, phase2, phase3, AND phase4!
@@ -503,14 +517,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     return () => clearTimeout(timer);
   }, [transitionPhase, transitionTargetLevel, intermediateList, advancedList, interKey, advKey]);
 
-  let backgroundGradient = '';
-  if (isIntermediateBackgroundLocked && isAdvancedBackgroundLocked) {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 22%, #64748b 32%, #334155 42%, #1e293b 60%, #0f172a 80%, #000000 100%)';
-  } else if (isAdvancedBackgroundLocked) {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #bae6fd 40%, #e0f2fe 60%, #475569 72%, #1e293b 84%, #0f172a 100%)';
-  } else {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 25%, #bae6fd 50%, #e0f2fe 75%, #bae6fd 100%)';
-  }
+
 
   // Build visual node list
   const visualNodesList: VisualNode[] = [
@@ -655,6 +662,19 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const mobileAdvancedGap = isMobile ? 250 : 0;
   const intermediateCardTop = intermediateStartY - 140 + mobileIntermediateGap;
   const advancedCardTop = advancedStartY - 160 + mobileAdvancedGap;
+
+  if (errorObj) {
+    return (
+      <LearningErrorView
+        error={errorObj}
+        reset={() => {
+          setErrorObj(null);
+          setLoading(true);
+          setRetryCount((c) => c + 1);
+        }}
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -819,11 +839,70 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
       {/* 3. SCROLLABLE ADVENTURE CANVAS CONTAINER */}
       <div
         ref={mapContainerRef}
-        className="w-full flex-1 overflow-y-auto overflow-x-hidden scrollbar-none relative z-10"
-        style={{ background: backgroundGradient }}
+        className="w-full flex-1 overflow-y-auto overflow-x-hidden scrollbar-none relative z-10 bg-slate-950"
       >
+        {/* Base Sky Background Layer (Always present - pristine sky blue) */}
+        <div
+          className="absolute inset-x-0 top-0 pointer-events-none z-0"
+          style={{
+            height: `max(100%, 100dvh, ${fullCanvasHeight}px)`,
+            background: 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 25%, #bae6fd 50%, #e0f2fe 75%, #bae6fd 100%)'
+          }}
+        />
+
+        {/* Deep Dark Storm Background Gradient Overlay (Both Intermediate & Advanced Locked) */}
+        <motion.div
+          className="absolute inset-x-0 top-0 pointer-events-none z-0"
+          initial={false}
+          animate={{
+            opacity: (isIntermediateBackgroundLocked && isAdvancedBackgroundLocked) ? 1 : 0
+          }}
+          transition={{
+            duration: 2.4,
+            ease: [0.4, 0, 0.2, 1]
+          }}
+          style={{
+            height: `max(100%, 100dvh, ${fullCanvasHeight}px)`,
+            background: 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 22%, #64748b 32%, #334155 42%, #1e293b 60%, #0f172a 80%, #020617 100%)'
+          }}
+        />
+
+        {/* Intermediate Storm Background Gradient Overlay (Intermediate Unlocked, Advanced Locked) */}
+        <motion.div
+          className="absolute inset-x-0 top-0 pointer-events-none z-0"
+          initial={false}
+          animate={{
+            opacity: (!isIntermediateBackgroundLocked && isAdvancedBackgroundLocked) ? 1 : 0
+          }}
+          transition={{
+            duration: 2.4,
+            ease: [0.4, 0, 0.2, 1]
+          }}
+          style={{
+            height: `max(100%, 100dvh, ${fullCanvasHeight}px)`,
+            background: 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #bae6fd 40%, #e0f2fe 60%, #475569 72%, #1e293b 84%, #0f172a 100%)'
+          }}
+        />
+
+        {/* Radiance Flare Bloom during Storm Dispersal (Phase 3 & Phase 4) */}
+        <motion.div
+          className="absolute inset-x-0 top-0 pointer-events-none z-0"
+          initial={false}
+          animate={{
+            opacity: (transitionPhase === 'phase3_storm_tearing' || transitionPhase === 'phase4_post_reveal_pause') ? 0.7 : 0
+          }}
+          transition={{
+            duration: 1.8,
+            ease: 'easeInOut'
+          }}
+          style={{
+            height: `max(100%, 100dvh, ${fullCanvasHeight}px)`,
+            background: 'radial-gradient(ellipse at 50% 35%, rgba(254, 240, 138, 0.45) 0%, rgba(56, 189, 248, 0.25) 45%, transparent 75%)'
+          }}
+        />
+
         {/* Animated Sky background */}
-        <SkyBackground height={totalHeight + 300} />
+        <SkyBackground height={fullCanvasHeight} />
 
         {/* Loader removed as it is now handled as a full-page view */}
 
@@ -1001,30 +1080,30 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
                 ? 'locked' as const
                 : rawStatus;
 
-            return (
-              <CloudIslandNode
-                key={module.id}
-                ref={(el) => {
-                  if (el) moduleNodeRefs.current.set(module.id, el);
-                  else moduleNodeRefs.current.delete(module.id);
-                }}
-                id={module.id}
-                name={module.name}
-                points={module.points}
-                status={status}
-                iconName={module.iconName}
-                x={coord.x}
-                y={coord.y}
-                index={idx}
-                onClick={() => {
-                  setSelectedModuleId(module.id);
-                  setIsDrawerOpen(true);
-                }}
-              />
-            );
-          })}
+              return (
+                <CloudIslandNode
+                  key={module.id}
+                  ref={(el) => {
+                    if (el) moduleNodeRefs.current.set(module.id, el);
+                    else moduleNodeRefs.current.delete(module.id);
+                  }}
+                  id={module.id}
+                  name={module.name}
+                  points={module.points}
+                  status={status}
+                  iconName={module.iconName}
+                  x={coord.x}
+                  y={coord.y}
+                  index={idx}
+                  onClick={() => {
+                    setSelectedModuleId(module.id);
+                    setIsDrawerOpen(true);
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
 
       {/* Dynamic slide drawer */}
       <MissionDetailsDrawer

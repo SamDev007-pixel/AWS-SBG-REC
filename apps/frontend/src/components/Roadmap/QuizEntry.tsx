@@ -37,7 +37,7 @@ export const QuizEntry: React.FC<QuizEntryProps> = ({
   isLast,
   shake,
   onSubmit,
-  isSubmitting = false
+  isSubmitting = false,
 }) => {
   return (
     <motion.div
@@ -47,12 +47,8 @@ export const QuizEntry: React.FC<QuizEntryProps> = ({
       className={cn("space-y-5 flex flex-col flex-1 text-left", shake && "animate-[shake_0.5s_ease-in-out]")}
     >
       <div className="space-y-4 flex-1">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 font-heading">
-            <Icons.ShieldQuestion className="w-4 h-4 text-blue-500" />
-            Architecture Validation
-          </h3>
-          <span className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full font-heading">
+        <div className="flex items-center justify-start">
+          <span className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-2.5 py-0.5 rounded-full font-heading">
             Question {currentIndex + 1} of {totalQuestions}
           </span>
         </div>

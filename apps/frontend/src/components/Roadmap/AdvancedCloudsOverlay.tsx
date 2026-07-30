@@ -36,10 +36,8 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
       style={{
         top: `${top}px`,
         height: `${height}px`,
-        ...(locked ? {
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)'
-        } : {})
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
+        maskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)'
       }}
     >
       {/* Linear Gradients Definition */}
@@ -71,10 +69,10 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.28 }}
               exit={{
-                opacity: [0.28, 0.12, 0],
-                scale: [1, 1.15],
-                y: -80,
-                transition: { duration: 1.8, ease: 'easeOut' }
+                opacity: 0,
+                scale: 1.12,
+                y: -70,
+                transition: { duration: 2.2, ease: [0.4, 0, 0.2, 1] }
               }}
               transition={{ duration: 1.2 }}
               className="absolute inset-0 bg-slate-950 pointer-events-none origin-top"
@@ -99,14 +97,15 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
                   y: cloud.driftY,
                 }}
                 exit={{
-                  x: cloud.partDir * 1200,
+                  x: cloud.partDir * 750,
                   y: cloud.exitY,
-                  opacity: [1, 0.9, 0.4, 0],
-                  scale: [1, 1.12, 1.22],
+                  opacity: 0,
+                  scale: 1.22,
+                  filter: 'blur(8px)',
                   transition: {
-                    duration: 1.6,
-                    delay: cloud.delay,
-                    ease: [0.22, 1, 0.36, 1],
+                    duration: 2.2,
+                    delay: cloud.delay * 0.5,
+                    ease: [0.25, 1, 0.5, 1],
                   }
                 }}
                 transition={{
@@ -139,9 +138,10 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{
                 opacity: 0,
-                scale: 1.08,
-                y: -50,
-                transition: { duration: 0.8, ease: 'easeOut' }
+                scale: 0.92,
+                y: -30,
+                filter: 'blur(6px)',
+                transition: { duration: 1.0, ease: [0.4, 0, 0.2, 1] }
               }}
               transition={{ delay: 0.2, duration: 0.6 }}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center text-center p-8 max-w-sm rounded-3xl bg-slate-950/90 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
