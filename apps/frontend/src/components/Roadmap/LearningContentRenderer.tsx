@@ -216,7 +216,7 @@ export const LearningContentRenderer: React.FC<LearningContentRendererProps> = (
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-black text-slate-950 tracking-tight">{title}</h3>
-      <div className="bg-white/80 border border-slate-200 rounded-2xl p-5 space-y-4 min-h-[180px] shadow-sm flex flex-col justify-center">
+      <div className="bg-slate-50/50 sm:bg-white/80 border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-4 min-h-[160px] sm:min-h-[180px] shadow-none sm:shadow-sm flex flex-col justify-center">
         {bullets.map((bullet, idx) => (
           <div key={idx} className="flex items-start gap-3.5">
             <div className="mt-1 flex-shrink-0 w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">

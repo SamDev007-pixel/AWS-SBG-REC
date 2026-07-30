@@ -444,18 +444,18 @@ export default function ModuleLearningPage() {
 
   // ─── Main Render ──────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF] flex items-center justify-center p-4 font-sans select-none relative overflow-hidden text-slate-800">
+    <div className="min-h-screen w-full bg-white sm:bg-gradient-to-br sm:from-[#E0F2FE] sm:via-[#F0F9FF] sm:to-[#FFFFFF] flex items-start sm:items-center justify-center p-0 sm:p-4 font-sans select-none relative overflow-x-hidden text-slate-800">
 
       {/* Background Ambience */}
-      <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-cyan-300/10 rounded-full blur-[100px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-[10%] right-[5%] w-96 h-96 bg-emerald-300/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="hidden sm:block absolute top-[10%] left-[5%] w-64 h-64 bg-cyan-300/10 rounded-full blur-[100px] pointer-events-none animate-pulse" />
+      <div className="hidden sm:block absolute bottom-[10%] right-[5%] w-96 h-96 bg-emerald-300/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
 
       {/* Confetti canvas overlay */}
       {showConfetti && (
         <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[100]" />
       )}
 
-      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-[32px] shadow-2xl p-6 md:p-8 flex flex-col min-h-[520px] relative z-10">
+      <div className="w-full max-w-2xl bg-white border-0 sm:border border-slate-200 rounded-none sm:rounded-[32px] shadow-none sm:shadow-2xl p-4 sm:p-6 md:p-8 flex flex-col min-h-screen sm:min-h-[520px] relative z-10">
 
         {/* TOP STATUS BAR */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
