@@ -203,7 +203,7 @@ const CloudShape: React.FC<CloudShapeProps> = ({ width = 200, height = 100, clas
       height={height}
       viewBox="0 0 200 100"
       fill="currentColor"
-      className={cn("drop-shadow-[0_6px_12px_rgba(255,255,255,0.05)]", className)}
+      className={cn("drop-shadow-[0_8px_16px_rgba(14,165,233,0.18)]", className)}
     >
       <path d="M 30,70 A 20,20 0 0,1 60,40 A 25,25 0 0,1 110,30 A 22,22 0 0,1 150,45 A 18,18 0 0,1 180,70 A 10,10 0 0,1 170,80 L 30,80 A 10,10 0 0,1 30,70 Z" />
     </svg>

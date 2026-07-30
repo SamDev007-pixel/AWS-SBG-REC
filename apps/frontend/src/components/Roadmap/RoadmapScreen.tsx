@@ -505,11 +505,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
   let backgroundGradient = '';
   if (isIntermediateBackgroundLocked && isAdvancedBackgroundLocked) {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 25%, #5a6578 38%, #202735 48%, #1b202e 65%, #05070a 80%, #000000 100%)';
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 22%, #64748b 32%, #334155 42%, #1e293b 60%, #0f172a 80%, #000000 100%)';
   } else if (isAdvancedBackgroundLocked) {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 30%, #f0f9ff 45%, #ffffff 58%, #1f2430 68%, #05070a 76%, #000000 100%)';
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #bae6fd 40%, #e0f2fe 60%, #475569 72%, #1e293b 84%, #0f172a 100%)';
   } else {
-    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 40%, #f0f9ff 70%, #e0f2fe 100%)';
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 25%, #bae6fd 50%, #e0f2fe 75%, #bae6fd 100%)';
   }
 
   // Build visual node list
