@@ -7,6 +7,11 @@ export type GuidelineIcon =
   | 'QUICKSIGHT'
   | 'COST_EXPLORER'
   | 'APPLICATION_COMPOSER'
+  | 'EC2'
+  | 'LAMBDA'
+  | 'DYNAMODB'
+  | 'VPC'
+  | 'RDS'
   | 'LIGHTBULB'
   | 'NONE';
 

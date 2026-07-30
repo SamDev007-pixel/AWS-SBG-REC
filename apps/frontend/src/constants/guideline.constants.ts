@@ -9,6 +9,11 @@ export const GUIDELINE_ICONS_LIST: { value: GuidelineIcon; label: string; descri
   { value: 'QUICKSIGHT', label: 'QuickSight', description: 'Analytics & Visualization' },
   { value: 'COST_EXPLORER', label: 'Cost Explorer', description: 'Billing & Point Tracking' },
   { value: 'APPLICATION_COMPOSER', label: 'Application Composer', description: 'Architecture & Pathways' },
+  { value: 'EC2', label: 'Elastic Compute Cloud (EC2)', description: 'Virtual Instances & Compute' },
+  { value: 'LAMBDA', label: 'AWS Lambda', description: 'Serverless & Event Triggers' },
+  { value: 'DYNAMODB', label: 'Amazon DynamoDB', description: 'NoSQL & Key-Value Data' },
+  { value: 'VPC', label: 'Virtual Private Cloud (VPC)', description: 'Isolated Networking' },
+  { value: 'RDS', label: 'Relational Database Service (RDS)', description: 'Managed SQL Databases' },
   { value: 'LIGHTBULB', label: 'Lightbulb', description: 'Progression guidelines' },
   { value: 'NONE', label: 'None (Hide)', description: 'Hide header icon' },
 ];

@@ -125,7 +125,7 @@ export default function CoreLearnersDirectoryPage() {
                           ? "bg-[#232F3E] border-[#232F3E] text-white"
                           : tab.id === 'CREW'
                             ? "bg-amber-600 border-amber-600 text-white"
-                            : "bg-[#FF6B00] border-[#FF6B00] text-white"
+                            : "bg-slate-600 border-slate-600 text-white"
                         : tab.color
                     )}
                   >
@@ -258,7 +258,7 @@ export default function CoreLearnersDirectoryPage() {
                       ? "bg-emerald-100 text-emerald-700 border-emerald-200"
                       : isCrewLearner
                         ? "bg-amber-100 text-amber-700 border-amber-200"
-                        : "bg-amber-50 text-[#FF6B00] border-amber-200";
+                        : "bg-slate-100 text-slate-600 border-slate-200/80";
 
                     const nameColor = isComplete
                       ? "text-emerald-800"
@@ -286,9 +286,13 @@ export default function CoreLearnersDirectoryPage() {
                                 )}>
                                   {learner.name}
                                 </span>
-                                {isCrewLearner && (
+                                {isCrewLearner ? (
                                   <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black bg-amber-100 text-amber-700 border border-amber-200 uppercase leading-none">
                                     Crew
+                                  </span>
+                                ) : (
+                                  <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black bg-slate-100 text-slate-600 border border-slate-200/80 uppercase leading-none">
+                                    Enthusiast
                                   </span>
                                 )}
                               </div>
@@ -412,7 +416,7 @@ export default function CoreLearnersDirectoryPage() {
                   ? "bg-emerald-100 text-emerald-700 border-emerald-200"
                   : isCrewLearner
                     ? "bg-amber-100 text-amber-700 border-amber-200"
-                    : "bg-amber-50 text-[#FF6B00] border-amber-200";
+                    : "bg-slate-100 text-slate-600 border-slate-200/80";
 
                 const nameColor = isComplete
                   ? "text-emerald-800"
@@ -460,10 +464,16 @@ export default function CoreLearnersDirectoryPage() {
                         </span>
 
                         {/* Role Badge */}
-                        {isCrewLearner && (
+                        {isCrewLearner ? (
                           <div className="mt-1 flex">
                             <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black bg-amber-100 text-amber-700 border border-amber-200 uppercase leading-none">
                               Crew
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="mt-1 flex">
+                            <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black bg-slate-100 text-slate-600 border border-slate-200/80 uppercase leading-none">
+                              Enthusiast
                             </span>
                           </div>
                         )}

@@ -277,3 +277,176 @@ export const ApplicationComposerIcon: React.FC<IconProps> = ({ size = 18, ...pro
     </svg>
   );
 };
+
+// 9. Amazon EC2 Icon (Elastic Compute Cloud / Virtual Instances)
+export const EC2Icon: React.FC<IconProps> = ({ size = 18, ...props }) => {
+  const uniqueId = useId();
+  const gradId = `ec2-bg-${uniqueId}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-shrink-0 select-none"
+      {...props}
+    >
+      {/* EC2 Orange theme */}
+      <rect x="6" y="6" width="52" height="52" rx="8" fill={`url(#${gradId})`} stroke="#ea580c" strokeWidth="1.5" />
+      {/* Processor core */}
+      <rect x="22" y="22" width="20" height="20" rx="3" fill="none" stroke="#ffffff" strokeWidth="2.5" />
+      <rect x="27" y="27" width="10" height="10" rx="1.5" fill="#ffffff" />
+      {/* CPU Chip Pins */}
+      <path d="M26 16V22 M32 16V22 M38 16V22" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M26 42V48 M32 42V48 M38 42V48" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M16 26H22 M16 32H22 M16 38H22" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M42 26H48 M42 32H48 M42 38H48" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#fb923c" /> {/* orange-400 */}
+          <stop offset="100%" stopColor="#ea580c" /> {/* orange-600 */}
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+// 10. AWS Lambda Icon (Serverless Functions)
+export const LambdaIcon: React.FC<IconProps> = ({ size = 18, ...props }) => {
+  const uniqueId = useId();
+  const gradId = `lambda-bg-${uniqueId}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-shrink-0 select-none"
+      {...props}
+    >
+      {/* Lambda Amber/Orange theme */}
+      <rect x="6" y="6" width="52" height="52" rx="8" fill={`url(#${gradId})`} stroke="#d97706" strokeWidth="1.5" />
+      {/* Lambda Lambda symbol */}
+      <path
+        d="M20 44L30 20H36L44 44M25 32L34 44"
+        stroke="#ffffff"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="30" cy="20" r="2" fill="#ffffff" />
+      <circle cx="20" cy="44" r="2" fill="#ffffff" />
+      <circle cx="44" cy="44" r="2" fill="#ffffff" />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#fbbf24" /> {/* amber-400 */}
+          <stop offset="100%" stopColor="#d97706" /> {/* amber-600 */}
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+// 11. Amazon DynamoDB Icon (NoSQL & Key-Value Store)
+export const DynamoDBIcon: React.FC<IconProps> = ({ size = 18, ...props }) => {
+  const uniqueId = useId();
+  const gradId = `ddb-bg-${uniqueId}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-shrink-0 select-none"
+      {...props}
+    >
+      {/* DynamoDB Sapphire Blue theme */}
+      <rect x="6" y="6" width="52" height="52" rx="8" fill={`url(#${gradId})`} stroke="#1d4ed8" strokeWidth="1.5" />
+      {/* Multi-stack table partition lines */}
+      <rect x="18" y="16" width="28" height="8" rx="2" fill="#ffffff" />
+      <rect x="18" y="28" width="28" height="8" rx="2" fill="#ffffff" opacity="0.8" />
+      <rect x="18" y="40" width="28" height="8" rx="2" fill="#ffffff" opacity="0.6" />
+      {/* Key-Value partitions */}
+      <line x1="27" y1="16" x2="27" y2="48" stroke="#1d4ed8" strokeWidth="1.5" opacity="0.6" />
+      <line x1="36" y1="16" x2="36" y2="48" stroke="#1d4ed8" strokeWidth="1.5" opacity="0.6" />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#60a5fa" /> {/* blue-400 */}
+          <stop offset="100%" stopColor="#1d4ed8" /> {/* blue-700 */}
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+// 12. Amazon VPC Icon (Virtual Private Cloud)
+export const VPCIcon: React.FC<IconProps> = ({ size = 18, ...props }) => {
+  const uniqueId = useId();
+  const gradId = `vpc-bg-${uniqueId}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-shrink-0 select-none"
+      {...props}
+    >
+      {/* VPC Purple theme */}
+      <rect x="6" y="6" width="52" height="52" rx="8" fill={`url(#${gradId})`} stroke="#6d28d9" strokeWidth="1.5" />
+      {/* Outer network isolation box */}
+      <rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="#ffffff" strokeWidth="2" strokeDasharray="4 2" />
+      {/* Cloud & nodes inside */}
+      <path
+        d="M26 36 C24 36 22 34 22 32 C22 30 24 28 26 28 C27 26 29 25 32 25 C35 25 37 27 38 29 C40 29 42 31 42 33 C42 35 40 36 38 36 Z"
+        fill="#ffffff"
+      />
+      <circle cx="20" cy="20" r="2.5" fill="#ffffff" />
+      <circle cx="44" cy="20" r="2.5" fill="#ffffff" />
+      <circle cx="20" cy="44" r="2.5" fill="#ffffff" />
+      <circle cx="44" cy="44" r="2.5" fill="#ffffff" />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#c084fc" /> {/* purple-400 */}
+          <stop offset="100%" stopColor="#6d28d9" /> {/* purple-700 */}
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+// 13. Amazon RDS Icon (Relational Database Service)
+export const RDSIcon: React.FC<IconProps> = ({ size = 18, ...props }) => {
+  const uniqueId = useId();
+  const gradId = `rds-bg-${uniqueId}`;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="flex-shrink-0 select-none"
+      {...props}
+    >
+      {/* RDS Sky/Teal theme */}
+      <rect x="6" y="6" width="52" height="52" rx="8" fill={`url(#${gradId})`} stroke="#0284c7" strokeWidth="1.5" />
+      {/* Database Cylinders Stack */}
+      <ellipse cx="32" cy="20" rx="14" ry="5" fill="#ffffff" />
+      <path d="M18 20V32C18 35 24 37 32 37C40 37 46 35 46 32V20" fill="none" stroke="#ffffff" strokeWidth="2.5" />
+      <path d="M18 32V44C18 47 24 49 32 49C40 49 46 47 46 44V32" fill="none" stroke="#ffffff" strokeWidth="2.5" />
+      <path d="M18 26C18 29 24 31 32 31C40 31 46 29 46 26" stroke="#ffffff" strokeWidth="1.5" opacity="0.6" />
+      <path d="M18 38C18 41 24 43 32 43C40 43 46 41 46 38" stroke="#ffffff" strokeWidth="1.5" opacity="0.6" />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#38bdf8" /> {/* sky-400 */}
+          <stop offset="100%" stopColor="#0284c7" /> {/* sky-600 */}
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};

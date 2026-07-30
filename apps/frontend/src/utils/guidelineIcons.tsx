@@ -9,6 +9,11 @@ import {
   QuickSightIcon,
   CostExplorerIcon,
   ApplicationComposerIcon,
+  EC2Icon,
+  LambdaIcon,
+  DynamoDBIcon,
+  VPCIcon,
+  RDSIcon,
 } from '@/components/Learn/AWSServiceIcons';
 import { GuidelineIcon } from '../types/guideline.types';
 
@@ -21,6 +26,11 @@ export const GUIDELINE_ICONS_MAP: Record<GuidelineIcon, React.FC<{ size?: number
   QUICKSIGHT: QuickSightIcon,
   COST_EXPLORER: CostExplorerIcon,
   APPLICATION_COMPOSER: ApplicationComposerIcon,
+  EC2: EC2Icon,
+  LAMBDA: LambdaIcon,
+  DYNAMODB: DynamoDBIcon,
+  VPC: VPCIcon,
+  RDS: RDSIcon,
   LIGHTBULB: ({ size = 18, className }) => <Lightbulb size={size} className={className} />,
   NONE: () => null,
 };
