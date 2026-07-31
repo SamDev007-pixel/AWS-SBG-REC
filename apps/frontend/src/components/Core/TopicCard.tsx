@@ -43,16 +43,18 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
               {topic.description || 'No description provided.'}
             </p>
           </Link>
-          <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+          <div className="flex items-center gap-1 flex-shrink-0 ml-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-opacity duration-200">
             <button
               onClick={() => onEdit(topic)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              title="Edit Topic"
             >
               <Icons.Pencil className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onDelete(topic)}
-              className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+              title="Delete Topic"
             >
               <Icons.Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -87,7 +89,7 @@ export default function TopicCard({ topic, onEdit, onDelete }: TopicCardProps) {
       <div className="border-t border-slate-100 px-5 py-3 bg-slate-55/50 bg-slate-50/50 flex items-center justify-between">
         <Link
           href={`/core/topics/${topic.id}/roadmap`}
-          className="text-[11px] font-black text-[#FF6B00] hover:text-orange-700 transition-colors flex items-center gap-1 font-heading"
+          className="text-[11px] font-black text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 font-heading"
         >
           Open Builder
           <Icons.ArrowRight className="w-3.5 h-3.5" />
