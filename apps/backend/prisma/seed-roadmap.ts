@@ -103,116 +103,86 @@ const CURRICULA = [
   { topic: XR_TOPIC, modules: XR_MODULES },
 ];
 
-const rawDbUrl = process.env.DATABASE_URL || '';
-const directDbUrl = rawDbUrl.replace('-pooler', '');
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: directDbUrl,
-    },
-  },
-});
-
-async function withRetry<T>(fn: () => Promise<T>, retries = 5, delayMs = 1000): Promise<T> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fn();
-    } catch (err: any) {
-      if (i === retries - 1) throw err;
-      console.warn(`[Retry ${i + 1}/${retries}] Connection warning: ${err.message || err}. Retrying...`);
-      await new Promise((r) => setTimeout(r, delayMs));
-    }
-  }
-  throw new Error('Retry limit reached');
-}
+const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding roadmap data...');
 
   // Clear existing roadmap data to avoid orderIndex unique constraint conflicts
-  await withRetry(() => prisma.learningSlide.deleteMany());
-  await withRetry(() => prisma.quizQuestion.deleteMany());
-  await withRetry(() => prisma.roadmapModule.deleteMany());
-  await withRetry(() => prisma.roadmapTopic.deleteMany());
+  await prisma.learningSlide.deleteMany();
+  await prisma.quizQuestion.deleteMany();
+  await prisma.roadmapModule.deleteMany();
+  await prisma.roadmapTopic.deleteMany();
   console.log('Cleared existing roadmap data.');
 
   for (const curriculum of CURRICULA) {
-    const topic = await withRetry(() =>
-      prisma.roadmapTopic.upsert({
-        where: { slug: curriculum.topic.slug },
-        update: {
-          name: curriculum.topic.name,
-          description: curriculum.topic.description,
-          orderIndex: curriculum.topic.orderIndex,
-          theme: curriculum.topic.theme,
-        },
-        create: curriculum.topic,
-      })
-    );
+    const topic = await prisma.roadmapTopic.upsert({
+      where: { slug: curriculum.topic.slug },
+      update: {
+        name: curriculum.topic.name,
+        description: curriculum.topic.description,
+        orderIndex: curriculum.topic.orderIndex,
+        theme: curriculum.topic.theme,
+      },
+      create: curriculum.topic,
+    });
     console.log(`Topic: ${topic.name} (${topic.slug})`);
 
     for (const m of curriculum.modules) {
-      const dbModule = await withRetry(() =>
-        prisma.roadmapModule.upsert({
-          where: { slug: m.slug },
-          update: {
-            name: m.name,
-            description: m.description,
-            tier: m.tier,
-            xpPoints: m.xpPoints,
-            orderIndex: m.orderIndex,
-            topicId: topic.id,
-            level: m.level,
-          },
-          create: {
-            slug: m.slug,
-            name: m.name,
-            description: m.description,
-            tier: m.tier,
-            xpPoints: m.xpPoints,
-            orderIndex: m.orderIndex,
-            topicId: topic.id,
-            level: m.level,
-          },
-        })
-      );
+      const dbModule = await prisma.roadmapModule.upsert({
+        where: { slug: m.slug },
+        update: {
+          name: m.name,
+          description: m.description,
+          tier: m.tier,
+          xpPoints: m.xpPoints,
+          orderIndex: m.orderIndex,
+          topicId: topic.id,
+          level: m.level,
+        },
+        create: {
+          slug: m.slug,
+          name: m.name,
+          description: m.description,
+          tier: m.tier,
+          xpPoints: m.xpPoints,
+          orderIndex: m.orderIndex,
+          topicId: topic.id,
+          level: m.level,
+        },
+      });
 
       // Recreate slides
-      await withRetry(() => prisma.learningSlide.deleteMany({ where: { moduleId: dbModule.id } }));
+      await prisma.learningSlide.deleteMany({ where: { moduleId: dbModule.id } });
       if (m.slides.length > 0) {
-        await withRetry(() =>
-          prisma.learningSlide.createMany({
-            data: m.slides.map((s, i) => ({
-              moduleId: dbModule.id,
-              title: s.title,
-              layoutType: s.layoutType,
-              imageUrl: s.imageUrl,
-              bullets: s.bullets,
-              orderIndex: i,
-            })),
-          })
-        );
+        await prisma.learningSlide.createMany({
+          data: m.slides.map((s, i) => ({
+            moduleId: dbModule.id,
+            title: s.title,
+            layoutType: s.layoutType,
+            imageUrl: s.imageUrl,
+            bullets: s.bullets,
+            orderIndex: i,
+          })),
+        });
       }
 
       // Recreate questions
-      await withRetry(() => prisma.quizQuestion.deleteMany({ where: { moduleId: dbModule.id } }));
+      await prisma.quizQuestion.deleteMany({ where: { moduleId: dbModule.id } });
       if (m.quiz.length > 0) {
-        await withRetry(() =>
-          prisma.quizQuestion.createMany({
-            data: m.quiz.map((q, i) => ({
-              moduleId: dbModule.id,
-              question: q.question,
-              optionA: q.optionA,
-              optionB: q.optionB,
-              optionC: q.optionC,
-              optionD: q.optionD,
-              correctAnswer: q.correctAnswer,
-              explanation: q.explanation,
-              orderIndex: i,
-            })),
-          })
-        );
+        await prisma.quizQuestion.createMany({
+          data: m.quiz.map((q, i) => ({
+            moduleId: dbModule.id,
+            question: q.question,
+            optionA: q.optionA,
+            optionB: q.optionB,
+            optionC: q.optionC,
+            optionD: q.optionD,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation,
+            orderIndex: i,
+          })),
+        });
       }
     }
   }

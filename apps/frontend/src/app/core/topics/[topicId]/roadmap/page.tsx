@@ -32,10 +32,10 @@ export default function TopicRoadmapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen w-full bg-slate-55 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-2 border-amber-200 border-t-[#FF9900] animate-spin shadow-2xs" />
-          <span className="text-xs text-slate-600 font-bold tracking-wider uppercase font-heading animate-pulse">Loading Roadmap Builder...</span>
+          <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+          <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Roadmap Builder...</span>
         </div>
       </div>
     );

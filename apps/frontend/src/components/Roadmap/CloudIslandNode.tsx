@@ -108,11 +108,9 @@ export const CloudIslandNode = React.forwardRef<HTMLDivElement, CloudIslandNodeP
           <motion.div
             className="absolute -inset-4 border border-cyan-300 rounded-full pointer-events-none animate-pulse-glow"
           />
-          {index !== 0 && (
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-955 font-bold text-[9px] px-3 py-0.5 rounded-full border border-white tracking-wider shadow-sm animate-bounce z-35 whitespace-nowrap font-heading">
-              CURRENT
-            </div>
-          )}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 font-black text-[9px] px-3.5 py-0.5 rounded-full border-2 border-white tracking-widest shadow-md animate-bounce z-35 whitespace-nowrap font-outfit">
+            CURRENT
+          </div>
         </>
       )}
 

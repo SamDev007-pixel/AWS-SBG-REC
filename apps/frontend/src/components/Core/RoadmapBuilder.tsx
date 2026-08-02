@@ -54,29 +54,29 @@ const calculateCompactRoadmapGeometry = (modulesList: any[]) => {
   let currentY = 260; // Starts at 260 to prevent overlap with Beginner Track card
   beginnerList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[idx % WAVE_X_PATTERN.length], y: currentY };
-    currentY += (idx === beginnerList.length - 1 ? 210 : 160);
+    currentY += 135;
   });
   coordinates['summit_beginner'] = { x: 50, y: currentY };
 
-  currentY += 240;
+  currentY += 180;
   const startIntermediateY = currentY;
   intermediateList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[(idx + 1) % WAVE_X_PATTERN.length], y: currentY };
-    currentY += (idx === intermediateList.length - 1 ? 210 : 160);
+    currentY += 135;
   });
   coordinates['summit_intermediate'] = { x: 50, y: currentY };
 
-  currentY += 240;
+  currentY += 180;
   const startAdvancedY = currentY;
   advancedList.forEach((mod, idx) => {
     coordinates[mod.id] = { x: WAVE_X_PATTERN[(idx + 2) % WAVE_X_PATTERN.length], y: currentY };
-    currentY += (idx === advancedList.length - 1 ? 210 : 160);
+    currentY += 135;
   });
   coordinates['summit_advanced'] = { x: 50, y: currentY };
 
   return {
     coordinates,
-    totalHeight: currentY + 160,
+    totalHeight: currentY + 120,
     intermediateStartY: startIntermediateY - 90,
     intermediateHeight: startAdvancedY - startIntermediateY + 60,
     advancedStartY: startAdvancedY - 90,
@@ -526,30 +526,30 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                   <Icons.ChevronDown className="w-5 h-5 text-slate-500" />
                 </button>
               )}
-              <Icons.Settings className="w-4 h-4 text-[#FF9900] flex-shrink-0" />
-              <h3 className="text-xs font-bold text-slate-800 tracking-tight font-heading uppercase flex-shrink-0">Module Settings</h3>
-              {saveStatus === 'saving' && <span className="text-[10px] text-[#FF9900] font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
+              <Icons.Settings className="w-4 h-4 text-cyan-600 flex-shrink-0" />
+              <h3 className="text-xs font-black text-slate-800 tracking-tight font-heading uppercase flex-shrink-0">Module Settings</h3>
+              {saveStatus === 'saving' && <span className="text-[10px] text-[#FF6B00] font-bold animate-pulse font-heading lowercase tracking-normal flex-shrink-0">(saving...)</span>}
               {saveStatus === 'saved' && <span className="text-[10px] text-emerald-600 font-bold font-heading lowercase tracking-normal flex-shrink-0">(saved)</span>}
               {saveStatus === 'failed' && <span className="text-[10px] text-rose-500 font-bold font-heading lowercase tracking-normal flex-shrink-0">(failed)</span>}
             </div>
-            <span className="text-[10px] font-bold text-slate-500 font-heading uppercase tracking-wider mt-0.5">{selectedModule.level}</span>
+            <span className="text-[10px] font-black text-slate-555 font-heading uppercase tracking-wider mt-0.5">{selectedModule.level}</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-lg font-black text-slate-800 font-heading">{selectedModuleIndex !== -1 ? String(selectedModuleIndex + 1).padStart(2, '0') : '--'}</span>
-            <span className="text-[9px] font-bold font-heading text-slate-500 uppercase tracking-widest bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md self-center">{selectedModule.id.slice(0, 5).toUpperCase()}</span>
+            <span className="text-[9px] font-black font-heading text-slate-555 uppercase tracking-widest bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md self-center">{selectedModule.id.slice(0, 5).toUpperCase()}</span>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-4 text-xs font-semibold text-slate-655 pb-12">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs font-semibold text-slate-655 pb-12">
           {/* Content Summary */}
-          <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider pb-2.5 border-b border-slate-100 flex-shrink-0 select-none">
-            <div className="flex items-center gap-1.5 text-slate-600">
-              <Icons.BookOpen className="w-3.5 h-3.5 text-[#FF9900]" /> Slides:{' '}
-              <span className="text-slate-800 font-bold font-heading text-xs ml-0.5">{selectedModule.learningPagesCount ?? 0}</span>
+          <div className="flex items-center justify-between text-slate-555 text-[10px] font-black uppercase tracking-wider pb-2 border-b border-slate-200/60 flex-shrink-0 select-none">
+            <div className="flex items-center gap-1.5 text-slate-700">
+              <span role="img" aria-label="Slides">🖼️</span> Slides:{' '}
+              <span className="text-slate-800 font-extrabold font-heading text-xs ml-0.5">{selectedModule.learningPagesCount ?? 0}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-600">
-              <Icons.HelpCircle className="w-3.5 h-3.5 text-[#FF9900]" /> Quiz Questions:{' '}
-              <span className="text-slate-800 font-bold font-heading text-xs ml-0.5">{selectedModule.quizQuestionsCount ?? 0}</span>
+            <div className="flex items-center gap-1.5 text-slate-700">
+              <span role="img" aria-label="Quiz">❓</span> Quiz Questions:{' '}
+              <span className="text-slate-800 font-extrabold font-heading text-xs ml-0.5">{selectedModule.quizQuestionsCount ?? 0}</span>
             </div>
           </div>
 
@@ -621,24 +621,16 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
 
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-6 text-slate-100">
-        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-xs">
-            <Icons.AlertTriangle className="w-7 h-7 stroke-[2.2]" />
+      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
+        <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 animate-bounce">
+            <Icons.AlertTriangle className="w-9 h-9" />
           </div>
-          <div className="space-y-1.5">
-            <h2 className="text-lg font-bold tracking-tight text-white font-heading">
-              CMS Runtime Contract Mismatch
-            </h2>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-              {error}
-            </p>
+          <div className="space-y-2">
+            <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">CMS Runtime Contract Mismatch</h2>
+            <p className="text-xs text-rose-455 leading-relaxed max-w-md mx-auto">{error}</p>
           </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center justify-center gap-2 bg-[#FF9900] hover:bg-[#E68A00] text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm transition-all duration-200 font-heading cursor-pointer active:scale-98 select-none"
-          >
-            <Icons.RefreshCw className="w-3.5 h-3.5" />
+          <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading">
             Retry Connection
           </button>
         </div>
@@ -703,22 +695,19 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
 
           <div 
             ref={centerRef} 
-            className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar relative rounded-b-[32px]"
+            className="flex-1 overflow-y-auto overflow-x-hidden relative rounded-b-[32px]"
             style={{ background: backgroundGradient }}
           >
-            {/* Full-width seamless sky background */}
-            <div className="absolute inset-0 w-full pointer-events-none z-0 overflow-hidden">
-              <SkyBackground height={totalHeight * fitScale} />
-            </div>
-
             <div 
-              className="absolute top-0 left-1/2 origin-top z-10" 
+              className="absolute top-0 left-1/2 origin-top" 
               style={{ 
                 transform: `translateX(-50%) scale(${fitScale})`, 
                 width: CANVAS_WIDTH, 
-                height: canvasHeight
+                height: canvasHeight, 
+                background: backgroundGradient 
               }}
             >
+              <SkyBackground />
               <div className="relative w-full z-10" style={{ height: totalHeight }}>
                 <RoadmapPath nodes={pathNodes} width={CANVAS_WIDTH} />
 
@@ -796,7 +785,7 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
         </div>
 
         {/* MOBILE & TABLET VIEW LIST CARDS (Visible on Mobile & Tablet) */}
-        <div className="flex lg:hidden flex-col flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4">
+        <div className="flex lg:hidden flex-col flex-1 min-h-0 overflow-y-auto space-y-4">
           <div className="flex items-center justify-between px-2 py-1 flex-shrink-0 select-none">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-heading">{modules.length} Modules Registered</span>
           </div>
@@ -804,68 +793,62 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
           <div className="space-y-4 pb-12">
             {modules.map((module, index) => {
               const badgeColor = module.level === 'Beginner'
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
+                ? 'bg-emerald-50 text-emerald-600 border-emerald-150'
                 : module.level === 'Intermediate'
-                  ? 'bg-sky-50 text-sky-700 border-sky-200/80'
-                  : 'bg-amber-50 text-amber-700 border-amber-200/80';
-
-              const isSelected = selectedModuleId === module.id;
+                  ? 'bg-cyan-50 text-cyan-600 border-cyan-150'
+                  : 'bg-amber-50 text-[#FF6B00] border-amber-200';
 
               return (
                 <div 
                   key={module.id} 
                   id={`mobile-card-${module.id}`}
                   className={cn(
-                    "bg-white border rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 transition-all cursor-pointer",
-                    isSelected ? "border-[#FF9900] ring-2 ring-[#FF9900]/15 bg-amber-50/20" : "border-slate-200/80 hover:border-slate-300"
+                    "bg-white border rounded-3xl p-5 shadow-xs space-y-4 transition-all",
+                    selectedModuleId === module.id ? "border-[#FF6B00] ring-2 ring-[#FF6B00]/10 shadow-sm" : "border-slate-200"
                   )}
                   onClick={() => selectModule(module.id)}
                 >
                   {/* Top Meta Line: MOD number, Level, XP */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-700 font-heading">MOD-{index + 1}</span>
-                      <span className={cn("px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase tracking-wider font-heading", badgeColor)}>
+                      <span className="text-[10px] font-black text-slate-455 tracking-wider">MOD-{index + 1}</span>
+                      <span className={cn("px-2 py-0.5 rounded-lg text-[9px] font-black border uppercase tracking-wider", badgeColor)}>
                         {module.level}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold bg-amber-50/80 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md uppercase font-heading">
+                    <span className="text-[10px] font-black bg-amber-50 text-amber-600 border border-amber-150 px-2 py-0.5 rounded-lg uppercase">
                       +{module.points} XP
                     </span>
                   </div>
 
                   {/* Name and Description */}
                   <div className="space-y-1">
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight font-heading line-clamp-1">{module.name}</h4>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
+                    <h4 className="text-xs font-extrabold text-slate-800 line-clamp-1">{module.name}</h4>
+                    <p className="text-[10px] leading-relaxed text-slate-500 font-medium line-clamp-3">
                       {module.description}
                     </p>
                     {/* Slides & Quiz Count */}
-                    <div className="flex items-center gap-3 pt-1.5 text-xs font-medium text-slate-500">
-                      <span className="flex items-center gap-1.5">
-                        <Icons.BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{module.learningPagesCount} Slides</span>
-                      </span>
+                    <div className="flex items-center gap-1.5 pt-1.5 text-[9px] font-black text-[#FF6B00] uppercase tracking-wider">
+                      <Icons.BookOpen className="w-3 h-3 stroke-[2.5]" />
+                      <span>{module.learningPagesCount} Slides</span>
                       <span className="text-slate-300 font-normal">•</span>
-                      <span className="flex items-center gap-1.5">
-                        <Icons.HelpCircle className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{module.quizQuestionsCount} Quizzes</span>
-                      </span>
+                      <Icons.HelpCircle className="w-3 h-3 stroke-[2.5]" />
+                      <span>{module.quizQuestionsCount} Quizzes</span>
                     </div>
                   </div>
 
                   {/* Bottom Action Bar: Edit, Delete */}
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] font-black">
+                    <div className="flex gap-4">
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           selectModule(module.id);
                           setIsMobileEditing(true);
                         }} 
-                        className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-700 border border-slate-200/80 hover:border-amber-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer font-heading"
+                        className="text-[#FF6B00] hover:text-orange-700 flex items-center gap-1"
                       >
-                        <Icons.FileEdit className="w-3.5 h-3.5 text-slate-400" />
+                        <Icons.FileEdit className="w-3.5 h-3.5" />
                         Edit
                       </button>
                       <button 
@@ -874,14 +857,14 @@ export default function RoadmapBuilder({ topicId, topicName, topicNumber }: Road
                           setSelectedModuleId(module.id);
                           setIsDeleteModalOpen(true);
                         }} 
-                        className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200/80 hover:border-rose-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer font-heading"
+                        className="text-rose-600 hover:text-rose-800 flex items-center gap-1"
                       >
-                        <Icons.Trash2 className="w-3.5 h-3.5 text-slate-400" />
+                        <Icons.Trash2 className="w-3.5 h-3.5" />
                         Delete
                       </button>
                     </div>
                     {module.orderIndex !== undefined && (
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order #{module.orderIndex + 1}</span>
+                      <span className="text-[9px] font-black text-slate-400">OrderIndex: #{module.orderIndex + 1}</span>
                     )}
                   </div>
                 </div>

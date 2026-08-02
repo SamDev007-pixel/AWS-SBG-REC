@@ -12,11 +12,6 @@ import {
   Loader2,
   Trophy,
   Map,
-  Route,
-  Flame,
-  TrendingUp,
-  Cloud,
-  Cpu,
 } from "lucide-react";
 import {
   learningService,
@@ -24,23 +19,21 @@ import {
   type TopicSummary,
 } from "@/services/roadmap.api";
 
-import AWSSidebarIcon from "@/components/AWSSidebarIcon";
-
 const statusConfig = {
   COMPLETED: {
-    icon: <AWSSidebarIcon name="certifications" className="h-5 w-5 text-emerald-500" />,
+    icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
     badge: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     bar: "from-emerald-400 to-emerald-500",
     label: "Completed",
   },
   IN_PROGRESS: {
-    icon: <AWSSidebarIcon name="roadmap" className="h-5 w-5 text-amber-500" />,
+    icon: <Clock className="h-5 w-5 text-amber-500" />,
     badge: "bg-amber-50 text-amber-700 border border-amber-200",
     bar: "from-amber-400 to-orange-400",
     label: "In Progress",
   },
   NOT_STARTED: {
-    icon: <AWSSidebarIcon name="access-control" className="h-5 w-5 text-slate-400" />,
+    icon: <Lock className="h-5 w-5 text-slate-400" />,
     badge: "bg-slate-100 text-slate-500 border border-slate-200",
     bar: "from-slate-300 to-slate-300",
     label: "Not Started",
@@ -110,44 +103,27 @@ export default function RoadmapProgress() {
     ? Math.round((completedModules / totalModules) * 100)
     : 0;
 
-  const activeTopic =
-    topics.find((t) => t.slug === continueModule?.topicSlug) ||
-    topics.find((t) => t.status === "IN_PROGRESS") ||
-    topics.find((t) => t.status === "NOT_STARTED") ||
-    topics[0];
-
-  const activeTopicTotal = activeTopic ? activeTopic.totalModules : 6;
-  const activeTopicCompleted = activeTopic ? activeTopic.completedModules : 0;
-  const activeModuleNum = Math.min(activeTopicCompleted + 1, activeTopicTotal || 1);
-  const activeTopicPercent = activeTopicTotal > 0 ? Math.round((activeTopicCompleted / activeTopicTotal) * 100) : 0;
-  const targetUrl =
-    hasRoadmapAccess && activeTopic
-      ? `/core/topics/${activeTopic.id}/roadmap`
-      : activeTopic
-      ? `/learn/${activeTopic.slug}`
-      : `/core/topics`;
-
   return (
-    <div className="flex flex-col h-full min-h-0 justify-between select-none gap-4">
+    <div className="flex flex-col h-full select-none gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-amber-500 stroke-[2.2]" />
-          <h2 className="text-base font-bold text-slate-800 tracking-tight font-display">
+          <Map className="w-4 h-4 text-amber-500" />
+          <h2 className="text-base font-bold text-foreground tracking-tight">
             My Roadmap Progress
           </h2>
         </div>
         {!loading && !error && (
-          <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/25 rounded-md px-2.5 py-1 shadow-2xs">
-            <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500 stroke-[1.8]" />
-            <span className="text-xs font-bold text-amber-800 tracking-wide">{xp} XP</span>
+          <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1">
+            <Zap className="w-3 h-3 text-amber-500 fill-current" />
+            <span className="text-[11px] font-black text-amber-700">{xp} XP</span>
           </div>
         )}
       </div>
 
       {/* Loading */}
       {loading && (
-        <div className="flex flex-col items-center justify-center gap-3 py-8">
+        <div className="flex-1 flex items-center justify-center gap-3 py-10">
           <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
           <span className="text-xs text-slate-400 font-semibold animate-pulse">
             Loading your progress...
@@ -157,89 +133,146 @@ export default function RoadmapProgress() {
 
       {/* Error */}
       {!loading && error && (
-        <div className="flex flex-col items-center justify-center py-8">
+        <div className="flex-1 flex items-center justify-center py-10">
           <p className="text-xs text-rose-500 font-semibold">{error}</p>
         </div>
       )}
 
       {/* Content */}
       {!loading && !error && (
-        <div className="flex flex-col flex-1 justify-between gap-4">
-          {/* Overall Completion Header & Main Bar */}
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center text-xs sm:text-sm">
-              <span className="font-semibold text-slate-600">
-                Overall Completion
-              </span>
-              <span className="font-bold text-slate-800">
-                {overallPercent}% / {totalModules} Modules
-              </span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-700"
-                style={{ width: `${Math.max(overallPercent, 2)}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Current Module Card */}
-          {activeTopic ? (
-            <div className="bg-white/80 border border-slate-200/80 hover:border-amber-500/30 transition-all duration-200 rounded-xl p-4 sm:p-5 flex flex-col gap-4 shadow-2xs group">
-              {/* Header Info */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
-                    <Cpu className="w-4.5 h-4.5 stroke-[2]" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight leading-snug truncate">
-                      {activeTopic.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1 line-clamp-2">
-                      {activeTopic.description ||
-                        "Master the core AWS services and cloud architecture patterns."}
-                    </p>
-                  </div>
-                </div>
-
-                <span className="bg-amber-50 text-amber-700 border border-amber-200/80 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                  CURRENT
+        <>
+          {/* Overall progress bar */}
+          {totalModules > 0 && (
+            <div className="bg-white/40 backdrop-blur-sm border border-white/30 rounded-2xl p-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-slate-600">
+                  Overall Progress
+                </span>
+                <span className="text-xs font-black text-slate-800">
+                  {completedModules} / {totalModules} Modules
                 </span>
               </div>
-
-              {/* Bottom Progress & Action CTA */}
-              <div className="flex flex-col gap-2 pt-1 border-t border-slate-100">
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <span className="font-semibold text-slate-600">
-                    Module {activeModuleNum} of {activeTopicTotal}
-                  </span>
-                  <Link
-                    href={targetUrl}
-                    className="inline-flex items-center gap-1 font-bold text-amber-600 hover:text-amber-700 group-hover:translate-x-0.5 transition-transform cursor-pointer"
-                  >
-                    <span>Continue</span>
-                    <ChevronRight className="w-4 h-4 stroke-[2.2]" />
-                  </Link>
-                </div>
-
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-amber-500 transition-all duration-500"
-                    style={{ width: `${Math.max(activeTopicPercent, 5)}%` }}
-                  />
-                </div>
+              <div className="h-2.5 w-full rounded-full bg-black/[0.06] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-700"
+                  style={{ width: `${overallPercent}%` }}
+                />
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 gap-2 text-center bg-white/30 rounded-2xl border border-white/30">
-              <BookOpen className="w-8 h-8 text-slate-300" />
-              <p className="text-xs font-semibold text-slate-400">
-                No active roadmap module available.
+              <p className="mt-1.5 text-[11px] font-semibold text-slate-500">
+                {overallPercent}% Complete
               </p>
             </div>
           )}
-        </div>
+
+          {/* Topic cards */}
+          <div className="flex flex-col gap-3 flex-1">
+            {topics.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
+                <BookOpen className="w-8 h-8 text-slate-300" />
+                <p className="text-xs font-semibold text-slate-400">
+                  No topics available yet.
+                </p>
+              </div>
+            ) : (
+              topics.map((topic) => {
+                const cfg =
+                  statusConfig[topic.status] ?? statusConfig.NOT_STARTED;
+                const pct =
+                  topic.totalModules > 0
+                    ? Math.round(
+                        (topic.completedModules / topic.totalModules) * 100
+                      )
+                    : 0;
+                const isActive =
+                  continueModule?.topicSlug === topic.slug;
+
+                return (
+                  <div
+                    key={topic.id}
+                    className={`flex items-center gap-4 rounded-2xl p-4 border transition-all ${
+                      isActive
+                        ? "bg-white/60 border-amber-300/50 shadow-md shadow-amber-500/5"
+                        : "bg-white/30 border-white/30"
+                    }`}
+                  >
+                    {/* Status icon */}
+                    <div className="flex-shrink-0">{cfg.icon}</div>
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <p className="text-sm font-bold text-slate-800 truncate">
+                          {topic.name}
+                        </p>
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${cfg.badge}`}
+                        >
+                          {cfg.label}
+                        </span>
+                        {isActive && (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-white whitespace-nowrap flex-shrink-0 animate-pulse">
+                            CURRENT
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="h-2 w-full rounded-full bg-black/[0.06] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full bg-gradient-to-r ${cfg.bar} transition-all duration-700`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between mt-1.5">
+                        <p className="text-[10px] font-semibold text-slate-500">
+                          {topic.completedModules} / {topic.totalModules} modules
+                        </p>
+                        <p className="text-[10px] font-bold text-slate-600">
+                          {pct}%
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Go arrow */}
+                    {topic.unlocked && (
+                      <Link
+                        href={hasRoadmapAccess ? `/core/topics/${topic.id}/roadmap` : `/learn/${topic.slug}`}
+                        className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-amber-500 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-200 cursor-pointer"
+                        title={hasRoadmapAccess ? `Edit ${topic.name}` : `Go to ${topic.name}`}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Bottom CTA */}
+          {continueModule && (
+            <div className="mt-auto pt-3">
+              <Link
+                href={hasRoadmapAccess ? `/core/topics` : `/learn/${continueModule.topicSlug}`}
+                className="flex items-center justify-between w-full bg-white/70 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-3.5 group cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-3">
+                  <Trophy className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-semibold text-slate-400 leading-none mb-0.5 uppercase tracking-wide">
+                      {hasRoadmapAccess ? "Manage Roadmaps" : "Continue learning"}
+                    </p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">
+                      {hasRoadmapAccess ? "Roadmap Builder" : continueModule.name}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0" />
+              </Link>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

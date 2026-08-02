@@ -9,7 +9,6 @@ interface GuidelineTableProps {
   onEdit: (guideline: LearningGuideline) => void;
   onDelete: (guideline: LearningGuideline) => void;
   onMove: (id: string, direction: 'up' | 'down') => void;
-  onDropRow?: (draggedIndex: number, targetIndex: number) => void;
 }
 
 export const GuidelineTable: React.FC<GuidelineTableProps> = ({
@@ -17,7 +16,6 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
   onEdit,
   onDelete,
   onMove,
-  onDropRow,
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -48,28 +46,31 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
 
   return (
     <>
-      {/* Desktop/Tablet Table View */}
-      <div className="hidden md:block rounded-xl bg-white border border-slate-200 shadow-xs overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block rounded-2xl bg-white border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full divide-y divide-slate-100">
-            <thead className="bg-slate-50/80 border-b border-slate-200">
+          <table className="min-w-full divide-y divide-slate-100 table-fixed">
+            <thead className="bg-slate-50/70">
               <tr>
-                <th scope="col" className="w-24 px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[100px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Order
                 </th>
-                <th scope="col" className="w-20 px-5 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[80px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Icon
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[280px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Title & Description
                 </th>
-                <th scope="col" className="w-28 px-3 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[120px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Prominence
                 </th>
-                <th scope="col" className="w-24 px-3 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[100px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Status
                 </th>
-                <th scope="col" className="w-20 px-4 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th scope="col" className="w-[160px] px-6 py-3.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
+                  Last Updated
+                </th>
+                <th scope="col" className="w-[110px] px-6 py-3.5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-wider font-heading">
                   Actions
                 </th>
               </tr>
@@ -85,7 +86,6 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onMove={onMove}
-                  onDropRow={onDropRow}
                 />
               ))}
             </tbody>
@@ -93,8 +93,8 @@ export const GuidelineTable: React.FC<GuidelineTableProps> = ({
         </div>
       </div>
 
-      {/* Mobile Card List View (Only order, title & description visible initially. Rest is card details on click) */}
-      <div className="block md:hidden space-y-3">
+      {/* Mobile Card List View (Visible on Mobile & Tablet) */}
+      <div className="block lg:hidden space-y-3">
         {guidelines.map((guideline, index) => {
           const isExpanded = expandedId === guideline.id;
           return (

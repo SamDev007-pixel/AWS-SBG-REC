@@ -154,10 +154,10 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
                   setTitle(e.target.value);
                   if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }));
                 }}
-                className={`block w-full border text-xs px-3.5 py-2.5 rounded-xl bg-white text-slate-800 placeholder-slate-400 focus:outline-none transition-all shadow-2xs ${
+                className={`block w-full border text-xs px-3.5 py-2.5 rounded-xl bg-slate-50/30 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${
                   errors.title
-                    ? 'border-rose-400 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
-                    : 'border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900]'
+                    ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500'
+                    : 'border-slate-200 focus:ring-sky-500 focus:border-sky-500'
                 }`}
                 placeholder="e.g. Complete modules in sequence."
               />
@@ -176,10 +176,10 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
                   if (errors.description) setErrors((prev) => ({ ...prev, description: undefined }));
                 }}
                 rows={3}
-                className={`block w-full border text-xs px-3.5 py-2.5 rounded-xl bg-white text-slate-800 placeholder-slate-400 focus:outline-none transition-all shadow-2xs ${
+                className={`block w-full border text-xs px-3.5 py-2.5 rounded-xl bg-slate-50/30 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${
                   errors.description
-                    ? 'border-rose-400 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
-                    : 'border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900]'
+                    ? 'border-rose-400 focus:ring-rose-500 focus:border-rose-500'
+                    : 'border-slate-200 focus:ring-sky-500 focus:border-sky-500'
                 }`}
                 placeholder="Enter helpful descriptive rules for AWS candidates..."
               />
@@ -196,14 +196,14 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-8 h-4 rounded-full bg-slate-200 text-[#FF9900] focus:ring-[#FF9900] border-none cursor-pointer"
+                className="w-8 h-4 rounded-full bg-slate-200 text-sky-600 focus:ring-sky-500 border-none cursor-pointer"
               />
             </div>
 
             {/* Icon Picker Grid */}
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-heading">
-                Select Guideline Category Icon <span className="text-rose-500">*</span>
+                Select AWS Service Icon <span className="text-rose-500">*</span>
               </label>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                 {GUIDELINE_ICONS_LIST.filter(ic => ic.value !== 'NONE').map((ic) => {
@@ -215,7 +215,7 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
                       onClick={() => setIcon(ic.value)}
                       className={`p-2.5 rounded-xl border flex flex-col items-center justify-center min-w-[76px] min-h-[76px] flex-shrink-0 transition-all ${
                         isSelected
-                          ? 'border-[#FF9900] bg-amber-50/40 text-amber-700 ring-1 ring-[#FF9900]/50 shadow-sm'
+                          ? 'border-sky-500 bg-sky-50/35 text-sky-600 ring-1 ring-sky-500/50 shadow-sm'
                           : 'border-slate-200 bg-slate-50/20 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
                       }`}
                       title={ic.label}
@@ -308,11 +308,11 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
           </form>
 
           {/* Action buttons */}
-          <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+          <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3.5">
             <button
               type="button"
               onClick={handleCloseAttempt}
-              className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-colors cursor-pointer"
+              className="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200"
             >
               Cancel
             </button>
@@ -320,12 +320,9 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-[#232F3E] hover:bg-slate-800 disabled:opacity-50 rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 rounded-xl shadow-sm transition-colors"
             >
-              {isSubmitting ? (
-                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : null}
-              <span>{guideline ? 'Save Changes' : 'Create Guideline'}</span>
+              {isSubmitting ? 'Saving...' : guideline ? 'Save Changes' : 'Create Guideline'}
             </button>
           </div>
         </div>
