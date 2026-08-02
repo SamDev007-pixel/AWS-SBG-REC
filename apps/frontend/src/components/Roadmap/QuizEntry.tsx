@@ -99,11 +99,11 @@ export const QuizEntry: React.FC<QuizEntryProps> = ({
       </div>
 
       {/* Quiz Navigation Buttons */}
-      <div className="flex items-center justify-between gap-4 pt-2 border-t border-slate-100">
+      <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-100 pb-1 mt-2">
         <button
           disabled={currentIndex === 0}
           onClick={onPrev}
-          className="border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent font-bold py-2.5 px-5 rounded-xl text-xs transition-all active:scale-[0.98] cursor-pointer"
+          className="border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent font-bold py-3 px-5 sm:px-6 rounded-xl text-xs sm:text-sm transition-all active:scale-[0.98] cursor-pointer"
         >
           Previous
         </button>
@@ -112,14 +112,14 @@ export const QuizEntry: React.FC<QuizEntryProps> = ({
           <button
             disabled={isSubmitting}
             onClick={onSubmit}
-            className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:pointer-events-none text-white font-bold py-2.5 px-6 rounded-xl text-xs shadow-md shadow-blue-600/15 transition-all active:scale-[0.98] cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:pointer-events-none text-white font-bold py-3 px-6 sm:px-8 rounded-xl text-xs sm:text-sm shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] cursor-pointer"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
           </button>
         ) : (
           <button
             onClick={onNext}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-6 rounded-xl text-xs shadow-md shadow-blue-600/15 transition-all active:scale-[0.98] cursor-pointer"
+            className="bg-[#0972D3] hover:bg-[#0083A0] text-white font-bold py-3 px-6 sm:px-8 rounded-xl text-xs sm:text-sm shadow-md transition-all active:scale-[0.98] cursor-pointer"
           >
             Next Question
           </button>
