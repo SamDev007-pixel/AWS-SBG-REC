@@ -17,17 +17,19 @@ import {
   Bell,
 } from 'lucide-react';
 
+import AWSSidebarIcon from '@/components/AWSSidebarIcon';
+
 const crewNavItems: NavItem[] = [
-  { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/crew/events' },
-  { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
-  { icon: <Map className="w-4 h-4" />, label: 'roadmap', href: '/learn' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/crew/chat' },
-  { icon: <GraduationCap className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
-  { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+  { icon: <AWSSidebarIcon name="events" />, label: 'events', href: '/crew/events' },
+  { icon: <AWSSidebarIcon name="news" />, label: 'news', href: '/news' },
+  { icon: <AWSSidebarIcon name="roadmap" />, label: 'roadmap', href: '/learn' },
+  { icon: <AWSSidebarIcon name="chat" />, label: 'chat', href: '/crew/chat' },
+  { icon: <AWSSidebarIcon name="certifications" />, label: 'certifications', href: '/certifications' },
+  { icon: <AWSSidebarIcon name="services" />, label: 'services', href: '/services' },
 ];
 
 const crewBottomNavItems: NavItem[] = [
-  { icon: <ShieldAlert className="w-4 h-4" />, label: 'incidents', href: '/crew/incidents' },
+  { icon: <AWSSidebarIcon name="incidents" />, label: 'incidents', href: '/crew/incidents' },
 ];
 // HMR cache reload trigger: 2
 

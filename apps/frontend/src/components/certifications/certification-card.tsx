@@ -58,62 +58,67 @@ function getCertTheme(examCode: string, level: string) {
   if (lvl === "foundational" || code.startsWith("CLF") || code.startsWith("AIF")) {
     return {
       accent: "from-[#5A6572] to-[#788896]", // AWS Foundational Slate Gray / Silver
-      progress: "bg-[#5A6572]",
+      progress: "bg-[#5A6572]/70",
       pillBg: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/15",
       badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25",
-      hoverBorder: "hover:border-[#5A6572]/30",
+      hoverBorder: "hover:border-[#5A6572]/25",
+      cardBorder: "border-2 border-[#5A6572]/15 hover:border-[#5A6572]/25",
       iconColor: "text-[#5A6572]",
       hoverText: "group-hover:text-[#5A6572]",
       hoverBg: "group-hover:bg-[#F1F5F9]",
-      hoverPillBorder: "group-hover:border-[#5A6572]/30"
+      hoverPillBorder: "group-hover:border-[#5A6572]/25"
     };
   }
 
   if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAA") || code.startsWith("DVA") || code.startsWith("DEA")) {
     return {
       accent: "from-[#0972D3] to-[#2E90FF]", // AWS Blue
-      progress: "bg-[#0972D3]",
+      progress: "bg-[#0972D3]/75",
       pillBg: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/15",
       badgeClass: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/25",
-      hoverBorder: "hover:border-[#0972D3]/30",
+      hoverBorder: "hover:border-[#0972D3]/25",
+      cardBorder: "border-2 border-[#0972D3]/15 hover:border-[#0972D3]/25",
       iconColor: "text-[#0972D3]",
       hoverText: "group-hover:text-[#0972D3]",
       hoverBg: "group-hover:bg-[#F0F7FF]",
-      hoverPillBorder: "group-hover:border-[#2E90FF]/30"
+      hoverPillBorder: "group-hover:border-[#2E90FF]/25"
     };
   }
 
   if (lvl === "professional" || code.startsWith("SAP") || code.startsWith("DOP")) {
     return {
       accent: "from-[#00A4B4] to-[#00627A]", // AWS Professional Teal
-      progress: "bg-[#0083A0]",
+      progress: "bg-[#0083A0]/75",
       pillBg: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/15",
       badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25",
-      hoverBorder: "hover:border-[#0083A0]/30",
+      hoverBorder: "hover:border-[#0083A0]/25",
+      cardBorder: "border-2 border-[#0083A0]/15 hover:border-[#0083A0]/25",
       iconColor: "text-[#00627A]",
       hoverText: "group-hover:text-[#00627A]",
       hoverBg: "group-hover:bg-[#E6F8FA]",
-      hoverPillBorder: "group-hover:border-[#00A4B4]/30"
+      hoverPillBorder: "group-hover:border-[#00A4B4]/25"
     };
   }
 
   // Specialty (e.g. Advanced Networking, Security)
   return {
     accent: "from-[#5A30A6] to-[#8C60D6]", // AWS Specialty Purple
-    progress: "bg-[#5A30A6]",
+    progress: "bg-[#5A30A6]/75",
     pillBg: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/15",
     badgeClass: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/25",
-    hoverBorder: "hover:border-[#5A30A6]/30",
+    hoverBorder: "hover:border-[#5A30A6]/25",
+    cardBorder: "border-2 border-[#5A30A6]/15 hover:border-[#5A30A6]/25",
     iconColor: "text-[#5A30A6]",
     hoverText: "group-hover:text-[#5A30A6]",
     hoverBg: "group-hover:bg-[#F8F5FF]",
-    hoverPillBorder: "group-hover:border-[#5A30A6]/30"
+    hoverPillBorder: "group-hover:border-[#5A30A6]/25"
   };
 }
 
 function getSecondaryBadge(title: string, examCode: string, levelName: string): string {
-  const code = examCode.toUpperCase();
-  const t = title.toLowerCase();
+  const code = (examCode || "").toUpperCase();
+  const t = (title || "").toLowerCase();
+  if (code.startsWith("CLF") || t.includes("cloud practitioner")) return "PRACTITIONER";
   if (code.startsWith("AIF") || code.startsWith("AIP") || t.includes("ai")) return "AI";
   if (code.startsWith("MLA") || t.includes("machine learning") || t.includes("ml")) return "ML";
   if (t.includes("developer") || t.includes("dev")) return "DEV";
@@ -122,7 +127,9 @@ function getSecondaryBadge(title: string, examCode: string, levelName: string): 
   if (t.includes("security")) return "SECURITY";
   if (t.includes("networking")) return "NETWORKING";
   if (t.includes("cloudops") || t.includes("sysops") || t.includes("devops")) return "OPS";
-  return levelName.toUpperCase();
+  
+  const lvl = levelName.toUpperCase();
+  return lvl !== "FOUNDATIONAL" ? lvl : "GENERAL";
 }
 
 interface CertificationCardProps {
@@ -140,11 +147,9 @@ export function CertificationCard({ certification, onDelete }: CertificationCard
   return (
     <Link href={`/core/certifications/${certification.slug}`} className="group block">
       <div className={cn(
-        "relative flex flex-col rounded-2xl border border-slate-300 bg-white p-5 pt-7 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:translate-y-[-3px] overflow-hidden h-full will-change-transform",
-        theme.hoverBorder
+        "relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:translate-y-[-3px] overflow-hidden h-full will-change-transform",
+        theme.cardBorder
       )}>
-        {/* Top colored border */}
-        <div className={cn("absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r", theme.accent)} />
 
         {/* Delete button (trash icon) */}
         {onDelete && (
@@ -166,9 +171,11 @@ export function CertificationCard({ certification, onDelete }: CertificationCard
           <span className={cn("rounded-[6px] px-2.5 py-0.5 text-[9px] font-extrabold tracking-wider border uppercase", theme.badgeClass)}>
             {levelName.toUpperCase()}
           </span>
-          <span className="rounded-[6px] px-2.5 py-0.5 text-[9px] font-extrabold tracking-wider border bg-slate-50 text-slate-555 border-slate-300">
-            {secondaryBadge}
-          </span>
+          {secondaryBadge !== levelName.toUpperCase() && (
+            <span className="rounded-[6px] px-2.5 py-0.5 text-[9px] font-extrabold tracking-wider border bg-slate-50 text-slate-600 border-slate-300">
+              {secondaryBadge}
+            </span>
+          )}
         </div>
 
         {/* Title */}
@@ -271,9 +278,9 @@ export function CertificationCard({ certification, onDelete }: CertificationCard
             </div>
 
             <div className="mt-4 flex justify-end">
-              <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 transition-colors duration-300">
-                <span className={cn("text-slate-500 transition-colors duration-300", theme.hoverText)}>View Details</span>
-                <ArrowRight className={cn("h-3 w-3 text-slate-400 transition-all duration-300 group-hover:translate-x-0.5", theme.hoverText)} />
+              <div className={cn("inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-300", theme.iconColor)}>
+                <span>View Details</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </div>
           </div>

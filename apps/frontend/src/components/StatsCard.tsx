@@ -41,34 +41,34 @@ export default function StatsCard({
   const CardContent = () => (
     <div className="flex items-center justify-between">
       <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">
+        <span className="text-[11px] sm:text-xs font-semibold text-foreground/60 tracking-wider uppercase">
           {label}
         </span>
-        <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
+        <span className="text-lg sm:text-xl font-medium text-slate-800 font-display tracking-tight leading-tight">
           {value}
         </span>
-        <span className="text-[11px] font-semibold text-foreground/50 flex items-center gap-1.5 truncate">
+        <span className="text-[10px] sm:text-[11px] font-semibold text-foreground/50 flex items-center gap-1.5 truncate">
           {subtext}
         </span>
       </div>
 
       {isLucide ? (
         <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center shadow-sm shrink-0",
+          "w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-sm shrink-0",
           iconBgClass || "bg-brand-orange/10"
         )}>
-          <Icon className={cn("w-6 h-6", iconClass || "text-brand-orange")} />
+          <Icon className={cn("w-5 h-5", iconClass || "text-brand-orange")} />
         </div>
       ) : bareIcon ? (
         <div>
-          <Icon className={cn("w-[4.5rem] h-[4.5rem] transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1 group-hover:text-brand-orange", iconClass)} />
+          <Icon className={cn("w-14 h-14 sm:w-16 sm:h-16 transition-all duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-0.5", iconClass)} />
         </div>
       ) : (
         <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center shadow-inner",
+          "w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-inner",
           iconBgClass
         )}>
-          <Icon className={cn("w-8 h-8", iconClass)} />
+          <Icon className={cn("w-6 h-6", iconClass)} />
         </div>
       )}
     </div>
@@ -77,7 +77,7 @@ export default function StatsCard({
   if (onClick) {
     return (
       <div className="block w-full group">
-        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
+        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-slate-300">
           <CardContent />
         </GlassCard>
       </div>
@@ -87,7 +87,7 @@ export default function StatsCard({
   if (href) {
     return (
       <Link href={href} className="block w-full group">
-        <GlassCard delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
+        <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-slate-300">
           <CardContent />
         </GlassCard>
       </Link>
@@ -96,7 +96,7 @@ export default function StatsCard({
 
   return (
     <div className="block w-full group">
-      <GlassCard delay={delay} style={style} className="!p-4 border border-white/30">
+      <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200">
         <CardContent />
       </GlassCard>
     </div>

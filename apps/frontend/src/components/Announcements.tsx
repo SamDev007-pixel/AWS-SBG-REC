@@ -41,6 +41,8 @@ function typeLabel(type: string) {
   return type.replace(/_/g, ' ');
 }
 
+import AWSSidebarIcon from "@/components/AWSSidebarIcon";
+
 export default function Announcements() {
   const { data: announcements = [], isLoading } = useAnnouncements();
   const [headerHovered, setHeaderHovered] = useState(false);
@@ -50,9 +52,11 @@ export default function Announcements() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col h-full rounded-[22px] p-5 overflow-hidden select-none min-h-[400px] border border-amber-500/20 shadow-[0_8px_30px_rgba(255,153,0,0.04)]"
+      className="flex flex-col h-full rounded-xl border border-slate-200 p-5 overflow-hidden select-none min-h-0 shadow-xs"
       style={{
-        background: "linear-gradient(135deg, rgba(255, 248, 240, 0.95) 0%, rgba(255, 243, 228, 0.85) 50%, rgba(255, 248, 240, 0.95) 100%)"
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundSize: "300px 300px",
+        backgroundRepeat: "repeat",
       }}
     >
       {/* Panel Header */}
@@ -67,7 +71,7 @@ export default function Announcements() {
             transition={{ duration: 0.5 }}
             className="w-8.5 h-8.5 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 flex items-center justify-center text-[#FF9900]"
           >
-            <Bell className="w-4 h-4" />
+            <AWSSidebarIcon name="announcements" className="w-4.5 h-4.5" />
           </motion.div>
           <div>
             <h3 
@@ -93,7 +97,7 @@ export default function Announcements() {
       ) : announcements.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center py-10 text-center px-4">
           <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-3">
-            <Bell className="w-5 h-5 text-slate-400" />
+            <AWSSidebarIcon name="announcements" className="w-5 h-5 text-slate-400" />
           </div>
           <h4 
             className="font-bold text-sm text-slate-700 mb-1"

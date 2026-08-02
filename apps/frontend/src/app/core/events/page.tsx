@@ -30,7 +30,8 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { getPosterSrcAndPosition, cn } from '@/lib/utils';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -393,39 +394,49 @@ export default function EventsPage() {
             </div>
 
             {/* Category */}
-            <div className="relative shrink-0">
-              <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className={selectCls}>
-                <option value="">All Categories</option>
-                {dynamicCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            <div className="shrink-0 min-w-[140px]">
+              <CustomSelect
+                size="sm"
+                value={category}
+                onChange={(val) => { setCategory(val); setPage(1); }}
+                options={[
+                  { value: '', label: 'All Categories' },
+                  ...dynamicCategories.map(cat => ({ value: cat, label: cat })),
+                ]}
+              />
             </div>
 
             {/* Status */}
-            <div className="relative shrink-0">
-              <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className={selectCls}>
-                <option value="">All Statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="PUBLISHED">Published</option>
-                <option value="REGISTRATION_OPEN">Registration Open</option>
-                <option value="REGISTRATION_CLOSED">Registration Closed</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="ARCHIVED">Archived</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            <div className="shrink-0 min-w-[140px]">
+              <CustomSelect
+                size="sm"
+                value={statusFilter}
+                onChange={(val) => { setStatusFilter(val); setPage(1); }}
+                options={[
+                  { value: '', label: 'All Statuses' },
+                  { value: 'DRAFT', label: 'Draft' },
+                  { value: 'PUBLISHED', label: 'Published' },
+                  { value: 'REGISTRATION_OPEN', label: 'Registration Open' },
+                  { value: 'REGISTRATION_CLOSED', label: 'Registration Closed' },
+                  { value: 'COMPLETED', label: 'Completed' },
+                  { value: 'ARCHIVED', label: 'Archived' },
+                ]}
+              />
             </div>
 
             {/* Mode */}
-            <div className="relative shrink-0">
-              <select value={modeFilter} onChange={(e) => { setModeFilter(e.target.value); setPage(1); }} className={selectCls}>
-                <option value="">All Modes</option>
-                <option value="ONLINE">Online</option>
-                <option value="OFFLINE">Offline</option>
-                <option value="HYBRID">Hybrid</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            <div className="shrink-0 min-w-[130px]">
+              <CustomSelect
+                size="sm"
+                value={modeFilter}
+                onChange={(val) => { setModeFilter(val); setPage(1); }}
+                options={[
+                  { value: '', label: 'All Modes' },
+                  { value: 'ONLINE', label: 'Online' },
+                  { value: 'OFFLINE', label: 'Offline' },
+                  { value: 'HYBRID', label: 'Hybrid' },
+                ]}
+              />
             </div>
 
             {/* Spacer */}

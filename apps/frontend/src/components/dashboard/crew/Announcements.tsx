@@ -50,7 +50,7 @@ export default function Announcements() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col h-full rounded-[22px] p-5 overflow-hidden select-none min-h-[400px] border border-amber-500/20 shadow-[0_8px_30px_rgba(255,153,0,0.04)] bg-gradient-to-br from-amber-500/5 to-orange-500/10"
+      className="flex flex-col h-full rounded-xl border border-slate-200 p-5 overflow-hidden select-none min-h-0 shadow-xs bg-white"
     >
       {/* Panel Header */}
       <div 

@@ -299,17 +299,20 @@ function getRoleDetails(name: string) {
 function RoleSection({
   path,
   dbBadgeMap,
+  isFlipped,
+  onToggleFlip,
 }: {
   path: LearnerPathwayDetail;
   dbBadgeMap: Record<string, string>;
+  isFlipped: boolean;
+  onToggleFlip: () => void;
 }) {
-  const [isFlipped, setIsFlipped] = useState(false);
   const certs = path.pathway as any[];
   const details = getRoleDetails(path.name);
 
   return (
     <motion.div 
-      className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative"
+      className="w-full h-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-15px" }}
@@ -323,9 +326,9 @@ function RoleSection({
       >
         {/* FRONT FACE */}
         <div 
-          onClick={() => setIsFlipped(true)}
+          onClick={onToggleFlip}
           className={cn(
-            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
+            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
             isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
           )}
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
@@ -437,7 +440,7 @@ function RoleSection({
 
         {/* BACK FACE */}
         <div 
-          onClick={() => setIsFlipped(false)}
+          onClick={onToggleFlip}
           className={cn(
             "absolute inset-0 w-full h-full bg-[#0B0F19] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-[#FF9900]/40 hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.3),0_0_15px_rgba(255,153,0,0.15)]",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
@@ -540,42 +543,45 @@ function getCertTheme(examCode: string, level: string) {
   if (lvl === "foundational" || code.startsWith("CLF") || code.startsWith("AIF")) {
     return {
       accent: "from-[#5A6572] to-[#788896]", // AWS Foundational Slate Gray / Silver
-      progress: "bg-[#5A6572]",
+      progress: "bg-[#5A6572]/70",
       pillBg: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/15",
       badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25",
-      hoverBorder: "hover:border-[#5A6572]/30",
+      hoverBorder: "hover:border-[#5A6572]/25",
+      cardBorder: "border-2 border-[#5A6572]/15 hover:border-[#5A6572]/25",
       iconColor: "text-[#5A6572]",
       hoverText: "group-hover:text-[#5A6572]",
       hoverBg: "group-hover:bg-[#F1F5F9]",
-      hoverPillBorder: "group-hover:border-[#5A6572]/30"
+      hoverPillBorder: "group-hover:border-[#5A6572]/25"
     };
   }
 
   if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAA") || code.startsWith("DVA") || code.startsWith("DEA")) {
     return {
       accent: "from-[#0972D3] to-[#2E90FF]", // AWS Blue
-      progress: "bg-[#0972D3]",
+      progress: "bg-[#0972D3]/75",
       pillBg: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/15",
       badgeClass: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/25",
-      hoverBorder: "hover:border-[#0972D3]/30",
+      hoverBorder: "hover:border-[#0972D3]/25",
+      cardBorder: "border-2 border-[#0972D3]/15 hover:border-[#0972D3]/25",
       iconColor: "text-[#0972D3]",
       hoverText: "group-hover:text-[#0972D3]",
       hoverBg: "group-hover:bg-[#F0F7FF]",
-      hoverPillBorder: "group-hover:border-[#2E90FF]/30"
+      hoverPillBorder: "group-hover:border-[#2E90FF]/25"
     };
   }
 
   if (lvl === "professional" || code.startsWith("SAP") || code.startsWith("DOP")) {
     return {
       accent: "from-[#00A4B4] to-[#00627A]", // AWS Professional Teal
-      progress: "bg-[#0083A0]",
+      progress: "bg-[#0083A0]/75",
       pillBg: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/15",
       badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25",
-      hoverBorder: "hover:border-[#0083A0]/30",
+      hoverBorder: "hover:border-[#0083A0]/25",
+      cardBorder: "border-2 border-[#0083A0]/15 hover:border-[#0083A0]/25",
       iconColor: "text-[#00627A]",
       hoverText: "group-hover:text-[#00627A]",
       hoverBg: "group-hover:bg-[#E6F8FA]",
-      hoverPillBorder: "group-hover:border-[#00A4B4]/30"
+      hoverPillBorder: "group-hover:border-[#00A4B4]/25"
     };
   }
 
@@ -583,137 +589,167 @@ function getCertTheme(examCode: string, level: string) {
   // Specialty (e.g. Advanced Networking, Security)
   return {
     accent: "from-[#5A30A6] to-[#8C60D6]", // AWS Specialty Purple
-    progress: "bg-[#5A30A6]",
+    progress: "bg-[#5A30A6]/75",
     pillBg: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/15",
     badgeClass: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/25",
-    hoverBorder: "hover:border-[#5A30A6]/30",
+    hoverBorder: "hover:border-[#5A30A6]/25",
+    cardBorder: "border-2 border-[#5A30A6]/15 hover:border-[#5A30A6]/25",
     iconColor: "text-[#5A30A6]",
     hoverText: "group-hover:text-[#5A30A6]",
     hoverBg: "group-hover:bg-[#F8F5FF]",
-    hoverPillBorder: "group-hover:border-[#5A30A6]/30"
+    hoverPillBorder: "group-hover:border-[#5A30A6]/25"
   };
+}
+
+function getSecondaryBadge(title: string, examCode: string, levelName: string): string {
+  const code = (examCode || "").toUpperCase();
+  const t = (title || "").toLowerCase();
+  if (code.startsWith("CLF") || t.includes("cloud practitioner")) return "PRACTITIONER";
+  if (code.startsWith("AIF") || code.startsWith("AIP") || t.includes("ai")) return "AI";
+  if (code.startsWith("MLA") || t.includes("machine learning") || t.includes("ml")) return "ML";
+  if (t.includes("developer") || t.includes("dev")) return "DEV";
+  if (t.includes("architect")) return "ARCHITECT";
+  if (t.includes("data")) return "DATA";
+  if (t.includes("security")) return "SECURITY";
+  if (t.includes("networking")) return "NETWORKING";
+  if (t.includes("cloudops") || t.includes("sysops") || t.includes("devops")) return "OPS";
+  
+  const lvl = levelName.toUpperCase();
+  return lvl !== "FOUNDATIONAL" ? lvl : "GENERAL";
 }
 
 function CertCard({ cert }: { cert: CertificationListItem }) {
   const level = typeof cert.level === 'string' ? cert.level : cert.level?.name || '';
   const theme = getCertTheme(cert.examCode, level);
   const targetRoles = getTargetRoles(cert.slug);
+  const secondaryBadge = getSecondaryBadge(cert.title, cert.examCode, level);
   const domains = (cert.domains || []).slice(0, 2);
 
   return (
-    <Link href={`/certifications/${cert.slug}`} className="group block">
-      <div className={`relative flex flex-col rounded-2xl border border-slate-200 bg-white p-5 pt-7 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:translate-y-[-3px] ${theme.hoverBorder} overflow-hidden h-full will-change-transform`}>
-        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${theme.accent} rounded-t-2xl`} />
+    <Link href={`/certifications/${cert.slug}`} className="group block h-full">
+      <div className={cn("relative flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-2xs transition-all duration-300 ease-out hover:shadow-md hover:translate-y-[-2px] overflow-hidden h-full will-change-transform", theme.cardBorder)}>
 
-        <div className="flex items-center">
-          <span
-            className={`rounded-[6px] px-2.5 py-0.5 text-[9px] font-black tracking-wider border uppercase ${theme.badgeClass}`}
-          >
-            {level}
-          </span>
-        </div>
-
-        <h3 className={cn("mt-3 text-lg font-bold text-slate-800 tracking-tight leading-tight transition-colors duration-300", theme.hoverText)}>
-          {cert.title}
-        </h3>
-
-        <div className="mt-1.5 flex items-start gap-1.5 text-[11px] text-slate-505 font-medium">
-          <User className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5" />
-          <span className="line-clamp-2 leading-relaxed">{targetRoles}</span>
-        </div>
-
-        {/* Attributes: 3 columns for short values, full width row below for Mode to prevent truncation */}
-        <div className="mt-4 space-y-2">
-          <div className="grid grid-cols-3 gap-2">
-            <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 border border-slate-100/80 p-2 min-w-0">
-              <Clock className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">DURATION</span>
-                <span className="text-xs font-bold text-slate-700 whitespace-nowrap leading-none">
-                  {formatDuration(cert.examDuration)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 border border-slate-100/80 p-2 min-w-0">
-              <FileText className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">QUESTIONS</span>
-                <span className="text-xs font-bold text-slate-700 leading-none">
-                  {cert.totalQuestions ?? 65}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 border border-slate-100/80 p-2 min-w-0">
-              <DollarSign className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">COST</span>
-                <span className="text-xs font-bold text-slate-700 leading-none">
-                  ${cert.examCost ?? 100}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 border border-slate-100/80 p-2 px-3 min-w-0">
-            <Monitor className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-            <div className="flex items-center justify-between w-full min-w-0">
-              <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none">EXAM MODE</span>
-              <span className="text-xs font-bold text-slate-700 leading-none truncate pl-2" title={formatMode(cert.examMode)}>
-                {formatMode(cert.examMode)}
+        <div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border uppercase shadow-2xs ${theme.badgeClass}`}
+            >
+              {level}
+            </span>
+            {secondaryBadge !== level.toUpperCase() && (
+              <span className="rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border bg-slate-50 text-slate-600 border-slate-200/80 uppercase shadow-2xs">
+                {secondaryBadge}
               </span>
+            )}
+          </div>
+
+          <div className="mt-3 min-h-[50px] flex items-start">
+            <h3 className={cn("text-lg font-bold text-slate-900 tracking-tight leading-snug line-clamp-2 transition-colors duration-300", theme.hoverText)}>
+              {cert.title}
+            </h3>
+          </div>
+
+          <div className="mt-1 flex items-start gap-1.5 text-[11.5px] text-slate-500 font-medium min-h-[36px]">
+            <User className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5" />
+            <span className="line-clamp-2 leading-relaxed">{targetRoles}</span>
+          </div>
+
+          {/* Attributes */}
+          <div className="mt-4 space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
+                <Clock className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">DURATION</span>
+                  <span className="text-xs font-bold text-slate-800 whitespace-nowrap leading-none">
+                    {formatDuration(cert.examDuration)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
+                <FileText className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">QUESTIONS</span>
+                  <span className="text-xs font-bold text-slate-800 leading-none">
+                    {cert.totalQuestions ?? 65}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
+                <DollarSign className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">COST</span>
+                  <span className="text-xs font-bold text-slate-800 leading-none">
+                    ${cert.examCost ?? 100}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2.5 px-3 min-w-0">
+              <Monitor className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
+              <div className="flex items-center justify-between w-full min-w-0">
+                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none">EXAM MODE</span>
+                <span className="text-xs font-bold text-slate-800 leading-none truncate pl-2" title={formatMode(cert.examMode)}>
+                  {formatMode(cert.examMode)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {domains.length > 0 && (
-          <div className="mt-5 border-t border-slate-100 pt-4 flex-1 flex flex-col justify-between">
-            <div>
-              <div className="text-[9px] font-black text-slate-400 tracking-widest uppercase mb-3">
-                EXAM DOMAINS
-              </div>
+        {/* Domains & Bottom Link */}
+        <div className="mt-5 border-t border-slate-100 pt-4 flex-1 flex flex-col justify-between">
+          <div>
+            {domains.length > 0 && (
+              <>
+                <div className="text-[9px] font-extrabold text-slate-400 tracking-widest uppercase mb-3">
+                  EXAM DOMAINS
+                </div>
 
-              <div className="space-y-4">
-                {domains.map((dom) => (
-                  <div key={dom.id} className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-extrabold text-slate-700">
-                      <span className="truncate pr-2">{dom.name}</span>
-                      <span className={cn("rounded-[4px] px-1.5 py-0.5 text-[9px] font-black leading-none border", theme.pillBg)}>
-                        {dom.weightage}%
-                      </span>
-                    </div>
-
-                    <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${theme.progress} rounded-full transition-all duration-500`}
-                        style={{ width: `${dom.weightage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {dom.topics.map((topic) => (
-                        <span
-                          key={topic.id}
-                          className="rounded-[6px] bg-slate-50 border border-slate-100 px-2 py-0.5 text-[9px] text-slate-500 font-semibold whitespace-nowrap"
-                        >
-                          {topic.name}
+                <div className="space-y-4">
+                  {domains.map((dom) => (
+                    <div key={dom.id} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-800">
+                        <span className="truncate pr-2">{dom.name}</span>
+                        <span className={cn("rounded-[4px] px-1.5 py-0.5 text-[9px] font-extrabold leading-none border shadow-2xs", theme.pillBg)}>
+                          {dom.weightage}%
                         </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                      </div>
 
-            <div className="mt-4 flex justify-end">
-              <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 transition-colors duration-300">
-                <span className={cn("text-slate-500 transition-colors duration-300", theme.hoverText)}>View Details</span>
-                <ArrowRight className={cn("h-3 w-3 text-slate-400 transition-all duration-300 group-hover:translate-x-0.5", theme.hoverText)} />
-              </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${theme.progress} rounded-full transition-all duration-500`}
+                          style={{ width: `${dom.weightage}%` }}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {dom.topics.map((topic) => (
+                          <span
+                            key={topic.id}
+                            className="rounded-[6px] bg-slate-100/70 border border-slate-200/70 px-2 py-0.5 text-[9.5px] text-slate-600 font-medium whitespace-nowrap"
+                          >
+                            {topic.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="mt-5 flex justify-end pt-2">
+            <div className={cn("inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-300", theme.iconColor)}>
+              <span>View Details</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </Link>
   );
@@ -743,7 +779,9 @@ function CertificationsPageContent() {
       }
     }
   }, [levelParam]);
+
   const [activeTab, setActiveTab] = useState<"certifications" | "pathways">("certifications");
+  const [flippedPathwayId, setFlippedPathwayId] = useState<string | null>(null);
 
   const levelCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -815,69 +853,71 @@ function CertificationsPageContent() {
   }, [dbPathways]);
 
   return (
-    <div className="bg-slate-50/30 min-h-screen pb-20 antialiased">
+    <div 
+      className="min-h-screen pb-20 antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '450px auto',
+      }}
+    >
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="mx-auto max-w-[1440px] px-4 pt-4 sm:pt-12 sm:px-6 lg:px-8 flex flex-col gap-6">
-        {/* Header Banner */}
-        <section
-          className="rounded-2xl lg:rounded-3xl p-5 sm:p-6 lg:p-8 border border-[#FFF0E0]/50 relative overflow-hidden"
-          style={{
-            background: 'radial-gradient(ellipse at 95% 5%, rgba(255,153,0,0.18) 0%, rgba(255,153,0,0.08) 35%, rgba(255,255,255,0) 65%)',
-          }}
-        >
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="max-w-3xl">
-              {/* Pill label */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AWS SBG REC · Certifications Directory</span>
-              </div>
-              <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
-                {activeTab === "certifications" ? "All AWS Certifications" : "AWS Career Pathways"}
-              </h1>
-              <p style={{ fontSize: '14px', color: '#475569', marginTop: 8, margin: '8px 0 0 0' }}>
-                {activeTab === "certifications"
-                  ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
-                  : "See how AWS certifications stack up to guide your path to high-demand cloud roles."}
-              </p>
+        {/* Header (Standard Core Breadcrumb Layout with Divider Line) */}
+        <header className="pb-5 border-b border-slate-200/80 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div className="max-w-4xl">
+            {/* Breadcrumb Path */}
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2">
+              <span className="hover:text-[#FF6B00] transition-colors font-semibold">AWS SBG REC</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF6B00] font-semibold">Certifications Directory</span>
             </div>
+            
+            <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+              {activeTab === "certifications" ? "All AWS Certifications" : "AWS Career Pathways"}
+            </p>
+            
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              {activeTab === "certifications"
+                ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
+                : "See how AWS certifications stack up to guide your path to high-demand cloud roles."}
+            </p>
+          </div>
 
-            {/* Custom Tab Switcher inside the Header Banner */}
-            <div className="w-full lg:w-auto shrink-0 mt-2 lg:mt-0">
-              <div className="inline-flex items-center gap-1.5 bg-slate-100/50 p-1 rounded-lg border border-slate-200/40">
-                <button
-                  onClick={() => setActiveTab("certifications")}
-                  className={cn(
-                    "relative flex items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer select-none active:scale-95",
-                    activeTab === "certifications"
-                      ? "bg-white text-slate-900 border border-slate-200/60 shadow-xs font-semibold"
-                      : "bg-transparent text-slate-500 hover:text-slate-700 border border-transparent"
-                  )}
-                >
-                  <GraduationCap className={cn("h-3.5 w-3.5", activeTab === "certifications" ? "text-[#FF9900]" : "text-slate-400")} />
-                  <span>AWS Certifications</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("pathways")}
-                  className={cn(
-                    "relative flex items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer select-none active:scale-95",
-                    activeTab === "pathways"
-                      ? "bg-white text-slate-900 border border-slate-200/60 shadow-xs font-semibold"
-                      : "bg-transparent text-slate-500 hover:text-slate-700 border border-transparent"
-                  )}
-                >
-                  <BriefcaseBusiness className={cn("h-3.5 w-3.5", activeTab === "pathways" ? "text-[#FF9900]" : "text-slate-400")} />
-                  <span>Career Pathways</span>
-                </button>
-              </div>
+          {/* Custom Tab Switcher (Standard Core Layout) */}
+          <div className="shrink-0">
+            <div className="inline-flex items-center gap-1 bg-slate-100/80 p-1 rounded-[6px] border border-slate-200">
+              <button
+                onClick={() => setActiveTab("certifications")}
+                className={cn(
+                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
+                  activeTab === "certifications"
+                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
+                    : "text-slate-500 hover:text-slate-800 font-medium"
+                )}
+              >
+                <GraduationCap className={cn("h-4 w-4", activeTab === "certifications" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <span>AWS Certifications</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab("pathways")}
+                className={cn(
+                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
+                  activeTab === "pathways"
+                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
+                    : "text-slate-500 hover:text-slate-800 font-medium"
+                )}
+              >
+                <BriefcaseBusiness className={cn("h-4 w-4", activeTab === "pathways" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <span>Career Pathways</span>
+              </button>
             </div>
           </div>
-          {/* Orange divider */}
-          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
-        </section>
+        </header>
 
         <AnimatePresence mode="wait">
           {activeTab === "certifications" ? (
@@ -1023,6 +1063,7 @@ function CertificationsPageContent() {
                     {filteredCertifications.map((cert) => (
                       <motion.div
                         key={cert.id}
+                        className="h-full"
                         variants={{
                           hidden: { opacity: 0, y: -24 },
                           visible: { 
@@ -1036,7 +1077,6 @@ function CertificationsPageContent() {
                             }
                           },
                         }}
-                        className="h-full"
                       >
                         <CertCard cert={cert} />
                       </motion.div>
@@ -1066,9 +1106,15 @@ function CertificationsPageContent() {
                     No pathways available yet.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch w-full">
                     {sortedPaths.map((path) => (
-                      <RoleSection key={path.id} path={path} dbBadgeMap={dbBadgeMap} />
+                      <RoleSection 
+                        key={path.id} 
+                        path={path} 
+                        dbBadgeMap={dbBadgeMap} 
+                        isFlipped={flippedPathwayId === path.id}
+                        onToggleFlip={() => setFlippedPathwayId((prev) => (prev === path.id ? null : path.id))}
+                      />
                     ))}
                   </div>
                 )}

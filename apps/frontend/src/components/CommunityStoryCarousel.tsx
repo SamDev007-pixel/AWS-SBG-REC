@@ -203,6 +203,8 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             objectFit: (!member.image || imageError) ? "contain" : "cover",
             objectPosition: (member.name?.includes("Neil") || member.image?.includes("neil"))
               ? "22% center"
+              : (member.name?.includes("Jaiganesh") || member.image?.includes("jaiganesh") || member.name?.includes("Sunchitha") || member.image?.includes("sunchitha") || member.name?.includes("Sam") || member.image?.includes("sam"))
+              ? "top center"
               : "center center",
             transition: "transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
@@ -333,6 +335,7 @@ export default function OurTeamShowcase({
         "sudhish",
         "balaambiga",
         "sunchitha",
+        "goutham",
         "abimithren",
         "harini",
         "thamizh",
@@ -340,8 +343,7 @@ export default function OurTeamShowcase({
       const devList = fetchedMembers.filter(
         (m) =>
           m.type === "crew" &&
-          !m.name.toLowerCase().includes("lakshminarasimhan") &&
-          !m.name.toLowerCase().includes("goutham")
+          !m.name.toLowerCase().includes("lakshminarasimhan")
       );
       devList.sort((a, b) => {
         const idxA = orderKeys.findIndex((k) => a.name.toLowerCase().includes(k));
@@ -468,7 +470,7 @@ export default function OurTeamShowcase({
       style={{
         width: "100%",
         backgroundColor: "#ffffff",
-        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.9) 100%), url('${bgImage}')`,
+        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.65) 50%, rgba(255, 255, 255, 0.75) 100%), url('${bgImage}')`,
         backgroundSize: "450px auto",
         backgroundRepeat: "repeat",
         backgroundPosition: "center",

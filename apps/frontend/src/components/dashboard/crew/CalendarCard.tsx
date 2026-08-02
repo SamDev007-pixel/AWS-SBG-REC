@@ -79,28 +79,22 @@ export default function CalendarCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
-        className="glass-panel rounded-[22px] overflow-hidden !p-4 border border-white/20 cursor-pointer select-none transition-all duration-[250ms] ease-out"
-        style={{ background: "rgba(255, 255, 255, 0.75)" }}
-        whileHover={{
-          boxShadow: "0 10px 25px -5px rgba(35, 47, 62, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.03)",
-          borderColor: "rgba(255, 153, 0, 0.35)",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          transition: { duration: 0.15, ease: "easeOut" },
-        }}
+        className="rounded-xl border border-slate-200 !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm bg-white"
+        whileHover={undefined}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">Calendar</span>
-            <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
+            <span className="text-[11px] sm:text-xs font-semibold text-foreground/60 tracking-wider uppercase">Calendar</span>
+            <span className="text-lg sm:text-xl font-medium text-slate-800 font-display tracking-tight leading-tight">
               {MONTHS[today.getMonth()].slice(0, 3)} {today.getFullYear()}
             </span>
-            <span className="text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>
           <div className="relative" onMouseEnter={() => setIconHovered(true)} onMouseLeave={() => setIconHovered(false)}>
-            <AwsCloudWatchIcon className={`w-21 h-21 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
+            <AwsCloudWatchIcon className={`w-12 h-12 sm:w-14 sm:h-14 transition-transform duration-200 ${iconHovered ? "scale-105" : ""}`} />
             {iconHovered && (
               <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-extrabold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
                 CloudWatch

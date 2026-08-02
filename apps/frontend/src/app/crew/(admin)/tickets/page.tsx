@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import CustomSelect from '@/components/ui/CustomSelect';
 import { useTickets, useEvents, useRegenerateTicket, useEmailTicket } from '@/lib/hooks';
 import TicketDetailsModal from '@/components/TicketDetailsModal';
 import {
@@ -223,33 +224,29 @@ export default function TicketsPage() {
             </div>
 
             {/* Event Filter */}
-            <div className="md:col-span-3 relative">
-              <select
+            <div className="md:col-span-3">
+              <CustomSelect
                 value={eventFilter}
-                onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Events</option>
-                {events.map((ev) => (
-                  <option key={ev.id} value={ev.id}>{ev.title}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                onChange={(val) => { setEventFilter(val); setPage(1); }}
+                options={[
+                  { value: '', label: 'All Events' },
+                  ...events.map((ev) => ({ value: ev.id, label: ev.title })),
+                ]}
+              />
             </div>
 
             {/* Status Filter */}
-            <div className="md:col-span-3 relative">
-              <select
+            <div className="md:col-span-3">
+              <CustomSelect
                 value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="USED">Used</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                onChange={(val) => { setStatusFilter(val); setPage(1); }}
+                options={[
+                  { value: '', label: 'All Statuses' },
+                  { value: 'ACTIVE', label: 'Active' },
+                  { value: 'USED', label: 'Used' },
+                  { value: 'CANCELLED', label: 'Cancelled' },
+                ]}
+              />
             </div>
           </div>
 

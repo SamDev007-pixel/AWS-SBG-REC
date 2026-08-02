@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, X, Clock, MapPin, ArrowRight, CalendarDays }
 import { usePathname, useRouter } from "next/navigation";
 import { useEvents } from "@/modules/cloud-enthusiasts/shared/hooks/useCloudEnthusiasts";
 import { Event } from "@/modules/cloud-enthusiasts/shared/types";
+import AWSSidebarIcon from "@/components/AWSSidebarIcon";
 
 function AwsCloudWatchIcon({ className }: { className?: string }) {
   return (
@@ -153,24 +154,20 @@ export default function CalendarCard() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        onClick={openModal}
-        className="glass-panel rounded-[22px] overflow-hidden !p-4 border border-white/20 cursor-pointer select-none transition-all duration-[250ms] ease-out"
-        style={{ background: "rgba(255, 255, 255, 0.75)" }}
-        whileHover={{
-          boxShadow: "0 10px 25px -5px rgba(35, 47, 62, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.03)",
-          borderColor: "rgba(255, 153, 0, 0.35)",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          transition: { duration: 0.15, ease: "easeOut" },
+        className="rounded-xl border border-slate-200 !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+          backgroundSize: "300px 300px",
+          backgroundRepeat: "repeat",
         }}
-        whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">Calendar</span>
-            <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
+            <span className="text-[11px] sm:text-xs font-semibold text-foreground/60 tracking-wider uppercase">Calendar</span>
+            <span className="text-lg sm:text-xl font-medium text-slate-800 font-display tracking-tight leading-tight">
               {MONTHS[today.getMonth()].slice(0, 3)} {today.getFullYear()}
             </span>
-            <span className="text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-brand-orange flex items-center gap-1.5 truncate mt-0.5">
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>
@@ -178,7 +175,7 @@ export default function CalendarCard() {
             onMouseEnter={() => setIconHovered(true)}
             onMouseLeave={() => setIconHovered(false)}
           >
-            <AwsCloudWatchIcon className={`w-18 h-18 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
+            <AwsCloudWatchIcon className={`w-12 h-12 sm:w-14 sm:h-14 transition-transform duration-200 ${iconHovered ? "scale-105" : ""}`} />
           </div>
         </div>
       </motion.div>
@@ -351,7 +348,7 @@ export default function CalendarCard() {
                               </span>
                               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                                 <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
-                                  <Clock className="w-3.5 h-3.5 text-slate-300" />
+                                  <AWSSidebarIcon name="announcements" className="w-3.5 h-3.5 text-slate-300" />
                                   {timeStr}
                                 </span>
                                 <span className="text-slate-200 text-[10px]">•</span>
@@ -362,14 +359,14 @@ export default function CalendarCard() {
                             </div>
                           </div>
                           <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-brand-orange/10 group-hover:border-brand-orange/20 group-hover:text-brand-orange transition-all flex-shrink-0">
-                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                            <AWSSidebarIcon name="services" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                           </div>
                         </button>
                       );
                     })
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-center bg-white border border-dashed border-slate-200 rounded-[12px]">
-                      <CalendarDays className="w-7 h-7 text-slate-300 mb-2 stroke-[1.5]" />
+                      <AWSSidebarIcon name="events" className="w-7 h-7 text-slate-300 mb-2" />
                       <p className="text-xs text-slate-400 italic font-medium">
                         No events scheduled for this period.
                       </p>

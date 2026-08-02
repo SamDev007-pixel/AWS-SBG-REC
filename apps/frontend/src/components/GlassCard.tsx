@@ -27,24 +27,16 @@ export default function GlassCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
       onClick={onClick}
-      style={style}
+      style={{
+        backgroundColor: "#ffffff",
+        ...style,
+      }}
       className={cn(
-        "glass-panel rounded-[22px] overflow-hidden p-6 text-foreground border border-white/25 transition-all duration-[250ms] ease-out",
-        onClick && "cursor-pointer select-none",
+        "rounded-xl border border-slate-200 p-4 text-foreground transition-all duration-[250ms] ease-out shadow-xs",
+        onClick && "cursor-pointer select-none hover:border-slate-400 hover:shadow-sm",
         className
       )}
-      whileHover={
-        hoverEffect
-          ? {
-            y: -4,
-            boxShadow:
-              "0 14px 28px -5px rgba(35, 47, 62, 0.12), 0 10px 14px -6px rgba(0, 0, 0, 0.05)",
-            borderColor: "rgba(255, 255, 255, 0.8)",
-            backgroundColor: "rgba(255, 255, 255, 0.98)",
-            transition: { duration: 0.2, ease: "easeOut" },
-          }
-          : undefined
-      }
+      whileHover={undefined}
       whileTap={hoverEffect ? { scale: 0.97 } : undefined}
     >
       {children}

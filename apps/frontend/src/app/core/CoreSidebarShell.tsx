@@ -18,18 +18,20 @@ import {
   KeyRound,
 } from 'lucide-react';
 
+import AWSSidebarIcon from '@/components/AWSSidebarIcon';
+
 const coreNavItems: NavItem[] = [
-  { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/core/events' },
-  { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
-  { icon: <Map className="w-4 h-4" />, label: 'roadmap builder', href: '/core/topics' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
-  { icon: <GraduationCap className="w-4 h-4" />, label: 'certifications', href: '/core/certifications' },
-  { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
-  { icon: <KeyRound className="w-4 h-4" />, label: 'access control', href: '/core/access-control' },
+  { icon: <AWSSidebarIcon name="events" />, label: 'events', href: '/core/events' },
+  { icon: <AWSSidebarIcon name="news" />, label: 'news', href: '/news' },
+  { icon: <AWSSidebarIcon name="roadmap" />, label: 'roadmap builder', href: '/core/topics' },
+  { icon: <AWSSidebarIcon name="chat" />, label: 'chat', href: '/core/chat' },
+  { icon: <AWSSidebarIcon name="certifications" />, label: 'certifications', href: '/core/certifications' },
+  { icon: <AWSSidebarIcon name="services" />, label: 'services', href: '/services' },
+  { icon: <AWSSidebarIcon name="access-control" className="w-[28px] h-[28px]" />, label: 'access control', href: '/core/access-control' },
 ];
 
 const coreBottomNavItems: NavItem[] = [
-  { icon: <Bell className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
+  { icon: <AWSSidebarIcon name="announcements" className="w-[28px] h-[28px]" />, label: 'announcements', href: '/core/announcements' },
 ];
 
 export default function CoreSidebarShell({ children }: { children: React.ReactNode }) {

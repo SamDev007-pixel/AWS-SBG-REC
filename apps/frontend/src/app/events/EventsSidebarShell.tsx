@@ -14,13 +14,15 @@ import {
   Cpu,
 } from 'lucide-react';
 
+import AWSSidebarIcon from '@/components/AWSSidebarIcon';
+
 const eventsNavItems: NavItem[] = [
-  { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/events' },
-  { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
-  { icon: <Map className="w-4 h-4" />, label: 'roadmap', href: '/learn' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/chat' },
-  { icon: <GraduationCap className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
-  { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+  { icon: <AWSSidebarIcon name="events" />, label: 'events', href: '/events' },
+  { icon: <AWSSidebarIcon name="news" />, label: 'news', href: '/news' },
+  { icon: <AWSSidebarIcon name="roadmap" />, label: 'roadmap', href: '/learn' },
+  { icon: <AWSSidebarIcon name="chat" />, label: 'chat', href: '/chat' },
+  { icon: <AWSSidebarIcon name="certifications" />, label: 'certifications', href: '/certifications' },
+  { icon: <AWSSidebarIcon name="services" />, label: 'services', href: '/services' },
 ];
 
 export default function EventsSidebarShell({ children }: { children: React.ReactNode }) {

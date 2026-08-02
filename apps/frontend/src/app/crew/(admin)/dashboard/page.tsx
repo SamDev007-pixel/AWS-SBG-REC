@@ -7,16 +7,14 @@ import Announcements from "@/components/dashboard/crew/Announcements";
 import StatsCard from "@/components/StatsCard";
 import { workAssignments, attendanceRecords } from "@/lib/data/crewMockData";
 
+import AWSSidebarIcon from "@/components/AWSSidebarIcon";
+
 function WorkAssignmentsIcon({ className }: { className?: string }) {
-  return (
-    <img src="/aws-DevOpsGuru.svg" alt="Work Assignments" className={className} />
-  );
+  return <img src="/aws-DevOpsGuru.svg" alt="AWS DevOps Guru" className={className || "w-14 h-14 sm:w-16 sm:h-16"} />;
 }
 
 function AttendanceIcon({ className }: { className?: string }) {
-  return (
-    <img src="/aws-FirewallManager.svg" alt="Attendance" className={`${className} scale-[1.12]`} />
-  );
+  return <img src="/aws-TrustedAdvisor.svg" alt="AWS Trusted Advisor" className={className || "w-14 h-14 sm:w-16 sm:h-16"} />;
 }
 
 export default function CrewDashboardPage() {
@@ -27,13 +25,23 @@ export default function CrewDashboardPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-4 md:pt-6 pb-12 relative overflow-hidden">
-      <div className="relative z-10 space-y-6 px-4 md:px-5">
+    <div
+      className="w-full min-h-full lg:h-screen lg:max-h-screen p-4 sm:p-5 lg:p-6 relative overflow-y-auto lg:overflow-hidden flex flex-col justify-between select-none gap-4"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundSize: "300px 300px",
+        backgroundRepeat: "repeat",
+        backgroundColor: "#f8fafc",
+      }}
+    >
+      <div className="relative z-10 flex flex-col flex-1 gap-4 w-full justify-between">
         {/* Section 1 — Hero Banner */}
-        <HeroBanner />
+        <div className="flex-shrink-0">
+          <HeroBanner />
+        </div>
         
         {/* Section 2 — Stats Row: Work Assignments + Attendance + Calendar */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-shrink-0">
           <StatsCard
             label="Work Assignments"
             value={pendingWork}
@@ -44,7 +52,6 @@ export default function CrewDashboardPage() {
             bareIcon
             iconLabel="Work Assignments"
             href="/crew/tasks"
-            style={{ background: "rgba(255, 255, 255, 0.75)" }}
           />
           <StatsCard
             label="My Attendance"
@@ -56,29 +63,25 @@ export default function CrewDashboardPage() {
             bareIcon
             iconLabel="Attendance"
             href="/crew/attendance"
-            style={{ background: "rgba(255, 255, 255, 0.75)" }}
           />
           <CalendarCard />
         </section>
 
         {/* Section 3 — Two column: Roadmap + Announcements */}
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 md:gap-8 items-stretch">
-          <div className="lg:col-span-6 flex flex-col">
-            <div
-              className="flex flex-col flex-1 min-h-[400px] rounded-[22px] p-6 border border-slate-100/70 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_30px_rgba(35,47,62,0.05)] overflow-hidden"
-              style={{ 
-                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.75) 100%), url('/assets/roadmap_bg.png') center/cover no-repeat"
-              }}
+        <section id="events" className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-stretch flex-1 min-h-0">
+          <div className="lg:col-span-6 flex flex-col h-full min-h-0">
+            <div 
+              className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 p-5 overflow-hidden justify-between shadow-xs bg-white"
             >
               <RoadmapProgress />
             </div>
           </div>
-          <div className="lg:col-span-4 flex flex-col">
-            <div className="flex flex-col flex-1">
+          <div className="lg:col-span-4 flex flex-col h-full min-h-0">
+            <div className="flex flex-col flex-1 h-full min-h-0">
               <Announcements />
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

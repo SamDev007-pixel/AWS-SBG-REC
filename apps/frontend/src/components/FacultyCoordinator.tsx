@@ -184,6 +184,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             width: 160px !important;
             height: 160px !important;
             border-radius: 8px !important;
+            border: 1px solid rgba(255, 153, 0, 0.35) !important;
             margin: 0 auto 4px auto !important;
           }
           .spotlight-right-content {
@@ -200,17 +201,28 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           .spotlight-banner-wrapper {
             padding: 20px 16px !important;
             border-radius: 8px !important;
+            border: 1px solid rgba(255, 153, 0, 0.35) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 153, 0, 0.08) !important;
           }
           .spotlight-quote-card {
             padding: 14px 16px !important;
             margin-top: 10px !important;
             text-align: left !important;
             border-radius: 8px !important;
-            border: 1px solid rgba(255, 153, 0, 0.15) !important;
+            border: 1px solid rgba(255, 153, 0, 0.35) !important;
+            background: rgba(15, 23, 42, 0.65) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
           }
           .spotlight-header-container {
             margin-bottom: 16px !important;
           }
+        }
+        .custom-modal-scroll {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .custom-modal-scroll::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
 
@@ -320,37 +332,36 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
                 "{coord.bio}"
               </p>
 
-              {/* Trigger Button for Executive Profile Modal */}
+              {/* Trigger Link for Executive Profile Modal */}
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: "11.5px",
-                  fontWeight: 750,
+                  display: "inline-block",
+                  fontSize: "12.5px",
+                  fontWeight: 700,
+                  fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif",
+                  letterSpacing: "0.02em",
                   color: "#FF9900",
-                  background: "rgba(255, 153, 0, 0.08)",
-                  border: "1px solid rgba(255, 153, 0, 0.3)",
-                  borderRadius: "4px",
-                  padding: "6px 12px",
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
                   cursor: "pointer",
                   transition: "all 0.2s ease",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "4px",
+                  textDecorationColor: "rgba(255, 153, 0, 0.4)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.16)";
-                  e.currentTarget.style.borderColor = "rgba(255, 153, 0, 0.5)";
+                  e.currentTarget.style.color = "#FFAC1C";
+                  e.currentTarget.style.textDecorationColor = "#FFAC1C";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.08)";
-                  e.currentTarget.style.borderColor = "rgba(255, 153, 0, 0.3)";
+                  e.currentTarget.style.color = "#FF9900";
+                  e.currentTarget.style.textDecorationColor = "rgba(255, 153, 0, 0.4)";
                 }}
               >
-                <span>Read Full Profile & Tribute</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+                Read Full Profile
               </button>
             </div>
 
@@ -382,6 +393,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
           }}
         >
           <div
+            className="custom-modal-scroll"
             style={{
               position: "relative",
               width: "100%",
@@ -500,35 +512,6 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               <p style={{ marginBottom: 0, padding: "14px 16px", background: "rgba(255, 153, 0, 0.06)", borderLeft: "3px solid #FF9900", borderRadius: "0 4px 4px 0", color: "#E2E8F0" }}>
                 We are deeply grateful for his dedication, encouragement, and belief in our potential. His mentorship continues to shape AWS SBG REC into a community driven by innovation, collaboration, and a passion for lifelong learning.
               </p>
-            </div>
-
-            {/* Bottom Close Button */}
-            <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid rgba(255, 153, 0, 0.15)", display: "flex", justifyContent: "flex-end" }}>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  background: "rgba(255, 153, 0, 0.2)",
-                  border: "1px solid rgba(255, 153, 0, 0.4)",
-                  borderRadius: "4px",
-                  padding: "7px 18px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#FF9900";
-                  e.currentTarget.style.color = "#0B0F19";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 153, 0, 0.2)";
-                  e.currentTarget.style.color = "#FFFFFF";
-                }}
-              >
-                Close Profile
-              </button>
             </div>
 
           </div>

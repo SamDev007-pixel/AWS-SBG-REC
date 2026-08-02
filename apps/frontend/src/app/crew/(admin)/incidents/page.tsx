@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCrewEvents, useCrewIncidents, useCreateCrewIncident } from '@/lib/hooks';
-import { AlertOctagon, AlertTriangle, Info, Clock, Paperclip, CheckCircle2, Camera, Loader2, X } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, Info, Clock, Paperclip, CheckCircle2, Camera, Loader2, X, ShieldAlert, FileText, Send, Sparkles } from 'lucide-react';
+import AWSSidebarIcon from '@/components/AWSSidebarIcon';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -21,17 +23,17 @@ function priorityConfig(priority: string) {
   > = {
     HIGH: {
       label: 'High Priority',
-      className: 'bg-rose-50 text-rose-700 border-rose-200',
+      className: 'bg-rose-50 text-rose-700 border-rose-200/80',
       icon: AlertOctagon,
     },
     MEDIUM: {
       label: 'Medium Priority',
-      className: 'bg-amber-50 text-amber-700 border-amber-200',
+      className: 'bg-amber-50 text-amber-700 border-amber-200/80',
       icon: AlertTriangle,
     },
     LOW: {
       label: 'Low Priority',
-      className: 'bg-blue-50 text-blue-700 border-blue-200',
+      className: 'bg-sky-50 text-sky-700 border-sky-200/80',
       icon: Info,
     },
   };
@@ -58,6 +60,25 @@ export default function IncidentReportingPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
+  const [priorityDropdownOpen, setPriorityDropdownOpen] = useState(false);
+
+  const eventDropdownRef = useRef<HTMLDivElement>(null);
+  const priorityDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (eventDropdownRef.current && !eventDropdownRef.current.contains(event.target as Node)) {
+        setEventDropdownOpen(false);
+      }
+      if (priorityDropdownRef.current && !priorityDropdownRef.current.contains(event.target as Node)) {
+        setPriorityDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,7 +125,6 @@ export default function IncidentReportingPage() {
 
     setFormSuccess(false);
 
-    // Prisma DB requires eventId. If user hasn't explicitly selected one, fall back to first event in DB
     const resolvedEventId = eventId || (events && events[0]?.id) || "";
 
     createIncidentMutation.mutate(
@@ -124,262 +144,314 @@ export default function IncidentReportingPage() {
           setAttachmentUrl('');
           setFormSuccess(true);
 
-          // Hide success message after 2 seconds
-          setTimeout(() => setFormSuccess(false), 2000);
+          setTimeout(() => setFormSuccess(false), 3000);
         },
       },
     );
   }
 
+  const activeCount = incidents?.length || 0;
+
+  const selectedEventTitle = (events ?? []).find(e => e.id === eventId)?.title || "Select event (Optional)";
+
+  const priorityLabels: Record<string, string> = {
+    LOW: 'Low Priority',
+    MEDIUM: 'Medium Priority',
+    HIGH: 'High Priority',
+  };
+
   return (
-    <div className="h-auto min-h-full lg:h-[calc(100vh-4.5rem)] flex flex-col space-y-4 py-4 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden">
-      {/* Header Row */}
-      <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)" }} className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[20px] border border-white/50 p-5 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-[#232F3E] font-display">
-              Incident & Issue Reporting
-            </h1>
-            <p className="text-xs text-slate-600 mt-0.5">
-              Log operational exceptions, safety concerns, or supply chain bottlenecks on stage.
-            </p>
+    <div
+      className="w-full min-h-full lg:h-screen lg:max-h-screen p-4 sm:p-5 lg:p-6 relative overflow-y-auto lg:overflow-hidden flex flex-col justify-between select-none gap-4"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundSize: "300px 300px",
+        backgroundRepeat: "repeat",
+        backgroundColor: "#f8fafc",
+      }}
+    >
+      <div className="relative z-10 flex flex-col flex-1 gap-4 w-full min-h-0 justify-between">
+        {/* Header Row */}
+        <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/20 flex items-center justify-center text-[#FF6B00] shrink-0 mt-0.5 sm:mt-0">
+              <AWSSidebarIcon name="incidents" className="w-5 h-5 sm:w-6 sm:h-6 text-[#FF6B00]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-display">
+                  Incident & Issue Reporting
+                </h1>
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                  GuardDuty Monitored
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                Log operational exceptions, security concerns, or technical bottlenecks on stage.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+            <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-slate-600 font-medium text-[11px] sm:text-xs">Total Incidents:</span>
+              <span className="font-bold text-slate-900 text-xs">{activeCount}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-3 flex-1 lg:min-h-0 min-h-auto">
-        {/* Incident Report Form */}
-        <div className="md:col-span-2 flex flex-col lg:min-h-0 min-h-auto">
-          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 lg:min-h-0 min-h-auto">
-            <h2 className="shrink-0 text-sm font-bold text-[#232F3E] flex items-center gap-2 mb-4">
-              <AlertOctagon className="h-4 w-4 text-brand-orange" /> Submit New Incident Report
-            </h2>
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 flex-1 min-h-0 items-stretch">
+          {/* Incident Report Form (6 Cols) */}
+          <div className="lg:col-span-6 flex flex-col h-full min-h-0">
+            <div className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 overflow-y-auto shadow-xs custom-scrollbar">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3.5 shrink-0">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#FF6B00]" />
+                  <h2 className="text-sm font-bold text-slate-900">Submit New Incident Report</h2>
+                </div>
+                <span className="text-[10px] font-medium text-slate-400">* Required fields</span>
+              </div>
 
-            <form onSubmit={handleReportSubmit} className="flex-1 flex flex-col gap-4 pb-1">
-              {/* Event & Title Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+              <form onSubmit={handleReportSubmit} className="flex-1 flex flex-col gap-3.5">
+                {/* Associated Event Custom Dropdown */}
+                <div className="space-y-1 shrink-0">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                     Associated Event
                   </label>
-                  <select
+                  <CustomSelect
                     value={eventId}
-                    onChange={(e) => setEventId(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm"
-                  >
-                    <option value="">Select event...</option>
-                    {(events ?? []).map((ev) => (
-                      <option key={ev.id} value={ev.id}>
-                        {ev.title}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setEventId}
+                    placeholder="Select event (Optional)"
+                    options={[
+                      { value: '', label: 'Select event (Optional)' },
+                      ...(events ?? []).map((ev) => ({ value: ev.id, label: ev.title })),
+                    ]}
+                  />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                    Incident Title *
+                {/* Incident Title */}
+                <div className="space-y-1 shrink-0">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    Incident Title <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    placeholder="e.g. Projector cable faulty"
-                    className="w-full bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm"
+                    placeholder="e.g., Stage mic connectivity issue"
+                    className="w-full bg-slate-50/70 border border-slate-200 rounded-xl text-xs px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all font-medium placeholder:text-slate-400"
                   />
                 </div>
-              </div>
 
-              {/* Description */}
-              <div className="flex-1 flex flex-col space-y-1 min-h-0">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1 shrink-0">
-                  Detailed Description *
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                  placeholder="Explain what happened, potential impacts, and steps taken so far..."
-                  className="w-full min-h-[100px] flex-1 bg-white border border-slate-200 rounded-[8px] text-[13px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-orange/30 focus:border-brand-orange/50 transition-all shadow-sm resize-none"
-                />
-              </div>
-
-              {/* Priority Selector */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Priority Level *
-                </label>
-                <div className="flex gap-2">
-                  {['LOW', 'MEDIUM', 'HIGH'].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setPriority(p)}
-                      className={`flex-1 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 rounded-[8px] transition-all duration-300 border-2 ${
-                        priority === p
-                          ? 'border-brand-orange bg-brand-orange/10 text-[#232F3E] shadow-sm'
-                          : 'border-white/60 bg-white/40 text-slate-500 hover:border-brand-orange/30 hover:bg-white/60'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
+                {/* Priority Level Custom Dropdown */}
+                <div className="space-y-1 shrink-0">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    Priority Level <span className="text-rose-500">*</span>
+                  </label>
+                  <CustomSelect
+                    value={priority}
+                    onChange={setPriority}
+                    options={[
+                      { value: 'LOW', label: 'Low Priority' },
+                      { value: 'MEDIUM', label: 'Medium Priority' },
+                      { value: 'HIGH', label: 'High Priority' },
+                    ]}
+                  />
                 </div>
-              </div>
 
-              {/* Attachment Image Upload */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Attachment Image (Optional)
-                </label>
-                <div className="flex items-center gap-3">
-                  {attachmentUrl ? (
-                    <div className="relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
-                      <img src={attachmentUrl} alt="Attachment Preview" className="w-full h-full object-cover" />
+                {/* Description */}
+                <div className="space-y-1 flex-1 flex flex-col min-h-[100px]">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider shrink-0">
+                    Detailed Description <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                    placeholder="Describe what happened, impact, and immediate action..."
+                    className="w-full flex-1 bg-slate-50/70 border border-slate-200 rounded-xl text-xs p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all resize-none font-medium placeholder:text-slate-400 min-h-[90px]"
+                  />
+                </div>
+
+                {/* Attachment Upload */}
+                <div className="space-y-1 shrink-0">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    Evidence Image Attachment (Optional)
+                  </label>
+                  <div>
+                    {attachmentUrl ? (
+                      <div className="relative inline-block w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 group">
+                        <img src={attachmentUrl} alt="Attachment" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setAttachmentUrl('')}
+                          className="absolute top-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white rounded-md p-1 transition-all"
+                          aria-label="Remove image"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ) : (
                       <button
                         type="button"
-                        onClick={() => setAttachmentUrl('')}
-                        className="absolute top-1 right-1 bg-slate-900/60 hover:bg-slate-900/80 text-white rounded-lg p-1 w-5 h-5 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-90"
-                        aria-label="Remove image"
+                        disabled={isUploading}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full border border-dashed border-slate-300 hover:border-[#FF6B00] hover:bg-[#FF6B00]/5 rounded-xl p-2.5 text-center transition-all cursor-pointer flex items-center justify-center gap-2 bg-slate-50/40 text-xs font-semibold text-slate-600 hover:text-[#FF6B00]"
                       >
-                        <X size={10} strokeWidth={3} />
+                        {isUploading ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin text-[#FF6B00]" />
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Camera size={14} className="text-slate-400" />
+                            <span>Attach Photo</span>
+                          </>
+                        )}
                       </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={isUploading}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center justify-center gap-2 border border-dashed border-slate-300 hover:border-brand-orange hover:bg-slate-50/50 rounded-lg px-4 py-2.5 cursor-pointer text-slate-500 hover:text-brand-orange transition-all active:scale-98 min-h-[42px] w-full bg-white text-xs font-semibold"
-                    >
-                      {isUploading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 size={14} className="animate-spin text-brand-orange" />
-                          <span>Uploading image...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5">
-                          <Camera size={14} />
-                          <span>Attach Image</span>
-                        </div>
-                      )}
-                    </button>
-                  )}
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                </div>
-                {uploadError && (
-                  <p className="text-[10px] text-red-500 font-semibold ml-1 mt-0.5">{uploadError}</p>
-                )}
-              </div>
-
-              {/* Submit button */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 gap-4 pb-2">
-                <div className="text-[10px] font-medium text-slate-400 ml-1">* Required fields</div>
-                <button
-                  type="submit"
-                  disabled={
-                    createIncidentMutation.isPending ||
-                    !title.trim() ||
-                    !description.trim() ||
-                    isUploading
-                  }
-                  className="w-full sm:w-auto bg-brand-orange text-black hover:bg-brand-orange/95 rounded-[10px] font-bold px-6 py-2.5 shadow-md shadow-brand-orange/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-xs"
-                >
-                  {createIncidentMutation.isPending ? (
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  ) : (
-                    'Submit Report'
-                  )}
-                </button>
-              </div>
-
-              {formSuccess && (
-                <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 p-3 rounded-[10px] text-xs flex items-center gap-2 shadow-sm mt-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-                  <span className="font-semibold">Incident report submitted successfully.</span>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-
-        {/* Incident History List */}
-        <div className="flex flex-col lg:min-h-0 min-h-auto">
-          <div className="bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 shadow-sm p-5 flex flex-col flex-1 lg:min-h-0 min-h-auto">
-            <h2 className="shrink-0 text-sm font-bold text-[#232F3E] mb-4">Submitted Reports</h2>
-
-            <div className="flex-1 lg:overflow-y-auto pr-2 space-y-3 custom-scrollbar">
-              {incidentsLoading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="border border-white/60 bg-white/60 rounded-[12px] p-4 animate-pulse space-y-2.5"
-                  >
-                    <div className="h-3 w-1/2 bg-slate-200/50 rounded" />
-                    <div className="h-2.5 w-5/6 bg-slate-100 rounded" />
+                    )}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
                   </div>
-                ))
-              ) : !incidents || incidents.length === 0 ? (
-                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.03), rgba(35, 47, 62, 0.015))" }} className="border border-dashed border-slate-200 rounded-[14px] min-h-[120px] flex flex-col items-center justify-center p-4 text-center">
-                  <p className="text-xs font-medium text-slate-500">No incident reports recorded.</p>
+                  {uploadError && (
+                    <p className="text-[10px] text-rose-500 font-medium">{uploadError}</p>
+                  )}
                 </div>
-              ) : (
-                incidents.map((inc) => {
-                  const pc = priorityConfig(inc.priority);
-                  const Icon = pc.icon;
 
-                  return (
+                {/* Submit Action */}
+                <div className="pt-1 shrink-0">
+                  <button
+                    type="submit"
+                    disabled={
+                      createIncidentMutation.isPending ||
+                      !title.trim() ||
+                      !description.trim() ||
+                      isUploading
+                    }
+                    className="w-full bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white font-bold rounded-xl py-3 px-4 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+                  >
+                    {createIncidentMutation.isPending ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <>
+                        <Send size={14} />
+                        <span>Submit Incident Report</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {formSuccess && (
+                  <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 p-3 rounded-xl text-xs flex items-center gap-2.5 animate-fadeIn">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold">Incident report logged successfully!</span>
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
+
+          {/* Submitted Reports History (4 Cols) */}
+          <div className="lg:col-span-4 flex flex-col h-full min-h-0">
+            <div className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3.5 shrink-0">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 text-slate-700" />
+                  <h2 className="text-sm font-bold text-slate-900">Submitted Log History</h2>
+                </div>
+                <span className="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+                  {incidents?.length || 0}
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-0.5 space-y-3 custom-scrollbar">
+                {incidentsLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
                     <div
-                      key={inc.id}
-                      className="border border-slate-200 bg-white p-4 shadow-sm rounded-[14px] space-y-2 hover:shadow-md transition-all group"
+                      key={i}
+                      className="border border-slate-200 rounded-xl p-3.5 animate-pulse space-y-2"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-xs font-bold text-[#232F3E] leading-tight group-hover:text-brand-orange transition-colors">
-                          {inc.title}
-                        </h3>
-                        <span
-                          className={`inline-flex items-center gap-1 border rounded-[4px] px-1.5 py-0.5 text-[8px] font-bold uppercase shrink-0 ${pc.className}`}
-                        >
-                          <Icon className="h-2.5 w-2.5" /> {inc.priority}
-                        </span>
-                      </div>
+                      <div className="h-3.5 w-2/3 bg-slate-200 rounded-md" />
+                      <div className="h-3 w-5/6 bg-slate-100 rounded-md" />
+                    </div>
+                  ))
+                ) : !incidents || incidents.length === 0 ? (
+                  <div className="py-10 px-4 text-center flex flex-col items-center justify-center gap-2 my-auto">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-400 shrink-0">
+                      <ShieldAlert className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-700">No Incidents Reported</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">All monitored systems are operating normally.</p>
+                    </div>
+                  </div>
+                ) : (
+                  incidents.map((inc) => {
+                    const pc = priorityConfig(inc.priority);
+                    const Icon = pc.icon;
 
-                      <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
-                        {inc.description}
-                      </p>
+                    return (
+                      <div
+                        key={inc.id}
+                        className="border border-slate-200/90 rounded-xl p-3.5 bg-white hover:border-slate-300 transition-all shadow-2xs space-y-2 group"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#FF6B00] transition-colors line-clamp-1">
+                            {inc.title}
+                          </h3>
+                          <span
+                            className={`inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase shrink-0 ${pc.className}`}
+                          >
+                            <Icon className="h-2.5 w-2.5" /> {inc.priority}
+                          </span>
+                        </div>
 
-                      <div className="pt-2 border-t border-slate-100 flex flex-col gap-1.5 text-[10px] font-medium text-slate-500">
-                        {inc.event?.title && (
-                          <div className="text-[#232F3E] truncate">
-                            <span className="text-slate-400">Event:</span> {inc.event.title}
+                        <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                          {inc.description}
+                        </p>
+
+                        {inc.attachmentUrl && (
+                          <div className="pt-1">
+                            <a
+                              href={inc.attachmentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block w-full h-24 rounded-lg overflow-hidden border border-slate-200 relative group/img"
+                            >
+                              <img src={inc.attachmentUrl} alt="Incident media" className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300" />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold gap-1">
+                                <Paperclip size={12} /> View Image
+                              </div>
+                            </a>
                           </div>
                         )}
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-slate-400" />
-                          <span>{formatDate(inc.createdAt)}</span>
+
+                        <div className="pt-2 border-t border-slate-100 flex flex-col gap-1 text-[10px] text-slate-500 font-medium">
+                          {inc.event?.title && (
+                            <div className="truncate text-slate-700 font-semibold">
+                              <span className="text-slate-400 font-normal">Event: </span>
+                              {inc.event.title}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 text-slate-400">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatDate(inc.createdAt)}</span>
+                          </div>
                         </div>
-                        {inc.attachmentUrl && (
-                          <a
-                            href={inc.attachmentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-brand-orange hover:text-brand-orange/80 transition-colors pt-0.5"
-                          >
-                            <Paperclip className="h-3 w-3" /> View Attachment
-                          </a>
-                        )}
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         </div>

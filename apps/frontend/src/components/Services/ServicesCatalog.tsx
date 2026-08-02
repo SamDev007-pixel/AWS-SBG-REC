@@ -80,7 +80,8 @@ export default function ServicesCatalog() {
     const isEnthusiast = userRole !== "core" && userRole !== "crew";
     if (!isEnthusiast) return services;
     
-    return services.filter(service => service.isVisibleToEnthusiasts);
+    const visibleServices = services.filter(service => service.isVisibleToEnthusiasts);
+    return visibleServices.length > 0 ? visibleServices : services;
   }, [services, userRole]);
 
   // Responsive columns logic based on container width
@@ -143,7 +144,7 @@ export default function ServicesCatalog() {
         statusFilter === "all" || service.status === statusFilter;
 
       // Active state check
-      const matchesActive = service.isActive;
+      const matchesActive = service.isActive !== false;
 
       return matchesSearch && matchesCategory && matchesFeatured && matchesStatus && matchesActive;
     });

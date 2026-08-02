@@ -17,12 +17,14 @@ const SURROUNDING_ICONS = [
   { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-cloudwatch.svg", label: "CloudWatch" },
 ];
 
-const ORBIT_RADIUS = 86; // Center-to-center distance in pixels
+const ORBIT_RADIUS = 72; // Center-to-center distance in pixels
 
 const POSITIONED_ICONS = SURROUNDING_ICONS.map((item, index) => {
   const angle = index * 72; // 5 icons: 360 / 5 = 72 degrees step
   return { ...item, angle };
 });
+
+import AWSSidebarIcon from "@/components/AWSSidebarIcon";
 
 export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps = {}) {
   const [greeting, setGreeting] = useState("Hello");
@@ -61,97 +63,80 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
 
   return (
     <div className="relative w-full">
-      {/* Glow effect blobs to shine through glassmorphic cards */}
-      <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-brand-orange/25 rounded-full blur-[60px] pointer-events-none z-0" />
-      <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-brand-blue/15 rounded-full blur-[65px] pointer-events-none z-0" />
+      {/* Background soft glow blobs */}
+      <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-orange-500/10 rounded-full blur-[65px] pointer-events-none z-0" />
 
-      {/* Glassmorphic welcome banner */}
-      <div className="relative w-full rounded-[22px] border border-orange-100/60 bg-white/45 backdrop-blur-[24px] shadow-xl shadow-black/[0.03] overflow-hidden z-10">
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{
-            background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.04) 40%, rgba(255, 255, 255, 0) 70%)",
-          }}
-        />
-        
+      {/* Welcome banner with AWS tech doodle background pattern */}
+      <div 
+        className="relative w-full rounded-xl border border-slate-200 p-4 sm:p-5 overflow-hidden z-10 shadow-xs"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+          backgroundSize: "300px 300px",
+          backgroundRepeat: "repeat",
+        }}
+      >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative w-full min-h-[190px] p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6"
+          transition={{ duration: 0.4 }}
+          className="relative w-full flex flex-col md:flex-row justify-between items-center gap-4"
         >
           {/* Welcome Text Content */}
           <div className="relative z-10 flex-1 flex flex-col items-start text-slate-800">
             <motion.div
-              initial={{ opacity: 0, x: -15 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9900]/8 border border-[#FF9900]/30 text-[11px] mb-3 shadow-[0_1px_4px_rgba(255,153,0,0.04)]"
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-orange-50/90 border border-orange-200 text-orange-900 text-[11.5px] font-semibold mb-3 shadow-2xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#FF9900] animate-spin" style={{ animationDuration: "6s" }} />
-              <span 
-                className="text-slate-700 tracking-wider font-semibold"
-                style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
-              >
-                AWS Student Builders Group REC
-              </span>
+              <img src="/sbg_logo.svg" alt="AWS SBG Logo" className="w-4 h-4 object-contain shrink-0" />
+              <span>AWS Student Builders Group REC</span>
             </motion.div>
 
             <h1 
-              className="text-[23px] md:text-[29px] font-semibold tracking-tight text-slate-900 drop-shadow-sm mb-2.5"
-              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-1.5 leading-tight"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              {greeting}, <span className="capitalize font-bold text-slate-900 inline-block">{userName}</span>!
+              {greeting}, <span className="capitalize">{userName}</span>!
             </h1>
 
             <p 
-              className="text-slate-600 max-w-xl text-[13.5px] leading-relaxed mb-5 text-left tracking-wide"
-              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontWeight: 500 }}
+              className="text-xs sm:text-[13.5px] text-slate-600 font-normal leading-relaxed max-w-xl mb-4 text-left"
+              style={{ fontFamily: "'Amazon Ember', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
             >
-              You're on track. Complete upcoming activities, attend community events, and continue climbing the leaderboard to unlock premium rewards and certifications.
+              You&apos;re on track. Complete upcoming activities, attend community events, and continue climbing the leaderboard to unlock premium rewards and certifications.
             </p>
 
-            <div className="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-2.5 w-full sm:w-auto">
               <Link href="/events" className="flex-1 sm:flex-initial">
-                <button
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#FF9900] hover:bg-[#FFA524] text-white font-bold text-[11px] sm:text-xs shadow-xs border border-[#FF9900] transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
-                >
+                <button className="w-full sm:w-auto h-9 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg bg-[#FF9900] hover:bg-[#E88B00] text-white font-bold text-xs sm:text-[13px] shadow-2xs hover:shadow-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap">
                   <span>Explore Events</span>
-                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
                 </button>
               </Link>
 
               <button
                 onClick={onViewLeaderboardClick}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold text-[11px] sm:text-xs shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
+                className="flex-1 sm:flex-initial h-9 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg bg-white hover:bg-slate-50 border border-slate-300/90 text-slate-800 hover:text-slate-900 font-semibold text-xs sm:text-[13px] shadow-2xs hover:border-slate-400 transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
               >
-                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
+                <Trophy className="w-4 h-4 text-amber-500 shrink-0 stroke-[2]" />
                 <span>View Leaderboard</span>
               </button>
             </div>
           </div>
 
           {/* Right Side Visual Panel */}
-          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-4">
-            <div className="relative w-56 h-56 flex items-center justify-center">
+          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-2">
+            <div className="relative w-44 h-44 flex items-center justify-center">
               {/* Animated floating circles / orbits */}
-              <div className="absolute w-[172px] h-[172px] border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
-              <div className="absolute w-[116px] h-[116px] border border-dotted border-black/20 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
+              <div className="absolute w-[144px] h-[144px] border border-dashed border-slate-300 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
+              <div className="absolute w-[92px] h-[92px] border border-dotted border-slate-400/80 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
 
-              {/* Central Main Large Icon (AWS Logo) */}
-              <motion.div
-                animate={{
-                  y: [4, -4, 4],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute z-10 w-21 h-21 bg-transparent flex items-center justify-center"
-              >
-                <img src="/aws-logo.svg" alt="AWS Logo" className="w-14 h-auto object-contain animate-pulse" style={{ animationDuration: "3s" }} />
-              </motion.div>
+              {/* Central Main Icon (AWS Logo SVG - Static) */}
+              <div className="absolute z-10 w-16 h-16 bg-transparent flex items-center justify-center pointer-events-none">
+                <img src="/aws-logo.svg" alt="AWS Logo" className="w-13 h-auto object-contain drop-shadow-sm" />
+              </div>
 
               {/* 5 Surrounding Smaller Icons (Orbiting) */}
               {POSITIONED_ICONS.map((item) => {
@@ -176,7 +161,7 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
                     }}
                   >
                     <motion.div
-                      className="absolute w-9.5 h-9.5 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
+                      className="absolute w-9 h-9 rounded-xl overflow-hidden border border-black/10 shadow-xs cursor-pointer z-20"
                       style={{
                         left: "50%",
                         top: "50%",
@@ -185,20 +170,18 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
                       }}
                       animate={{
                         rotate: [-item.angle, -item.angle - 360],
-                        scale: isHovered ? 1.25 : 1,
+                        scale: isHovered ? 1.2 : 1,
                         boxShadow: isHovered
-                          ? "0 10px 20px -8px rgba(0, 0, 0, 0.15), 0 6px 12px -6px rgba(0, 0, 0, 0.15)"
-                          : "0 3px 5px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.1)",
+                          ? "0 6px 12px -4px rgba(0, 0, 0, 0.2)"
+                          : "0 2px 4px -1px rgba(0, 0, 0, 0.08)",
                         borderColor: isHovered
-                          ? "rgba(255, 153, 0, 0.35)"
+                          ? "rgba(255, 153, 0, 0.5)"
                           : "rgba(0, 0, 0, 0.1)",
                         zIndex: isHovered ? 30 : 20,
                       }}
                       transition={{
                         rotate: { duration: 40, repeat: Infinity, ease: "linear" },
                         scale: { type: "spring", stiffness: 400, damping: 15 },
-                        boxShadow: { type: "spring", stiffness: 400, damping: 15 },
-                        borderColor: { type: "spring", stiffness: 400, damping: 15 },
                       }}
                       onHoverStart={() => setHoveredIcon(item.label)}
                       onHoverEnd={() => setHoveredIcon(null)}

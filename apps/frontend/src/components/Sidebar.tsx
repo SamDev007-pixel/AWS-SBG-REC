@@ -57,7 +57,7 @@ export default function Sidebar({
   // Sidebar width: CSS-driven, no JS animation overhead
   const sidebarW = isMobile
     ? "100%"
-    : isOpen ? 240 : 72;
+    : isOpen ? 240 : 70;
 
   const sidebarVisible = isMobile ? isMobileOpen : true;
 
@@ -84,7 +84,7 @@ export default function Sidebar({
           width: sidebarW,
           transform: isMobile && !isMobileOpen ? 'translateX(-100%)' : 'translateX(0)',
           background: "var(--sidebar-bg, #0a0e1a)",
-          boxShadow: "4px 0 32px -4px rgba(0,0,0,0.5)",
+          boxShadow: "none",
           willChange: "width, transform",
         }}
       >
@@ -182,7 +182,7 @@ export default function Sidebar({
         )}
 
         {/* Nav items */}
-        <nav className={cn("flex-1 py-3 overflow-y-auto no-scrollbar", isOpen ? "space-y-0.5" : "px-3 space-y-1.5")}>
+        <nav className={cn("flex-1 py-4 overflow-y-auto no-scrollbar", isOpen ? "space-y-1" : "px-3 space-y-2")}>
           {navItems.map((item) => {
             const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
             return (
@@ -195,16 +195,16 @@ export default function Sidebar({
                 <button
                   onClick={() => { onNavigate(item.href); onMobileClose(); }}
                   className={cn(
-                    "flex items-center transition-all duration-150 w-full group py-3 gap-3 text-left font-sans border-l-4",
-                    isOpen ? "px-5" : "px-2 justify-center",
+                    "flex items-center transition-all duration-150 w-full group py-2.5 gap-3.5 text-left font-sans border-l-[3px]",
+                    isOpen ? "px-4" : "px-2 justify-center",
                     isActive
-                      ? "border-[#FF6B00] bg-[#121929] text-[#FF6B00] font-semibold"
+                      ? "border-[#FF6B00] bg-[#FF6B00]/[0.08] text-[#FF6B00] font-semibold"
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >
                   <div className={cn(
                     "flex items-center justify-center shrink-0",
-                    isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]",
+                    isMobile ? "[&>svg]:w-[30px] [&>svg]:h-[30px] [&>img]:w-[30px] [&>img]:h-[30px]" : "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]",
                     isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
                   )}>
                     {item.icon}
@@ -212,7 +212,7 @@ export default function Sidebar({
                   {/* Label — CSS opacity/translate/width transition, no Framer Motion */}
                   <span
                     className={cn(
-                      isMobile ? "text-[17.5px]" : "text-sm",
+                      isMobile ? "text-base" : "text-[15px]",
                       "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out",
                       isActive ? "font-semibold capitalize" : "font-normal capitalize"
                     )}
@@ -241,7 +241,7 @@ export default function Sidebar({
         </nav>
 
         {/* Sign out */}
-        <div className="border-t border-white/5 shrink-0 py-3 px-3 space-y-1">
+        <div className="border-t border-white/5 shrink-0 py-4 px-3 space-y-1">
           {/* Bottom nav items (e.g. Incidents) — sit just above sign-out */}
           {bottomNavItems && bottomNavItems.map((item) => {
             const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
@@ -255,21 +255,21 @@ export default function Sidebar({
                 <button
                   onClick={() => { onNavigate(item.href); onMobileClose(); }}
                   className={cn(
-                    "flex items-center transition-all duration-150 w-full group py-2.5 gap-3 text-left font-sans border-l-4 px-3 rounded-xl",
+                    "flex items-center transition-all duration-150 w-full group py-3 gap-4 text-left font-sans border-l-[3px] px-3",
                     isActive
-                      ? "border-[#FF6B00] bg-[#121929] text-[#FF6B00] font-semibold"
+                      ? "border-[#FF6B00] bg-[#FF6B00]/[0.08] text-[#FF6B00] font-semibold"
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >
                   <div className={cn(
                     "flex items-center justify-center shrink-0",
-                    isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]",
+                    isMobile ? "[&>svg]:w-[30px] [&>svg]:h-[30px] [&>img]:w-[30px] [&>img]:h-[30px]" : "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]",
                     isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
                   )}>
                     {item.icon}
                   </div>
                   <span
-                    className={cn(isMobile ? "text-[17.5px]" : "text-sm", "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
+                    className={cn(isMobile ? "text-base" : "text-[15px]", "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
                     style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
                   >
                     {item.label}
@@ -288,13 +288,13 @@ export default function Sidebar({
 
           <button
             onClick={() => onSignOut?.()}
-            className="flex items-center transition-all duration-150 group w-full px-3 py-2.5 gap-3 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-xl font-sans font-normal"
+            className="flex items-center transition-all duration-150 group w-full px-3 py-3 gap-4 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-lg font-sans font-normal"
           >
-            <div className={cn("text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0", isMobile ? "[&>svg]:w-[21px] [&>svg]:h-[21px]" : "[&>svg]:w-[18px] [&>svg]:h-[18px]")}>
-              <LogOut className="w-[18px] h-[18px]" />
+            <div className={cn("text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0", isMobile ? "[&>svg]:w-[24px] [&>svg]:h-[24px]" : "[&>svg]:w-[20px] [&>svg]:h-[20px]")}>
+              <LogOut className="w-[20px] h-[20px]" />
             </div>
             <span
-              className={cn(isMobile ? "text-[17.5px]" : "text-sm", "truncate transition-[opacity,transform,width] duration-[200ms] ease-out")}
+              className={cn(isMobile ? "text-base" : "text-sm", "truncate transition-[opacity,transform,width] duration-[200ms] ease-out")}
               style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
             >
               {signOutLabel}

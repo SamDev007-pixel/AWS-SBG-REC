@@ -14,6 +14,7 @@ import IntelligenceDashboard from '@/components/Intelligence/IntelligenceDashboa
 import { fetchCategories, fetchRegions, AWSRegionData, CategoryData } from '@/lib/api';
 import FlagImage from '@/components/Layout/FlagImage';
 import ServicesCatalog from '@/components/Services/ServicesCatalog';
+import { ErrorAlert } from '@/modules/cloud-enthusiasts/shared/components/Animations';
 
 export default function Home() {
   const [regions, setRegions] = useState<AWSRegionData[]>([]);
@@ -207,21 +208,13 @@ export default function Home() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center font-jakarta relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.15)_0%,transparent_60%)] pointer-events-none" />
-        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="backdrop-blur-xl border border-slate-100 rounded-[2.5rem] p-10 max-w-md w-full shadow-xl flex flex-col items-center text-center z-10">
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100">
-            <AlertCircle size={30} />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-3">Mesh Connection Failure</h2>
-          <p className="text-slate-500 text-sm font-semibold mb-8">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-8 py-4 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-2xl font-black uppercase text-[11px] tracking-widest transition-all shadow-md w-full"
-          >
-            Re-Initialize Mesh
-          </button>
-        </div>
+      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4 relative">
+        <ErrorAlert
+          title="Mesh Connection Failure"
+          message={error}
+          onRetry={() => window.location.reload()}
+          retryLabel="Re-Initialize Mesh"
+        />
       </main>
     );
   }

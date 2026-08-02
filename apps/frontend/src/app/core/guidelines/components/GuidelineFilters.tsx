@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import { GUIDELINE_COLORS_LIST } from '@/constants/guideline.constants';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 interface GuidelineFiltersProps {
   searchQuery: string;
@@ -27,7 +27,7 @@ export const GuidelineFilters: React.FC<GuidelineFiltersProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by title or description..."
-          className="block w-full pl-9 pr-3.5 py-2 text-xs border border-slate-200 hover:border-slate-300 rounded-lg bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] font-medium transition-all shadow-2xs"
+          className="block w-full pl-9 pr-3.5 py-2 text-xs border border-slate-200 hover:border-slate-300 rounded-lg bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/15 focus:border-[#FF6B00] font-medium transition-all shadow-2xs"
         />
       </div>
 
@@ -38,16 +38,19 @@ export const GuidelineFilters: React.FC<GuidelineFiltersProps> = ({
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Status:
           </span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="block text-xs py-1.5 px-3 border border-slate-200 hover:border-slate-300 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/15 focus:border-[#FF9900] font-semibold transition-all shadow-2xs cursor-pointer"
-          >
-            <option value="ALL">All Statuses</option>
-            <option value="ACTIVE">Active Only</option>
-            <option value="HIDDEN">Hidden Only</option>
-            <option value="PROMINENT">Prominent Alert</option>
-          </select>
+          <div className="min-w-[150px]">
+            <CustomSelect
+              size="sm"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: 'ALL', label: 'All Statuses' },
+                { value: 'ACTIVE', label: 'Active Only' },
+                { value: 'HIDDEN', label: 'Hidden Only' },
+                { value: 'PROMINENT', label: 'Prominent Alert' },
+              ]}
+            />
+          </div>
         </div>
       </div>
     </div>

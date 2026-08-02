@@ -661,8 +661,8 @@ export default function ManageHomepage() {
                           <div className="w-full h-full rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
                             <img src={j.image} alt={j.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-full text-[9px] w-4.5 h-4.5 flex items-center justify-center font-bold border-2 border-white shadow-sm z-10 leading-none">
-                            <span className="relative -top-[0.5px]">{j.order}</span>
+                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[10px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
+                            {j.order}
                           </div>
                         </div>
 
@@ -795,7 +795,7 @@ export default function ManageHomepage() {
                         {/* Avatar Wrapper */}
                         <div className="relative shrink-0 w-14 h-14">
                           <div 
-                            className={`w-full h-full rounded-full overflow-hidden border flex items-center justify-center transition-all ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'bg-slate-900' : 'bg-white'}`} 
+                            className={`w-full h-full rounded-[10px] overflow-hidden border flex items-center justify-center transition-all shadow-sm ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'bg-slate-900' : 'bg-slate-50'}`} 
                             style={{ borderColor: m.accent || '#FF9900', borderWidth: '1.5px' }}
                           >
                             <img 
@@ -806,11 +806,11 @@ export default function ManageHomepage() {
                                   setTeamMemberImageErrors(prev => ({ ...prev, [m.id!]: true }));
                                 }
                               }}
-                              className={`w-full h-full ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'object-contain p-2.5' : 'object-cover rounded-full'}`} 
+                              className={`w-full h-full ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'object-contain p-2.5' : 'object-cover'}`} 
                             />
                           </div>
-                          <div className="absolute -bottom-0.5 -right-0.5 bg-slate-900 text-white rounded-full text-[9px] w-4.5 h-4.5 flex items-center justify-center font-bold border-2 border-white shadow-sm z-10 leading-none">
-                            <span className="relative -top-[0.5px]">{m.order}</span>
+                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[10px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
+                            {m.order}
                           </div>
                         </div>
 
@@ -1096,14 +1096,19 @@ export default function ManageHomepage() {
               </div>
               <div className="grid grid-cols-2 gap-3.5">
                 <div className="col-span-2">
-                  <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Designation</label>
+                  <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1 flex items-center justify-between">
+                    <span>Designation</span>
+                    {editingTeam.type === 'crew' && (
+                      <span className="text-[10px] text-slate-400 font-normal lowercase tracking-normal">(optional for crew)</span>
+                    )}
+                  </label>
                   <input
                     type="text"
                     value={editingTeam.role}
                     onChange={(e) => setEditingTeam({ ...editingTeam, role: e.target.value })}
                     className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
-                    placeholder={editingTeam.type === 'core' ? "e.g. Lead Developer" : "e.g. Cloud Associate"}
-                    required
+                    placeholder={editingTeam.type === 'core' ? "e.g. Lead Developer" : "e.g. Cloud Associate (Optional)"}
+                    required={editingTeam.type === 'core'}
                   />
                 </div>
               </div>
@@ -1112,7 +1117,7 @@ export default function ManageHomepage() {
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Avatar Photo</label>
                   <div className="flex items-center gap-2">
                     {editingTeam.image && !teamImageError && (
-                      <div className="w-9 h-9 rounded-full border border-slate-200 overflow-hidden shrink-0 shadow-sm">
+                      <div className="w-9 h-9 rounded-[8px] border border-slate-200 overflow-hidden shrink-0 shadow-sm">
                         <img 
                           src={editingTeam.image} 
                           alt="Avatar" 

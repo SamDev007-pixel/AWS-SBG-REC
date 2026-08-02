@@ -160,7 +160,7 @@ export default function SidebarLayout({
   const mainMargin = isRoadmapPage ? 0 : (isMobile ? 0 : isOpen ? SIDEBAR_OPEN_W : SIDEBAR_COLLAPSED_W);
 
   return (
-    <div className="h-screen w-full bg-[#F9FAFB] overflow-hidden flex">
+    <div className="h-screen w-full bg-white overflow-hidden flex">
       {/* Premium Light Mobile Header Navbar */}
       {isMobile && !isRoadmapPage && (
         <header
@@ -207,7 +207,7 @@ export default function SidebarLayout({
       )}
 
       <main
-        className="h-screen overflow-hidden flex flex-col bg-white relative"
+        className="h-screen lg:overflow-hidden overflow-y-auto flex flex-col bg-white relative"
         style={{
           marginLeft: mainMargin,
           width: `calc(100% - ${mainMargin}px)`,
@@ -228,8 +228,8 @@ export default function SidebarLayout({
           </div>
         )}
         <div className={`${
-          pathname && pathname.includes('/chat')
-            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-hidden" : "h-full overflow-hidden"))
+          pathname && (pathname.includes('/chat') || pathname.endsWith('/dashboard'))
+            ? (shouldShowBack() ? "h-full pt-12 lg:overflow-hidden overflow-y-auto" : (isMobile && !isRoadmapPage ? "h-full pt-14 lg:overflow-hidden overflow-y-auto" : "h-full lg:overflow-hidden overflow-y-auto"))
             : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
         } custom-scrollbar`}>
           {children}
