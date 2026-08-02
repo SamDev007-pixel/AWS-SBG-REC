@@ -856,7 +856,7 @@ function CertificationsPageContent() {
     <div 
       className="min-h-screen pb-20 antialiased"
       style={{
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
         backgroundRepeat: 'repeat',
         backgroundSize: '450px auto',
       }}

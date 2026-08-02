@@ -149,7 +149,14 @@ export default function EventsPage() {
   const selectCls = "w-full appearance-none pl-8.5 pr-7 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-[12.5px] text-slate-700 cursor-pointer transition-all font-medium truncate";
 
   return (
-    <section className="w-full min-h-screen py-6 px-4 sm:py-8 sm:px-8 bg-[#F8F9FA] flex flex-col items-center">
+    <section 
+      className="w-full min-h-screen py-6 px-4 sm:py-8 sm:px-8 flex flex-col items-center antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+      }}
+    >
 
       <div className="max-w-[1600px] w-full flex flex-col gap-6 z-10">
 

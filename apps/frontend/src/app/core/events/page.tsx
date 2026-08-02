@@ -337,7 +337,14 @@ export default function EventsPage() {
   const selectCls = "appearance-none pl-3.5 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all";
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F9FA] text-[#1A1C1E] relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div 
+      className="min-h-screen w-full text-[#1A1C1E] relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+      }}
+    >
       <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* Header Section */}

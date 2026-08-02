@@ -67,7 +67,14 @@ export default function CrewChatPage() {
   }
 
   return (
-    <div className="h-full w-full box-border select-none flex flex-col overflow-hidden bg-[#F8FAFC]">
+    <div 
+      className="h-full w-full box-border select-none flex flex-col overflow-hidden antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+      }}
+    >
       <style>{`
         .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }

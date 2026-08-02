@@ -758,7 +758,14 @@ export default function CoreChatPage() {
   if (!authorized) return null;
 
   return (
-    <div className="w-full h-[calc(100vh-64px)] lg:h-screen bg-slate-50 text-slate-900 font-sans flex flex-col select-none p-2 sm:p-5 gap-2 sm:gap-4 overflow-hidden">
+    <div 
+      className="w-full h-[calc(100vh-64px)] lg:h-screen text-slate-900 font-sans flex flex-col select-none p-2 sm:p-5 gap-2 sm:gap-4 overflow-hidden antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+      }}
+    >
       <style>{`
         @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
