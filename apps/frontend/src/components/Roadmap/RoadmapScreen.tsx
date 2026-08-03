@@ -973,10 +973,10 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             />
           </div>
 
-          {/* START HERE BADGE WITH FLAG */}
+          {/* START HERE BADGE */}
           {coordinates['fundamentals'] && (
             <div
-              className="absolute z-30 flex flex-col items-center"
+              className="absolute z-30 flex flex-col items-center pointer-events-none select-none"
               style={{
                 left: `calc(${coordinates['fundamentals'].x}% - 40px)`,
                 top: `${coordinates['fundamentals'].y - 80}px`
@@ -984,10 +984,6 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             >
               <div className="bg-[#0dce88] text-slate-950 font-black text-[7px] sm:text-[9px] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white tracking-widest shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
                 START HERE
-              </div>
-              {/* Tiny red flag flagpost */}
-              <div className="w-0.5 h-6 sm:h-8 bg-rose-500 relative">
-                <div className="absolute top-0 right-0 w-2 sm:w-2.5 h-1.5 sm:h-2 bg-rose-500 rounded-sm" />
               </div>
             </div>
           )}
