@@ -54,11 +54,13 @@ export default function ServiceTable({
 
   // Filter services locally
   const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return services.filter(s => {
-      const matchesSearch =
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.serviceCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = !q || (
+        (s.name?.toLowerCase().includes(q) ?? false) ||
+        (s.serviceCode?.toLowerCase().includes(q) ?? false) ||
+        (s.shortDescription?.toLowerCase().includes(q) ?? false)
+      );
 
       const matchesCategory =
         categoryFilter === "all" || s.category?.slug === categoryFilter;

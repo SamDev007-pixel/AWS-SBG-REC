@@ -81,7 +81,8 @@ export default function CertificationDetailPage({
     );
   }
 
-  const levelName = typeof cert.level === "string" ? cert.level : cert.level.name;
+  const rawLevel = typeof cert.level === "string" ? cert.level : cert.level?.name || "Foundational";
+  const levelName = rawLevel ? rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase() : "Foundational";
   const config = levelBadgeConfig[levelName] ?? levelBadgeConfig.Foundational;
 
   return (

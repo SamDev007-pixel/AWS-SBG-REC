@@ -14,33 +14,41 @@ export default function OnSpotScannerPage() {
 
   function handleCameraScan(rawValue: string) {
     if (!rawValue) return;
+    const trimmed = rawValue.trim();
 
     try {
-      // Validate that the URL is a valid registration URL
-      // Expected pattern: /events/[eventId]/register
-      const url = new URL(rawValue);
-      const pathname = url.pathname; // /events/[eventId]/register
+      // 1. Try parsing as URL (supports both absolute and relative URLs)
+      let pathname = '';
+      try {
+        const url = new URL(trimmed, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+        pathname = url.pathname;
+      } catch {
+        pathname = trimmed;
+      }
 
-      const match = pathname.match(/^\/events\/([a-f0-9\-]+)\/register/i);
-      if (match && match[1]) {
-        const eventId = match[1];
+      // 2. Check for /events/:id/register or /events/:id path pattern
+      const registerMatch = pathname.match(/\/events\/([^/?#]+)\/register/i);
+      const eventMatch = pathname.match(/\/events\/([^/?#]+)/i);
+      const extractedId = registerMatch?.[1] || eventMatch?.[1];
+
+      if (extractedId) {
         setIsRedirecting(true);
         setErrorMsg(null);
-        // Redirect directly to the registration page with onSpot=true
-        router.push(`/events/${eventId}/register?onSpot=true`);
-      } else {
-        setErrorMsg('Invalid QR code format. Please scan a valid event registration QR code.');
+        router.push(`/events/${encodeURIComponent(extractedId)}/register?onSpot=true`);
+        return;
       }
+
+      // 3. Fallback: check if rawValue is a standalone ID (UUID, CUID, or alphanumeric string)
+      if (/^[a-zA-Z0-9_-]{6,64}$/.test(trimmed)) {
+        setIsRedirecting(true);
+        setErrorMsg(null);
+        router.push(`/events/${encodeURIComponent(trimmed)}/register?onSpot=true`);
+        return;
+      }
+
+      setErrorMsg('Invalid QR code format. Please scan a valid Event Registration QR code.');
     } catch (e) {
-      // If parsing as URL fails, fallback to checking if it is a raw UUID
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (uuidRegex.test(rawValue)) {
-        setIsRedirecting(true);
-        setErrorMsg(null);
-        router.push(`/events/${rawValue}/register?onSpot=true`);
-      } else {
-        setErrorMsg('Invalid QR code scanned. Make sure you are scanning the Event On-Spot QR.');
-      }
+      setErrorMsg('Invalid QR code scanned. Make sure you are scanning an Event On-Spot QR.');
     }
   }
 

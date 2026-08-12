@@ -15,6 +15,7 @@ import {
   TrendingUp,
   List,
 } from 'lucide-react';
+import { getPosterSrcAndPosition } from '@/lib/utils';
 import type { EventStatus, EventMode, Announcement, EventAgenda, EventSpeaker } from '@/lib/types';
 
 function formatDate(dateString: string): string {
@@ -243,13 +244,19 @@ export default function EventDetailsPage() {
                 <div className="w-full md:w-[280px] lg:w-[320px] shrink-0 md:sticky md:top-6 space-y-6 mx-auto md:mx-0">
                   {/* Poster Container */}
                   {event.posterImage ? (
-                    <div className="relative w-full aspect-square bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
-                      <img
-                        src={event.posterImage}
-                        alt={event.title}
-                        className="relative z-10 max-w-full max-h-full object-contain"
-                      />
-                    </div>
+                    (() => {
+                      const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
+                      return (
+                        <div className="relative w-full aspect-square bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
+                          <img
+                            src={imgPosterSrc}
+                            alt={event.title}
+                            className="relative z-10 max-w-full max-h-full object-contain"
+                            style={{ objectPosition: imgPosterPosition }}
+                          />
+                        </div>
+                      );
+                    })()
                   ) : (
                     <div className="w-full aspect-square bg-slate-100 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
                       <Users className="w-12 h-12 text-slate-300" />

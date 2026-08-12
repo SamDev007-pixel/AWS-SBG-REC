@@ -243,27 +243,21 @@ export default function EventDetailsPage() {
   const isFull = seatsLeft === 0;
   const isEnded = event.event_status === 'Ended';
 
-  const startTimeStr = new Date(event.start_datetime).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const startTimeStr = event.start_datetime ? (() => {
+    const d = new Date(event.start_datetime);
+    return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  })() : '';
   
-  const startDateStr = new Date(event.start_datetime).toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const startDateStr = event.start_datetime ? (() => {
+    const d = new Date(event.start_datetime);
+    return isNaN(d.getTime()) ? 'Date TBD' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  })() : 'Date TBD';
 
-  const deadlineDate = new Date(event.registration_deadline);
-  const deadlineDateStr = deadlineDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }) + ' - ' + deadlineDate.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const deadlineDateStr = event.registration_deadline ? (() => {
+    const d = new Date(event.registration_deadline);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' - ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  })() : '';
 
   return (
     <div className="bg-transparent min-h-screen py-5 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8">
@@ -409,7 +403,7 @@ export default function EventDetailsPage() {
                   </div>
 
                   {/* Deadline */}
-                  {!isEnded && (
+                  {!isEnded && !!deadlineDateStr && (
                     <div className="flex items-start gap-3.5 pt-4 border-t border-slate-100">
                       <ShieldAlert className="w-5 h-5 text-rose-500 mt-0.5 shrink-0" />
                       <div>

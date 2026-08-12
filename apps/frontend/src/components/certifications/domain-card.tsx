@@ -110,14 +110,16 @@ export function DomainCard({ domain, certificationId, index, levelName }: Domain
     onError: () => toast.error("Failed to delete topic"),
   });
 
-  const config = levelBadgeConfig[levelName || "Foundational"] ?? levelBadgeConfig.Foundational;
+  const rawLevel = levelName || "Foundational";
+  const normalizedLevel = rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase();
+  const config = levelBadgeConfig[normalizedLevel] ?? levelBadgeConfig.Foundational;
   const hoverTextClasses: Record<string, string> = {
     Foundational: "group-hover:text-[#5A6572]",
     Associate: "group-hover:text-[#0972D3]",
     Professional: "group-hover:text-[#00627A]",
     Specialty: "group-hover:text-[#5A30A6]",
   };
-  const hoverClass = hoverTextClasses[levelName || "Foundational"] ?? hoverTextClasses.Foundational;
+  const hoverClass = hoverTextClasses[normalizedLevel] ?? hoverTextClasses.Foundational;
 
   return (
     <>

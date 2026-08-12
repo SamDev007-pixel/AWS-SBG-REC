@@ -794,8 +794,11 @@ function CertificationsPageContent() {
     if (certifications) {
       for (const cert of certifications) {
         const lvl = typeof cert.level === 'string' ? cert.level : cert.level?.name;
-        if (lvl && lvl in counts) {
-          counts[lvl]++;
+        if (lvl) {
+          const matched = Object.keys(counts).find(k => k.toLowerCase() === lvl.toLowerCase());
+          if (matched) {
+            counts[matched]++;
+          }
         }
       }
     }
@@ -811,14 +814,16 @@ function CertificationsPageContent() {
 
   const sortedCertifications = certifications
     ? [...certifications].sort((a, b) => {
-        const levelA = typeof a.level === 'string' ? a.level : a.level?.name || '';
-        const levelB = typeof b.level === 'string' ? b.level : b.level?.name || '';
+        const rawLevelA = typeof a.level === 'string' ? a.level : a.level?.name || '';
+        const rawLevelB = typeof b.level === 'string' ? b.level : b.level?.name || '';
+        const levelA = rawLevelA ? rawLevelA.charAt(0).toUpperCase() + rawLevelA.slice(1).toLowerCase() : '';
+        const levelB = rawLevelB ? rawLevelB.charAt(0).toUpperCase() + rawLevelB.slice(1).toLowerCase() : '';
         const orderA = levelOrder[levelA] ?? 99;
         const orderB = levelOrder[levelB] ?? 99;
         if (orderA !== orderB) {
           return orderA - orderB;
         }
-        return a.displayOrder - b.displayOrder;
+        return (a.displayOrder || 0) - (b.displayOrder || 0);
       })
     : [];
 

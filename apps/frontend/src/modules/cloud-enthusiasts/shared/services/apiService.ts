@@ -13,7 +13,30 @@ export interface RegisterPayload {
 
 function mapBackendEventToFrontend(e: any): Event {
   if (!e) return e;
-  const isPast = e.date ? new Date(e.date).getTime() < Date.now() : false;
+
+  let isPast = false;
+  if (e.date) {
+    const eventDate = new Date(e.date);
+    if (!isNaN(eventDate.getTime())) {
+      if (e.time) {
+        const timeMatch = String(e.time).match(/(\d+):(\d+)\s*(AM|PM)?/i);
+        if (timeMatch) {
+          let hours = parseInt(timeMatch[1], 10);
+          const minutes = parseInt(timeMatch[2], 10);
+          const period = timeMatch[3]?.toUpperCase();
+          if (period === 'PM' && hours < 12) hours += 12;
+          if (period === 'AM' && hours === 12) hours = 0;
+          eventDate.setHours(hours, minutes, 0, 0);
+        } else {
+          eventDate.setHours(23, 59, 59, 999);
+        }
+      } else {
+        eventDate.setHours(23, 59, 59, 999);
+      }
+      isPast = eventDate.getTime() < Date.now();
+    }
+  }
+
   const isEnded = e.status === 'COMPLETED' || e.status === 'ARCHIVED' || e.status === 'Ended' || isPast;
   const isOngoing = !isEnded && (e.status === 'ONGOING' || e.status === 'Ongoing');
 
@@ -122,9 +145,12 @@ export const apiService = {
       }
       const data = await res.json();
       
-      // Extract events array and map to frontend snake_case schema
+      // Extract events array, filter out DRAFT events for public view, and map
       const rawEvents = data.data?.data || data.data || [];
-      return Array.isArray(rawEvents) ? rawEvents.map(mapBackendEventToFrontend) : [];
+      const publicEvents = Array.isArray(rawEvents)
+        ? rawEvents.filter((ev: any) => ev.status !== 'DRAFT')
+        : [];
+      return publicEvents.map(mapBackendEventToFrontend);
     } catch (err) {
       console.error('[apiService.getEvents] Exception caught during fetch:', err);
       throw err;

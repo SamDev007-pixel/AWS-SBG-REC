@@ -413,9 +413,12 @@ function CertificationsPageContent() {
     };
     if (certifications) {
       for (const cert of certifications) {
-        const lvlName = typeof cert.level === "string" ? cert.level : cert.level.name;
-        if (lvlName && lvlName in counts) {
-          counts[lvlName]++;
+        const lvlName = typeof cert.level === "string" ? cert.level : cert.level?.name || "";
+        if (lvlName) {
+          const matched = Object.keys(counts).find(k => k.toLowerCase() === lvlName.toLowerCase());
+          if (matched) {
+            counts[matched]++;
+          }
         }
       }
     }
@@ -433,8 +436,10 @@ function CertificationsPageContent() {
         Specialty: 4,
       };
       return [...certifications].sort((a, b) => {
-        const levelA = typeof a.level === "string" ? a.level : a.level?.name || "";
-        const levelB = typeof b.level === "string" ? b.level : b.level?.name || "";
+        const rawLevelA = typeof a.level === "string" ? a.level : a.level?.name || "";
+        const rawLevelB = typeof b.level === "string" ? b.level : b.level?.name || "";
+        const levelA = rawLevelA ? rawLevelA.charAt(0).toUpperCase() + rawLevelA.slice(1).toLowerCase() : "";
+        const levelB = rawLevelB ? rawLevelB.charAt(0).toUpperCase() + rawLevelB.slice(1).toLowerCase() : "";
         const orderA = levelOrder[levelA] ?? 99;
         const orderB = levelOrder[levelB] ?? 99;
         if (orderA !== orderB) {
@@ -444,8 +449,8 @@ function CertificationsPageContent() {
       });
     }
     return certifications.filter((cert) => {
-      const lvlName = typeof cert.level === "string" ? cert.level : cert.level.name;
-      return lvlName.toLowerCase() === selectedLevel.toLowerCase();
+      const lvlName = typeof cert.level === "string" ? cert.level : cert.level?.name || "";
+      return lvlName && lvlName.toLowerCase() === selectedLevel.toLowerCase();
     });
   }, [certifications, selectedLevel]);
 

@@ -79,6 +79,17 @@ function LiveChatEscalationBtn({
 }
 
 
+function formatMsgTime(ts: number | string | Date): string {
+  try {
+    if (!ts) return "";
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
 // AWS Brand Logo Component (Standalone Orange Smile)
 const AWSBrandLogo = ({ className }: { className?: string }) => (
   <svg 
@@ -197,11 +208,16 @@ const ChatTab = () => {
                 (m.text === formattedReply || m.text.includes(replyText) || replyText.includes(m.text))
               );
 
+              const qTime = q.timestamp ? new Date(q.timestamp).getTime() : Date.now();
+              const validQTime = isNaN(qTime) ? Date.now() : qTime;
+              const resTime = q.resolvedAt ? new Date(q.resolvedAt).getTime() : Date.now();
+              const validResTime = isNaN(resTime) ? Date.now() : resTime;
+
               if (!hasQuestion) {
                 updated.push({
                   role: "user" as const,
                   text: q.message,
-                  timestamp: new Date(q.timestamp).getTime(),
+                  timestamp: validQTime,
                 });
                 changed = true;
               }
@@ -209,7 +225,7 @@ const ChatTab = () => {
                 updated.push({
                   role: "bot" as const,
                   text: formattedReply,
-                  timestamp: q.resolvedAt ? new Date(q.resolvedAt).getTime() : Date.now(),
+                  timestamp: validResTime,
                   isAdminReply: true,
                   adminName: q.adminName,
                 });
@@ -862,7 +878,7 @@ const ChatTab = () => {
                   <div className="whitespace-pre-wrap break-words">{m.text}</div>
                   <div className={cn("flex items-center gap-1 mt-1.5 select-none", isUser ? "justify-end" : "justify-start")}>
                     <span className={cn("text-[10px]", isUser ? "text-white/50" : "text-slate-400")}>
-                      {new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {formatMsgTime(m.timestamp)}
                     </span>
                     {isUser && (
                       m.status === "Sending..."

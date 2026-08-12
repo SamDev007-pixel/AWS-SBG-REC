@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-const FRAME_COUNT = 182;
+const FRAME_COUNT = 148;
 
 const DecorativeGrid = ({ 
   rows, 

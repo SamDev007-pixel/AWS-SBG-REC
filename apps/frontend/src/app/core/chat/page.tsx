@@ -33,7 +33,10 @@ const T = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const relativeTime = (isoStr: string) => {
   if (!isoStr) return "—";
-  const diff = Date.now() - new Date(isoStr).getTime();
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return "—";
+  const diff = Date.now() - d.getTime();
+  if (diff < 0) return "Just now";
   const s = Math.floor(diff / 1000);
   if (s < 60) return `${s}s ago`;
   const m = Math.floor(s / 60);

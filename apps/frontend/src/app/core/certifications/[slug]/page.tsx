@@ -153,7 +153,8 @@ export default function CertificationDetailPage({
     { icon: Monitor, label: "Exam Mode", value: certification.examMode || "Online or Pearson VUE" },
   ];
 
-  const levelName = certification.level.name;
+  const rawLevel = typeof certification.level === "string" ? certification.level : certification.level?.name || "Foundational";
+  const levelName = rawLevel ? rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase() : "Foundational";
   const config = levelBadgeConfig[levelName] ?? levelBadgeConfig.Foundational;
 
   return (

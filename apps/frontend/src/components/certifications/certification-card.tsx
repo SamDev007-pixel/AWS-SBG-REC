@@ -138,7 +138,8 @@ interface CertificationCardProps {
 }
 
 export function CertificationCard({ certification, onDelete }: CertificationCardProps) {
-  const levelName = typeof certification.level === "string" ? certification.level : certification.level.name;
+  const rawLevel = typeof certification.level === "string" ? certification.level : certification.level?.name || "Foundational";
+  const levelName = rawLevel ? rawLevel.charAt(0).toUpperCase() + rawLevel.slice(1).toLowerCase() : "Foundational";
   const theme = getCertTheme(certification.examCode, levelName);
   const targetRoles = getTargetRoles(certification.slug);
   const secondaryBadge = getSecondaryBadge(certification.title, certification.examCode, levelName);

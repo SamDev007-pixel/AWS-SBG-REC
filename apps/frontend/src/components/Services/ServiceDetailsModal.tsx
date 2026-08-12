@@ -52,7 +52,7 @@ export default function ServiceDetailsModal({
     loadDetails();
   }, [id]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   // Navigate to a related service by its slug
   const handleRelatedClick = (slug: string) => {
@@ -115,7 +115,9 @@ export default function ServiceDetailsModal({
               <div className="p-6 sm:p-10 border-b border-slate-100 flex gap-6 items-center pr-16">
                 <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img
-                    src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
+                    src={service.iconUrl?.startsWith('http') || service.iconUrl?.startsWith('/')
+                      ? service.iconUrl
+                      : (service.iconUrl ? `${API_URL}/${service.iconUrl}` : '/fallback.svg')}
                     alt={service.name}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = "/fallback.svg";

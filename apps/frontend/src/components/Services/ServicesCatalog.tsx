@@ -123,13 +123,15 @@ export default function ServicesCatalog() {
 
   // Filter services locally for instant speed
   const filteredServices = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return servicesForRole.filter(service => {
       // Search filter
-      const matchesSearch =
-        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.serviceCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (service.category?.name && service.category.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesSearch = !q || (
+        (service.name?.toLowerCase().includes(q) ?? false) ||
+        (service.serviceCode?.toLowerCase().includes(q) ?? false) ||
+        (service.shortDescription?.toLowerCase().includes(q) ?? false) ||
+        (service.category?.name?.toLowerCase().includes(q) ?? false)
+      );
 
       // Category filter
       const matchesCategory =
@@ -159,7 +161,7 @@ export default function ServicesCatalog() {
     return rows;
   }, [filteredServices, columns]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   // Virtualized row renderer
   const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
@@ -171,7 +173,12 @@ export default function ServicesCatalog() {
           className="grid gap-4 h-full"
           style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
         >
-          {rowServices.map(service => (
+          {rowServices.map(service => {
+            const iconSrc = service.iconUrl?.startsWith('http') || service.iconUrl?.startsWith('/')
+              ? service.iconUrl
+              : (service.iconUrl ? `${API_URL}/${service.iconUrl}` : '/fallback.svg');
+
+            return (
             <div
               key={service.id}
               onClick={() => setSelectedServiceId(service.id)}
@@ -186,7 +193,7 @@ export default function ServicesCatalog() {
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img
-                    src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
+                    src={iconSrc}
                     alt={service.name}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
@@ -224,7 +231,8 @@ export default function ServicesCatalog() {
                 </span>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

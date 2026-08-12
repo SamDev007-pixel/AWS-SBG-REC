@@ -1556,12 +1556,24 @@ export default function EditEventPage() {
       return;
     }
 
+    let resolvedPoster = formData.posterImage;
+    if (resolvedPoster) {
+      let posHash = '';
+      const hashIdx = resolvedPoster.lastIndexOf('#pos=');
+      if (hashIdx !== -1) {
+        posHash = resolvedPoster.substring(hashIdx);
+        resolvedPoster = resolvedPoster.substring(0, hashIdx);
+      }
+      if (resolvedPoster.startsWith('data:')) {
+        resolvedPoster = '/uploads/events/cloud_matrix.jpg' + posHash;
+      } else {
+        resolvedPoster = resolvedPoster + posHash;
+      }
+    }
+
     const payload: Partial<CreateEventDto> = {
       ...formData,
-      posterImage:
-        formData.posterImage && formData.posterImage.startsWith('data:')
-          ? '/uploads/events/cloud_matrix.jpg'
-          : formData.posterImage,
+      posterImage: resolvedPoster,
       agenda: agenda.map(({ _key, serverId: _serverId, ...rest }) => rest),
       speakers: speakers.map(({ _key, serverId: _serverId, ...rest }) => rest),
       formFields:

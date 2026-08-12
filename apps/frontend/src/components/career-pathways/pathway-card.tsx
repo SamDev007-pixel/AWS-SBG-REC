@@ -42,14 +42,14 @@ export function PathwayCard({ role }: PathwayCardProps) {
               <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
               <span>Certs</span>
               <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 text-[10px] font-bold leading-none shrink-0">
-                {role._count.certifications}
+                {role._count?.certifications ?? 0}
               </span>
             </span>
             <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/60 text-slate-700 text-[10.5px] font-semibold transition-all duration-200 group-hover:bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <BriefcaseBusiness className="h-3.5 w-3.5 text-slate-400" />
               <span>Opps</span>
               <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200/60 text-[10px] font-bold leading-none shrink-0">
-                {role._count.opportunities}
+                {role._count?.opportunities ?? 0}
               </span>
             </span>
           </div>

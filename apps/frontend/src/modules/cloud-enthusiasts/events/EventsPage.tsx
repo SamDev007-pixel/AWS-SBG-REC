@@ -45,12 +45,14 @@ const TruncatedDescription = ({
   description,
   eventId,
   className = "text-slate-500 text-xs leading-relaxed",
-  linkSizeClass = "text-xs"
+  linkSizeClass = "text-xs",
+  isDark = false,
 }: {
   description: string;
   eventId: string;
   className?: string;
   linkSizeClass?: string;
+  isDark?: boolean;
 }) => {
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -82,7 +84,13 @@ const TruncatedDescription = ({
         {description}
       </p>
       {isTruncated && (
-        <span className={`absolute bottom-0 right-0 bg-gradient-to-l from-white via-white to-transparent pl-8 text-[#FF9900] hover:text-orange-600 font-semibold ${linkSizeClass} transition-colors`}>
+        <span
+          className={`absolute bottom-0 right-0 ${
+            isDark
+              ? 'bg-gradient-to-l from-slate-900 via-slate-900/90 to-transparent'
+              : 'bg-gradient-to-l from-white via-white to-transparent'
+          } pl-8 text-[#FF9900] hover:text-orange-400 font-semibold ${linkSizeClass} transition-colors`}
+        >
           <Link href={`/events/${eventId}`}>
             show more..
           </Link>
@@ -445,6 +453,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
                 eventId={event_id}
                 className="text-[12px] leading-relaxed text-white/70"
                 linkSizeClass="text-[11px]"
+                isDark={true}
               />
             )}
 

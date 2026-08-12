@@ -245,10 +245,16 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       const res = await fetch("/api/auth");
       if (res.ok) {
         const data = await res.json();
+        const users = data.data?.users || data.users || [];
         const photos: Record<string, string> = {};
-        data.users?.forEach((u: any) => {
-          if (u.avatar?.photo) {
-            photos[`${u.name.toLowerCase()}_${u.role.toLowerCase()}`] = u.avatar.photo;
+        users.forEach((u: any) => {
+          const photoUrl = typeof u.avatar === 'object' && u.avatar !== null ? u.avatar?.photo : u.avatar;
+          if (photoUrl && typeof photoUrl === 'string' && photoUrl.trim() !== '') {
+            const name = u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || '';
+            const role = u.role || '';
+            if (name && role) {
+              photos[`${name.toLowerCase()}_${role.toLowerCase()}`] = photoUrl;
+            }
           }
         });
         setUserPhotos(photos);
@@ -394,7 +400,10 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
 
   const formatTime = (iso: string) => {
     try {
-      return new Date(iso).toLocaleTimeString([], {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
@@ -405,13 +414,14 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
 
   const formatDateTime = (iso: string) => {
     try {
+      if (!iso) return "";
       const d = new Date(iso);
-      const timeStr = d.toLocaleTimeString([], {
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
-      return timeStr;
     } catch {
       return "";
     }
@@ -419,7 +429,9 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
 
   const formatDateDivider = (iso: string) => {
     try {
+      if (!iso) return "Today";
       const d = new Date(iso);
+      if (isNaN(d.getTime())) return "Today";
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
@@ -431,7 +443,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         year: "numeric",
       });
     } catch {
-      return "";
+      return "Today";
     }
   };
 
@@ -439,12 +451,13 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   const grouped: Array<{ type: "divider"; label: string; key: string } | { type: "msg"; msg: Message }> = [];
   let lastDate = null;
   for (const msg of messages) {
-    const dateStr = new Date(msg.timestamp).toDateString();
+    const d = msg.timestamp ? new Date(msg.timestamp) : new Date();
+    const dateStr = isNaN(d.getTime()) ? "Today" : d.toDateString();
     if (dateStr !== lastDate) {
       grouped.push({
         type: "divider",
         label: formatDateDivider(msg.timestamp),
-        key: `div_${msg.timestamp}`,
+        key: `div_${msg.id || msg.timestamp}_${dateStr}`,
       });
       lastDate = dateStr;
     }

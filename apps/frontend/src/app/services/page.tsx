@@ -180,11 +180,13 @@ export default function Home() {
 
   // Filter regions based on search query
   const filteredRegions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return normalizedRegions;
     return normalizedRegions.filter(r => {
       const matchesSearch =
-        r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.services.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        r.infrastructure.toLowerCase().includes(searchQuery.toLowerCase());
+        (r.name?.toLowerCase().includes(q) ?? false) ||
+        (Array.isArray(r.services) && r.services.some(s => typeof s === 'string' && s.toLowerCase().includes(q))) ||
+        (r.infrastructure?.toLowerCase().includes(q) ?? false);
       return matchesSearch;
     });
   }, [normalizedRegions, searchQuery]);
