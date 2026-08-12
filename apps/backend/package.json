@@ -71,10 +71,7 @@
     "ts-loader": "^9.5.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.5.0"
-  },
-  "devDependencies": {
-    "@nestjs/testing": "^10.4.0",
+    "typescript": "^5.5.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
@@ -82,7 +79,10 @@
     "@types/nodemailer": "^8.0.1",
     "@types/qrcode": "^1.5.5",
     "@types/uuid": "^10.0.0",
-    "@types/ws": "^8.18.1",
+    "@types/ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^10.4.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",
