@@ -282,24 +282,24 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
 
     // 1. Immediately load frame 0 with cache-buster to render instantly on mount
     const frame0 = new Image();
-    frame0.src = `/assets/hero-sequence/0.webp?v=len96`;
+    frame0.src = `/assets/hero-sequence/0.webp?v=opt96_1`;
     frame0.onload = () => {
       loadedList[0] = frame0;
       triggerRedraw();
     };
     loadedList[0] = frame0;
 
-    // 2. Stream remaining frames in non-blocking background batches
+    // 2. Stream remaining frames in non-blocking background batches (low network contention)
     let currentIndex = 1;
     let timer: NodeJS.Timeout | null = null;
-    const BATCH_SIZE = 8;
+    const BATCH_SIZE = 4;
 
     const streamNextBatch = () => {
       if (currentIndex >= FRAME_COUNT) return;
       const limit = Math.min(currentIndex + BATCH_SIZE, FRAME_COUNT);
       for (let i = currentIndex; i < limit; i++) {
         const img = new Image();
-        img.src = `/assets/hero-sequence/${i}.webp?v=len96`;
+        img.src = `/assets/hero-sequence/${i}.webp?v=opt96_1`;
         img.onload = () => {
           loadedList[i] = img;
         };
@@ -310,11 +310,11 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
       }
       currentIndex = limit;
       if (currentIndex < FRAME_COUNT) {
-        timer = setTimeout(streamNextBatch, 25);
+        timer = setTimeout(streamNextBatch, 45);
       }
     };
 
-    timer = setTimeout(streamNextBatch, 40);
+    timer = setTimeout(streamNextBatch, 50);
 
     return () => {
       if (timer) clearTimeout(timer);

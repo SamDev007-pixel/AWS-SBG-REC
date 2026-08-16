@@ -12,7 +12,7 @@ export class LeaderboardService {
 
   /**
    * Retrieves the leaderboard data, supporting global leaderboard and name search.
-   * Both paths compute ranks dynamically on ENTHUSIAST users.
+   * Both paths compute ranks dynamically on ONLY ENTHUSIAST users.
    */
   async getLeaderboard(currentUserId: string | null, search?: string): Promise<LeaderboardResponseDto> {
     try {
@@ -35,12 +35,19 @@ export class LeaderboardService {
       const results = await this.prisma.$queryRaw<Omit<RankedUserRow, 'row_num'>[]>`
         WITH RankedUsers AS (
           SELECT
-            id AS "userId",
-            ("firstName" || ' ' || "lastName") AS name,
-            (COALESCE(xp, 0) + COALESCE(eventxp, 0)) AS "cloudCredits",
-            RANK() OVER (ORDER BY (COALESCE(xp, 0) + COALESCE(eventxp, 0)) DESC)::integer AS rank
-          FROM "User"
-          WHERE role = 'enthusiasts'
+            u.id AS "userId",
+            (TRIM(u."firstName" || ' ' || u."lastName")) AS name,
+            (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) AS "cloudCredits",
+            RANK() OVER (ORDER BY (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) DESC)::integer AS rank
+          FROM "User" u
+          WHERE (LOWER(COALESCE(u.role, '')) IN ('enthusiasts', 'enthusiast', 'participant', 'attendee'))
+            AND LOWER(COALESCE(u.role, '')) NOT IN ('core', 'crew', 'volunteer', 'scanner', 'admin', 'organizer', 'super_admin')
+            AND NOT EXISTS (
+              SELECT 1 FROM "UserRole" ur
+              JOIN "Role" r ON ur."roleId" = r.id
+              WHERE ur."userId" = u.id
+                AND UPPER(r.name) IN ('ADMIN', 'SUPER_ADMIN', 'ORGANIZER', 'VOLUNTEER', 'SCANNER', 'CREW', 'CORE')
+            )
         )
         SELECT name, "cloudCredits", rank
         FROM RankedUsers
@@ -75,19 +82,26 @@ export class LeaderboardService {
     const results = await this.prisma.$queryRaw<RankedUserRow[]>`
       WITH RankedUsers AS (
         SELECT
-          id AS "userId",
-          ("firstName" || ' ' || "lastName") AS name,
-          (COALESCE(xp, 0) + COALESCE(eventxp, 0)) AS "cloudCredits",
-          RANK() OVER (ORDER BY (COALESCE(xp, 0) + COALESCE(eventxp, 0)) DESC)::integer AS rank,
+          u.id AS "userId",
+          (TRIM(u."firstName" || ' ' || u."lastName")) AS name,
+          (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) AS "cloudCredits",
+          RANK() OVER (ORDER BY (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) DESC)::integer AS rank,
           ROW_NUMBER() OVER (
             ORDER BY 
-              (COALESCE(xp, 0) + COALESCE(eventxp, 0)) DESC, 
-              COALESCE(eventxp, 0) DESC, 
-              "updatedAt" DESC, 
-              id ASC
+              (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) DESC, 
+              COALESCE(u.eventxp, 0) DESC, 
+              u."updatedAt" DESC, 
+              u.id ASC
           )::integer AS row_num
-        FROM "User"
-        WHERE role = 'enthusiasts'
+        FROM "User" u
+        WHERE (LOWER(COALESCE(u.role, '')) IN ('enthusiasts', 'enthusiast', 'participant', 'attendee'))
+          AND LOWER(COALESCE(u.role, '')) NOT IN ('core', 'crew', 'volunteer', 'scanner', 'admin', 'organizer', 'super_admin')
+          AND NOT EXISTS (
+            SELECT 1 FROM "UserRole" ur
+            JOIN "Role" r ON ur."roleId" = r.id
+            WHERE ur."userId" = u.id
+              AND UPPER(r.name) IN ('ADMIN', 'SUPER_ADMIN', 'ORGANIZER', 'VOLUNTEER', 'SCANNER', 'CREW', 'CORE')
+          )
       )
       SELECT 
         "userId",
@@ -134,12 +148,19 @@ export class LeaderboardService {
     const userContextResults = await this.prisma.$queryRaw<Omit<RankedUserRow, 'row_num'>[]>`
       WITH RankedUsers AS (
         SELECT
-          id AS "userId",
-          ("firstName" || ' ' || "lastName") AS name,
-          (COALESCE(xp, 0) + COALESCE(eventxp, 0)) AS "cloudCredits",
-          RANK() OVER (ORDER BY (COALESCE(xp, 0) + COALESCE(eventxp, 0)) DESC)::integer AS rank
-        FROM "User"
-        WHERE role = 'enthusiasts'
+          u.id AS "userId",
+          (TRIM(u."firstName" || ' ' || u."lastName")) AS name,
+          (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) AS "cloudCredits",
+          RANK() OVER (ORDER BY (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) DESC)::integer AS rank
+        FROM "User" u
+        WHERE (LOWER(COALESCE(u.role, '')) IN ('enthusiasts', 'enthusiast', 'participant', 'attendee'))
+          AND LOWER(COALESCE(u.role, '')) NOT IN ('core', 'crew', 'volunteer', 'scanner', 'admin', 'organizer', 'super_admin')
+          AND NOT EXISTS (
+            SELECT 1 FROM "UserRole" ur
+            JOIN "Role" r ON ur."roleId" = r.id
+            WHERE ur."userId" = u.id
+              AND UPPER(r.name) IN ('ADMIN', 'SUPER_ADMIN', 'ORGANIZER', 'VOLUNTEER', 'SCANNER', 'CREW', 'CORE')
+          )
       )
       SELECT * FROM RankedUsers 
       WHERE "userId" = ${currentUserId};
@@ -159,15 +180,22 @@ export class LeaderboardService {
     const searchResults = await this.prisma.$queryRaw<Omit<RankedUserRow, 'row_num'>[]>`
       WITH RankedUsers AS (
         SELECT
-          id AS "userId",
-          ("firstName" || ' ' || "lastName") AS name,
-          (COALESCE(xp, 0) + COALESCE(eventxp, 0)) AS "cloudCredits",
-          RANK() OVER (ORDER BY (COALESCE(xp, 0) + COALESCE(eventxp, 0)) DESC)::integer AS rank,
-          COALESCE(eventxp, 0) AS "eventxp",
-          "updatedAt",
-          id
-        FROM "User"
-        WHERE role = 'enthusiasts'
+          u.id AS "userId",
+          (TRIM(u."firstName" || ' ' || u."lastName")) AS name,
+          (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) AS "cloudCredits",
+          RANK() OVER (ORDER BY (COALESCE(u.xp, 0) + COALESCE(u.eventxp, 0)) DESC)::integer AS rank,
+          COALESCE(u.eventxp, 0) AS "eventxp",
+          u."updatedAt",
+          u.id
+        FROM "User" u
+        WHERE (LOWER(COALESCE(u.role, '')) IN ('enthusiasts', 'enthusiast', 'participant', 'attendee'))
+          AND LOWER(COALESCE(u.role, '')) NOT IN ('core', 'crew', 'volunteer', 'scanner', 'admin', 'organizer', 'super_admin')
+          AND NOT EXISTS (
+            SELECT 1 FROM "UserRole" ur
+            JOIN "Role" r ON ur."roleId" = r.id
+            WHERE ur."userId" = u.id
+              AND UPPER(r.name) IN ('ADMIN', 'SUPER_ADMIN', 'ORGANIZER', 'VOLUNTEER', 'SCANNER', 'CREW', 'CORE')
+          )
       )
       SELECT "userId", name, "cloudCredits", rank FROM RankedUsers 
       WHERE name ILIKE ${searchPattern} 

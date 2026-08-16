@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Sidebar, { type NavItem, type SidebarUser } from "./Sidebar";
 import { clearSessionCache } from "./AuthWrapper";
 
@@ -207,7 +208,10 @@ export default function SidebarLayout({
       )}
 
       <main
-        className="h-screen lg:overflow-hidden overflow-y-auto flex flex-col bg-white relative"
+        className={cn(
+          "h-screen flex flex-col bg-white relative box-border overflow-hidden",
+          isMobile && !isRoadmapPage ? "pt-14" : ""
+        )}
         style={{
           marginLeft: mainMargin,
           width: `calc(100% - ${mainMargin}px)`,
@@ -227,14 +231,13 @@ export default function SidebarLayout({
             </button>
           </div>
         )}
-        <div className={`${
-          pathname && (pathname.includes('/chat') || pathname.endsWith('/dashboard'))
-            ? (shouldShowBack() ? "h-full pt-12 lg:overflow-hidden overflow-y-auto" : (isMobile && !isRoadmapPage ? "h-full pt-14 lg:overflow-hidden overflow-y-auto" : "h-full lg:overflow-hidden overflow-y-auto"))
-            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : (isMobile && !isRoadmapPage ? "h-full pt-14 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden"))
-        } custom-scrollbar`}>
+        <div className={cn(
+          "h-full w-full flex-1 flex flex-col min-h-0 box-border custom-scrollbar",
+          shouldShowBack() ? "pt-12" : "",
+          pathname && pathname.includes('/chat') ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"
+        )}>
           {children}
         </div>
-
       </main>
     </div>
   );

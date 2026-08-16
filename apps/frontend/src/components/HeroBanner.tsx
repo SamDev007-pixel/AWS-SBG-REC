@@ -67,15 +67,8 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
       <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none z-0" />
       <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-orange-500/10 rounded-full blur-[65px] pointer-events-none z-0" />
 
-      {/* Welcome banner with AWS tech doodle background pattern */}
-      <div 
-        className="relative w-full rounded-xl border border-slate-200 p-4 sm:p-5 overflow-hidden z-10 shadow-xs"
-        style={{
-          backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
-          backgroundSize: "300px 300px",
-          backgroundRepeat: "repeat",
-        }}
-      >
+      {/* Welcome banner with solid white card background */}
+      <div className="relative w-full rounded-xl border border-slate-200 bg-white p-4 sm:p-5 overflow-hidden z-10 shadow-xs">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

@@ -55,8 +55,9 @@ export default function CrewSidebarShell({ children }: { children: React.ReactNo
           fetch(`/api/auth/permissions/check?userId=${parsed.id}`)
             .then((res) => res.json())
             .then((data) => {
-              if (data.success && data.permissions) {
-                setActivePermissions(data.permissions);
+              const perms = data.data?.permissions ?? data.permissions;
+              if ((data.success || data.data) && Array.isArray(perms)) {
+                setActivePermissions(perms);
               }
             })
             .catch((err) => console.error('Error fetching permissions for crew sidebar:', err));

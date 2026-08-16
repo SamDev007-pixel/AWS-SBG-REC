@@ -52,12 +52,7 @@ export default function Announcements() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col h-full rounded-xl border border-slate-200 p-5 overflow-hidden select-none min-h-0 shadow-xs"
-      style={{
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
-        backgroundSize: "300px 300px",
-        backgroundRepeat: "repeat",
-      }}
+      className="flex flex-col h-full rounded-xl border border-slate-200 bg-white p-5 overflow-hidden select-none min-h-0 shadow-xs"
     >
       {/* Panel Header */}
       <div 

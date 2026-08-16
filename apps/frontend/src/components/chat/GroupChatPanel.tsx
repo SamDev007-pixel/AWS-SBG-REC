@@ -2,24 +2,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { SendHorizontal, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User, Mic, MicOff } from "lucide-react";
-
-const COLORS = {
-  bg: "#F8FAFC",
-  sidebar: "#232F3E",
-  mint: "rgba(35, 47, 62, 0.1)",
-  gold: "#FF9900",
-  muted: "#475569",
-  surface: "#FFFFFF",
-  success: "#10b981",
-  danger: "#ef4444",
-  purple: "#8b5cf6",
-  chatBg: "transparent",
-  sentBg: "#e8f0fe", // Professional AWS light blue/slate
-  recvBg: "#ffffff",
-  coreColor: "#FF9900",
-  crewColor: "#8b5cf6",
-};
+import {
+  SendHorizontal,
+  Paperclip,
+  FileText,
+  Download,
+  X,
+  User,
+  Mic,
+  MicOff,
+  Shield,
+  Clock
+} from "lucide-react";
 
 const AVATAR_PALETTE = [
   "#232F3E", // Deep Navy
@@ -66,10 +60,9 @@ interface AvatarProps {
   color?: string;
   photo?: string | null;
   size?: number;
-  role?: string;
 }
 
-function Avatar({ initials, color, photo, size = 36, role }: AvatarProps) {
+function Avatar({ initials, color, photo, size = 34 }: AvatarProps) {
   const src = typeof photo === 'object' && photo !== null ? (photo as any).photo : photo;
 
   const isValidPhoto = src && 
@@ -84,63 +77,25 @@ function Avatar({ initials, color, photo, size = 36, role }: AvatarProps) {
       <img
         src={src}
         alt={initials}
-        className="rounded-full object-cover shrink-0 select-none shadow-sm border border-white/80"
+        className="rounded-full object-cover shrink-0 select-none shadow-2xs border border-slate-200"
         style={{ width: size, height: size }}
       />
     );
   }
 
-  // Use a user/human icon for standard placeholder
-  const IconComponent = User;
-
-  const iconSize = Math.floor(size * 0.52);
+  const iconSize = Math.floor(size * 0.5);
 
   return (
     <div
-      className="rounded-full flex items-center justify-center text-white shrink-0 select-none shadow-sm border border-white/80"
+      className="rounded-full flex items-center justify-center text-white shrink-0 select-none shadow-2xs border border-slate-200 font-bold text-xs"
       style={{
         width: size,
         height: size,
         background: color || "#232F3E",
       }}
     >
-      <IconComponent style={{ width: iconSize, height: iconSize }} strokeWidth={2.2} />
+      <User style={{ width: iconSize, height: iconSize }} strokeWidth={2.2} />
     </div>
-  );
-}
-
-function SendIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  );
-}
-
-function PaperclipIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-    </svg>
   );
 }
 
@@ -203,7 +158,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
             setTimeout(() => {
               if (inputRef.current) {
                 inputRef.current.style.height = "auto";
-                inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+                inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 160)}px`;
               }
             }, 50);
 
@@ -248,55 +203,38 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         const users = data.data?.users || data.users || [];
         const photos: Record<string, string> = {};
         users.forEach((u: any) => {
-          const photoUrl = typeof u.avatar === 'object' && u.avatar !== null ? u.avatar?.photo : u.avatar;
-          if (photoUrl && typeof photoUrl === 'string' && photoUrl.trim() !== '') {
-            const name = u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || '';
-            const role = u.role || '';
-            if (name && role) {
-              photos[`${name.toLowerCase()}_${role.toLowerCase()}`] = photoUrl;
-            }
+          if (u.name && u.role && u.avatar?.photo) {
+            photos[`${u.name.toLowerCase()}_${u.role.toLowerCase()}`] = u.avatar.photo;
           }
         });
         setUserPhotos(photos);
       }
-    } catch (err) {
-      console.error("Failed to fetch user photos:", err);
-    }
+    } catch { /* ignore */ }
   };
 
   useEffect(() => {
     fetchMessages();
     fetchUserPhotos();
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 3000);
+    const interval = setInterval(fetchMessages, 4000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: scrollContainerRef.current.scrollHeight,
-        behavior: "smooth"
-      });
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    files.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Max file size is 5MB.`);
-        return;
-      }
-
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        let fileType = "file";
-        if (file.type.startsWith("image/")) fileType = "image";
-        else if (file.type.startsWith("video/")) fileType = "video";
+      reader.onload = () => {
+        const fileType = file.type.startsWith("image/")
+          ? "image"
+          : file.type.startsWith("video/")
+          ? "video"
+          : "file";
 
         setSelectedFiles((prev) => [
           ...prev,
@@ -331,7 +269,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
     setInputText(e.target.value);
     const textarea = e.target;
     textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -398,20 +336,6 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
     }
   };
 
-  const formatTime = (iso: string) => {
-    try {
-      if (!iso) return "";
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return "";
-      return d.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return "";
-    }
-  };
-
   const formatDateTime = (iso: string) => {
     try {
       if (!iso) return "";
@@ -465,13 +389,12 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full bg-transparent relative text-[#1A1C1E]">
+    <div className="flex flex-col flex-1 h-full bg-white relative text-slate-800">
       <style>{`
-        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
-        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
-        .premium-scrollbar::-webkit-scrollbar-button { display: none; }
+        .chat-scrollbar::-webkit-scrollbar { width: 4px; }
+        .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .chat-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.15); border-radius: 99px; }
+        .chat-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.3); }
         @keyframes soundwave-pulse {
           0%, 100% { height: 4px; }
           50% { height: 16px; }
@@ -485,74 +408,84 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         }
       `}</style>
 
-      {/* Chat body */}
+      {/* Chat Messages Body */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 premium-scrollbar bg-transparent"
+        className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 chat-scrollbar bg-white"
       >
-        <div className="flex flex-col justify-end min-h-full gap-4">
+        <div className="flex flex-col justify-end min-h-full gap-3">
           {loading ? (
-            <div className="text-center text-slate-500 text-xs font-bold uppercase tracking-wider py-10 animate-pulse">
-              Loading messages...
+            <div className="text-center text-slate-400 text-xs font-semibold py-12">
+              Loading chat messages...
             </div>
           ) : messages.length === 0 ? (
-            <div className="self-center bg-white/80 border border-slate-200/50 rounded-2xl p-6 text-center mt-10 max-w-sm shadow-xs backdrop-blur-xs select-none">
-              <div className="text-3xl mb-2.5">👋</div>
-              <div className="font-extrabold text-[13.5px] text-[#232F3E] mb-1.5 uppercase tracking-wide">
+            <div className="self-center bg-slate-50 border border-slate-200 rounded-xl p-5 text-center my-8 max-w-xs shadow-2xs select-none">
+              <div className="text-2xl mb-1.5">💬</div>
+              <div className="font-bold text-xs text-slate-800 mb-1">
                 No messages yet
               </div>
-              <div className="text-xs text-slate-500 leading-relaxed font-sans">
-                Start the conversation! Core and Crew members can chat here together.
+              <div className="text-[11px] text-slate-500 leading-relaxed">
+                Start the conversation with your team members.
               </div>
             </div>
           ) : (
             grouped.map((item) => {
               if (item.type === "divider") {
                 return (
-                  <div key={item.key} className="flex items-center my-6 select-none w-full">
-                    <div className="flex-1 border-t border-slate-200/80"></div>
-                    <span className="px-4 text-[10px] font-bold text-slate-400 font-sans tracking-wider uppercase">
+                  <div key={item.key} className="flex items-center my-3 select-none w-full">
+                    <div className="flex-1 border-t border-slate-200"></div>
+                    <span className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       {item.label}
                     </span>
-                    <div className="flex-1 border-t border-slate-200/80"></div>
+                    <div className="flex-1 border-t border-slate-200"></div>
                   </div>
                 );
               }
 
               const { msg } = item;
               const isCore = msg.senderRole?.toLowerCase() === "core";
+              const isSelf = user?.fullName && msg.senderName === user.fullName;
 
               return (
                 <div 
                   key={msg.id} 
-                  className="flex gap-3.5 px-4 py-2.5 hover:bg-slate-900/[0.02] transition-colors items-start w-full animate-fadeIn group rounded-lg"
+                  className={cn(
+                    "flex gap-3 px-3 py-2 rounded-lg transition-colors items-start w-full group",
+                    isSelf ? "bg-slate-50/70" : "hover:bg-slate-50/40"
+                  )}
                 >
                   <div className="shrink-0 pt-0.5">
                     <Avatar
                       initials={msg.avatarInitials}
-                      color={isCore ? getAvatarColor(msg.senderName) : "#232F3E"}
+                      color={isCore ? "#FF9900" : "#232F3E"}
                       photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
-                      size={36}
-                      role={msg.senderRole}
+                      size={32}
                     />
                   </div>
 
                   <div className="flex-1 min-w-0 flex flex-col">
-                    {/* Metadata Header */}
-                    <div className="flex items-baseline gap-2 mb-0.5 select-none">
-                      <span 
-                        style={{ color: isCore ? getAvatarColor(msg.senderName) : "#232F3E" }}
-                        className="text-[13.5px] font-bold font-sans tracking-tight"
-                      >
+                    {/* Header: Name + Role Badge + Time */}
+                    <div className="flex items-center gap-2 mb-0.5 select-none flex-wrap">
+                      <span className="text-xs font-bold text-slate-900 tracking-tight">
                         {msg.senderName}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-medium font-sans">
+                      
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border",
+                        isCore 
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : "bg-slate-100 text-slate-600 border-slate-200"
+                      )}>
+                        {isCore ? "Core" : "Crew"}
+                      </span>
+
+                      <span className="text-[10px] text-slate-400 font-medium">
                         {formatDateTime(msg.timestamp)}
                       </span>
                     </div>
 
-                    {/* Chat Text */}
-                    <div className="text-[13px] leading-relaxed text-slate-700 font-sans whitespace-pre-wrap break-words">
+                    {/* Message Body */}
+                    <div className="text-xs sm:text-[13px] leading-relaxed text-slate-800 font-normal whitespace-pre-wrap break-words">
                       {msg.text}
                     </div>
 
@@ -562,13 +495,13 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                         {msg.attachments.map((att, attIdx) => (
                           <div
                             key={attIdx}
-                            className="rounded-xl overflow-hidden max-w-xs border border-slate-200 bg-white shadow-xs"
+                            className="rounded-lg overflow-hidden max-w-xs border border-slate-200 bg-white shadow-2xs"
                           >
                             {att.type === "image" ? (
                               <img
                                 src={att.url}
                                 alt="attachment"
-                                className="w-full max-h-48 object-contain cursor-zoom-in bg-slate-900/5 hover:opacity-95 transition-opacity"
+                                className="w-full max-h-48 object-contain cursor-zoom-in bg-slate-50 hover:opacity-95 transition-opacity"
                                 onClick={() => {
                                   const w = window.open();
                                   w?.document.write(`<img src="${att.url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
@@ -580,16 +513,16 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                               <a
                                 href={att.url}
                                 download={att.name || "file"}
-                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-750 bg-slate-50 hover:bg-slate-100 transition-all select-none"
+                                className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-all select-none"
                               >
-                                <FileText className="w-4.5 h-4.5 text-slate-400 shrink-0" />
+                                <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-bold truncate">{att.name || "Document"}</div>
-                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                  <div className="font-bold truncate text-[11px]">{att.name || "Document"}</div>
+                                  <div className="text-[9px] text-slate-400">
                                     {att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}
                                   </div>
                                 </div>
-                                <Download className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <Download className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                               </a>
                             )}
                           </div>
@@ -607,11 +540,11 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
 
       {/* File Previews Area */}
       {selectedFiles.length > 0 && (
-        <div className="bg-white/80 backdrop-blur-xs border-t border-slate-200/60 p-3.5 flex gap-3 flex-wrap">
+        <div className="bg-slate-50 border-t border-slate-200 p-2.5 flex gap-2 flex-wrap">
           {selectedFiles.map((item, idx) => (
             <div
               key={idx}
-              className="relative w-16 h-16 rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center overflow-hidden shadow-sm animate-fadeIn"
+              className="relative w-14 h-14 rounded-lg border border-slate-200 bg-slate-900 flex items-center justify-center overflow-hidden shadow-2xs animate-fadeIn"
             >
               {item.type === "image" ? (
                 <img
@@ -622,9 +555,9 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
               ) : item.type === "video" ? (
                 <video src={item.previewUrl} className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center p-1.5 text-white text-center">
-                  <FileText className="w-6 h-6 text-slate-300 mb-1" />
-                  <div className="text-[7.5px] truncate w-12 font-bold font-mono">
+                <div className="flex flex-col items-center p-1 text-white text-center">
+                  <FileText className="w-5 h-5 text-slate-300 mb-0.5" />
+                  <div className="text-[7px] truncate w-10 font-bold font-mono">
                     {item.name}
                   </div>
                 </div>
@@ -632,39 +565,39 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
               <button
                 type="button"
                 onClick={() => removeSelectedFile(idx)}
-                className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-black/60 hover:bg-black/80 border-none text-white flex items-center justify-center cursor-pointer transition-colors"
+                className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center cursor-pointer border-none"
               >
-                <X className="w-2.5 h-2.5" />
+                <X className="w-2 h-2" />
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* Input bar */}
+      {/* Input Composer Bar */}
       <form
         onSubmit={handleSend}
-        className="relative p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex items-center gap-3.5 shrink-0"
+        className="p-3 pb-3.5 sm:p-3.5 border-t border-slate-200 bg-white flex items-center gap-2 sm:gap-2.5 shrink-0 z-20"
       >
         {isListening && (
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#232F3E] text-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2.5 border border-slate-700/50 z-50 animate-bounce">
-            <span className="flex gap-1 items-end justify-center h-4 w-6 mb-0.5">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#232F3E] text-white rounded-full px-3.5 py-1.5 shadow-md flex items-center gap-2 z-50 animate-pulse">
+            <span className="flex gap-1 items-end justify-center h-3 w-5">
               <span className="wave-bar" style={{ animationDelay: "0s" }}></span>
               <span className="wave-bar" style={{ animationDelay: "0.15s" }}></span>
               <span className="wave-bar" style={{ animationDelay: "0.3s" }}></span>
-              <span className="wave-bar" style={{ animationDelay: "0.45s" }}></span>
             </span>
-            <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-200">Listening... Speak now</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-200">Listening...</span>
           </div>
         )}
+
         {/* Attachment Button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-slate-400 hover:text-[#FF9900] bg-transparent hover:bg-slate-100/50 p-2 rounded-xl transition-all duration-150 shrink-0 cursor-pointer flex items-center justify-center"
-          title="Attach photo or video"
+          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-slate-500 hover:text-[#FF9900] bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors shrink-0 cursor-pointer border-none"
+          title="Attach file"
         >
-          <Paperclip className="w-4.5 h-4.5" />
+          <Paperclip className="w-4 h-4" />
         </button>
         <input
           type="file"
@@ -674,22 +607,23 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
           className="hidden"
         />
 
-        {/* Speech to Text Toggle Button */}
+        {/* Voice Speech to Text Button */}
         <button
           type="button"
           onClick={toggleSpeechToText}
           className={cn(
-            "p-2 rounded-xl transition-all duration-150 shrink-0 cursor-pointer flex items-center justify-center border",
+            "w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-colors shrink-0 cursor-pointer border",
             isListening 
-              ? "bg-[#FF9900]/10 border-[#FF9900]/40 text-[#FF9900] animate-pulse" 
-              : "text-slate-400 hover:text-[#FF9900] bg-transparent hover:bg-slate-100/50 border-transparent"
+              ? "bg-amber-50 border-amber-300 text-[#FF9900] animate-pulse" 
+              : "bg-slate-100 hover:bg-slate-200/80 border-slate-200 text-slate-500 hover:text-[#FF9900]"
           )}
-          title={isListening ? "Listening... Click to stop" : "Voice dictation (speech-to-text)"}
+          title={isListening ? "Stop listening" : "Voice dictation"}
         >
-          <Mic className={cn("w-4.5 h-4.5", isListening && "animate-bounce")} />
+          <Mic className="w-4 h-4" />
         </button>
 
-        <div className="flex-1 bg-white border border-slate-200 hover:border-slate-350 focus-within:border-[#FF9900] focus-within:ring-2 focus-within:ring-[#FF9900]/10 rounded-xl px-3 py-2 transition-all shadow-inner flex items-center min-w-0">
+        {/* Textarea Input Container */}
+        <div className="flex-1 bg-slate-50 hover:bg-slate-100/60 focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-100 focus-within:border-slate-400 border border-slate-200 rounded-lg px-3 py-2 flex items-center min-w-0 transition-all min-h-[38px] sm:min-h-[40px]">
           <textarea
             ref={inputRef}
             value={inputText}
@@ -697,20 +631,20 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="w-full bg-transparent border-none focus:ring-0 focus:outline-none resize-none max-h-36 leading-relaxed text-xs sm:text-[13px] text-[#232F3E] placeholder-slate-400 premium-scrollbar custom-scrollbar pr-1 py-0.5"
+            className="w-full bg-transparent border-none outline-none focus:outline-none resize-none max-h-32 text-xs sm:text-[13px] text-slate-900 placeholder:text-slate-400 leading-normal p-0 chat-scrollbar"
           />
         </div>
 
+        {/* Send Button */}
         <button
           type="submit"
           disabled={(!inputText.trim() && selectedFiles.length === 0) || sending}
-          className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#232F3E] to-[#1A222D] hover:from-[#FF9900] hover:to-[#FF7700] text-white rounded-xl border border-slate-200/10 shadow-[0_3px_8px_rgba(35,47,62,0.12)] hover:shadow-[0_4px_16px_rgba(255,153,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none cursor-pointer shrink-0 transition-all duration-300 ease-out"
+          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg bg-[#232F3E] hover:bg-slate-800 text-white shadow-xs shrink-0 transition-all cursor-pointer border-none disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Send message"
         >
-          <SendHorizontal className="w-4.5 h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+          <SendHorizontal className="w-4 h-4" />
         </button>
       </form>
     </div>
   );
 }
-
-

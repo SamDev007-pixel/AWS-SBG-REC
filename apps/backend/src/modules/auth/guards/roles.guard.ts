@@ -29,36 +29,36 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User authentication details not found');
     }
     // user.group is 'CORE' | 'CREW' | 'ENTHUSIAST' from JWT payload
-    const hasRole = requiredRoles.includes(user.group);
+    const userGroup = (user.group || user.role || '').toUpperCase();
+    const hasRole = requiredRoles.some((r) => r.toUpperCase() === userGroup);
     if (!hasRole) {
-      if (user.group === 'CREW') {
-        const path = request.path || request.url || '';
-        let requiredPermission = 'manage_announcements'; // default for roadmap/topics
-        
-        if (path.includes('/services') || path.includes('/manage-regions') || path.includes('/manage-categories')) {
-          requiredPermission = 'edit_event';
-        } else if (path.includes('/events') || path.includes('/registrations') || path.includes('/tickets') || path.includes('/attendance') || path.includes('/announcements')) {
-          requiredPermission = 'create_event';
-        } else if (path.includes('/chat')) {
-          requiredPermission = 'scan_ticket';
-        } else if (path.includes('/analytics')) {
-          requiredPermission = 'view_analytics';
-        }
-
-        const activePermission = await this.prisma.crewPermission.findFirst({
-          where: {
-            userId: user.id,
-            permission: requiredPermission,
-            expiresAt: {
-              gt: new Date(),
-            },
-          },
-        });
-
-        if (activePermission) {
-          return true;
-        }
+      const path = request.path || request.url || '';
+      let requiredPermission = 'manage_announcements'; // default for roadmap/topics
+      
+      if (path.includes('/services') || path.includes('/manage-regions') || path.includes('/manage-categories')) {
+        requiredPermission = 'edit_event';
+      } else if (path.includes('/events') || path.includes('/registrations') || path.includes('/tickets') || path.includes('/attendance') || path.includes('/announcements')) {
+        requiredPermission = 'create_event';
+      } else if (path.includes('/chat')) {
+        requiredPermission = 'scan_ticket';
+      } else if (path.includes('/analytics')) {
+        requiredPermission = 'view_analytics';
       }
+
+      const activePermission = await this.prisma.crewPermission.findFirst({
+        where: {
+          userId: user.id || user.sub,
+          permission: requiredPermission,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
+
+      if (activePermission) {
+        return true;
+      }
+
       throw new ForbiddenException(
         'You do not have permission to access this resource',
       );

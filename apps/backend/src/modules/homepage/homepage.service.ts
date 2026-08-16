@@ -113,22 +113,21 @@ const DEFAULT_TESTIMONIALS = [
 
 const DEFAULT_TEAM = [
   // CORE
-  { name: 'Giridharan R', role: 'IT Support and Management', department: 'AWS Cloud Clubs REC', image: '/images/core/giridharan_r.jpg', accent: '#0073BB', type: 'core', order: 0 },
-  { name: 'Dilip Kannan K', role: 'Event Management', department: 'AWS Cloud Clubs REC', image: '/images/core/dilip_kannan.jpg', accent: '#7C3AED', type: 'core', order: 1 },
-  { name: 'Prathakshanaa T', role: 'Captain', department: 'AWS Cloud Clubs REC', image: '/images/core/prathakshanaa_t.jpg', accent: '#E68A00', type: 'core', order: 2 },
-  { name: 'K N Pranav Ranjan', role: 'Tech Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/pranav_ranjan.jpg', accent: '#E68A00', type: 'core', order: 3 },
-  { name: 'V Thirunavukkarasu', role: 'Social Media Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/thirunavukkarasu.jpg', accent: '#16A34A', type: 'core', order: 4 },
-  { name: 'Sam Devaraja J', role: 'Lead Developer', department: 'Projects & Innovation', image: '/images/crew/sam_devaraja_j.jpg', accent: '#0073BB', type: 'crew', order: 5 },
-  { name: 'Rannesh Khumar B R', role: 'Web Developer', department: 'Projects & Innovation', image: '/images/crew/rannesh_khumar_b_r.jpg', accent: '#E68A00', type: 'crew', order: 6 },
+  { name: 'V Thirunavukkarasu', role: 'Social Media Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/thirunavukkarasu.jpg', accent: '#16A34A', type: 'core', order: 0 },
+  { name: 'Prathakshanaa T', role: 'Captain', department: 'AWS Cloud Clubs REC', image: '/images/core/prathakshanaa_t.jpg', accent: '#E68A00', type: 'core', order: 1 },
+  { name: 'K N Pranav Ranjan', role: 'Tech Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/pranav_ranjan.jpg', accent: '#E68A00', type: 'core', order: 2 },
+  // CREW (alphabetical)
+  { name: 'Abimithren', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/abimithren.jpg', accent: '#0073BB', type: 'crew', order: 3 },
+  { name: 'Balaambiga C A', role: 'Operations Lead', department: 'Events & Outreach', image: '/images/crew/balaambiga_c_a.jpg', accent: '#16A34A', type: 'crew', order: 4 },
+  { name: 'Goutham R', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/goutham_r.jpg', accent: '#0073BB', type: 'crew', order: 5 },
+  { name: 'Harini S', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/harini_s.jpg', accent: '#7C3AED', type: 'crew', order: 6 },
   { name: 'Jaiganesh G', role: 'Marketing Associate', department: 'Marketing & Media', image: '/images/crew/jaiganesh_g.jpg', accent: '#E68A00', type: 'crew', order: 7 },
   { name: 'Neil Daniel', role: 'Content Strategist', department: 'Marketing & Media', image: '/images/crew/neil_daniel.jpg', accent: '#7C3AED', type: 'crew', order: 8 },
-  { name: 'Sudhish', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/sudhish.jpg', accent: '#16A34A', type: 'crew', order: 9 },
-  { name: 'Balaambiga C A', role: 'Operations Lead', department: 'Events & Outreach', image: '/images/crew/balaambiga_c_a.jpg', accent: '#16A34A', type: 'crew', order: 10 },
-  { name: 'Sunchitha V K', role: 'Design Lead', department: 'Marketing & Media', image: '/images/crew/sunchitha_vk.jpg', accent: '#E68A00', type: 'crew', order: 11 },
-  { name: 'Abimithren', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/abimithren.jpg', accent: '#0073BB', type: 'crew', order: 12 },
-  { name: 'Harini S', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/harini_s.jpg', accent: '#7C3AED', type: 'crew', order: 13 },
-  { name: 'Goutham R', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/goutham_r.jpg', accent: '#0073BB', type: 'crew', order: 14 },
-  { name: 'Vs Thamizh Selvan', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/vs_thamizh_selvan.jpg', accent: '#0073BB', type: 'crew', order: 15 },
+  { name: 'Rannesh Khumar B R', role: 'Web Developer', department: 'Projects & Innovation', image: '/images/crew/rannesh_khumar_b_r.jpg', accent: '#E68A00', type: 'crew', order: 9 },
+  { name: 'Sam Devaraja J', role: 'Lead Developer', department: 'Projects & Innovation', image: '/images/crew/sam_devaraja_j.jpg', accent: '#0073BB', type: 'crew', order: 10 },
+  { name: 'Sudhish', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/sudhish.jpg', accent: '#16A34A', type: 'crew', order: 11 },
+  { name: 'Sunchitha V K', role: 'Design Lead', department: 'Marketing & Media', image: '/images/crew/sunchitha_vk.jpg', accent: '#E68A00', type: 'crew', order: 12 },
+  { name: 'Vs Thamizh Selvan', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/vs_thamizh_selvan.jpg', accent: '#0073BB', type: 'crew', order: 13 },
 ];
 
 @Injectable()

@@ -211,8 +211,9 @@ function AccessControlDashboard() {
         throw new Error("Failed to query permissions database.");
       }
       const data = await res.json();
-      if (data.success) {
-        setTempCrew(data.crew || []);
+      if (data.success || data.data) {
+        const list = data.data?.crew ?? data.crew ?? (Array.isArray(data.data) ? data.data : []);
+        setTempCrew(list);
       } else {
         throw new Error(data.error || "Failed to load delegation dashboard");
       }
@@ -524,9 +525,13 @@ function AccessControlDashboard() {
     }
   };
 
-  // Filtered members list
+  // Filtered members list — strictly Core & Crew staff accounts
   const filteredMembers = useMemo(() => {
     return members.filter((m) => {
+      const roleLower = (m.role || "").toLowerCase();
+      // Exclude public enthusiasts from access control staff directory
+      if (roleLower === "enthusiasts" || roleLower === "enthusiast") return false;
+
       const matchSearch =
         !memberSearch ||
         m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
@@ -536,9 +541,8 @@ function AccessControlDashboard() {
       if (!matchSearch) return false;
 
       // Role filter
-      if (roleFilter === "core" && m.role !== "core") return false;
-      if (roleFilter === "crew" && !["crew", "volunteer", "scanner"].includes(m.role)) return false;
-      if (roleFilter === "enthusiasts" && !["enthusiasts", "enthusiast"].includes(m.role)) return false;
+      if (roleFilter === "core" && roleLower !== "core") return false;
+      if (roleFilter === "crew" && !["crew", "volunteer", "scanner"].includes(roleLower)) return false;
 
       // Status filter
       if (statusFilter === "active" && m.banned) return false;
@@ -548,15 +552,18 @@ function AccessControlDashboard() {
     });
   }, [members, memberSearch, roleFilter, statusFilter]);
 
-  // Counts for member tabs
+  // Counts for staff member tabs
   const memberCounts = useMemo(() => {
+    const staffMembers = members.filter(m => {
+      const roleLower = (m.role || "").toLowerCase();
+      return roleLower !== "enthusiasts" && roleLower !== "enthusiast";
+    });
     return {
-      all: members.length,
-      core: members.filter(m => m.role === "core").length,
-      crew: members.filter(m => ["crew", "volunteer", "scanner"].includes(m.role)).length,
-      enthusiasts: members.filter(m => ["enthusiasts", "enthusiast"].includes(m.role)).length,
-      active: members.filter(m => !m.banned).length,
-      deactivated: members.filter(m => m.banned).length,
+      all: staffMembers.length,
+      core: staffMembers.filter(m => m.role === "core").length,
+      crew: staffMembers.filter(m => ["crew", "volunteer", "scanner"].includes((m.role || "").toLowerCase())).length,
+      active: staffMembers.filter(m => !m.banned).length,
+      deactivated: staffMembers.filter(m => m.banned).length,
     };
   }, [members]);
 
@@ -747,11 +754,13 @@ function AccessControlDashboard() {
                             className="w-full bg-slate-50 border border-slate-200 rounded-[8px] text-sm px-4 py-3.5 pr-10 outline-none focus:border-slate-350 transition-all font-semibold text-slate-800 appearance-none cursor-pointer"
                           >
                             <option value="">Select a crew member...</option>
-                            {tempCrew.map((member) => (
-                              <option key={member.id} value={member.id}>
-                                {member.name} ({member.email})
-                              </option>
-                            ))}
+                            {tempCrew
+                              .filter((m) => !['enthusiasts', 'enthusiast', 'core'].includes((m.role || '').toLowerCase()))
+                              .map((member) => (
+                                <option key={member.id} value={member.id}>
+                                  {member.name} ({member.email})
+                                </option>
+                              ))}
                           </select>
                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                         </div>
@@ -1089,10 +1098,9 @@ function AccessControlDashboard() {
                         {/* Role Segmented Tabs */}
                         <div className="inline-flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 shadow-2xs">
                           {[
-                            { key: "all", label: "All", count: memberCounts.all },
+                            { key: "all", label: "All Staff", count: memberCounts.all },
                             { key: "core", label: "Core", count: memberCounts.core },
                             { key: "crew", label: "Crew", count: memberCounts.crew },
-                            { key: "enthusiasts", label: "Enthusiasts", count: memberCounts.enthusiasts },
                           ].map((tab) => {
                             const isActive = roleFilter === tab.key;
                             return (

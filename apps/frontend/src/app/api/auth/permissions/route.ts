@@ -14,7 +14,7 @@ export async function GET() {
   try {
     await ensureDbInitialized();
 
-    // 1. Fetch all crew members (roles VOLUNTEER, SCANNER)
+    // 1. Fetch all crew members (roles crew, volunteer, scanner, or anyone with crew_permissions)
     const crewRows = await sql`
       SELECT 
         u.id, 
@@ -23,11 +23,14 @@ export async function GET() {
         u."lastName", 
         u."isActive", 
         u.avatar,
+        u.role,
         r.name as "roleName"
       FROM "User" u
       LEFT JOIN "UserRole" ur ON u.id = ur."userId"
       LEFT JOIN "Role" r ON ur."roleId" = r.id
-      WHERE r.name IN ('VOLUNTEER', 'SCANNER')
+      WHERE (r.name IN ('VOLUNTEER', 'SCANNER')
+         OR LOWER(COALESCE(u.role, '')) IN ('crew', 'volunteer', 'scanner'))
+         AND LOWER(COALESCE(u.role, '')) NOT IN ('enthusiasts', 'enthusiast', 'core')
       ORDER BY u."firstName" ASC, u."lastName" ASC
     `;
 
@@ -71,14 +74,15 @@ export async function GET() {
     const crewMap: Record<string, any> = {};
     crewRows.forEach((row: any) => {
       if (!crewMap[row.id]) {
-        const fullName = `${row.firstName} ${row.lastName}`.trim();
-        const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+        const fullName = `${row.firstName} ${row.lastName}`.trim() || row.email;
+        const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || 'CM';
+        const role = (row.role || row.roleName || 'crew').toLowerCase();
 
         crewMap[row.id] = {
           id: row.id,
           name: fullName,
           email: row.email,
-          role: row.roleName,
+          role: role,
           avatar: {
             photo: row.avatar,
             initials: initials,
@@ -90,9 +94,12 @@ export async function GET() {
       }
     });
 
+    const crewList = Object.values(crewMap);
+
     return NextResponse.json({ 
       success: true, 
-      crew: Object.values(crewMap),
+      crew: crewList,
+      data: { crew: crewList },
       availablePermissions: VALID_PERMISSIONS
     });
   } catch (error: any) {
@@ -107,23 +114,29 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { userId, permission, durationMinutes, grantedById } = body;
 
-    if (!userId || !permission || !durationMinutes) {
-      return NextResponse.json({ error: "Missing required fields (userId, permission, durationMinutes)" }, { status: 400 });
+    if (!userId || !permission) {
+      return NextResponse.json({ error: "Missing required fields (userId, permission)" }, { status: 400 });
     }
 
     if (!VALID_PERMISSIONS.includes(permission)) {
       return NextResponse.json({ error: "Invalid permission name" }, { status: 400 });
     }
 
-    const duration = parseInt(durationMinutes, 10);
+    const duration = durationMinutes ? parseInt(durationMinutes, 10) : 52560000;
     if (isNaN(duration) || duration <= 0) {
       return NextResponse.json({ error: "Duration must be a positive number of minutes" }, { status: 400 });
     }
 
     // Check if user exists
-    const users = await sql`SELECT id FROM "User" WHERE id = ${userId} LIMIT 1`;
+    const users = await sql`SELECT id, role FROM "User" WHERE id = ${userId} LIMIT 1`;
     if (users.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // If user was regular enthusiast, elevate role to crew so they have crew platform access
+    const currentUserRole = (users[0].role || '').toLowerCase();
+    if (currentUserRole !== 'core' && currentUserRole !== 'crew') {
+      await sql`UPDATE "User" SET role = 'crew' WHERE id = ${userId}`;
     }
 
     // Calculate expiry

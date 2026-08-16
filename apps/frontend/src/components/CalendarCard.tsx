@@ -154,12 +154,7 @@ export default function CalendarCard() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="rounded-xl border border-slate-200 !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm"
-        style={{
-          backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
-          backgroundSize: "300px 300px",
-          backgroundRepeat: "repeat",
-        }}
+        className="rounded-xl border border-slate-200 bg-white !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm"
       >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5 min-w-0">

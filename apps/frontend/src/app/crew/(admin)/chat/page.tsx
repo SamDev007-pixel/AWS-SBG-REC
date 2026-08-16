@@ -40,7 +40,6 @@ export default function CrewChatPage() {
           avatar: parsed.avatar || null,
         });
       } else {
-        // Fallback for easy testing or dev mode
         setUser({
           id: "dev_crew",
           email: "crew@awsclub.dev",
@@ -58,54 +57,42 @@ export default function CrewChatPage() {
 
   if (loading || !user) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-130px)] m-4 md:m-6">
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-widest animate-pulse">
-          Loading crew chat workspace...
+      <div className="h-full w-full flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full border-2 border-[#FF9900] border-t-transparent animate-spin" />
+          <span className="text-xs font-semibold text-slate-500">Loading chat...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div 
-      className="h-full w-full box-border select-none flex flex-col overflow-hidden antialiased"
-      style={{
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
-        backgroundRepeat: 'repeat',
-        backgroundSize: '480px auto',
-      }}
-    >
-      <style>{`
-        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
-        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
-      `}</style>
-
-      {/* Main Glass Panel */}
-      <div className="relative flex-1 flex flex-col bg-white overflow-hidden z-10">
-        
-        {/* Header bar with role indication and chat room info */}
-        <div className="flex items-center justify-between flex-wrap gap-4 px-6 py-4 border-b border-slate-200 bg-white select-none">
-          <div className="flex items-center gap-3.5">
-            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center border border-slate-200/50 shadow-xs">
-              <AWSBrandLogo className="w-8 h-[19px]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-[#232F3E] text-[15px] tracking-tight leading-none">
-                Crew General Room
-              </h3>
-              <span className="text-[11px] text-slate-500 font-semibold mt-1.5 inline-block">
-                Shared workspace for all core & crew members · Online
-              </span>
-            </div>
+    <div className="h-full w-full flex flex-col bg-white overflow-hidden select-none antialiased">
+      {/* End-to-End Chat Room Header */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-200 bg-white select-none shrink-0 z-10">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center shadow-xs shrink-0">
+            <AWSBrandLogo className="w-7 sm:w-8 h-[16px] sm:h-[19px]" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bold text-[#232F3E] text-sm sm:text-[15px] tracking-tight leading-tight truncate">
+              Core & Crew Chat
+            </h3>
+            <span className="text-[11px] text-slate-500 font-medium truncate block mt-0.5">
+              Shared channel for team discussions and coordination
+            </span>
           </div>
         </div>
 
-        {/* Main Panel View */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
-          <GroupChatPanel user={user} />
-        </div>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Live Chat</span>
+        </span>
+      </div>
+
+      {/* End-to-End Chat Body and Composer */}
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative bg-white">
+        <GroupChatPanel user={user} />
       </div>
     </div>
   );

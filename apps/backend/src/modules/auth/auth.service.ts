@@ -102,7 +102,21 @@ export class AuthService {
       group,
     });
 
+    const role = user.role || group.toLowerCase();
+
     return {
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fullName: `${user.firstName} ${user.lastName}`.trim(),
+        role: role.toLowerCase(),
+        roles: roleNames,
+        group,
+        accessToken,
+      },
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -113,5 +127,210 @@ export class AuthService {
       accessToken, // JWT for roadmap endpoints
       message: 'Account created successfully.',
     };
+  }
+
+  // ── Access Control & Permissions Methods ──
+
+  async checkPermissions(userId: string, permission?: string) {
+    if (!userId) return { success: true, permissions: [], hasPermission: false };
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    // Core administrators inherently have full privileges
+    if (user?.role === 'core') {
+      return {
+        success: true,
+        permissions: ['create_event', 'edit_event', 'manage_announcements', 'scan_ticket', 'view_analytics'],
+        hasPermission: true,
+      };
+    }
+
+    const activePerms = await this.prisma.crewPermission.findMany({
+      where: {
+        userId,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    const permissions = activePerms.map((p) => p.permission);
+    const hasPermission = permission ? permissions.includes(permission) : true;
+
+    return {
+      success: true,
+      permissions,
+      hasPermission,
+    };
+  }
+
+  async getAllPermissions() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        role: { in: ['crew', 'volunteer', 'scanner', 'CREW', 'VOLUNTEER', 'SCANNER'] },
+      },
+      include: {
+        crewPermissions: {
+          where: {
+            expiresAt: { gt: new Date() },
+          },
+        },
+      },
+      orderBy: { firstName: 'asc' },
+    });
+
+    const crew = users.map((u) => {
+      const initials = `${u.firstName?.[0] || ''}${u.lastName?.[0] || ''}`.toUpperCase() || 'CM';
+      return {
+        id: u.id,
+        name: `${u.firstName} ${u.lastName}`.trim() || u.email,
+        email: u.email,
+        role: u.role || 'crew',
+        avatar: {
+          photo: u.avatar || null,
+          initials,
+          color: '#FF9900',
+        },
+        isActive: u.isActive,
+        permissions: u.crewPermissions.map((p) => ({
+          id: p.id,
+          permission: p.permission,
+          expiresAt: p.expiresAt.toISOString(),
+          grantedAt: p.grantedAt.toISOString(),
+          grantedById: p.grantedById || '',
+          grantedByName: 'Core Admin',
+        })),
+      };
+    });
+
+    return {
+      success: true,
+      crew,
+    };
+  }
+
+  async grantPermission(userId: string, permission: string, durationMinutes?: number, grantedById?: string) {
+    const duration = durationMinutes && durationMinutes > 0 ? durationMinutes : 52560000;
+    const expiresAt = new Date(Date.now() + duration * 60 * 1000);
+
+    const record = await this.prisma.crewPermission.upsert({
+      where: {
+        userId_permission: {
+          userId,
+          permission,
+        },
+      },
+      update: {
+        expiresAt,
+        grantedById: grantedById || null,
+        grantedAt: new Date(),
+      },
+      create: {
+        userId,
+        permission,
+        expiresAt,
+        grantedById: grantedById || null,
+      },
+    });
+
+    return {
+      success: true,
+      permission: record,
+    };
+  }
+
+  async revokePermission(userId: string, permission: string) {
+    await this.prisma.crewPermission.deleteMany({
+      where: {
+        userId,
+        permission,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Permission revoked successfully.',
+    };
+  }
+
+  async getMembers() {
+    const users = await this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const mapped = users.map((u) => {
+      const initials = `${u.firstName?.[0] || ''}${u.lastName?.[0] || ''}`.toUpperCase() || 'U';
+      return {
+        id: u.id,
+        name: `${u.firstName} ${u.lastName}`.trim() || u.email,
+        email: u.email,
+        role: u.role || 'enthusiasts',
+        avatar: {
+          photo: u.avatar || null,
+          initials,
+          color: u.role === 'core' ? '#FF9900' : '#4F46E5',
+        },
+        banned: !u.isActive,
+      };
+    });
+
+    return {
+      success: true,
+      users: mapped,
+      data: { users: mapped },
+    };
+  }
+
+  async manageMember(body: any) {
+    if (body.action === 'register') {
+      const existing = await this.prisma.user.findUnique({ where: { email: body.email } });
+      if (existing) throw new ConflictException('An account with this email already exists');
+
+      const hashedPassword = await bcrypt.hash(body.password || 'TemporaryPass123!', BCRYPT_SALT_ROUNDS);
+      const nameParts = (body.name || '').trim().split(' ');
+      const firstName = nameParts[0] || 'Member';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      const roleStr = (body.role || 'crew').toLowerCase();
+
+      const user = await this.prisma.user.create({
+        data: {
+          email: body.email,
+          firstName,
+          lastName,
+          password: hashedPassword,
+          role: roleStr,
+          isActive: true,
+        },
+      });
+
+      return {
+        success: true,
+        user: {
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`.trim(),
+          email: user.email,
+          role: user.role,
+        },
+      };
+    }
+
+    if (body.action === 'unban' || body.action === 'activate') {
+      await this.prisma.user.update({
+        where: { id: body.userId },
+        data: { isActive: true },
+      });
+      return { success: true };
+    }
+
+    return { success: false, error: 'Unknown action' };
+  }
+
+  async deactivateMember(id: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    return { success: true };
   }
 }

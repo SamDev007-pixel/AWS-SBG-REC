@@ -29,9 +29,16 @@ export default function Home() {
 
   const today = new Date();
   const upcomingCount = events.filter(e => new Date(e.start_datetime) >= today).length;
-  return (
-    <div className="w-full min-h-full lg:h-screen lg:max-h-screen bg-white p-4 sm:p-5 lg:p-6 relative overflow-y-auto lg:overflow-hidden flex flex-col justify-between select-none gap-4">
 
+  return (
+    <div 
+      className="w-full min-h-full lg:h-screen lg:max-h-screen p-4 sm:p-5 lg:p-6 relative overflow-y-auto lg:overflow-hidden flex flex-col justify-between select-none gap-4 antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: "repeat",
+        backgroundSize: "450px auto",
+      }}
+    >
       <div className="relative z-10 flex flex-col flex-1 gap-4 w-full justify-between">
         {/* 1. Welcome Hero Banner */}
         <div className="flex-shrink-0">
@@ -69,14 +76,7 @@ export default function Home() {
         <section id="events" className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-stretch flex-1 min-h-0">
           {/* Left Side: Roadmap Progress (60%) */}
           <div className="lg:col-span-6 flex flex-col h-full min-h-0">
-            <div 
-              className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 p-5 overflow-hidden justify-between shadow-xs"
-              style={{
-                backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
-                backgroundSize: "300px 300px",
-                backgroundRepeat: "repeat",
-              }}
-            >
+            <div className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 bg-white p-5 overflow-hidden justify-between shadow-xs">
               <RoadmapProgress />
             </div>
           </div>
@@ -89,6 +89,7 @@ export default function Home() {
           </div>
         </section>
       </div>
+
       {leaderboardOpen && (
         <LeaderboardModal
           isOpen={leaderboardOpen}

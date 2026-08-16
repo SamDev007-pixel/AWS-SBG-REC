@@ -14,20 +14,12 @@ interface TeamMember {
 
 const CORE_MEMBERS: TeamMember[] = [
   {
-    id: "core-2",
-    name: "Giridharan R",
-    role: "IT Support and Management",
+    id: "core-5",
+    name: "V Thirunavukkarasu",
+    role: "Social Media Lead",
     department: "AWS Cloud Clubs REC",
-    image: "/images/core/giridharan_r.jpg",
-    accent: "#0073BB",
-  },
-  {
-    id: "core-1",
-    name: "Dilip Kannan K",
-    role: "Event Management",
-    department: "AWS Cloud Clubs REC",
-    image: "/images/core/dilip_kannan.jpg",
-    accent: "#7C3AED",
+    image: "/images/core/thirunavukkarasu.jpg",
+    accent: "#16A34A",
   },
   {
     id: "core-4",
@@ -44,14 +36,6 @@ const CORE_MEMBERS: TeamMember[] = [
     department: "AWS Cloud Clubs REC",
     image: "/images/core/pranav_ranjan.jpg",
     accent: "#FF9900",
-  },
-  {
-    id: "core-5",
-    name: "V Thirunavukkarasu",
-    role: "Social Media Lead",
-    department: "AWS Cloud Clubs REC",
-    image: "/images/core/thirunavukkarasu.jpg",
-    accent: "#16A34A",
   },
 ];
 
@@ -356,9 +340,16 @@ export default function OurTeamShowcase({
       return fetchedMembers.filter((m) => m.type === "core");
     }
     if (filterType === "crew") {
-      return fetchedMembers.filter((m) => m.type === "crew");
+      return fetchedMembers
+        .filter((m) => m.type === "crew")
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
-    return fetchedMembers;
+    // Default / "Meet the Team": Core members in fixed hierarchy followed by Crew in alphabetical order
+    const coreList = fetchedMembers.filter((m) => m.type === "core");
+    const crewList = fetchedMembers
+      .filter((m) => m.type === "crew")
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return [...coreList, ...crewList];
   }, [fetchedMembers, filterType]);
 
   const displayMembers = useMemo(() => {

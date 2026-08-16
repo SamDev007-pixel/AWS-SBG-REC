@@ -7,11 +7,21 @@ import { IApiResponse } from '../../common/interfaces/response.interface';
 export class TransformInterceptor<T> implements NestInterceptor<T, IApiResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<IApiResponse<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-        message: '',
-      })),
+      map((data: any) => {
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          return {
+            success: data.success !== undefined ? data.success : true,
+            data: data.data !== undefined ? data.data : data,
+            message: data.message || '',
+            ...data,
+          };
+        }
+        return {
+          success: true,
+          data,
+          message: '',
+        };
+      }),
     );
   }
 }

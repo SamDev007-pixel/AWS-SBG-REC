@@ -22,6 +22,7 @@ export async function GET() {
         u."lastName", 
         u."isActive", 
         u.avatar,
+        u.role,
         r.name as "roleName"
       FROM "User" u
       LEFT JOIN "UserRole" ur ON u.id = ur."userId"
@@ -33,13 +34,13 @@ export async function GET() {
     const userMap: Record<string, any> = {};
     users.forEach((row: any) => {
       if (!userMap[row.id]) {
-        const fullName = `${row.firstName} ${row.lastName}`.trim();
-        const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+        const fullName = `${row.firstName} ${row.lastName}`.trim() || row.email;
+        const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
         
-        let mappedRole = 'enthusiasts';
-        if (["SUPER_ADMIN", "ADMIN", "ORGANIZER"].includes(row.roleName)) {
+        let mappedRole = (row.role || 'enthusiasts').toLowerCase();
+        if (["SUPER_ADMIN", "ADMIN", "ORGANIZER"].includes(row.roleName) || mappedRole === 'core') {
           mappedRole = 'core';
-        } else if (["VOLUNTEER", "SCANNER"].includes(row.roleName)) {
+        } else if (["VOLUNTEER", "SCANNER"].includes(row.roleName) || mappedRole === 'crew' || mappedRole === 'volunteer' || mappedRole === 'scanner') {
           mappedRole = 'crew';
         }
 
@@ -58,7 +59,13 @@ export async function GET() {
       }
     });
 
-    return NextResponse.json({ users: Object.values(userMap) });
+    const userList = Object.values(userMap);
+
+    return NextResponse.json({ 
+      success: true,
+      users: userList,
+      data: { users: userList } 
+    });
   } catch (error: any) {
     console.error("Auth GET error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

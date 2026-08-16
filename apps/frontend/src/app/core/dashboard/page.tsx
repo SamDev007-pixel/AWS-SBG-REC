@@ -84,7 +84,7 @@ const SURROUNDING_ICONS = [
   { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-cloudwatch.svg", label: "CloudWatch" },
 ];
 
-const ORBIT_RADIUS = 86; // Center-to-center distance in pixels
+const ORBIT_RADIUS = 72; // Center-to-center distance in pixels
 
 const POSITIONED_ICONS = SURROUNDING_ICONS.map((item, index) => {
   const angle = index * 72; // 5 icons: 360 / 5 = 72 degrees step
@@ -128,36 +128,29 @@ function CoreHeroBanner() {
 
   return (
     <div className="relative w-full">
-      {/* Glow effect blobs to shine through glassmorphic cards */}
-      <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-brand-orange/25 rounded-full blur-[60px] pointer-events-none z-0" />
-      <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-brand-blue/15 rounded-full blur-[65px] pointer-events-none z-0" />
+      {/* Background soft glow blobs */}
+      <div className="absolute top-1/2 left-[10%] -translate-y-1/2 w-36 h-36 bg-amber-500/15 rounded-full blur-[60px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-40 h-40 bg-orange-500/10 rounded-full blur-[65px] pointer-events-none z-0" />
 
-      {/* Glassmorphic welcome banner */}
-      <div className="relative w-full rounded-[22px] border border-orange-100/60 bg-white/45 backdrop-blur-[24px] shadow-xl shadow-black/[0.03] overflow-hidden z-10">
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{
-            background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.25) 0%, rgba(255, 153, 0, 0.12) 40%, rgba(255, 255, 255, 0) 70%)",
-          }}
-        />
-        
+      {/* Welcome banner with solid white card container */}
+      <div className="relative w-full rounded-xl border border-slate-200 p-4 sm:p-5 overflow-hidden z-10 shadow-xs bg-white">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative w-full min-h-[190px] p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6"
+          transition={{ duration: 0.4 }}
+          className="relative w-full flex flex-col md:flex-row justify-between items-center gap-4"
         >
           {/* Welcome Text Content */}
           <div className="relative z-10 flex-1 flex flex-col items-start text-slate-800">
             <motion.div
-              initial={{ opacity: 0, x: -15 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9900]/8 border border-[#FF9900]/30 text-[11px] mb-3 shadow-[0_1px_4px_rgba(255,153,0,0.04)]"
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-50/90 border border-orange-200 text-orange-900 text-[11.5px] font-semibold mb-3 shadow-2xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#FF9900] animate-spin" style={{ animationDuration: "6s" }} />
+              <Sparkles className="w-3.5 h-3.5 text-[#FF9900]" />
               <span 
-                className="text-slate-700 tracking-wider font-semibold"
+                className="tracking-wider font-semibold"
                 style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
               >
                 AWS Student Builders Group REC
@@ -165,32 +158,32 @@ function CoreHeroBanner() {
             </motion.div>
 
             <h1 
-              className="text-[23px] md:text-[29px] font-semibold tracking-tight text-slate-900 drop-shadow-sm mb-2.5"
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-1.5 leading-tight"
               style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
             >
               {greeting}, <span className="capitalize font-bold text-slate-900 inline-block">{userName}</span>!
             </h1>
 
             <p 
-              className="text-slate-600 max-w-xl text-[13.5px] leading-relaxed mb-5 text-left tracking-wide"
-              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontWeight: 500 }}
+              className="text-xs sm:text-[13.5px] text-slate-600 font-normal leading-relaxed max-w-xl mb-4 text-left"
+              style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
             >
               Manage your community, empower your team, and turn ambitious ideas into impactful events that leave a lasting impression.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-              <Link href="/core/events/create" className="w-full sm:w-auto">
+            <div className="flex flex-row items-center gap-2.5 w-full sm:w-auto">
+              <Link href="/core/events/create" className="flex-1 sm:flex-initial">
                 <button
-                  className="w-full sm:w-auto px-4.5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFA524] text-white font-semibold text-[12.5px] shadow-sm border border-[#FF9900] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+                  className="w-full sm:w-auto h-9 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg bg-[#FF9900] hover:bg-[#E88B00] text-white font-bold text-xs sm:text-[13px] shadow-2xs hover:shadow-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Event</span>
                 </button>
               </Link>
 
-              <Link href="/core/analytics" className="w-full sm:w-auto">
+              <Link href="/core/analytics" className="flex-1 sm:flex-initial">
                 <button
-                  className="w-full sm:w-auto px-4.5 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-[12.5px] shadow-sm flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+                  className="w-full sm:w-auto h-9 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-[13px] shadow-2xs hover:shadow-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 >
                   <BarChart3 className="w-4 h-4 text-slate-500" />
                   <span>System Analytics</span>
@@ -200,26 +193,16 @@ function CoreHeroBanner() {
           </div>
 
           {/* Right Side Visual Panel */}
-          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-4">
-            <div className="relative w-56 h-56 flex items-center justify-center">
+          <div className="hidden md:flex relative z-10 flex-shrink-0 w-full md:w-auto justify-center items-center md:px-2">
+            <div className="relative w-44 h-44 flex items-center justify-center">
               {/* Animated floating circles / orbits */}
-              <div className="absolute w-[172px] h-[172px] border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
-              <div className="absolute w-[116px] h-[116px] border border-dotted border-black/20 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
+              <div className="absolute w-[144px] h-[144px] border border-dashed border-slate-300 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
+              <div className="absolute w-[92px] h-[92px] border border-dotted border-slate-400/80 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
 
-              {/* Central Main Large Icon (AWS Logo) */}
-              <motion.div
-                animate={{
-                  y: [4, -4, 4],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute z-10 w-21 h-21 bg-transparent flex items-center justify-center"
-              >
-                <img src="/aws-logo.svg" alt="AWS Logo" className="w-14 h-auto object-contain animate-pulse" style={{ animationDuration: "3s" }} />
-              </motion.div>
+              {/* Central Main Icon (AWS Logo) */}
+              <div className="absolute z-10 w-16 h-16 bg-transparent flex items-center justify-center pointer-events-none">
+                <img src="/aws-logo.svg" alt="AWS Logo" className="w-13 h-auto object-contain drop-shadow-sm" />
+              </div>
 
               {/* 5 Surrounding Smaller Icons (Orbiting) */}
               {POSITIONED_ICONS.map((item) => {
@@ -244,7 +227,7 @@ function CoreHeroBanner() {
                     }}
                   >
                     <motion.div
-                      className="absolute w-9.5 h-9.5 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
+                      className="absolute w-9 h-9 rounded-xl overflow-hidden border border-black/10 shadow-xs cursor-pointer z-20"
                       style={{
                         left: "50%",
                         top: "50%",
@@ -253,20 +236,18 @@ function CoreHeroBanner() {
                       }}
                       animate={{
                         rotate: [-item.angle, -item.angle - 360],
-                        scale: isHovered ? 1.25 : 1,
+                        scale: isHovered ? 1.2 : 1,
                         boxShadow: isHovered
-                          ? "0 10px 20px -8px rgba(0, 0, 0, 0.15), 0 6px 12px -6px rgba(0, 0, 0, 0.15)"
-                          : "0 3px 5px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.1)",
+                          ? "0 6px 12px -4px rgba(0, 0, 0, 0.2)"
+                          : "0 2px 4px -1px rgba(0, 0, 0, 0.08)",
                         borderColor: isHovered
-                          ? "rgba(255, 153, 0, 0.35)"
+                          ? "rgba(255, 153, 0, 0.5)"
                           : "rgba(0, 0, 0, 0.1)",
                         zIndex: isHovered ? 30 : 20,
                       }}
                       transition={{
                         rotate: { duration: 40, repeat: Infinity, ease: "linear" },
                         scale: { type: "spring", stiffness: 400, damping: 15 },
-                        boxShadow: { type: "spring", stiffness: 400, damping: 15 },
-                        borderColor: { type: "spring", stiffness: 400, damping: 15 },
                       }}
                       onHoverStart={() => setHoveredIcon(item.label)}
                       onHoverEnd={() => setHoveredIcon(null)}
@@ -390,20 +371,20 @@ function ActionsDropdown({
 }
 
 const RecentEventSkeleton = () => (
-  <div className="border border-slate-200 bg-white rounded-[6px] shadow-sm overflow-hidden animate-pulse min-h-[380px] flex flex-col justify-between">
+  <div className="border border-slate-200 bg-white rounded-[6px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden animate-pulse flex flex-col justify-between h-full">
     <div className="bg-slate-100 h-48 rounded-t-[6px]" />
-    <div className="p-5 space-y-4 flex-grow flex flex-col justify-between">
+    <div className="p-5 pt-4 space-y-3 flex-grow flex flex-col justify-between">
       <div className="space-y-2">
-        <div className="h-5 bg-slate-100 rounded-lg w-3/4" />
-        <div className="h-4 bg-slate-100 rounded-lg w-1/2" />
+        <div className="h-5 bg-slate-100 rounded w-3/4" />
+        <div className="h-4 bg-slate-100 rounded w-1/3" />
       </div>
-      <div className="space-y-2 pt-3 border-t border-slate-100">
-        <div className="h-4 bg-slate-100 rounded-lg w-5/6" />
-        <div className="h-4 bg-slate-100 rounded-lg w-2/3" />
+      <div className="space-y-1.5 pt-2 border-t border-slate-100">
+        <div className="h-3.5 bg-slate-100 rounded w-4/5" />
+        <div className="h-3.5 bg-slate-100 rounded w-2/3" />
       </div>
-      <div className="pt-3 border-t border-slate-50 flex items-center justify-between">
-        <div className="h-4 bg-slate-100 rounded-lg w-1/4" />
-        <div className="h-4 bg-slate-100 rounded-lg w-1/4" />
+      <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <div className="h-9 bg-slate-100 rounded w-5/12" />
+        <div className="h-9 bg-slate-100 rounded w-5/12" />
       </div>
     </div>
   </div>
@@ -422,9 +403,9 @@ const RecentEventCard = ({
   const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-[6px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-[#FF9900]/70 hover:shadow-[0_12px_30px_-6px_rgba(35,47,62,0.08),0_0_15px_rgba(255,153,0,0.22)] hover:-translate-y-1 transition-all duration-300 ease-out group flex flex-col relative h-full">
-      {/* Poster (Premium full-bleed cover image) */}
-      <div className="h-44 sm:h-42 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
+    <div className="group rounded-[6px] overflow-hidden transition-all duration-300 flex flex-col h-full relative cursor-pointer bg-white border border-slate-200 hover:border-[#FF9900]/70 hover:shadow-[0_12px_30px_-6px_rgba(35,47,62,0.08),0_0_15px_rgba(255,153,0,0.22)] hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+      {/* Poster (Full-bleed cover image matching events page) */}
+      <div className="h-48 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
         <img
           src={imgPosterSrc}
           alt={event.title}
@@ -434,12 +415,12 @@ const RecentEventCard = ({
       </div>
 
       {/* Body */}
-      <div className="p-4.5 pt-3.5 flex-1 flex flex-col gap-3">
+      <div className="p-5 pt-4 flex-1 flex flex-col gap-3 bg-white">
         {/* Title & Details Group wrapper */}
         <div className="flex flex-col gap-3">
           {/* Header with Title and Actions */}
           <div className="flex items-start justify-between gap-4">
-            <h3 className="text-[15.5px] font-bold text-slate-850 leading-snug tracking-tight hover:text-[#FF9900] transition-colors line-clamp-2" title={event.title}>
+            <h3 className="text-[18px] font-bold text-slate-800 leading-snug tracking-tight hover:text-[#FF9900] transition-colors line-clamp-2" title={event.title}>
               {event.title}
             </h3>
             <div className="shrink-0 pt-0.5">
@@ -449,13 +430,13 @@ const RecentEventCard = ({
 
           {/* Badges Row (Status, Category) */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[9.5px] font-semibold uppercase tracking-wide border ${sc.className}`}>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider border ${sc.className}`}>
               {sc.label}
             </span>
             {event.category && (() => {
               const cat = categoryConfig(event.category);
               return (
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[9.5px] font-semibold uppercase tracking-wider border ${cat.className}`}>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider border ${cat.className}`}>
                   {cat.label}
                 </span>
               );
@@ -463,7 +444,7 @@ const RecentEventCard = ({
           </div>
 
           {/* Date & Venue details */}
-          <div className="flex flex-col gap-2 text-[12px] text-slate-500">
+          <div className="flex flex-col gap-1.5 text-[13px] text-slate-500">
             {event.date && (
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-[#FF9900]/80 shrink-0" />
@@ -483,7 +464,7 @@ const RecentEventCard = ({
       </div>
 
       {/* Card Footer Container */}
-      <div className="px-4.5 py-3.5 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3 mt-auto">
+      <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto rounded-b-[6px]">
         {/* Remaining Seats */}
         {capacity != null && (() => {
           const remaining = Math.max(0, capacity - regCount);
@@ -502,11 +483,11 @@ const RecentEventCard = ({
           
           return (
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
-                <Users className="h-4 w-4 text-slate-400" />
+              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <Users className="h-3.5 w-3.5 text-slate-400" />
                 <span>Seats Remaining</span>
               </div>
-              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-bold border ${statusCls}`}>
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] text-[11.5px] font-bold border ${statusCls}`}>
                 <span className={`h-1.5 w-1.5 rounded-[2px] ${dotColor}`} />
                 {remaining}
               </span>
@@ -517,13 +498,13 @@ const RecentEventCard = ({
         {/* Footer / Buttons */}
         <div className="flex items-center justify-between gap-3.5">
           <Link href={`/core/events/edit/${event.id}`}
-            className="flex-1 h-9 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[12.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+            className="flex-1 h-9.5 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[12.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
             <Edit className="h-4 w-4" />
             <span>Edit Event</span>
           </Link>
           
           <Link href={`/core/registrations?eventId=${event.id}`}
-            className="group flex-1 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-355 text-slate-700 font-semibold text-[12.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
+            className="group flex-1 h-9.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[12.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
             <Users className="h-4 w-4 text-slate-500 group-hover:scale-105 transition-transform" />
             <span>Registrations</span>
           </Link>
@@ -584,49 +565,48 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FFFFFF', paddingTop: '12px', paddingBottom: '48px', position: 'relative', overflow: 'hidden' }}>
-
-      <div style={{ width: '100%', position: 'relative', zIndex: 1 }}>
+    <div
+      className="w-full min-h-screen relative"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundSize: "300px 300px",
+        backgroundRepeat: "repeat",
+        backgroundColor: "#f8fafc",
+      }}
+    >
+      <div className="w-full max-w-7xl mx-auto p-4 sm:p-5 lg:p-6 flex flex-col gap-4 relative z-10">
         
         {/* Welcome Hero Banner */}
-        <div className="px-4 md:px-5">
-          <CoreHeroBanner />
-        </div>
+        <CoreHeroBanner />
 
-        {/* Shortcuts strip */}
-        <div 
-          className="w-full mt-4 py-3.5 px-0" 
-          style={{ 
-            borderTop: "1px solid rgba(15, 23, 42, 0.07)",
-            borderBottom: "1px solid rgba(15, 23, 42, 0.07)",
-          }}
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 px-4 md:px-5">
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="w-9 h-9 rounded-[6px] bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 text-[#FF9900] flex items-center justify-center shadow-sm">
-                <Sliders className="h-4.5 w-4.5" />
+        {/* Shortcuts strip / Console Utilities */}
+        <div className="w-full py-3 px-4 sm:px-5 rounded-xl border border-slate-200 bg-white shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 text-[#FF9900] flex items-center justify-center shadow-2xs">
+                <Sliders className="h-4 w-4" />
               </div>
               <div className="flex flex-col gap-0.5" style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-                <h3 className="text-[12px] font-bold text-slate-800 uppercase tracking-[0.06em] leading-none m-0">
+                <h3 className="text-[11.5px] font-bold text-slate-800 uppercase tracking-[0.06em] leading-none m-0">
                   Console Utilities
                 </h3>
-                <p className="text-[11px] text-slate-500 font-normal leading-none m-0">
+                <p className="text-[10.5px] text-slate-500 font-normal leading-none m-0">
                   Quick administrative action shortcuts
                 </p>
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 w-full md:w-auto">
               {adminActions.map((action) => (
                 <Link key={action.label} href={action.href} className="w-full sm:w-auto inline-flex">
                   <motion.button
-                    whileHover={{ scale: 1.02, y: -0.5 }}
+                    whileHover={{ scale: 1.01, y: -0.5 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 px-4 py-2.5 rounded-[9px] border border-slate-200 bg-white shadow-sm hover:border-[#FF9900]/40 hover:shadow-md text-[12px] font-semibold text-slate-700 transition-all duration-200 cursor-pointer group"
+                    className="w-full sm:w-auto h-8.5 inline-flex items-center justify-between sm:justify-start gap-2 px-3 rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-white shadow-2xs hover:border-[#FF9900]/40 hover:shadow-xs text-xs font-semibold text-slate-700 transition-all duration-150 cursor-pointer group"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-7.5 h-7.5 flex items-center justify-center rounded-[6px] border ${action.color}`}>
-                        <action.icon className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-6 flex items-center justify-center rounded-[5px] border ${action.color}`}>
+                        <action.icon className="h-3.5 w-3.5" />
                       </div>
                       <span>{action.label}</span>
                     </div>
@@ -639,47 +619,47 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Events Section */}
-        <div className="mt-6 px-4 md:px-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 mb-5">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-[6px] bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/20 text-[#FF9900] shadow-sm shrink-0">
-                <Calendar className="w-4.5 h-4.5 text-brand-orange" />
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/20 text-[#FF9900] shadow-2xs shrink-0">
+                <Calendar className="w-4 h-4 text-brand-orange" />
               </span>
               <div className="flex flex-col">
-                <h2 className="text-[17px] font-bold text-slate-900 tracking-tight font-display leading-tight m-0">
+                <h2 className="text-base sm:text-[17px] font-semibold text-slate-800 tracking-tight leading-tight m-0">
                   Recent Events
                 </h2>
-                <p className="text-slate-500 text-[11.5px] font-normal mt-0.5">
+                <p className="text-slate-500 text-[11px] font-normal mt-0.5">
                   Overview of your most recently managed community activities.
                 </p>
               </div>
             </div>
             
-            <Link href="/core/events" className="w-full sm:w-auto inline-flex items-center justify-center gap-1.25 px-3.5 py-2 sm:py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm group">
+            <Link href="/core/events" className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 h-8 px-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-semibold transition-all shadow-2xs group">
               <span>View All Events</span>
-              <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-650 group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
             </Link>
           </div>
 
           {eventsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <RecentEventSkeleton key={i} />
               ))}
             </div>
           ) : recentEvents.length === 0 ? (
-            <GlassCard hoverEffect={false} className="border border-slate-200/50 py-11 text-center w-full" style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))", backdropFilter: "blur(12px)" }}>
+            <GlassCard hoverEffect={false} className="border border-slate-200 py-8 text-center w-full bg-white rounded-xl shadow-xs">
               <Calendar className="h-7 w-7 text-slate-300 mx-auto mb-2 animate-pulse" />
               <h3 className="text-sm font-semibold text-slate-800 mb-1 font-display">No events found</h3>
               <p className="text-xs text-slate-500 mb-4 max-w-xs mx-auto">Get started by creating your first community event.</p>
               <Link href="/core/events/create">
-                <button className="bg-brand-orange text-white rounded-lg text-xs font-semibold px-4.5 py-2 hover:bg-brand-orange/90 transition shadow-md shadow-brand-orange/10 cursor-pointer">
+                <button className="bg-brand-orange text-white rounded-lg text-xs font-semibold px-4 py-2 hover:bg-brand-orange/90 transition shadow-xs cursor-pointer">
                   Create Event
                 </button>
               </Link>
             </GlassCard>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentEvents.map((event) => (
                 <RecentEventCard key={event.id} event={event} onAction={handleAction} />
               ))}
