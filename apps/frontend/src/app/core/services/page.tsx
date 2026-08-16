@@ -128,7 +128,16 @@ export default function CoreServicesManagementPage() {
   const featuredServices = services.filter((s) => s.isFeatured).length;
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto relative space-y-6">
+    <div
+      className="min-h-screen w-full text-[#1A1C1E] relative p-4 sm:p-6 md:p-8 overflow-y-auto premium-scrollbar scroll-smooth"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+        backgroundColor: '#f8fafc',
+      }}
+    >
+      <div className="max-w-[1600px] mx-auto relative space-y-6">
       {/* Toast Notification Stack */}
       <div className="fixed top-6 right-6 z-[200] flex flex-col gap-2 pointer-events-none">
         {toasts.map((t) => (
@@ -284,6 +293,7 @@ export default function CoreServicesManagementPage() {
           showToast={showToast}
         />
       )}
+      </div>
     </div>
   );
 }

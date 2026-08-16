@@ -30,7 +30,15 @@ export default function ServicesLayout({ children }: { children: React.ReactNode
   }
 
   const servicesContent = (
-    <div className="services-theme min-h-screen w-full bg-slate-50/50">
+    <div
+      className="services-theme min-h-screen w-full relative"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+        backgroundColor: '#f8fafc',
+      }}
+    >
       {children}
     </div>
   );

@@ -9,14 +9,12 @@ import ReviewsMarquee from '@/components/ReviewsMarquee';
 import OurTeamShowcase from '@/components/CommunityStoryCarousel';
 import Hero from '@/components/Hero';
 import {
-  Sliders,
   Settings,
   User,
   Image as ImageIcon,
   MessageSquare,
   Quote,
   Users,
-  PlusCircle,
   Plus,
   Edit3,
   Trash2,
@@ -25,15 +23,12 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
-  Linkedin,
-  Layout,
-  Eye,
-  Play,
   Monitor,
   Home,
   Smartphone,
-  Lock,
   UploadCloud,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 
 interface HeroData {
@@ -101,7 +96,6 @@ export default function ManageHomepage() {
 
   const [saving, setSaving] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isPreviewFlipped, setIsPreviewFlipped] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
 
   const [uploadingCoord, setUploadingCoord] = useState(false);
@@ -158,7 +152,7 @@ export default function ManageHomepage() {
       const res = await api.upload<{ url: string }>('/upload/image', file);
       if (res && res.url && editingTeam) {
         setEditingTeam((prev) => prev ? { ...prev, image: res.url } : null);
-        setMessage({ text: 'Team member image uploaded successfully!' });
+        setMessage({ text: 'Team avatar uploaded successfully!' });
       }
     } catch (err: any) {
       console.error(err);
@@ -168,53 +162,47 @@ export default function ManageHomepage() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    if (typeof window !== 'undefined') {
-      const isMobileScreen = window.innerWidth < 768;
-      setPreviewMode(isMobileScreen ? 'mobile' : 'desktop');
-    }
-  }, []);
-
   const fetchData = async () => {
-    setLoading(true);
     try {
-      const [heroRes, coordRes, journeyRes, testimonialRes, teamRes] = await Promise.all([
-        api.get<HeroData>('/homepage/hero'),
-        api.get<CoordinatorData>('/homepage/coordinator'),
-        api.get<JourneyData[]>('/homepage/journeys'),
-        api.get<TestimonialData[]>('/homepage/testimonials'),
-        api.get<TeamMemberData[]>('/homepage/team'),
+      setLoading(true);
+      const [hRes, cRes, jRes, tRes, tmRes] = await Promise.all([
+        api.get<HeroData>('/homepage/hero').catch(() => null),
+        api.get<CoordinatorData>('/homepage/coordinator').catch(() => null),
+        api.get<JourneyData[]>('/homepage/journeys').catch(() => []),
+        api.get<TestimonialData[]>('/homepage/testimonials').catch(() => []),
+        api.get<TeamMemberData[]>('/homepage/team').catch(() => []),
       ]);
 
-      if (heroRes) setHero(heroRes);
-      if (coordRes) setCoord(coordRes);
-      if (journeyRes) setJourneys(journeyRes.sort((a, b) => a.order - b.order));
-      if (testimonialRes) setTestimonials(testimonialRes.sort((a, b) => a.order - b.order));
-      if (teamRes) setTeam(teamRes.sort((a, b) => a.order - b.order));
-    } catch (err: any) {
-      console.error('Homepage settings fetch error:', err?.message || err);
-      setMessage({ text: 'Failed to fetch homepage settings.', isError: true });
+      if (hRes) setHero(hRes);
+      if (cRes) setCoord(cRes);
+      if (Array.isArray(jRes)) setJourneys(jRes);
+      if (Array.isArray(tRes)) setTestimonials(tRes);
+      if (Array.isArray(tmRes)) setTeam(tmRes);
+    } catch (err) {
+      console.error('Failed to load homepage CMS data', err);
+      setMessage({ text: 'Failed to synchronize homepage data', isError: true });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const showFeedback = (text: string, isError = false) => {
     setMessage({ text, isError });
-    setTimeout(() => setMessage(null), 4500);
+    setTimeout(() => setMessage(null), 4000);
   };
-
-  // ── Handlers ─────────────────────────────────────────────────────────────
 
   const saveHero = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
       await api.put('/homepage/hero', hero);
-      showFeedback('Hero section updated successfully.');
+      showFeedback('Hero Banner updated successfully!');
     } catch {
-      showFeedback('Failed to update Hero section.', true);
+      showFeedback('Failed to update Hero Banner.', true);
     } finally {
       setSaving(false);
     }
@@ -225,9 +213,9 @@ export default function ManageHomepage() {
     setSaving(true);
     try {
       await api.put('/homepage/coordinator', coord);
-      showFeedback('Faculty Coordinator details updated.');
+      showFeedback('Faculty Coordinator details saved!');
     } catch {
-      showFeedback('Failed to update Faculty Coordinator.', true);
+      showFeedback('Failed to save Faculty Coordinator.', true);
     } finally {
       setSaving(false);
     }
@@ -240,10 +228,10 @@ export default function ManageHomepage() {
     try {
       if (editingJourney.id) {
         await api.put(`/homepage/journeys/${editingJourney.id}`, editingJourney);
-        showFeedback('Journey Highlight card updated.');
+        showFeedback('Journey Highlight updated.');
       } else {
         await api.post('/homepage/journeys', editingJourney);
-        showFeedback('Journey Highlight card added.');
+        showFeedback('Journey Highlight added.');
       }
       setEditingJourney(null);
       fetchData();
@@ -330,65 +318,52 @@ export default function ManageHomepage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafc] p-4 md:p-6 lg:p-8 flex flex-col gap-6" style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div
+      className="min-h-screen w-full bg-[#f8fafc] text-slate-900 p-3.5 sm:p-5 lg:p-8 flex flex-col gap-4 sm:gap-6 relative overflow-y-auto premium-scrollbar"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+        backgroundColor: '#f8fafc',
+      }}
+    >
       <style dangerouslySetInnerHTML={{ __html: `
-        /* Modern, premium, clean scrollbar overrides for form textareas */
-        textarea::-webkit-scrollbar {
-          width: 5px !important;
-          height: 5px !important;
-        }
-        textarea::-webkit-scrollbar-track {
-          background: transparent !important;
-        }
-        textarea::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.35) !important;
-          border-radius: 9999px !important;
-          border: 1px solid transparent !important;
-          background-clip: padding-box !important;
-        }
-        textarea::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.55) !important;
-        }
-        textarea::-webkit-scrollbar-button {
+        .no-scrollbar::-webkit-scrollbar {
           display: none !important;
           width: 0 !important;
           height: 0 !important;
         }
-        textarea::-webkit-resizer {
-          background-image: linear-gradient(135deg, transparent 50%, rgba(148, 163, 184, 0.4) 50%) !important;
-          background-size: 6px 6px !important;
-          background-repeat: no-repeat !important;
-          background-position: bottom right !important;
-        }
-        textarea {
-          scrollbar-width: thin !important;
-          scrollbar-color: rgba(148, 163, 184, 0.35) transparent !important;
-        }
-        .preview-content-scroll::-webkit-scrollbar {
-          display: none !important;
-          width: 0 !important;
-          height: 0 !important;
-        }
-        .preview-content-scroll {
+        .no-scrollbar {
           -ms-overflow-style: none !important;
           scrollbar-width: none !important;
         }
       ` }} />
+
       {/* Title Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 bg-white/85 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[8px] bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 text-[#FF9900] flex items-center justify-center shadow-sm shrink-0">
-            <Home className="h-5 w-5" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-[#FF9900]/30 text-[#FF9900] flex items-center justify-center shrink-0 shadow-2xs">
+            <Home className="h-5 w-5 text-[#FF9900]" />
           </div>
-          <div className="flex flex-col gap-0.5">
-            <h1 className="text-[20px] font-black text-slate-900 tracking-tight leading-tight m-0">
+          <div className="flex flex-col">
+            <h1 className="text-[19px] sm:text-[22px] font-black text-slate-900 tracking-tight leading-tight">
               Homepage CMS
             </h1>
-            <p className="text-[11.5px] text-slate-500 font-normal leading-none m-0 mt-0.5">
-              Customize, add, or delete components rendered on the main landing page.
+            <p className="text-[11.5px] sm:text-[12.5px] text-slate-500 font-normal">
+              Customize, update, and manage dynamic landing page components
             </p>
           </div>
         </div>
+
+        {/* Live Preview Button */}
+        <button
+          type="button"
+          onClick={() => setIsPreviewOpen(true)}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-[12px] transition-all cursor-pointer shadow-xs hover:shadow active:scale-95 shrink-0"
+        >
+          <Monitor className="w-4 h-4 text-[#FF9900] shrink-0" />
+          <span>Show Live Preview</span>
+        </button>
       </div>
 
       {/* Feedback Alert */}
@@ -398,21 +373,21 @@ export default function ManageHomepage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className={`flex items-center gap-2.5 px-4 py-3 rounded-[8px] border text-[12.5px] font-semibold tracking-wide ${
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-[12.5px] font-semibold tracking-wide ${
               message.isError
-                ? 'bg-rose-50 border-rose-200/50 text-rose-800'
-                : 'bg-emerald-50 border-emerald-200/50 text-emerald-800'
+                ? 'bg-rose-50 border-rose-200 text-rose-800'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-800'
             }`}
           >
-            {message.isError ? <AlertCircle className="w-4.5 h-4.5 text-rose-500" /> : <CheckCircle className="w-4.5 h-4.5 text-emerald-500" />}
-            {message.text}
+            {message.isError ? <AlertCircle className="w-4.5 h-4.5 text-rose-500 shrink-0" /> : <CheckCircle className="w-4.5 h-4.5 text-emerald-500 shrink-0" />}
+            <span>{message.text}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Tab Selectors & Toggle Container */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
-        <div className="flex flex-wrap bg-slate-100/75 p-1 rounded-[10px] gap-1 border border-slate-200/30">
+      {/* Tab Selectors Bar */}
+      <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="inline-flex items-center gap-1.5 p-1.5 bg-slate-200/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 min-w-full sm:min-w-0 sm:flex-wrap">
           {[
             { id: 'hero', label: 'Hero Banner', icon: Settings },
             { id: 'journeys', label: 'Journey Cards', icon: ImageIcon },
@@ -426,54 +401,44 @@ export default function ManageHomepage() {
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id as any); setMessage(null); }}
-                className={`flex items-center gap-1.75 px-3 py-1.5 rounded-[7px] text-[12px] font-bold transition-all duration-200 cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12px] font-extrabold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
                   isSel
-                    ? 'bg-white text-slate-800 shadow-[0_2px_8px_rgba(15,23,42,0.06)] border border-slate-200/50'
-                    : 'text-slate-500 hover:text-slate-800 border border-transparent'
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/90'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40 border border-transparent'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isSel ? 'text-[#FF9900]' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isSel ? 'text-[#FF9900]' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
-
-        {/* Live Preview Button */}
-        <button
-          type="button"
-          onClick={() => setIsPreviewOpen(true)}
-          className="flex items-center gap-1.5 px-3.5 py-1.75 rounded-[8px] border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-[12px] transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 shrink-0"
-        >
-          <Monitor className="w-4 h-4 text-[#FF9900]" />
-          <span>Show Live Preview</span>
-        </button>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white/80 rounded-2xl border border-slate-200">
           <Loader2 className="w-8 h-8 text-[#FF9900] animate-spin" />
           <p className="text-[12px] text-slate-500 font-bold">Synchronizing Configs...</p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-[8px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.015)]">
+        <div className="bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-xs">
           
           {/* ── 1. HERO TAB ── */}
           {activeTab === 'hero' && (
-            <form onSubmit={saveHero} className="w-full flex flex-col gap-5">
-              <div className="flex flex-col gap-1 border-b border-slate-100 pb-2">
-                <span className="text-[14px] font-bold text-slate-800">Banner Details</span>
-                <span className="text-[11.5px] text-slate-500">Configure the primary branding message shown at the top of the landing page.</span>
+            <form onSubmit={saveHero} className="w-full flex flex-col gap-4 sm:gap-5">
+              <div className="flex flex-col gap-1 border-b border-slate-100 pb-3">
+                <span className="text-[14px] sm:text-[15px] font-extrabold text-slate-900">Hero Banner Configuration</span>
+                <span className="text-[11.5px] sm:text-[12px] text-slate-500">Configure the primary branding message shown at the top of the landing page.</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Top Banner Badge</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Top Banner Badge</label>
                   <input
                     type="text"
                     value={hero.badge}
                     onChange={(e) => setHero({ ...hero, badge: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. Rajalakshmi Engineering College"
                     required
                   />
@@ -481,12 +446,12 @@ export default function ManageHomepage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Title Highlight</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Title Highlight</label>
                   <input
                     type="text"
                     value={hero.titleHighlight}
                     onChange={(e) => setHero({ ...hero, titleHighlight: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. AWS Student Builder Group"
                     required
                   />
@@ -495,81 +460,81 @@ export default function ManageHomepage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Subtitle / Paragraph Description</label>
+                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Subtitle / Paragraph Description</label>
                 <textarea
                   rows={4}
                   value={hero.subtitle}
                   onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
-                  className="w-full p-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all leading-relaxed"
+                  className="w-full p-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all leading-relaxed"
                   placeholder="Enter a descriptive overview about the club..."
                   required
                 />
-                <span className="text-[10px] text-slate-400 mt-1 block">A short welcoming paragraph outlining the club's objectives.</span>
+                <span className="text-[10px] text-slate-400 mt-1 block">A welcoming paragraph outlining the club's objectives.</span>
               </div>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center justify-center gap-2 bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white font-bold text-[12px] px-6 py-2.5 rounded-[8px] self-start transition-all cursor-pointer shadow-md shadow-[#E68A00]/10 hover:shadow-lg hover:shadow-[#E68A00]/15 hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white font-bold text-[12px] px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md shadow-[#E68A00]/10 hover:shadow-lg hover:shadow-[#E68A00]/15 active:scale-95"
               >
-                <Save className="w-4 h-4" />
-                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                <Save className="w-4 h-4 shrink-0" />
+                <span>{saving ? 'Saving...' : 'Save Banner'}</span>
               </button>
             </form>
           )}
 
           {/* ── 2. COORDINATOR TAB ── */}
           {activeTab === 'coordinator' && (
-            <form onSubmit={saveCoordinator} className="w-full flex flex-col gap-5">
-              <div className="flex flex-col gap-1 border-b border-slate-100 pb-2">
-                <span className="text-[14px] font-bold text-slate-800">Faculty Coordinator Information</span>
-                <span className="text-[11.5px] text-slate-500">Configure profile details of the coordinator supervising the student branch.</span>
+            <form onSubmit={saveCoordinator} className="w-full flex flex-col gap-4 sm:gap-5">
+              <div className="flex flex-col gap-1 border-b border-slate-100 pb-3">
+                <span className="text-[14px] sm:text-[15px] font-extrabold text-slate-900">Faculty Coordinator Information</span>
+                <span className="text-[11.5px] sm:text-[12px] text-slate-500">Configure profile details of the coordinator supervising the student branch.</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Full Name</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Full Name</label>
                   <input
                     type="text"
                     value={coord.name}
                     onChange={(e) => setCoord({ ...coord, name: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. Dr. Jane Doe"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">LinkedIn Profile URL</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">LinkedIn Profile URL</label>
                   <input
                     type="url"
                     value={coord.linkedin}
                     onChange={(e) => setCoord({ ...coord, linkedin: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. https://linkedin.com/in/username"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Designation Title</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Designation Title</label>
                   <input
                     type="text"
                     value={coord.role}
                     onChange={(e) => setCoord({ ...coord, role: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. Assistant Professor (SG)"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Department & Institution</label>
+                  <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Department & Institution</label>
                   <input
                     type="text"
                     value={coord.department}
                     onChange={(e) => setCoord({ ...coord, department: e.target.value })}
-                    className="w-full h-10 px-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all"
                     placeholder="e.g. Dept of Information Technology, REC"
                     required
                   />
@@ -577,18 +542,18 @@ export default function ManageHomepage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Photo Image</label>
-                <div className="flex items-center gap-4">
+                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Photo Image</label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   {coord.image && (
-                    <div className="w-16 h-16 rounded-[8px] border border-slate-200 overflow-hidden shrink-0 shadow-sm">
+                    <div className="w-16 h-16 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-xs mx-auto sm:mx-0">
                       <img src={coord.image} alt="Faculty Coordinator" className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <label className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 hover:border-[#FF9900] rounded-[8px] p-4 cursor-pointer hover:bg-slate-50/50 transition-all">
+                  <label className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 hover:border-[#FF9900] rounded-xl p-4 cursor-pointer hover:bg-slate-50 transition-all">
                     <div className="flex flex-col items-center gap-1">
                       <UploadCloud className="w-5 h-5 text-slate-400" />
-                      <span className="text-[12px] font-bold text-slate-600">
-                        {uploadingCoord ? 'Uploading Image...' : 'Click to Upload Image'}
+                      <span className="text-[12px] font-bold text-slate-700">
+                        {uploadingCoord ? 'Uploading Image...' : 'Click to Upload Coordinator Image'}
                       </span>
                       <span className="text-[10px] text-slate-400">PNG, JPG, WEBP up to 5MB</span>
                     </div>
@@ -604,12 +569,12 @@ export default function ManageHomepage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-[0.06em] mb-1.5">Biography Statement</label>
+                <label className="block text-[11px] font-extrabold text-[#E68A00] uppercase tracking-wider mb-1.5">Biography Statement</label>
                 <textarea
                   rows={4}
                   value={coord.bio}
                   onChange={(e) => setCoord({ ...coord, bio: e.target.value })}
-                  className="w-full p-3.5 border border-slate-200 rounded-[8px] focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all leading-relaxed"
+                  className="w-full p-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 text-[13px] text-slate-800 font-medium transition-all leading-relaxed"
                   placeholder="Write a brief profile summary..."
                   required
                 />
@@ -618,81 +583,82 @@ export default function ManageHomepage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center justify-center gap-2 bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white font-bold text-[12px] px-6 py-2.5 rounded-[8px] self-start transition-all cursor-pointer shadow-md shadow-[#E68A00]/10 hover:shadow-lg hover:shadow-[#E68A00]/15 hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white font-bold text-[12px] px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md shadow-[#E68A00]/10 hover:shadow-lg hover:shadow-[#E68A00]/15 active:scale-95"
               >
-                <Save className="w-4 h-4" />
-                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                <Save className="w-4 h-4 shrink-0" />
+                <span>{saving ? 'Saving...' : 'Save Coordinator'}</span>
               </button>
             </form>
           )}
 
           {/* ── 3. JOURNEYS TAB ── */}
           {activeTab === 'journeys' && (
-            <div className="w-full">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+            <div className="w-full flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[14px] font-bold text-slate-800">Journey Highlights Deck</span>
-                  <span className="text-[11.5px] text-slate-500">Manage the milestone cards representing key achievements, workshops, and meetups.</span>
+                  <span className="text-[14px] sm:text-[15px] font-extrabold text-slate-900">Journey Highlights Deck</span>
+                  <span className="text-[11.5px] sm:text-[12px] text-slate-500">Manage the milestone cards representing key achievements and workshops.</span>
                 </div>
                 <button
-                  onClick={() => setEditingJourney({ label: '', sublabel: '', image: '/images/cloud_jam.jpg', description: '', gradient: 'linear-gradient(135deg,#0073BB,#005f9e)', order: journeys.length })}
-                  className="flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-1.5 rounded-[6px] text-[12px] font-extrabold transition-all cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shrink-0 border-none select-none"
+                  onClick={() => setEditingJourney({ label: '', sublabel: '', image: '/events/community_day.jpg', description: '', gradient: 'linear-gradient(135deg,#0073BB,#005f9e)', order: journeys.length })}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-2.5 rounded-xl text-[12px] font-extrabold transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[3]" /> Add Card
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Add Journey Card</span>
                 </button>
               </div>
 
               {journeys.length === 0 ? (
-                <div className="text-center py-10 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/55 mt-5">
+                <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                   <ImageIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-[13px] text-slate-400 font-bold">No journey cards added yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   {journeys.map((j) => (
                     <div
                       key={j.id}
-                      className="bg-white border border-slate-100 rounded-xl p-4.5 flex items-center justify-between transition-all duration-200 relative group hover:shadow-md hover:border-slate-200/80"
+                      className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 transition-all hover:shadow-md hover:border-slate-300"
                     >
                       {/* Left Side: Image + Text Info */}
-                      <div className="flex items-center gap-4 min-w-0 flex-1 mr-4">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Image Wrapper */}
-                        <div className="relative shrink-0 w-16 h-16">
-                          <div className="w-full h-full rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
-                            <img src={j.image} alt={j.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="relative shrink-0 w-14 h-14 sm:w-16 sm:h-16">
+                          <div className="w-full h-full rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-2xs">
+                            <img src={j.image} alt={j.label} className="w-full h-full object-cover" />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[10px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
+                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[9.5px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
                             {j.order}
                           </div>
                         </div>
 
                         {/* Text Content */}
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-extrabold text-slate-800 text-[14.5px] leading-tight truncate">{j.label}</h4>
-                            <span className="inline-block text-[9px] font-bold rounded px-2 py-0.5 border leading-none bg-orange-50/50 text-[#E68A00] border-orange-100/50 shrink-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-extrabold text-slate-900 text-[13.5px] sm:text-[14px] leading-tight truncate">{j.label}</h4>
+                            <span className="inline-block text-[9px] font-extrabold rounded px-2 py-0.5 border leading-none bg-orange-50 text-[#E68A00] border-orange-200 shrink-0">
                               {j.sublabel}
                             </span>
                           </div>
-                          <span className="text-[11px] text-slate-400 font-semibold truncate block mt-1.5 leading-none">
+                          <span className="text-[11px] text-slate-400 font-medium truncate block mt-1">
                             {j.description || 'No description provided'}
                           </span>
                         </div>
                       </div>
 
                       {/* Right Side: Action Buttons */}
-                      <div className="flex gap-1 shrink-0 border-l border-slate-100 pl-4 py-1">
+                      <div className="flex items-center gap-1 shrink-0 border-l border-slate-100 pl-2.5 py-1">
                         <button
                           onClick={() => setEditingJourney(j)}
-                          title="Edit card highlights"
-                          className="p-1.5 text-slate-400 hover:text-[#E68A00] hover:bg-orange-50/50 rounded-lg transition-all cursor-pointer"
+                          title="Edit card"
+                          className="p-1.5 text-slate-400 hover:text-[#E68A00] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => j.id && handleDeleteJourney(j.id)}
-                          title="Remove card highlights"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
+                          title="Delete card"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -706,51 +672,52 @@ export default function ManageHomepage() {
 
           {/* ── 4. TESTIMONIALS TAB ── */}
           {activeTab === 'testimonials' && (
-            <div className="w-full">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+            <div className="w-full flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[14px] font-bold text-slate-800">Testimonials List</span>
-                  <span className="text-[11.5px] text-slate-500">Manage the feedback statements, student quotes, and experience reports.</span>
+                  <span className="text-[14px] sm:text-[15px] font-extrabold text-slate-900">Testimonials List</span>
+                  <span className="text-[11.5px] sm:text-[12px] text-slate-500">Manage student feedback statements and experience reports.</span>
                 </div>
                 <button
                   onClick={() => setEditingTestimonial({ name: '', role: 'Student', rating: 5, text: '', type: 'Cloud', order: testimonials.length })}
-                  className="flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-1.5 rounded-[6px] text-[12px] font-extrabold transition-all cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shrink-0 border-none select-none"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-2.5 rounded-xl text-[12px] font-extrabold transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[3]" /> Add Testimonial
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Add Testimonial</span>
                 </button>
               </div>
 
               {testimonials.length === 0 ? (
-                <div className="text-center py-10 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/55 mt-5">
+                <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                   <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-[13px] text-slate-400 font-bold">No testimonials added yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {testimonials.map((t) => (
                     <div
                       key={t.id}
-                      className="bg-white border border-slate-200 hover:border-[#FF9900]/40 rounded-[12px] p-4 flex flex-col justify-between shadow-sm hover:shadow transition-all duration-300 relative overflow-hidden"
+                      className="bg-white border border-slate-200/90 hover:border-[#FF9900]/50 rounded-2xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-sm transition-all"
                     >
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/25 text-[#FF9900] text-[11px] font-extrabold flex items-center justify-center shrink-0">
+                      <div className="flex flex-col gap-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 border border-[#FF9900]/30 text-[#FF9900] text-[11px] font-extrabold flex items-center justify-center shrink-0">
                             {t.name ? t.name[0].toUpperCase() : 'U'}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <h4 className="font-extrabold text-slate-800 text-[13px] truncate leading-tight">{t.name}</h4>
-                            <span className="text-[9.5px] text-slate-500 font-medium truncate">{t.role}</span>
+                            <h4 className="font-extrabold text-slate-900 text-[13px] truncate leading-tight">{t.name}</h4>
+                            <span className="text-[10px] text-slate-400 font-medium truncate">{t.role}</span>
                           </div>
                         </div>
-                        <p className="text-[11.5px] text-slate-650 italic leading-relaxed line-clamp-3">"{t.text}"</p>
+                        <p className="text-[11.5px] text-slate-600 italic leading-relaxed line-clamp-3">"{t.text}"</p>
                       </div>
-                      <div className="flex justify-between items-center border-t border-slate-50 pt-2 mt-2">
-                        <span className="inline-block bg-blue-50 text-blue-700 border border-blue-100/50 text-[9px] font-extrabold rounded-[3px] px-1.5 py-0.5 leading-none">{t.type}</span>
+                      <div className="flex justify-between items-center border-t border-slate-100 pt-2.5 mt-2.5">
+                        <span className="inline-block bg-blue-50 text-blue-700 border border-blue-100 text-[9.5px] font-extrabold rounded-md px-2 py-0.5 leading-none">{t.type}</span>
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => setEditingTestimonial(t)} className="p-1 border border-slate-200 hover:border-[#FF9900]/30 hover:bg-[#FF9900]/5 text-slate-500 hover:text-[#FF9900] rounded-[5px] transition-all cursor-pointer">
+                          <button onClick={() => setEditingTestimonial(t)} className="p-1.5 text-slate-400 hover:text-[#FF9900] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer">
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => t.id && handleDeleteTestimonial(t.id)} className="p-1 border border-rose-200 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-[5px] transition-all cursor-pointer">
+                          <button onClick={() => t.id && handleDeleteTestimonial(t.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -764,87 +731,88 @@ export default function ManageHomepage() {
 
           {/* ── 5. TEAM TAB ── */}
           {activeTab === 'team' && (
-            <div className="w-full">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+            <div className="w-full flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[14px] font-bold text-slate-800">Team Roster</span>
-                  <span className="text-[11.5px] text-slate-555">Configure member profiles, designation roles, and color frames for the core/crew bubbles.</span>
+                  <span className="text-[14px] sm:text-[15px] font-extrabold text-slate-900">Team Roster</span>
+                  <span className="text-[11.5px] sm:text-[12px] text-slate-500">Configure member profiles, designation roles, and color accents.</span>
                 </div>
                 <button
-                  onClick={() => setEditingTeam({ name: '', role: '', department: 'AWS Cloud Clubs REC', image: '/images/crew/default.jpg', accent: '#FF9900', type: 'crew', order: team.length })}
-                  className="flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-1.5 rounded-[6px] text-[12px] font-extrabold transition-all cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shrink-0 border-none select-none"
+                  onClick={() => setEditingTeam({ name: '', role: '', department: 'AWS Cloud Clubs REC', image: '/aws-logo.svg', accent: '#FF9900', type: 'crew', order: team.length })}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF9900] hover:bg-[#E68A00] text-white px-4 py-2.5 rounded-xl text-[12px] font-extrabold transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[3]" /> Add Member
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Add Team Member</span>
                 </button>
               </div>
 
               {team.length === 0 ? (
-                <div className="text-center py-10 border border-dashed border-slate-200 rounded-[12px] bg-slate-50/55 mt-5">
+                <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                   <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-[13px] text-slate-400 font-bold">No members registered yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   {team.map((m) => (
                     <div
                       key={m.id}
-                      className="bg-white border border-slate-100 rounded-xl p-4.5 flex items-center justify-between transition-all duration-200 relative group hover:shadow-md hover:border-slate-200/80"
+                      className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 transition-all hover:shadow-md hover:border-slate-300"
                     >
                       {/* Left Side: Avatar + Text Info */}
-                      <div className="flex items-center gap-4 min-w-0 flex-1 mr-4">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Avatar Wrapper */}
-                        <div className="relative shrink-0 w-14 h-14">
+                        <div className="relative shrink-0 w-13 h-13 sm:w-14 sm:h-14">
                           <div 
-                            className={`w-full h-full rounded-[10px] overflow-hidden border flex items-center justify-center transition-all shadow-sm ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'bg-slate-900' : 'bg-slate-50'}`} 
+                            className={`w-full h-full rounded-xl overflow-hidden border flex items-center justify-center transition-all shadow-xs ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'bg-slate-900' : 'bg-slate-50'}`} 
                             style={{ borderColor: m.accent || '#FF9900', borderWidth: '1.5px' }}
                           >
                             <img 
                               src={(!m.image || teamMemberImageErrors[m.id || '']) ? '/aws-logo.svg' : m.image} 
-                              alt={(!m.image || teamMemberImageErrors[m.id || '']) ? 'AWS Logo' : m.name} 
+                              alt={m.name} 
                               onError={() => {
                                 if (m.id) {
                                   setTeamMemberImageErrors(prev => ({ ...prev, [m.id!]: true }));
                                 }
                               }}
-                              className={`w-full h-full ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'object-contain p-2.5' : 'object-cover'}`} 
+                              className={`w-full h-full ${(!m.image || teamMemberImageErrors[m.id || '']) ? 'object-contain p-2' : 'object-cover'}`} 
                             />
                           </div>
-                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[10px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
+                          <div className="absolute -bottom-1 -right-1 bg-slate-900 text-white rounded-md text-[9.5px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center border border-white shadow-xs z-10 leading-none">
                             {m.order}
                           </div>
                         </div>
 
                         {/* Text Content */}
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-extrabold text-slate-800 text-[14.5px] leading-tight truncate">{m.name}</h4>
-                            <span className={`inline-block text-[9px] font-bold uppercase tracking-wider rounded px-2 py-0.5 border leading-none shrink-0 ${
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-extrabold text-slate-900 text-[13.5px] sm:text-[14px] leading-tight truncate">{m.name}</h4>
+                            <span className={`inline-block text-[9px] font-extrabold uppercase tracking-wider rounded px-2 py-0.5 border leading-none shrink-0 ${
                               m.type === 'core'
-                                ? 'bg-amber-50 text-amber-600 border-amber-100/50'
-                                : 'bg-blue-50 text-blue-600 border-blue-100/50'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-blue-50 text-blue-700 border-blue-200'
                             }`}>
                               {m.type === 'core' ? 'Core Admin' : 'Crew Associate'}
                             </span>
                           </div>
-                          <span className="text-[11px] text-slate-550 font-semibold truncate block mt-1.5 leading-none">
+                          <span className="text-[11px] text-slate-400 font-medium truncate block mt-1">
                             {m.role || (m.type === 'core' ? 'Member' : 'Crew Member')}
                           </span>
                         </div>
                       </div>
 
                       {/* Right Side: Action Buttons */}
-                      <div className="flex gap-1 shrink-0 border-l border-slate-100 pl-4 py-1">
+                      <div className="flex items-center gap-1 shrink-0 border-l border-slate-100 pl-2.5 py-1">
                         <button
                           onClick={() => setEditingTeam(m)}
-                          title="Edit profile settings"
-                          className="p-1.5 text-slate-400 hover:text-[#E68A00] hover:bg-orange-50/50 rounded-lg transition-all cursor-pointer"
+                          title="Edit member"
+                          className="p-1.5 text-slate-400 hover:text-[#E68A00] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => m.id && handleDeleteTeam(m.id)}
-                          title="Remove member from roster"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
+                          title="Delete member"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -860,30 +828,30 @@ export default function ManageHomepage() {
 
       {/* ── EDIT JOURNEY MODAL ── */}
       {editingJourney && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[8px] max-w-lg w-full p-5 shadow-2xl border border-slate-200/50 flex flex-col gap-5"
+            className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col gap-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-extrabold text-slate-900 text-[15px]">
                 {editingJourney.id ? 'Edit Journey Highlight' : 'Create Journey Highlight'}
               </h4>
-              <button onClick={() => setEditingJourney(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-4.5 h-4.5" />
+              <button onClick={() => setEditingJourney(null)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSaveJourney} className="flex flex-col gap-3.5 text-[12.5px]">
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Title</label>
                   <input
                     type="text"
                     value={editingJourney.label}
                     onChange={(e) => setEditingJourney({ ...editingJourney, label: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -893,21 +861,21 @@ export default function ManageHomepage() {
                     type="text"
                     value={editingJourney.sublabel}
                     onChange={(e) => setEditingJourney({ ...editingJourney, sublabel: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Cover Photo</label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     {editingJourney.image && (
-                      <div className="w-10 h-10 rounded-[6px] border border-slate-200 overflow-hidden shrink-0 shadow-sm">
+                      <div className="w-10 h-10 rounded-lg border border-slate-200 overflow-hidden shrink-0 shadow-2xs">
                         <img src={editingJourney.image} alt="Card" className="w-full h-full object-cover" />
                       </div>
                     )}
-                    <label className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-slate-200 hover:border-[#FF9900] rounded-[6px] p-2 cursor-pointer hover:bg-slate-50/55 transition-all text-[11.5px] font-bold text-slate-600">
+                    <label className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-slate-200 hover:border-[#FF9900] rounded-xl p-2.5 cursor-pointer hover:bg-slate-50 transition-all text-[11.5px] font-bold text-slate-600">
                       <UploadCloud className="w-4 h-4 text-slate-400" />
                       <span>
                         {uploadingJourney ? 'Uploading...' : 'Upload Image'}
@@ -928,7 +896,7 @@ export default function ManageHomepage() {
                     type="number"
                     value={editingJourney.order}
                     onChange={(e) => setEditingJourney({ ...editingJourney, order: parseInt(e.target.value) || 0 })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -939,14 +907,14 @@ export default function ManageHomepage() {
                   rows={3}
                   value={editingJourney.description}
                   onChange={(e) => setEditingJourney({ ...editingJourney, description: e.target.value })}
-                  className="w-full p-2.5 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900] leading-relaxed"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] leading-relaxed"
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2 rounded-[6px] text-[12.5px] font-bold transition-all cursor-pointer"
+                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2.5 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer shadow-md shadow-[#E68A00]/10"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
@@ -957,30 +925,30 @@ export default function ManageHomepage() {
 
       {/* ── EDIT TESTIMONIAL MODAL ── */}
       {editingTestimonial && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[8px] max-w-lg w-full p-5 shadow-2xl border border-slate-200/50 flex flex-col gap-5"
+            className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col gap-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-extrabold text-slate-900 text-[15px]">
                 {editingTestimonial.id ? 'Edit Testimonial' : 'Create Testimonial'}
               </h4>
-              <button onClick={() => setEditingTestimonial(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-4.5 h-4.5" />
+              <button onClick={() => setEditingTestimonial(null)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSaveTestimonial} className="flex flex-col gap-3.5 text-[12.5px]">
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Student Name</label>
                   <input
                     type="text"
                     value={editingTestimonial.name}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, name: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -990,20 +958,20 @@ export default function ManageHomepage() {
                     type="text"
                     value={editingTestimonial.role}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, role: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     placeholder="e.g. 2nd Year · CSE Department"
                     required
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Topic / Event Tag</label>
                   <input
                     type="text"
                     value={editingTestimonial.type}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, type: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     placeholder="e.g. Cloud Matrix"
                     required
                   />
@@ -1016,7 +984,7 @@ export default function ManageHomepage() {
                     max="5"
                     value={editingTestimonial.rating}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, rating: parseInt(e.target.value) || 5 })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -1026,7 +994,7 @@ export default function ManageHomepage() {
                     type="number"
                     value={editingTestimonial.order}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, order: parseInt(e.target.value) || 0 })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -1037,14 +1005,14 @@ export default function ManageHomepage() {
                   rows={3}
                   value={editingTestimonial.text}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, text: e.target.value })}
-                  className="w-full p-2.5 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900] leading-relaxed"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] leading-relaxed"
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2 rounded-[6px] text-[12.5px] font-bold transition-all cursor-pointer"
+                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2.5 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer shadow-md shadow-[#E68A00]/10"
               >
                 {saving ? 'Saving...' : 'Save Testimonial'}
               </button>
@@ -1055,30 +1023,30 @@ export default function ManageHomepage() {
 
       {/* ── EDIT TEAM MODAL ── */}
       {editingTeam && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[2000] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[8px] max-w-lg w-full p-5 shadow-2xl border border-slate-200/50 flex flex-col gap-5"
+            className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col gap-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-extrabold text-slate-900 text-[15px]">
                 {editingTeam.id ? 'Edit Team Member' : 'Create Team Member'}
               </h4>
-              <button onClick={() => setEditingTeam(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-4.5 h-4.5" />
+              <button onClick={() => setEditingTeam(null)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSaveTeam} className="flex flex-col gap-3.5 text-[12.5px]">
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Full Name</label>
                   <input
                     type="text"
                     value={editingTeam.name}
                     onChange={(e) => setEditingTeam({ ...editingTeam, name: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -1087,37 +1055,35 @@ export default function ManageHomepage() {
                   <select
                     value={editingTeam.type}
                     onChange={(e) => setEditingTeam({ ...editingTeam, type: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900] bg-white cursor-pointer"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900] bg-white cursor-pointer"
                   >
                     <option value="core">Core Admin</option>
                     <option value="crew">Crew Associate</option>
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="col-span-2">
-                  <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1 flex items-center justify-between">
-                    <span>Designation</span>
-                    {editingTeam.type === 'crew' && (
-                      <span className="text-[10px] text-slate-400 font-normal lowercase tracking-normal">(optional for crew)</span>
-                    )}
-                  </label>
-                  <input
-                    type="text"
-                    value={editingTeam.role}
-                    onChange={(e) => setEditingTeam({ ...editingTeam, role: e.target.value })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
-                    placeholder={editingTeam.type === 'core' ? "e.g. Lead Developer" : "e.g. Cloud Associate (Optional)"}
-                    required={editingTeam.type === 'core'}
-                  />
-                </div>
+              <div>
+                <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1 flex items-center justify-between">
+                  <span>Designation</span>
+                  {editingTeam.type === 'crew' && (
+                    <span className="text-[10px] text-slate-400 font-normal lowercase tracking-normal">(optional for crew)</span>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  value={editingTeam.role}
+                  onChange={(e) => setEditingTeam({ ...editingTeam, role: e.target.value })}
+                  className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
+                  placeholder={editingTeam.type === 'core' ? "e.g. Lead Developer" : "e.g. Cloud Associate (Optional)"}
+                  required={editingTeam.type === 'core'}
+                />
               </div>
-              <div className={`grid gap-3.5 items-end ${editingTeam.type === 'core' ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                <div className="col-span-1">
+              <div className={`grid gap-3 items-end ${editingTeam.type === 'core' ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                <div>
                   <label className="block text-[10.5px] font-extrabold text-[#E68A00] uppercase mb-1">Avatar Photo</label>
                   <div className="flex items-center gap-2">
                     {editingTeam.image && !teamImageError && (
-                      <div className="w-9 h-9 rounded-[8px] border border-slate-200 overflow-hidden shrink-0 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-2xs">
                         <img 
                           src={editingTeam.image} 
                           alt="Avatar" 
@@ -1126,9 +1092,9 @@ export default function ManageHomepage() {
                         />
                       </div>
                     )}
-                    <label className="flex-1 flex items-center justify-center border border-dashed border-slate-200 hover:border-[#FF9900] rounded-[6px] p-2.5 cursor-pointer hover:bg-slate-50/50 transition-all text-[10.5px] font-bold text-slate-600 leading-none h-9">
-                      <UploadCloud className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="ml-1">
+                    <label className="flex-1 flex items-center justify-center gap-1.5 border border-dashed border-slate-200 hover:border-[#FF9900] rounded-xl p-2.5 cursor-pointer hover:bg-slate-50 transition-all text-[11.5px] font-bold text-slate-600 h-10">
+                      <UploadCloud className="w-4 h-4 text-slate-400" />
+                      <span>
                         {uploadingTeam ? 'Uploading...' : 'Upload'}
                       </span>
                       <input
@@ -1148,7 +1114,7 @@ export default function ManageHomepage() {
                       type="text"
                       value={editingTeam.accent}
                       onChange={(e) => setEditingTeam({ ...editingTeam, accent: e.target.value })}
-                      className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                      className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                       placeholder="e.g. #FF9900"
                       required
                     />
@@ -1160,7 +1126,7 @@ export default function ManageHomepage() {
                     type="number"
                     value={editingTeam.order}
                     onChange={(e) => setEditingTeam({ ...editingTeam, order: parseInt(e.target.value) || 0 })}
-                    className="w-full h-9 px-3 border border-slate-200 rounded-[6px] focus:outline-none focus:border-[#FF9900]"
+                    className="w-full h-10 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#FF9900]"
                     required
                   />
                 </div>
@@ -1168,7 +1134,7 @@ export default function ManageHomepage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2 rounded-[6px] text-[12.5px] font-bold transition-all cursor-pointer"
+                className="w-full bg-[#E68A00] hover:bg-[#cc7a00] disabled:bg-slate-200 text-white py-2.5 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer shadow-md shadow-[#E68A00]/10"
               >
                 {saving ? 'Saving...' : 'Save Team Member'}
               </button>
@@ -1180,36 +1146,37 @@ export default function ManageHomepage() {
       {/* ── LIVE PREVIEW MODAL POPUP ── */}
       <AnimatePresence>
         {isPreviewOpen && (
-          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className={`bg-white rounded-[16px] w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col transition-all duration-300 ${previewMode === 'mobile' ? 'max-w-sm' : 'max-w-5xl'}`}
+              className={`bg-white rounded-2xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col transition-all duration-300 ${previewMode === 'mobile' ? 'max-w-sm' : 'max-w-5xl'}`}
             >
               {/* Clean Preview Header */}
-              <div className="bg-slate-50 px-4.5 py-3.5 border-b border-slate-200/80 flex items-center justify-between">
-                <div className="text-[13.5px] font-black text-slate-800 tracking-tight select-none">
-                  Live Preview
+              <div className="bg-slate-50 px-4 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                <div className="text-[13.5px] font-extrabold text-slate-800 tracking-tight select-none flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#FF9900]" />
+                  <span>Live Preview</span>
                 </div>
 
                 {/* Controls Side (Switcher + Close) */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   {/* Desktop / Mobile Switcher */}
-                  <div className="flex items-center gap-0.5 bg-slate-100/85 p-0.5 rounded-[8px] border border-slate-200/50">
+                  <div className="flex items-center gap-1 bg-slate-200/70 p-1 rounded-xl border border-slate-200">
                     <button
                       onClick={() => setPreviewMode('desktop')}
-                      className={`p-1 rounded-[6px] transition-all cursor-pointer ${previewMode === 'desktop' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${previewMode === 'desktop' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
                       title="Desktop View"
                     >
-                      <Monitor className="w-3.5 h-3.5" />
+                      <Monitor className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setPreviewMode('mobile')}
-                      className={`p-1 rounded-[6px] transition-all cursor-pointer ${previewMode === 'mobile' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      className={`p-1.5 rounded-lg transition-all cursor-pointer ${previewMode === 'mobile' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
                       title="Mobile View"
                     >
-                      <Smartphone className="w-3.5 h-3.5" />
+                      <Smartphone className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -1218,15 +1185,15 @@ export default function ManageHomepage() {
                   {/* Close Button */}
                   <button
                     onClick={() => setIsPreviewOpen(false)}
-                    className="p-1.5 hover:bg-slate-200/60 rounded-[8px] text-slate-400 hover:text-slate-700 transition-all cursor-pointer shrink-0"
+                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
                   >
-                    <X className="w-4.5 h-4.5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
               {/* Preview Content Area */}
-              <div className="overflow-y-auto max-h-[75vh] bg-[#f8fafc] preview-content-scroll">
+              <div className="overflow-y-auto max-h-[75vh] bg-[#f8fafc] no-scrollbar">
                 {activeTab === 'hero' && (
                   <div className="relative overflow-hidden select-none origin-top">
                     <Hero previewData={hero} forceMobile={previewMode === 'mobile'} />

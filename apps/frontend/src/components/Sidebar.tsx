@@ -103,14 +103,14 @@ export default function Sidebar({
         {brandTitle ? (
           <div className={cn("border-b border-white/5 shrink-0 px-6 py-5 flex items-center justify-between")}>
             {isOpen ? (
-              <button onClick={() => onNavigate(homeHref)} className="flex flex-col gap-0.5 text-left group cursor-pointer">
+              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className="flex flex-col gap-0.5 text-left group cursor-pointer">
                 <h1 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-slate-200 transition-colors">{brandTitle}</h1>
                 {brandSubtitle && (
                   <p className="text-[13px] font-medium text-slate-400 mt-0.5">{brandSubtitle}</p>
                 )}
               </button>
             ) : (
-              <button onClick={() => onNavigate(homeHref)} className="w-8 h-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center shrink-0 mx-auto transition-colors cursor-pointer">
+              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className="w-8 h-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center shrink-0 mx-auto transition-colors cursor-pointer">
                 <span className="text-[#FF6B00] font-black text-sm">{brandTitle[0]}</span>
               </button>
             )}
@@ -129,7 +129,7 @@ export default function Sidebar({
             {isOpen ? (
               <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => onNavigate(homeHref)}
+                  onClick={() => { onNavigate(homeHref); onMobileClose(); }}
                   className={cn(
                     "flex items-center gap-2.5 rounded-xl transition-colors duration-150 flex-1 min-w-0 px-2 py-2 text-left",
                     isHome ? "bg-white/10 text-white" : "hover:bg-white/5 text-slate-200"
@@ -159,7 +159,7 @@ export default function Sidebar({
                 )}
               </div>
             ) : (
-              <button onClick={() => onNavigate(homeHref)} className={cn("flex items-center justify-center rounded-xl transition-colors duration-150 p-2", isHome ? "bg-white/10" : "hover:bg-white/5")}>
+              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className={cn("flex items-center justify-center rounded-xl transition-colors duration-150 p-2", isHome ? "bg-white/10" : "hover:bg-white/5")}>
                 <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm overflow-hidden">
                   <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
                 </div>
@@ -287,7 +287,7 @@ export default function Sidebar({
           })}
 
           <button
-            onClick={() => onSignOut?.()}
+            onClick={() => { onMobileClose(); onSignOut?.(); }}
             className="flex items-center transition-all duration-150 group w-full px-3 py-3 gap-4 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-lg font-sans font-normal"
           >
             <div className={cn("text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0", isMobile ? "[&>svg]:w-[24px] [&>svg]:h-[24px]" : "[&>svg]:w-[20px] [&>svg]:h-[20px]")}>

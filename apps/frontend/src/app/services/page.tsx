@@ -231,7 +231,9 @@ export default function Home() {
   }
 
   return (
-    <main className={`w-full bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'lg:overflow-hidden lg:h-screen h-auto' : 'lg:overflow-y-auto lg:h-screen h-auto'}`}>
+    <main
+      className={`w-full text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'lg:overflow-hidden lg:h-screen h-auto' : 'lg:overflow-y-auto lg:h-screen h-auto'}`}
+    >
 
       <AnimatePresence mode="wait">
         {!showIntelligence ? (
@@ -242,7 +244,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.05, filter: 'blur(15px)' }}
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            className="w-full relative flex flex-col bg-[#F8F9FA]"
+            className="w-full relative flex flex-col bg-transparent"
           >
             {/* 3D Globe View viewport (takes exactly 100vh on desktop, flows naturally on mobile) */}
             <div className="h-auto lg:h-screen w-full relative overflow-visible lg:overflow-hidden flex flex-col lg:flex-shrink-0">

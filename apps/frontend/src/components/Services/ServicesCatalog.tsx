@@ -239,7 +239,7 @@ export default function ServicesCatalog() {
   };
 
   return (
-    <section className="w-full min-h-screen py-10 px-4 sm:px-10 bg-[#F8F9FA] relative flex flex-col items-center">
+    <section className="w-full min-h-screen py-10 px-4 sm:px-10 bg-transparent relative flex flex-col items-center">
       {/* Subtle background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none" />
 

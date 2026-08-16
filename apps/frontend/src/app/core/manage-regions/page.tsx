@@ -206,7 +206,18 @@ export default function ManageRegionsPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '480px auto',
+        backgroundColor: '#f8fafc',
+        padding: '40px 24px 64px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
       
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 pointer-events-none">

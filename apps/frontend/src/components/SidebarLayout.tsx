@@ -57,9 +57,12 @@ export default function SidebarLayout({
     if (pathname && pathname.includes('/core/attendance/od-generator')) {
       setIsOpen(false);
     }
+    // Always ensure mobile sidebar closes whenever the route/pathname changes
+    setIsMobileOpen(false);
   }, [pathname]);
 
   const handleSignOut = useCallback(() => {
+    setIsMobileOpen(false);
     if (typeof window !== 'undefined') {
       const confirmLogout = window.confirm("Are you sure you want to sign out?");
       if (!confirmLogout) return;
@@ -72,6 +75,7 @@ export default function SidebarLayout({
   }, [onSignOut, router]);
 
   const handleNavigate = useCallback((href: string) => {
+    setIsMobileOpen(false);
     router.push(href);
   }, [router]);
 
