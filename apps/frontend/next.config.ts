@@ -46,8 +46,11 @@ const nextConfig: NextConfig = {
     // Minimum TTL for cached optimized images (1 hour)
     minimumCacheTTL: 3600,
     remotePatterns: [
-      { protocol: 'http', hostname: 'localhost', port: '3000' },
-      { protocol: 'http', hostname: 'localhost', port: '4000' },
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'http', hostname: '127.0.0.1' },
+      { protocol: 'https', hostname: 'aws-sbg-backend.onrender.com' },
+      { protocol: 'https', hostname: '**.onrender.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
 
