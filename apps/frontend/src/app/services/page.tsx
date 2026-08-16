@@ -9,12 +9,21 @@ import {
   Search, Server, Trophy, LayoutGrid, CheckCircle2, ChevronLeft,
   Settings2, ChevronDown, Globe, MapPin
 } from 'lucide-react';
-import GlobeScene from '@/components/Globe/GlobeScene';
+import dynamic from 'next/dynamic';
 import IntelligenceDashboard from '@/components/Intelligence/IntelligenceDashboard';
 import { fetchCategories, fetchRegions, AWSRegionData, CategoryData } from '@/lib/api';
 import FlagImage from '@/components/Layout/FlagImage';
 import ServicesCatalog from '@/components/Services/ServicesCatalog';
 import { ErrorAlert } from '@/modules/cloud-enthusiasts/shared/components/Animations';
+
+const GlobeScene = dynamic(() => import('@/components/Globe/GlobeScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-transparent">
+      <div className="w-10 h-10 border-[3px] border-[#232F3E]/10 border-t-[#FF9900] rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 export default function Home() {
   const [regions, setRegions] = useState<AWSRegionData[]>([]);

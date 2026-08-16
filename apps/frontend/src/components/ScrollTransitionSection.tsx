@@ -13,16 +13,16 @@ export default function ScrollTransitionSection() {
     offset: ["start end", "end start"],
   });
 
-  // Apply spring physics to smooth out the scroll progress changes for ultra-smooth rendering
+  // Apply responsive spring physics to eliminate lag while maintaining ultra-smooth rendering
   const smoothScrollProgress = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 28,
-    mass: 0.2,
+    stiffness: 280,
+    damping: 32,
+    mass: 0.05,
     restDelta: 0.001
   });
 
-  // Slanted clipPath transition: starts at a 16vh slant (tilted more) and flattens out faster
-  const clipProgress = useTransform(smoothScrollProgress, [0.05, 0.35], [16, 0]);
+  // Slanted clipPath transition: starts at a gentle 8vh slant and flattens out smoothly as it scrolls into view
+  const clipProgress = useTransform(smoothScrollProgress, [0.08, 0.40], [8, 0]);
   const clipPath = useTransform(clipProgress, (val) => `polygon(0 ${val}vh, 100% 0vh, 100% 100%, 0% 100%)`);
 
 
@@ -50,7 +50,7 @@ export default function ScrollTransitionSection() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "130px 24px 44px",
+        padding: "70px 24px 36px",
         boxSizing: "border-box",
         clipPath: clipPath,
       }}
@@ -107,10 +107,10 @@ export default function ScrollTransitionSection() {
 
       {/* Content Container Layer (Fades and slides up cleanly on scroll entry) */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: "relative",
           zIndex: 5,
@@ -120,7 +120,7 @@ export default function ScrollTransitionSection() {
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          gap: "16px",
+          gap: "10px",
           pointerEvents: "auto",
         }}
       >
@@ -133,7 +133,7 @@ export default function ScrollTransitionSection() {
             background: "linear-gradient(135deg, rgba(255, 153, 0, 0.12), rgba(255, 153, 0, 0.05))",
             border: "1px solid rgba(255, 153, 0, 0.22)",
             borderRadius: "100px",
-            padding: "6px 16px",
+            padding: "5px 14px",
             boxShadow: "0 0 12px rgba(255, 153, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
           }}
         >
@@ -155,7 +155,7 @@ export default function ScrollTransitionSection() {
         <h2
           style={{
             fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
-            fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)",
+            fontSize: "clamp(1.5rem, 3.2vw, 2.2rem)",
             fontWeight: 700,
             color: "#FFFFFF",
             margin: 0,
@@ -175,20 +175,20 @@ export default function ScrollTransitionSection() {
           style={{ 
             display: "flex", 
             flexDirection: "column", 
-            gap: "12px", 
+            gap: "8px", 
             width: "100%",
-            maxWidth: "700px",
-            margin: "4px auto 0 auto",
+            maxWidth: "760px",
+            margin: "2px auto 0 auto",
           }}
         >
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(13px, 1.4vw, 14.5px)",
-              color: "#E2E8F0",
-              lineHeight: 1.6,
+              fontSize: "clamp(12.5px, 1.3vw, 14px)",
+              color: "#CBD5E1",
+              lineHeight: 1.55,
               margin: 0,
-              fontWeight: 500,
+              fontWeight: 400,
             }}
           >
             AWS Student Builders Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
@@ -196,19 +196,19 @@ export default function ScrollTransitionSection() {
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(13px, 1.4vw, 14.5px)",
-              color: "#E2E8F0",
-              lineHeight: 1.6,
+              fontSize: "clamp(12.5px, 1.3vw, 14px)",
+              color: "#CBD5E1",
+              lineHeight: 1.55,
               margin: 0,
-              fontWeight: 500,
+              fontWeight: 400,
             }}
           >
             By combining technical knowledge with hands-on implementation, we help students transform ideas into real-world solutions while preparing them for the rapidly evolving technology industry.
           </p>
         </div>
 
-        {/* Journey Timeline component (with isDark prop and interactive descriptions enabled) */}
-        <div style={{ width: "100%", position: "relative", marginTop: "8px" }}>
+        {/* Journey Timeline component */}
+        <div style={{ width: "100%", position: "relative", marginTop: "4px" }}>
           <JourneyCard plain={true} hideDesc={false} isDark={true} hideTitle={true} />
         </div>
       </motion.div>

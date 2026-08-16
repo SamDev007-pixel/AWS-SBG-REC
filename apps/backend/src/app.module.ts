@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import configuration from '@/config/configuration';
 import { PrismaModule } from '@/database/prisma.module';
+import { MemoryCacheModule } from '@/shared/cache/memory-cache.module';
 import { TransformInterceptor } from '@/shared/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from '@/shared/filters/http-exception.filter';
 import { PrismaExceptionFilter } from '@/shared/filters/prisma-exception.filter';
@@ -42,6 +43,7 @@ import { HomepageModule } from '@/modules/homepage/homepage.module';
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     ScheduleModule.forRoot(),
     PrismaModule,
+    MemoryCacheModule,
     UsersModule,
     RolesModule,
     EventsModule,

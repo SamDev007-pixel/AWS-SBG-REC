@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { RegistrationStatus, EventStatus, TicketStatus } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { GetRegistrationsDto } from './dto/registrations.dto';
 import { PaginatedResponseDto } from '@/common/dto/paginated-response.dto';
@@ -19,6 +20,7 @@ export class RegistrationsService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly configService: ConfigService,
+    private readonly cache: MemoryCacheService,
   ) {}
 
   async register(dto: CreateRegistrationDto) {
@@ -91,6 +93,8 @@ export class RegistrationsService {
     });
 
     this.notificationsService.sendRegistrationSuccess(userId, event.title).catch(() => {});
+
+    this.cache.invalidatePattern('events:');
 
     return {
       ...registration,
@@ -330,6 +334,8 @@ export class RegistrationsService {
 
       return reg;
     });
+
+    this.cache.invalidatePattern('events:');
 
     return updatedRegistration;
   }

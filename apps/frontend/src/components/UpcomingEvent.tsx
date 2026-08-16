@@ -76,15 +76,15 @@ export default function UpcomingEvent() {
         {/* Top Badges Row */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-orange bg-orange-50 px-2 py-0.5 rounded-md">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-orange bg-orange-50 px-2.5 py-0.5 rounded-md">
               {event.category || "EVENT"}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md">
               {event.mode || "OFFLINE"}
             </span>
           </div>
           {event.registration_deadline && (
-            <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
               Closes {new Date(event.registration_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
@@ -95,7 +95,7 @@ export default function UpcomingEvent() {
           <h3 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight leading-snug">
             {event.title}
           </h3>
-          <p className="text-[13px] leading-relaxed text-slate-500 font-medium line-clamp-2">
+          <p className="text-sm leading-relaxed text-slate-500 font-medium line-clamp-2">
             {event.short_description}
           </p>
         </div>
@@ -103,11 +103,11 @@ export default function UpcomingEvent() {
         {/* Live Registration Progress Bar */}
         {event.max_capacity && (
           <div className="space-y-1.5">
-            <div className="flex justify-between text-[11px] font-semibold text-slate-450">
-              <span className="text-slate-400">Registration Space</span>
-              <span className="text-slate-650 font-bold">{event.registered || 0} / {event.max_capacity} filled</span>
+            <div className="flex justify-between text-xs font-semibold text-slate-500">
+              <span className="text-slate-500 font-bold">Registration Space</span>
+              <span className="text-slate-800 font-bold">{event.registered || 0} / {event.max_capacity} filled</span>
             </div>
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-amber-500 to-[#FF9900] transition-all duration-500 rounded-full" 
                 style={{ width: `${Math.min(100, Math.max(5, ((event.registered || 0) / event.max_capacity) * 100))}%` }}
@@ -119,14 +119,14 @@ export default function UpcomingEvent() {
         {/* Quick Stats Divider Grid */}
         <div className="grid grid-cols-2 gap-4 py-3.5 border-t border-b border-slate-100/80">
           <div>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Seats Available</span>
-            <span className="text-sm font-extrabold text-slate-700 mt-0.5">
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Seats Available</span>
+            <span className="text-base font-extrabold text-slate-800 mt-0.5 block">
               {event.max_capacity ? `${event.max_capacity - (event.registered || 0)} left` : "Open"}
             </span>
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Participation Reward</span>
-            <span className="text-sm font-extrabold text-brand-orange mt-0.5 flex items-center gap-0.5">
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Participation Reward</span>
+            <span className="text-base font-extrabold text-brand-orange mt-0.5 flex items-center gap-0.5">
               +150 XP
             </span>
           </div>
@@ -134,13 +134,13 @@ export default function UpcomingEvent() {
 
         {/* Details Pill List */}
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100/85 text-[11px] font-semibold text-slate-600">
-            <Calendar className="w-3.5 h-3.5 text-[#FF9900]" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-700">
+            <Calendar className="w-4 h-4 text-[#FF9900]" />
             <span>{event._date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100/85 text-[11px] font-semibold text-slate-600">
-            <Clock className="w-3.5 h-3.5 text-[#FF9900]" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-700">
+            <Clock className="w-4 h-4 text-[#FF9900]" />
             <span>{event._date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
 

@@ -3,7 +3,27 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/verify', '/crew', '/core'];
+// Routes that any visitor can view without being logged in
+const PUBLIC_PREFIXES = [
+  '/certifications',
+  '/services',
+  '/events',
+  '/learn',
+  '/roadmap',
+  '/chat',
+  '/news',
+  '/verify',
+];
+
+// Dedicated auth landing pages where an already-logged-in user gets redirected to their dashboard
+const AUTH_GATEWAY_ROUTES = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/crew',
+  '/core',
+];
 
 function getHomeForRole(role: string): string {
   if (role === 'core') return '/core/dashboard';
@@ -12,6 +32,7 @@ function getHomeForRole(role: string): string {
 }
 
 function getSession(): { id?: string; role: string } | null {
+  if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem('aws_sgb_rec_user');
     if (!raw) return null;
@@ -61,68 +82,63 @@ function isCrewAllowedCorePath(pathname: string, permissions: string[]): boolean
   return false;
 }
 
-/** Keep for backward compatibility, no longer needed since we read dynamically */
+function isPublicRoute(path: string): boolean {
+  if (!path || path === '/') return true;
+  return PUBLIC_PREFIXES.some(prefix => path === prefix || path.startsWith(prefix + '/'));
+}
+
 export function clearSessionCache() {
   // No-op
 }
 
-/**
- * AuthWrapper — lightweight global auth guard.
- *
- * Uses router.replace() for instant client-side navigations.
- * Session parsing is module-level cached. The spinner only shows
- * on the very first mount (SSR -> client hydration), not on
- * subsequent client-side navigations.
- */
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const checkedRef = useRef<string>('');
-  const initialCheckDone = useRef(false);
-
+  const isCurrentPublic = isPublicRoute(pathname);
+  const [ready, setReady] = useState(isCurrentPublic);
   const [crewPermissions, setCrewPermissions] = useState<string[] | null>(null);
   const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
 
   useEffect(() => {
-    // Determine if the current route is public
-    // We treat /core and /crew strictly as exact matches so we don't accidentally expose /core/dashboard
-    const isPublicRoute = PUBLIC_ROUTES.some(r => {
-      const match = (r === '/core' || r === '/crew') ? pathname === r : (pathname === r || pathname.startsWith(r + '/'));
-      return match;
-    });
+    // 1. Root landing page is always public
+    if (pathname === '/') {
+      setReady(true);
+      return;
+    }
+
+    // 2. Check if route is a general public route
+    if (isPublicRoute(pathname)) {
+      setReady(true);
+      return;
+    }
 
     const session = getSession();
+    const isAuthGateway = AUTH_GATEWAY_ROUTES.includes(pathname);
 
+    // 3. If user is on an Auth Gateway (/login, /signup, etc.)
+    if (isAuthGateway) {
+      if (session) {
+        // If already logged in, redirect to role home
+        router.replace(getHomeForRole(session.role));
+      }
+      setReady(true);
+      return;
+    }
+
+    // 4. Protected Routes Check
     if (!session) {
-      if (!isPublicRoute) {
-        checkedRef.current = '';
-        router.replace('/login');
-      }
-      if (!initialCheckDone.current) {
-        initialCheckDone.current = true;
-        setReady(true);
-      }
+      // Not logged in -> send to login
+      router.replace('/login');
+      setReady(true);
       return;
     }
 
     const { role, id } = session;
-
-    if (isPublicRoute) {
-      checkedRef.current = '';
-      router.replace(getHomeForRole(role));
-      if (!initialCheckDone.current) {
-        initialCheckDone.current = true;
-        setReady(true);
-      }
-      return;
-    }
-
     const isCorePath = pathname.startsWith('/core');
     const isCrewPath = pathname.startsWith('/crew');
-    const isEnthusiastPath = pathname.startsWith('/events');
+    const isEnthusiastDashboard = pathname.startsWith('/enthusiasts');
 
-    // If it's a crew member accessing a core path, check permissions
+    // Crew accessing Core routes with specific permissions
     if (role === 'crew' && isCorePath) {
       if (crewPermissions === null) {
         if (!isLoadingPermissions) {
@@ -133,50 +149,49 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
               const permissions = data.success ? (data.permissions || []) : [];
               setCrewPermissions(permissions);
               setIsLoadingPermissions(false);
+              setReady(true);
             })
             .catch(err => {
               console.error("Failed to fetch crew permissions in AuthWrapper:", err);
               setCrewPermissions([]);
               setIsLoadingPermissions(false);
+              setReady(true);
             });
         }
         return;
       }
 
-      // Check permissions
       if (!isCrewAllowedCorePath(pathname, crewPermissions)) {
-        checkedRef.current = '';
         router.replace(getHomeForRole(role));
-        if (!initialCheckDone.current) {
-          initialCheckDone.current = true;
-          setReady(true);
-        }
-        return;
       }
-    } else {
-      if (
-        (isCorePath && role !== 'core') ||
-        (isCrewPath && role !== 'crew') ||
-        (isEnthusiastPath && role !== 'enthusiasts')
-      ) {
-        checkedRef.current = '';
-        router.replace(getHomeForRole(role));
-        if (!initialCheckDone.current) {
-          initialCheckDone.current = true;
-          setReady(true);
-        }
-        return;
-      }
+      setReady(true);
+      return;
     }
 
-    if (!initialCheckDone.current) {
-      initialCheckDone.current = true;
+    // Role boundary checks
+    if (isCorePath && role !== 'core') {
+      router.replace(getHomeForRole(role));
+      setReady(true);
+      return;
     }
+
+    if (isCrewPath && role !== 'crew' && role !== 'core') {
+      router.replace(getHomeForRole(role));
+      setReady(true);
+      return;
+    }
+
+    if (isEnthusiastDashboard && role !== 'enthusiasts') {
+      router.replace(getHomeForRole(role));
+      setReady(true);
+      return;
+    }
+
     setReady(true);
   }, [pathname, router, crewPermissions, isLoadingPermissions]);
 
-  // Show spinner only during initial hydration or permission loading
-  if (!ready || isLoadingPermissions) {
+  // Show spinner only for protected routes during authentication / permission loading
+  if ((!ready && !isCurrentPublic) || (isLoadingPermissions && !isCurrentPublic)) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
         <div className="flex flex-col items-center gap-3">

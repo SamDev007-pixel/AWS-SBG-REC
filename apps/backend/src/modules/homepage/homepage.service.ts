@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 
 const DEFAULT_HERO = {
   badge: 'Rajalakshmi Engineering College',
@@ -132,7 +133,10 @@ const DEFAULT_TEAM = [
 
 @Injectable()
 export class HomepageService implements OnModuleInit {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: MemoryCacheService,
+  ) {}
 
   private get heroModel() {
     return (this.prisma as any).homepageHero || (this.prisma as any).homepage_hero;
@@ -211,19 +215,22 @@ export class HomepageService implements OnModuleInit {
 
   // ── Hero ─────────────────────────────────────────────────────────────────
   async getHero() {
-    try {
-      if (this.heroModel) {
-        const hero = await this.heroModel.findFirst();
-        if (hero) return hero;
-        return await this.heroModel.create({ data: DEFAULT_HERO });
+    return this.cache.getOrSet('homepage:hero', async () => {
+      try {
+        if (this.heroModel) {
+          const hero = await this.heroModel.findFirst();
+          if (hero) return hero;
+          return await this.heroModel.create({ data: DEFAULT_HERO });
+        }
+      } catch (e) {
+        console.warn('getHero db query fallback:', e);
       }
-    } catch (e) {
-      console.warn('getHero db query fallback:', e);
-    }
-    return DEFAULT_HERO;
+      return DEFAULT_HERO;
+    }, 300);
   }
 
   async updateHero(dto: { badge: string; titleHighlight: string; subtitle: string }) {
+    this.cache.del('homepage:hero');
     if (!this.heroModel) return DEFAULT_HERO;
     const hero = await this.getHero();
     if ((hero as any).id) {
@@ -237,19 +244,22 @@ export class HomepageService implements OnModuleInit {
 
   // ── Coordinator ──────────────────────────────────────────────────────────
   async getCoordinator() {
-    try {
-      if (this.coordModel) {
-        const coord = await this.coordModel.findFirst();
-        if (coord) return coord;
-        return await this.coordModel.create({ data: DEFAULT_COORDINATOR });
+    return this.cache.getOrSet('homepage:coordinator', async () => {
+      try {
+        if (this.coordModel) {
+          const coord = await this.coordModel.findFirst();
+          if (coord) return coord;
+          return await this.coordModel.create({ data: DEFAULT_COORDINATOR });
+        }
+      } catch (e) {
+        console.warn('getCoordinator db query fallback:', e);
       }
-    } catch (e) {
-      console.warn('getCoordinator db query fallback:', e);
-    }
-    return DEFAULT_COORDINATOR;
+      return DEFAULT_COORDINATOR;
+    }, 300);
   }
 
   async updateCoordinator(dto: { name: string; role: string; department: string; image: string; bio: string; linkedin: string }) {
+    this.cache.del('homepage:coordinator');
     if (!this.coordModel) return DEFAULT_COORDINATOR;
     const coord = await this.getCoordinator();
     if ((coord as any).id) {
@@ -263,20 +273,23 @@ export class HomepageService implements OnModuleInit {
 
   // ── Journeys ─────────────────────────────────────────────────────────────
   async getJourneys() {
-    try {
-      if (this.journeyModel) {
-        const items = await this.journeyModel.findMany({
-          orderBy: { order: 'asc' },
-        });
-        if (items && items.length > 0) return items;
+    return this.cache.getOrSet('homepage:journeys', async () => {
+      try {
+        if (this.journeyModel) {
+          const items = await this.journeyModel.findMany({
+            orderBy: { order: 'asc' },
+          });
+          if (items && items.length > 0) return items;
+        }
+      } catch (e) {
+        console.warn('getJourneys db query fallback:', e);
       }
-    } catch (e) {
-      console.warn('getJourneys db query fallback:', e);
-    }
-    return DEFAULT_JOURNEYS;
+      return DEFAULT_JOURNEYS;
+    }, 300);
   }
 
   async createJourney(dto: { label: string; sublabel: string; image: string; description: string; gradient: string; order?: number }) {
+    this.cache.del('homepage:journeys');
     if (!this.journeyModel) return { id: Date.now().toString(), ...dto };
     return this.journeyModel.create({
       data: dto,
@@ -284,6 +297,7 @@ export class HomepageService implements OnModuleInit {
   }
 
   async updateJourney(id: string, dto: { label: string; sublabel: string; image: string; description: string; gradient: string; order?: number }) {
+    this.cache.del('homepage:journeys');
     if (!this.journeyModel) return { id, ...dto };
     return this.journeyModel.update({
       where: { id },
@@ -292,6 +306,7 @@ export class HomepageService implements OnModuleInit {
   }
 
   async deleteJourney(id: string) {
+    this.cache.del('homepage:journeys');
     if (!this.journeyModel) return { id };
     return this.journeyModel.delete({
       where: { id },
@@ -300,20 +315,23 @@ export class HomepageService implements OnModuleInit {
 
   // ── Testimonials ──────────────────────────────────────────────────────────
   async getTestimonials() {
-    try {
-      if (this.testimonialModel) {
-        const items = await this.testimonialModel.findMany({
-          orderBy: { order: 'asc' },
-        });
-        if (items && items.length > 0) return items;
+    return this.cache.getOrSet('homepage:testimonials', async () => {
+      try {
+        if (this.testimonialModel) {
+          const items = await this.testimonialModel.findMany({
+            orderBy: { order: 'asc' },
+          });
+          if (items && items.length > 0) return items;
+        }
+      } catch (e) {
+        console.warn('getTestimonials db query fallback:', e);
       }
-    } catch (e) {
-      console.warn('getTestimonials db query fallback:', e);
-    }
-    return DEFAULT_TESTIMONIALS;
+      return DEFAULT_TESTIMONIALS;
+    }, 300);
   }
 
   async createTestimonial(dto: { name: string; role: string; rating: number; text: string; type: string; order?: number }) {
+    this.cache.del('homepage:testimonials');
     if (!this.testimonialModel) return { id: Date.now().toString(), ...dto };
     return this.testimonialModel.create({
       data: dto,
@@ -321,6 +339,7 @@ export class HomepageService implements OnModuleInit {
   }
 
   async updateTestimonial(id: string, dto: { name: string; role: string; rating: number; text: string; type: string; order?: number }) {
+    this.cache.del('homepage:testimonials');
     if (!this.testimonialModel) return { id, ...dto };
     return this.testimonialModel.update({
       where: { id },
@@ -329,6 +348,7 @@ export class HomepageService implements OnModuleInit {
   }
 
   async deleteTestimonial(id: string) {
+    this.cache.del('homepage:testimonials');
     if (!this.testimonialModel) return { id };
     return this.testimonialModel.delete({
       where: { id },
@@ -337,20 +357,23 @@ export class HomepageService implements OnModuleInit {
 
   // ── Team ─────────────────────────────────────────────────────────────────
   async getTeam() {
-    try {
-      if (this.teamModel) {
-        const items = await this.teamModel.findMany({
-          orderBy: { order: 'asc' },
-        });
-        if (items && items.length > 0) return items;
+    return this.cache.getOrSet('homepage:team', async () => {
+      try {
+        if (this.teamModel) {
+          const items = await this.teamModel.findMany({
+            orderBy: { order: 'asc' },
+          });
+          if (items && items.length > 0) return items;
+        }
+      } catch (e) {
+        console.warn('getTeam db query fallback:', e);
       }
-    } catch (e) {
-      console.warn('getTeam db query fallback:', e);
-    }
-    return DEFAULT_TEAM;
+      return DEFAULT_TEAM;
+    }, 300);
   }
 
   async createTeamMember(dto: { name: string; role: string; department: string; image: string; accent: string; type: string; order?: number }) {
+    this.cache.del('homepage:team');
     if (!this.teamModel) return { id: Date.now().toString(), ...dto };
     return this.teamModel.create({
       data: dto,
@@ -358,6 +381,7 @@ export class HomepageService implements OnModuleInit {
   }
 
   async updateTeamMember(id: string, dto: { name: string; role: string; department: string; image: string; accent: string; type: string; order?: number }) {
+    this.cache.del('homepage:team');
     if (!this.teamModel) return { id, ...dto };
     return this.teamModel.update({
       where: { id },
@@ -366,9 +390,11 @@ export class HomepageService implements OnModuleInit {
   }
 
   async deleteTeamMember(id: string) {
+    this.cache.del('homepage:team');
     if (!this.teamModel) return { id };
     return this.teamModel.delete({
       where: { id },
     });
   }
 }
+

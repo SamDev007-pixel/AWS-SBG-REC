@@ -443,7 +443,6 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 
   const config: RequestInit = {
     headers,
-    cache: 'no-store',
     ...options,
   };
 

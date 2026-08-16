@@ -1,18 +1,11 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 import * as fs from 'fs';
 
 function deleteFlagFile(fileUrl: string | null | undefined) {
   if (fileUrl && fileUrl.startsWith('/uploads/')) {
-    // Note: uploads are served statically, files are physically on disk at '../../uploads/...'
-    // But here we can delete them if relative path matches. We will write a safe resolver.
     const cleanPath = fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl;
-    // The main process.cwd() is apps/backend.
-    // The uploads directory is at process.cwd()/../../uploads.
-    // Let's resolve the path to: ../../uploads/flags/...
-    // Note: flag urls are saved as: /uploads/flags/filename.ext
-    // Clean path would be: uploads/flags/filename.ext
-    // We want: ../../uploads/flags/filename.ext
     const filePath = `../../${cleanPath}`;
     fs.unlink(filePath, (err) => {
       if (err) {
@@ -26,7 +19,10 @@ function deleteFlagFile(fileUrl: string | null | undefined) {
 
 @Injectable()
 export class RegionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: MemoryCacheService,
+  ) {}
 
   private mapRegion(r: any) {
     if (!r) return null;
@@ -75,63 +71,68 @@ export class RegionsService {
   }
 
   async getAll(options: { search?: string; page?: number; limit?: number } = {}) {
-    const { search, page, limit } = options;
-    
-    const where: any = {
-      isDeleted: false,
-    };
+    const cacheKey = `regions:list:${JSON.stringify(options)}`;
+    return this.cache.getOrSet(cacheKey, async () => {
+      const { search, page, limit } = options;
+      
+      const where: any = {
+        isDeleted: false,
+      };
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { awsRegionCode: { contains: search, mode: 'insensitive' } },
-        { primaryLocation: { contains: search, mode: 'insensitive' } },
-      ];
-    }
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { awsRegionCode: { contains: search, mode: 'insensitive' } },
+          { primaryLocation: { contains: search, mode: 'insensitive' } },
+        ];
+      }
 
-    const queryOptions: any = {
-      where,
-      include: {
-        category: true,
-        services: true,
-        benefits: true,
-        aiCapabilities: true,
-        topServices: true,
-        workloads: true,
-      },
-      orderBy: [
-        { category: { displayOrder: 'asc' } },
-        { displayOrder: 'asc' }
-      ],
-    };
+      const queryOptions: any = {
+        where,
+        include: {
+          category: true,
+          services: true,
+          benefits: true,
+          aiCapabilities: true,
+          topServices: true,
+          workloads: true,
+        },
+        orderBy: [
+          { category: { displayOrder: 'asc' } },
+          { displayOrder: 'asc' }
+        ],
+      };
 
-    if (page !== undefined && limit !== undefined) {
-      queryOptions.skip = (page - 1) * limit;
-      queryOptions.take = limit;
-    }
+      if (page !== undefined && limit !== undefined) {
+        queryOptions.skip = (page - 1) * limit;
+        queryOptions.take = limit;
+      }
 
-    const regions = await this.prisma.region.findMany(queryOptions);
-    return regions.map((r) => this.mapRegion(r));
+      const regions = await this.prisma.region.findMany(queryOptions);
+      return regions.map((r) => this.mapRegion(r));
+    }, 300);
   }
 
   async getById(id: string) {
-    const region = await this.prisma.region.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        services: true,
-        benefits: true,
-        aiCapabilities: true,
-        topServices: true,
-        workloads: true,
-      },
-    });
+    return this.cache.getOrSet(`regions:${id}`, async () => {
+      const region = await this.prisma.region.findUnique({
+        where: { id },
+        include: {
+          category: true,
+          services: true,
+          benefits: true,
+          aiCapabilities: true,
+          topServices: true,
+          workloads: true,
+        },
+      });
 
-    if (!region || region.isDeleted) {
-      throw new NotFoundException(`Region with ID ${id} not found`);
-    }
+      if (!region || region.isDeleted) {
+        throw new NotFoundException(`Region with ID ${id} not found`);
+      }
 
-    return this.mapRegion(region);
+      return this.mapRegion(region);
+    }, 300);
   }
 
   async getByAwsRegionCode(awsRegionCode: string) {
@@ -162,7 +163,7 @@ export class RegionsService {
       throw new ConflictException(`Region with AWS code '${regionData.awsRegionCode}' already exists`);
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const region = await tx.region.create({
         data: {
           awsRegionCode: regionData.awsRegionCode,
@@ -236,6 +237,8 @@ export class RegionsService {
 
       return this.mapRegion(completeRegion);
     });
+    this.cache.invalidatePattern('regions:');
+    return result;
   }
 
   async update(id: string, data: any) {
@@ -253,7 +256,7 @@ export class RegionsService {
       }
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const existing = await tx.region.findUnique({
         where: { id },
         select: { flagUrl: true }
@@ -363,16 +366,20 @@ export class RegionsService {
 
       return this.mapRegion(completeRegion);
     });
+    this.cache.invalidatePattern('regions:');
+    return result;
   }
 
   async delete(id: string) {
     await this.getById(id);
-    return this.prisma.region.update({
+    const res = await this.prisma.region.update({
       where: { id },
       data: {
         isDeleted: true,
         updatedBy: 'system-admin',
       },
     });
+    this.cache.invalidatePattern('regions:');
+    return res;
   }
 }

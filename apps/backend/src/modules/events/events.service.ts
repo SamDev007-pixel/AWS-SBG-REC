@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventStatus } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginatedResponseDto } from '@/common/dto/paginated-response.dto';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -12,10 +13,13 @@ import { UpdateFormFieldDto } from './dto/update-form-field.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: MemoryCacheService,
+  ) {}
 
   async create(dto: CreateEventDto) {
-    return this.prisma.event.create({
+    const created = await this.prisma.event.create({
       data: {
         title: dto.title,
         category: dto.category,
@@ -75,108 +79,117 @@ export class EventsService {
         _count: { select: { registrations: true } },
       },
     });
+    this.cache.invalidatePattern('events:');
+    return created;
   }
 
   async findAll(pagination: GetEventsDto) {
-    const {
-      page = 1,
-      limit = 10,
-      search,
-      category,
-      availability,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-      status,
-      mode,
-    } = pagination;
-    const skip = (page - 1) * limit;
+    const cacheKey = `events:list:${JSON.stringify(pagination)}`;
+    return this.cache.getOrSet(cacheKey, async () => {
+      const {
+        page = 1,
+        limit = 10,
+        search,
+        category,
+        availability,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        status,
+        mode,
+      } = pagination;
+      const skip = (page - 1) * limit;
 
-    const andConditions: any[] = [];
+      const andConditions: any[] = [];
 
-    if (search) {
-      andConditions.push({
-        OR: [
-          { title: { contains: search, mode: 'insensitive' as const } },
-          { description: { contains: search, mode: 'insensitive' as const } },
-          { category: { contains: search, mode: 'insensitive' as const } },
-          { venue: { contains: search, mode: 'insensitive' as const } },
-        ],
-      });
-    }
-
-    if (category && category !== 'All') {
-      andConditions.push({
-        category: { equals: category, mode: 'insensitive' as const },
-      });
-    }
-
-    if (availability && availability !== 'All') {
-      if (availability === 'Available') {
+      if (search) {
         andConditions.push({
-          status: { in: ['REGISTRATION_OPEN', 'PUBLISHED'] },
-        });
-      } else if (availability === 'Full') {
-        andConditions.push({
-          status: { notIn: ['REGISTRATION_OPEN', 'PUBLISHED'] },
+          OR: [
+            { title: { contains: search, mode: 'insensitive' as const } },
+            { description: { contains: search, mode: 'insensitive' as const } },
+            { category: { contains: search, mode: 'insensitive' as const } },
+            { venue: { contains: search, mode: 'insensitive' as const } },
+          ],
         });
       }
-    }
 
-    if (status) {
-      andConditions.push({
-        status: { equals: status },
-      });
-    }
+      if (category && category !== 'All') {
+        andConditions.push({
+          category: { equals: category, mode: 'insensitive' as const },
+        });
+      }
 
-    if (mode) {
-      andConditions.push({
-        mode: { equals: mode },
-      });
-    }
+      if (availability && availability !== 'All') {
+        if (availability === 'Available') {
+          andConditions.push({
+            status: { in: ['REGISTRATION_OPEN', 'PUBLISHED'] },
+          });
+        } else if (availability === 'Full') {
+          andConditions.push({
+            status: { notIn: ['REGISTRATION_OPEN', 'PUBLISHED'] },
+          });
+        }
+      }
 
-    const where = andConditions.length > 0 ? { AND: andConditions } : {};
+      if (status) {
+        andConditions.push({
+          status: { equals: status },
+        });
+      }
 
-    const allowedSortFields = ['createdAt', 'title', 'date', 'status'];
-    const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+      if (mode) {
+        andConditions.push({
+          mode: { equals: mode },
+        });
+      }
 
-    const [events, total] = await Promise.all([
-      this.prisma.event.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { [safeSortBy]: sortOrder },
+      const where = andConditions.length > 0 ? { AND: andConditions } : {};
+
+      const allowedSortFields = ['createdAt', 'title', 'date', 'status'];
+      const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+
+      const [events, total] = await Promise.all([
+        this.prisma.event.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { [safeSortBy]: sortOrder },
+          include: {
+            agenda: true,
+            speakers: true,
+            organizer: {
+              select: { id: true, firstName: true, lastName: true, email: true },
+            },
+            _count: { select: { registrations: true } },
+          },
+        }),
+        this.prisma.event.count({ where }),
+      ]);
+
+      return new PaginatedResponseDto(events, total, page, limit);
+    }, 60);
+  }
+
+  async findOne(id: string) {
+    return this.cache.getOrSet(`events:${id}`, async () => {
+      const event = await this.prisma.event.findUnique({
+        where: { id },
         include: {
+          agenda: { orderBy: { createdAt: 'asc' } },
+          speakers: { orderBy: { createdAt: 'asc' } },
+          formFields: { orderBy: { fieldOrder: 'asc' } },
           organizer: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
           _count: { select: { registrations: true } },
         },
-      }),
-      this.prisma.event.count({ where }),
-    ]);
+      });
 
-    return new PaginatedResponseDto(events, total, page, limit);
-  }
+      if (!event) {
+        throw new NotFoundException(`Event with ID "${id}" not found`);
+      }
 
-  async findOne(id: string) {
-    const event = await this.prisma.event.findUnique({
-      where: { id },
-      include: {
-        agenda: { orderBy: { createdAt: 'asc' } },
-        speakers: { orderBy: { createdAt: 'asc' } },
-        formFields: { orderBy: { fieldOrder: 'asc' } },
-        organizer: {
-          select: { id: true, firstName: true, lastName: true, email: true },
-        },
-        _count: { select: { registrations: true } },
-      },
-    });
-
-    if (!event) {
-      throw new NotFoundException(`Event with ID "${id}" not found`);
-    }
-
-    return event;
+      return event;
+    }, 120);
   }
 
   async findByOrganizer(organizerId: string, pagination: PaginationDto) {
@@ -277,7 +290,7 @@ export class EventsService {
       }
     }
 
-    return this.prisma.event.update({
+    const updated = await this.prisma.event.update({
       where: { id },
       data: {
         ...(dto.title !== undefined && { title: dto.title }),
@@ -308,6 +321,8 @@ export class EventsService {
         _count: { select: { registrations: true } },
       },
     });
+    this.cache.invalidatePattern('events:');
+    return updated;
   }
 
   async remove(id: string) {
@@ -317,7 +332,9 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${id}" not found`);
     }
 
-    return this.prisma.event.delete({ where: { id } });
+    const deleted = await this.prisma.event.delete({ where: { id } });
+    this.cache.invalidatePattern('events:');
+    return deleted;
   }
 
   async archive(id: string) {
@@ -353,7 +370,7 @@ export class EventsService {
       ...eventData
     } = existing;
 
-    return this.prisma.event.create({
+    const created = await this.prisma.event.create({
       data: {
         ...eventData,
         agendaJson: eventData.agendaJson as any,
@@ -395,6 +412,8 @@ export class EventsService {
         },
       },
     });
+    this.cache.invalidatePattern('events:');
+    return created;
   }
 
   async uploadPoster(id: string, file: Express.Multer.File) {
@@ -404,10 +423,12 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${id}" not found`);
     }
 
-    return this.prisma.event.update({
+    const updated = await this.prisma.event.update({
       where: { id },
       data: { posterImage: file.path },
     });
+    this.cache.invalidatePattern('events:');
+    return updated;
   }
 
   // --- Agenda ---
@@ -419,7 +440,7 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${eventId}" not found`);
     }
 
-    return this.prisma.eventAgenda.create({
+    const created = await this.prisma.eventAgenda.create({
       data: {
         eventId,
         title: dto.title,
@@ -428,6 +449,8 @@ export class EventsService {
         endTime: dto.endTime,
       },
     });
+    this.cache.invalidatePattern('events:');
+    return created;
   }
 
   async updateAgenda(agendaId: string, dto: CreateAgendaDto) {
@@ -437,7 +460,7 @@ export class EventsService {
       throw new NotFoundException(`Agenda item with ID "${agendaId}" not found`);
     }
 
-    return this.prisma.eventAgenda.update({
+    const updated = await this.prisma.eventAgenda.update({
       where: { id: agendaId },
       data: {
         title: dto.title,
@@ -446,6 +469,8 @@ export class EventsService {
         endTime: dto.endTime,
       },
     });
+    this.cache.invalidatePattern('events:');
+    return updated;
   }
 
   async removeAgenda(agendaId: string) {
@@ -455,7 +480,9 @@ export class EventsService {
       throw new NotFoundException(`Agenda item with ID "${agendaId}" not found`);
     }
 
-    return this.prisma.eventAgenda.delete({ where: { id: agendaId } });
+    const deleted = await this.prisma.eventAgenda.delete({ where: { id: agendaId } });
+    this.cache.invalidatePattern('events:');
+    return deleted;
   }
 
   // --- Speakers ---
@@ -467,7 +494,7 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${eventId}" not found`);
     }
 
-    return this.prisma.eventSpeaker.create({
+    const created = await this.prisma.eventSpeaker.create({
       data: {
         eventId,
         name: dto.name,
@@ -478,6 +505,8 @@ export class EventsService {
         linkedinUrl: dto.linkedinUrl,
       },
     });
+    this.cache.invalidatePattern('events:');
+    return created;
   }
 
   async updateSpeaker(speakerId: string, dto: CreateSpeakerDto) {
@@ -487,7 +516,7 @@ export class EventsService {
       throw new NotFoundException(`Speaker with ID "${speakerId}" not found`);
     }
 
-    return this.prisma.eventSpeaker.update({
+    const updated = await this.prisma.eventSpeaker.update({
       where: { id: speakerId },
       data: {
         name: dto.name,
@@ -498,6 +527,8 @@ export class EventsService {
         linkedinUrl: dto.linkedinUrl,
       },
     });
+    this.cache.invalidatePattern('events:');
+    return updated;
   }
 
   async removeSpeaker(speakerId: string) {
@@ -507,7 +538,9 @@ export class EventsService {
       throw new NotFoundException(`Speaker with ID "${speakerId}" not found`);
     }
 
-    return this.prisma.eventSpeaker.delete({ where: { id: speakerId } });
+    const deleted = await this.prisma.eventSpeaker.delete({ where: { id: speakerId } });
+    this.cache.invalidatePattern('events:');
+    return deleted;
   }
 
   // --- Form Fields ---
@@ -522,6 +555,7 @@ export class EventsService {
     await this.prisma.formField.deleteMany({ where: { eventId } });
 
     if (!fields || fields.length === 0) {
+      this.cache.invalidatePattern('events:');
       return [];
     }
 
@@ -540,6 +574,7 @@ export class EventsService {
       ),
     );
 
+    this.cache.invalidatePattern('events:');
     return created;
   }
 
@@ -552,7 +587,7 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${id}" not found`);
     }
 
-    return this.prisma.event.update({
+    const updated = await this.prisma.event.update({
       where: { id },
       data: { status },
       include: {
@@ -562,5 +597,7 @@ export class EventsService {
         _count: { select: { registrations: true } },
       },
     });
+    this.cache.invalidatePattern('events:');
+    return updated;
   }
 }

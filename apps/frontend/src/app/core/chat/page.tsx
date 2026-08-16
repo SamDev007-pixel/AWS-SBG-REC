@@ -5,30 +5,11 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import GroupChatPanel from "@/components/chat/GroupChatPanel";
 import {
-  MessageSquare, Users, Database, Zap,
-  Search, Clock, CheckCircle2, XCircle, AlertCircle,
+  MessageSquare, Users, Database,
+  Search, CheckCircle2, XCircle, AlertCircle,
   BookOpen, Trash2, Plus, X, ChevronDown, ArrowLeft,
-  UserCog, UserPlus, Ban, RefreshCw, SlidersHorizontal,
+  RefreshCw, SlidersHorizontal, User
 } from "lucide-react";
-
-// ─── Design Tokens ────────────────────────────────────────────────────────────
-const T = {
-  bg:        "#F8FAFC",         // Slate-50 main page background
-  surface:   "#FFFFFF",         // Pure white panels
-  surface2:  "#F1F5F9",         // Slate-100 sub-zones
-  surface3:  "#E2E8F0",         // Slate-200 hover states
-  border:    "#E2E8F0",         // Clean border separator
-  borderHov: "#CBD5E1",         // Border hover state
-  accent:    "#FF9900",         // AWS Orange accent
-  accentHov: "#E68A00",         // Orange active
-  accentLow: "rgba(255,153,0,0.08)", // Soft orange highlight background
-  success:   "#16a34a",         // Emerald-600
-  warning:   "#d97706",         // Amber-600
-  danger:    "#dc2626",         // Red-600
-  text:      "#0F172A",         // Slate-900 high contrast readable text
-  muted:     "#64748B",         // Slate-500 secondary labels
-  muted2:    "#475569",         // Slate-600 tertiary labels
-};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const relativeTime = (isoStr: string) => {
@@ -47,10 +28,36 @@ const relativeTime = (isoStr: string) => {
 };
 
 const statusMeta = (s: string) => {
-  if (s === "live" || s === "pending")    return { color: T.warning,  icon: <AlertCircle size={12} />, label: "Live" };
-  if (s === "resolved" || s === "replied") return { color: T.success,  icon: <CheckCircle2 size={12} />, label: "Resolved" };
-  if (s === "dismissed")                   return { color: T.muted,   icon: <XCircle size={12} />, label: "Dismissed" };
-  return { color: T.muted, icon: null, label: s };
+  if (s === "live" || s === "pending") {
+    return {
+      badgeClass: "bg-amber-50 text-amber-900 border-amber-300/80",
+      dotClass: "bg-amber-500",
+      icon: <AlertCircle size={12} className="text-amber-600" />,
+      label: "Live"
+    };
+  }
+  if (s === "resolved" || s === "replied") {
+    return {
+      badgeClass: "bg-emerald-50 text-emerald-900 border-emerald-300/80",
+      dotClass: "bg-emerald-500",
+      icon: <CheckCircle2 size={12} className="text-emerald-600" />,
+      label: "Resolved"
+    };
+  }
+  if (s === "dismissed") {
+    return {
+      badgeClass: "bg-slate-100 text-slate-700 border-slate-200",
+      dotClass: "bg-slate-400",
+      icon: <XCircle size={12} className="text-slate-400" />,
+      label: "Dismissed"
+    };
+  }
+  return {
+    badgeClass: "bg-slate-100 text-slate-700 border-slate-200",
+    dotClass: "bg-slate-400",
+    icon: null,
+    label: s
+  };
 };
 
 const simPct = (v: number | null) => (v != null ? `${Math.round(v * 100)}%` : "—");
@@ -69,23 +76,18 @@ function Toast({ toast, onClose }: ToastProps) {
   if (!toast) return null;
   const isErr = toast.type === "error";
   return (
-    <div style={{
-      position: "fixed", bottom: 24, right: 24, zIndex: 1000,
-      background: "#FFFFFF",
-      border: `1px solid ${isErr ? T.danger : T.success}40`,
-      borderRadius: 12, padding: "14px 18px",
-      display: "flex", alignItems: "flex-start", gap: 12,
-      maxWidth: 360, boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
-      animation: "slideUp .3s ease",
-    }}>
-      <span style={{ color: isErr ? T.danger : T.success, marginTop: 1 }}>
+    <div className={cn(
+      "fixed bottom-6 right-6 z-50 bg-white border rounded-xl p-4 flex items-start gap-3 max-w-sm shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-200",
+      isErr ? "border-red-200 shadow-red-500/5" : "border-emerald-200 shadow-emerald-500/5"
+    )}>
+      <span className={cn("mt-0.5 shrink-0", isErr ? "text-red-600" : "text-emerald-600")}>
         {isErr ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
       </span>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 12, color: T.text, fontWeight: 700 }}>{toast.title}</div>
-        {toast.body && <div style={{ fontSize: 11, color: T.muted2, marginTop: 3, lineHeight: 1.5 }}>{toast.body}</div>}
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-bold text-slate-900">{toast.title}</div>
+        {toast.body && <div className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{toast.body}</div>}
       </div>
-      <button onClick={onClose} style={{ background: "none", border: "none", color: T.muted, cursor: "pointer", padding: 0 }}>
+      <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer outline-none">
         <X size={14} />
       </button>
     </div>
@@ -94,59 +96,72 @@ function Toast({ toast, onClose }: ToastProps) {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Query {
-  id: string; sessionId: string; message: string;
-  bestSimilarity: number; bestMatchDoc?: string | null;
-  timestamp: string; status: string;
+  id: string;
+  sessionId: string;
+  message: string;
+  bestSimilarity: number;
+  bestMatchDoc?: string | null;
+  timestamp: string;
+  status: string;
   adminReply?: string | null;
 }
 
 // ─── Query Row ────────────────────────────────────────────────────────────────
 const QueryRow = ({ q, isSelected, onSelect }: { q: Query; isSelected: boolean; onSelect: (q: Query) => void }) => {
-  const { color, icon, label } = statusMeta(q.status);
+  const { badgeClass, dotClass, label } = statusMeta(q.status);
   const simVal = Math.round((q.bestSimilarity ?? 0) * 100);
 
   return (
-    <div
+    <tr
       onClick={() => onSelect(q)}
-      className={`cursor-pointer transition-all border-b border-slate-200/80 p-3.5 sm:px-6 md:px-8 md:h-12 flex flex-col md:grid md:grid-cols-[50px_1fr_70px_70px_100px] md:items-center gap-2.5 md:gap-3 ${
-        isSelected ? "bg-orange-50/80 border-l-4 border-l-[#FF9900]" : "bg-white hover:bg-slate-50 border-l-4 border-l-transparent"
-      }`}
+      className={cn(
+        "cursor-pointer transition-colors group border-b border-slate-100 last:border-none",
+        isSelected 
+          ? "bg-amber-50/80" 
+          : "hover:bg-slate-50/80 bg-white"
+      )}
     >
-      {/* Mobile Top Row / Desktop Col 1 & 4 */}
-      <div className="flex items-center justify-between md:contents">
-        <span className="text-[10.5px] font-bold font-mono text-slate-600 bg-slate-100 border border-slate-200/90 px-2 py-0.5 rounded-md shadow-2xs">
+      {/* Col 1: ID */}
+      <td className="py-4 pl-6 pr-3 w-20 whitespace-nowrap align-middle">
+        <span className="inline-flex items-center text-xs font-bold font-mono text-slate-700 bg-slate-100 border border-slate-200/90 px-2 py-0.5 rounded-md shadow-2xs">
           #{q.id.slice(-4)}
         </span>
-        <span className="md:hidden text-[11px] font-medium text-slate-400">
-          {relativeTime(q.timestamp)}
-        </span>
-      </div>
+      </td>
 
-      {/* Message Text / Desktop Col 2 */}
-      <div className="text-[13.5px] font-bold text-slate-800 leading-snug line-clamp-2 md:line-clamp-1 md:truncate" title={q.message}>
-        {q.message}
-      </div>
+      {/* Col 2: Question Message */}
+      <td className="py-4 px-4 min-w-[220px] align-middle">
+        <div className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-slate-950" title={q.message}>
+          {q.message}
+        </div>
+      </td>
 
-      {/* Mobile Bottom Row / Desktop Col 3, 4, 5 */}
-      <div className="flex items-center justify-between md:contents pt-1 md:pt-0">
+      {/* Col 3: Similarity Match */}
+      <td className="py-4 px-4 w-28 whitespace-nowrap text-center align-middle">
         <span className={cn(
-          "inline-flex items-center justify-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border",
+          "inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-bold border",
           simVal >= 50
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
             : simVal >= 20
-            ? "bg-amber-50 text-amber-700 border-amber-200"
-            : "bg-slate-100 text-slate-500 border-slate-200"
+            ? "bg-amber-50 text-amber-800 border-amber-200"
+            : "bg-slate-100 text-slate-600 border-slate-200"
         )}>
           {simPct(q.bestSimilarity)}
         </span>
-        <span className="hidden md:inline text-[10px] font-medium text-slate-400 whitespace-nowrap">
-          {relativeTime(q.timestamp)}
+      </td>
+
+      {/* Col 4: Time */}
+      <td className="py-4 px-4 w-28 whitespace-nowrap text-center text-xs font-semibold text-slate-500 align-middle">
+        {relativeTime(q.timestamp)}
+      </td>
+
+      {/* Col 5: Status */}
+      <td className="py-4 pl-3 pr-6 w-36 whitespace-nowrap text-right align-middle">
+        <span className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold border", badgeClass)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotClass)} />
+          <span className="whitespace-nowrap">{label}</span>
         </span>
-        <span className="inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border" style={{ backgroundColor: `${color}12`, borderColor: `${color}25`, color }}>
-          {icon} {label}
-        </span>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 };
 
@@ -160,6 +175,7 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [expandedChips, setExpandedChips] = useState<Record<string, boolean>>({});
+  const [searchChip, setSearchChip] = useState("");
 
   const fetchChips = useCallback(async () => {
     try {
@@ -184,7 +200,7 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
       if (!res.ok) throw new Error();
       await fetchChips();
       setNewQuestion(""); setNewAnswer("");
-      showToast({ type: "success", title: "FAQ Chip Added" });
+      showToast({ type: "success", title: "FAQ Chip Added Successfully" });
     } catch { showToast({ type: "error", title: "Failed to add FAQ chip" }); }
     finally { setAdding(false); }
   };
@@ -199,50 +215,72 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
     } catch { showToast({ type: "error", title: "Delete failed" }); }
   };
 
+  const filteredChips = chips.filter(c => 
+    !searchChip || 
+    c.question.toLowerCase().includes(searchChip.toLowerCase()) || 
+    c.answer.toLowerCase().includes(searchChip.toLowerCase())
+  );
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full h-full min-h-0 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
       {/* FAQ list */}
-      <div className="w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden">
-        <div style={{ padding: "16px 24px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }} className="sm:px-8">
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <BookOpen size={14} color={T.accent} />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>FAQ Knowledge Chips</div>
-              <div style={{ fontSize: 10, color: T.muted }}>Automated response triggers</div>
+      <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-xs">
+        <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <BookOpen size={16} className="text-[#FF9900]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Knowledge Chips Directory</span>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              {chips.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs shadow-2xs w-full sm:w-48">
+              <Search size={13} className="text-slate-400 shrink-0" />
+              <input
+                type="text"
+                value={searchChip}
+                onChange={e => setSearchChip(e.target.value)}
+                placeholder="Search chips..."
+                className="bg-transparent border-none outline-none text-slate-900 text-xs w-full placeholder:text-slate-400 font-semibold"
+              />
             </div>
           </div>
-          <span style={{ fontSize: 10, padding: "3px 8px", background: T.accentLow, color: T.accent, borderRadius: 99, fontWeight: 700 }}>{chips.length} chips</span>
         </div>
-        <div style={{ padding: "8px 24px", overflowY: "auto", flex: 1 }} className="sm:px-8">
+
+        <div className="p-4 overflow-y-auto max-h-[600px] bg-white">
           {loading ? (
-            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading FAQ chips…</div>
-          ) : chips.length === 0 ? (
-            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No FAQ chips yet.</div>
+            <div className="p-12 text-center text-xs text-slate-500 font-semibold">
+              <RefreshCw size={16} className="animate-spin text-[#FF9900] mx-auto mb-2" />
+              Loading FAQ chips…
+            </div>
+          ) : filteredChips.length === 0 ? (
+            <div className="p-12 text-center text-xs text-slate-500 font-semibold">No FAQ chips found.</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 0" }}>
-              {chips.map(chip => {
+            <div className="flex flex-col gap-2.5">
+              {filteredChips.map(chip => {
                 const isExpanded = !!expandedChips[chip.id];
                 return (
-                  <div key={chip.id} onClick={() => setExpandedChips(p => ({ ...p, [chip.id]: !p[chip.id] }))}
-                    style={{ borderRadius: 8, background: T.surface2, border: `1px solid ${T.border}`, padding: "12px 14px", cursor: "pointer", transition: "border-color .15s" }}
-                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = T.borderHov}
-                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = T.border}
+                  <div 
+                    key={chip.id} 
+                    onClick={() => setExpandedChips(p => ({ ...p, [chip.id]: !p[chip.id] }))}
+                    className="rounded-lg bg-slate-50/80 border border-slate-200 p-3.5 cursor-pointer transition-all hover:bg-white hover:border-slate-300 hover:shadow-xs"
                   >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                      <div style={{ fontSize: 12, color: T.text, fontWeight: 600, flex: 1 }}>{chip.question}</div>
-                      <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-                        <ChevronDown size={14} color={T.muted} style={{ transition: "transform .2s", transform: isExpanded ? "rotate(180deg)" : "none" }} />
-                        <button onClick={e => { e.stopPropagation(); handleDelete(chip.id); }}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: T.muted, padding: 0, display: "flex", alignItems: "center" }}
-                          onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = T.danger}
-                          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = T.muted}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-xs font-bold text-slate-900 flex-1 leading-snug">{chip.question}</div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <ChevronDown size={14} className={cn("text-slate-400 transition-transform duration-200", isExpanded && "rotate-180")} />
+                        <button 
+                          onClick={e => { e.stopPropagation(); handleDelete(chip.id); }}
+                          className="text-slate-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
+                          title="Delete chip"
                         >
                           <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
                     {isExpanded && (
-                      <div style={{ fontSize: 11, color: T.muted2, marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${T.border}`, lineHeight: 1.6 }}>
+                      <div className="text-xs font-medium text-slate-600 mt-2.5 pt-2.5 border-t border-slate-200/80 leading-relaxed">
                         {chip.answer}
                       </div>
                     )}
@@ -255,56 +293,48 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
       </div>
 
       {/* Add form */}
-      <div className="w-full lg:w-2/5 bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col gap-6 overflow-y-auto">
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Plus size={16} color={T.accent} />
-            <span style={{ fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>Add FAQ Chip</span>
+      <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-5 sm:p-6 flex flex-col gap-4 shadow-xs">
+        <div>
+          <div className="flex items-center gap-2">
+            <Plus size={16} className="text-[#FF9900]" />
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Add FAQ Knowledge Chip</h3>
           </div>
-          <span style={{ fontSize: 11, color: T.muted }}>Add a quick reply trigger to the knowledge base.</span>
+          <p className="text-xs font-medium text-slate-500 mt-1">Configure automated chatbot instant responses for enthusiast inquiries.</p>
         </div>
-        <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Question</label>
+
+        <form onSubmit={handleAdd} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trigger Question</label>
             <input 
               type="text" 
               value={newQuestion} 
               onChange={e => setNewQuestion(e.target.value)} 
-              placeholder="e.g. What is AWS Certified Cloud Practitioner?"
-              className="faq-input"
+              placeholder="e.g. What are the prerequisites for AWS Solutions Architect?"
+              className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-lg p-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-semibold transition-all"
             />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Answer</label>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Official Response</label>
             <textarea 
               value={newAnswer} 
               onChange={e => setNewAnswer(e.target.value)} 
-              placeholder="Provide the official response..." 
+              placeholder="Provide the structured official answer to be saved into the knowledge base..." 
               rows={5}
-              className="faq-textarea"
+              className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-lg p-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-medium transition-all resize-y min-h-[100px]"
             />
           </div>
+
           <button 
             type="submit" 
             disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
-            className="faq-submit-btn"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Plus size={14} /> {adding ? "Adding Chip…" : "Add FAQ Chip"}
+            <Plus size={14} />
+            <span>{adding ? "Adding Chip…" : "Add FAQ Chip"}</span>
           </button>
         </form>
       </div>
-    </div>
-  );
-}
-
-// ─── Avatar ───────────────────────────────────────────────────────────────────
-function Avatar({ initials, color, photo, size = 36 }: { initials: string; color?: string; photo?: string | null; size?: number }) {
-  const src = typeof photo === "object" && photo !== null ? (photo as any).photo : photo;
-  const isValid = src && typeof src === "string" && src.trim() !== "" && !["null","undefined","[object Object]"].includes(src);
-  if (isValid) return <img src={src} alt={initials} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />;
-  return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: color || T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: Math.floor(size * 0.36), color: "#fff", flexShrink: 0 }}>
-      {initials}
     </div>
   );
 }
@@ -351,320 +381,118 @@ function CMSPanel({ query, onSaved, onDismissed, showToast, user, onBack }: { qu
 
   if (!query) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, background: T.surface, padding: "80px 40px", color: T.muted, flex: 1 }}>
-        <MessageSquare size={40} color={T.muted} strokeWidth={1.2} style={{ opacity: 0.5 }} />
-        <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>No query selected</div>
-        <div style={{ fontSize: 12, textAlign: "center", maxWidth: 220, lineHeight: 1.6, color: T.muted }}>
-          Select a query from the left queue to review, respond, and save to knowledge base.
+      <div className="flex flex-col items-center justify-center gap-3 bg-white p-12 text-slate-400 flex-1 h-full min-h-[360px]">
+        <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-1">
+          <MessageSquare size={22} strokeWidth={1.5} />
+        </div>
+        <div className="text-sm font-bold text-slate-800">No Query Selected</div>
+        <div className="text-xs text-center max-w-[260px] leading-relaxed text-slate-500 font-medium">
+          Select a user inquiry from the queue to formulate an official answer and update the knowledge base.
         </div>
       </div>
     );
   }
 
-  const { color: stColor, label: stLabel } = statusMeta(query.status);
+  const { badgeClass, dotClass, label: stLabel } = statusMeta(query.status);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, background: T.surface, padding: "20px 20px", flex: 1, minHeight: 0 }} className="sm:p-7">
+    <div className="flex flex-col gap-4 bg-white p-4 sm:p-6 flex-1 min-h-0 h-full overflow-y-auto">
       {/* Mobile Back button */}
       {onBack && (
         <button
           onClick={onBack}
-          className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition w-fit cursor-pointer shadow-sm"
+          className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition w-fit cursor-pointer shadow-xs"
         >
           <ArrowLeft size={14} />
           <span>Back to Queries List</span>
         </button>
       )}
+
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <SlidersHorizontal size={14} color={T.accent} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 13, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>CMS Editor</span>
-            <span style={{ fontSize: 9, color: T.muted, fontFamily: "monospace" }}>#{query.id.slice(-8)}</span>
-          </div>
+      <div className="flex items-center justify-between shrink-0 pb-3 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal size={15} className="text-[#FF9900]" />
+          <span className="text-xs font-bold text-slate-900">Query Response Editor</span>
+          <span className="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+            #{query.id.slice(-6)}
+          </span>
         </div>
-        <span style={{
-          padding: "3px 10px",
-          borderRadius: 99,
-          background: `${stColor}10`,
-          color: stColor,
-          fontSize: 10,
-          fontWeight: 800,
-          textTransform: "uppercase",
-          letterSpacing: "0.04em",
-          border: `1px solid ${stColor}20`,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 4
-        }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: stColor }} />
-          {stLabel}
+        <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold border", badgeClass)}>
+          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotClass)} />
+          <span>{stLabel}</span>
         </span>
       </div>
 
       {/* Question card */}
-      <div style={{ background: "#F8FAFC", borderRadius: 10, border: `1px solid ${T.border}`, borderLeft: `4px solid ${T.accent}`, padding: "16px 20px" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
-          <MessageSquare size={12} /> User Question
+      <div className="bg-slate-50/90 rounded-xl border border-slate-200 border-l-4 border-l-[#FF9900] p-4 shadow-2xs">
+        <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-1 flex items-center gap-1.5">
+          <MessageSquare size={12} className="text-[#FF9900]" />
+          <span>Enthusiast Question</span>
         </div>
-        <div style={{ fontSize: 13.5, color: T.text, lineHeight: 1.6, fontWeight: 500 }}>{query.message}</div>
+        <div className="text-sm text-slate-900 leading-relaxed font-bold">{query.message}</div>
       </div>
 
+      {/* Closest match */}
       {query.bestMatchDoc && (
-        <details className="kb-match-details" style={{ background: "#FFFFFF", borderRadius: 10, border: `1px solid ${T.border}`, padding: "12px 16px", cursor: "pointer", transition: "all 0.2s ease" }}>
-          <summary style={{ fontSize: "12px", color: T.text, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "space-between", outline: "none", listStyle: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Database size={13} color={T.accent} />
+        <details className="bg-white rounded-xl border border-slate-200 p-3.5 cursor-pointer shadow-2xs group">
+          <summary className="text-xs font-bold text-slate-800 flex items-center justify-between outline-none list-none select-none">
+            <div className="flex items-center gap-2">
+              <Database size={13} className="text-[#FF9900]" />
               <span>Closest KB Match (Auto-Reply Source)</span>
             </div>
-            <ChevronDown size={14} color={T.muted} className="kb-match-chevron" style={{ transition: "transform .2s" }} />
+            <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform duration-200" />
           </summary>
-          <div style={{ marginTop: 12, fontSize: 12, color: T.muted2, lineHeight: 1.6, borderTop: `1px dashed ${T.border}`, paddingTop: 10, maxHeight: 150, overflowY: "auto", fontFamily: "inherit" }}>
+          <div className="mt-2.5 text-xs text-slate-600 font-medium leading-relaxed border-t border-slate-100 pt-2.5 max-h-36 overflow-y-auto">
             {query.bestMatchDoc}
           </div>
         </details>
       )}
 
-      <div style={{ height: 1, background: T.border, margin: "4px 0" }} />
-
+      {/* Answer & actions */}
       {saveResult ? (
-        <div style={{ background: `${T.success}12`, border: `1px solid ${T.success}25`, borderRadius: 10, padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
-          <CheckCircle2 size={20} color={T.success} />
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+          <CheckCircle2 size={20} className="text-emerald-600 shrink-0" />
           <div>
-            <div style={{ fontSize: 13, color: T.success, fontWeight: 700 }}>Saved to ChromaDB</div>
-            <div style={{ fontSize: 11, color: T.muted2, marginTop: 2 }}>Future similar queries will be auto-answered automatically.</div>
+            <div className="text-xs font-bold text-emerald-900">Saved to Knowledge Base</div>
+            <div className="text-xs text-emerald-700 font-medium mt-0.5">Future similar queries will be automatically answered.</div>
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <textarea
-            value={answer} onChange={e => setAnswer(e.target.value)}
-            placeholder="Write the correct answer to save to the knowledge base…"
-            rows={6} disabled={saving !== ""}
-            className="faq-textarea"
-          />
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+        <div className="flex flex-col gap-3 mt-1">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Official Resolution Answer</label>
+            <textarea
+              value={answer} 
+              onChange={e => setAnswer(e.target.value)} 
+              placeholder="Write the accurate answer to respond and train the knowledge base…"
+              rows={5} 
+              disabled={saving !== ""}
+              className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-medium transition-all resize-y min-h-[110px]"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-1">
             {query.status === "live" && (
               <button 
                 onClick={handleDismiss} 
                 disabled={saving !== ""}
-                className="btn-danger-outline w-full sm:w-auto justify-center"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 border border-slate-200 bg-white hover:bg-red-50 text-slate-600 hover:text-red-700 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50"
               >
-                <XCircle size={13} /> {saving === "dismissing" ? "Dismissing…" : "Dismiss"}
+                <XCircle size={13} />
+                <span>{saving === "dismissing" ? "Dismissing…" : "Dismiss"}</span>
               </button>
             )}
             <button 
               onClick={handleSave} 
               disabled={saving !== "" || !answer.trim()}
-              className="btn-primary w-full sm:w-auto justify-center"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#232F3E] hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Database size={13} /> {saving === "saving" ? "Saving…" : "Save to KB"}
+              <Database size={13} />
+              <span>{saving === "saving" ? "Saving…" : "Save to KB"}</span>
             </button>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// ─── Member Types ─────────────────────────────────────────────────────────────
-interface Member { id: string; name: string; email: string; role: string; avatar?: { photo?: string | null; initials: string; color: string } | null; banned: boolean; }
-interface BanLogItem { id: string; userId: string; userName: string; userEmail: string; bannedBy: string; banReason: string; bannedAt: string; }
-
-// ─── Manage Users Panel ───────────────────────────────────────────────────────
-function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [role, setRole] = useState("crew");
-  const [creating, setCreating] = useState(false);
-  const [banLog, setBanLog] = useState<BanLogItem[]>([]);
-  const [loadingLog, setLoadingLog] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<"members" | "log">("members");
-
-  const fetchMembers = async () => {
-    try {
-      const res = await fetch("/api/auth");
-      const data = await res.json();
-      setMembers(data.data?.users ?? data.users ?? []);
-    } catch { showToast({ type: "error", title: "Failed to load members list" }); }
-    finally { setLoading(false); }
-  };
-
-  const fetchBanLog = async () => {
-    setLoadingLog(true);
-    try {
-      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getBanLog" }) });
-      const data = await res.json();
-      setBanLog(data.data?.banLog ?? data.banLog ?? []);
-    } catch { console.error("Failed to load ban log"); }
-    finally { setLoadingLog(false); }
-  };
-
-  useEffect(() => { fetchMembers(); fetchBanLog(); }, []);
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !password || !role) { showToast({ type: "error", title: "All fields are required" }); return; }
-    setCreating(true);
-    try {
-      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", name, email, password, role }) });
-      const data = await res.json();
-      if (!res.ok) { showToast({ type: "error", title: "Registration failed", body: data.error }); return; }
-      showToast({ type: "success", title: "Account created!" });
-      setName(""); setEmail(""); setPassword(""); setRole("crew");
-      fetchMembers();
-    } catch { showToast({ type: "error", title: "Network error" }); }
-    finally { setCreating(false); }
-  };
-
-  const handleBan = async (id: string, name: string) => {
-    if (!window.confirm(`Deactivate ${name}?`)) return;
-    try {
-      const res = await fetch(`/api/auth?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      showToast({ type: "success", title: `${name} deactivated.` });
-      fetchMembers(); fetchBanLog();
-    } catch { showToast({ type: "error", title: "Failed to deactivate" }); }
-  };
-
-  const handleUnban = async (id: string, name: string) => {
-    try {
-      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unban", userId: id }) });
-      if (!res.ok) throw new Error();
-      showToast({ type: "success", title: `${name} activated!` });
-      fetchMembers(); fetchBanLog();
-    } catch { showToast({ type: "error", title: "Failed to activate" }); }
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8,
-    padding: "10px 14px", color: T.text, fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit",
-    transition: "border-color .2s",
-  };
-
-  return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full h-full min-h-0 items-stretch">
-      {/* Members list */}
-      <div className="w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden">
-        <div style={{ padding: "16px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Users size={14} color={T.accent} />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Members Directory</div>
-              <div style={{ fontSize: 10, color: T.muted }}>Core & Crew administrative accounts</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 3, background: T.surface3, padding: 3, borderRadius: 99 }}>
-            {(["members", "log"] as const).map(k => (
-              <button key={k} onClick={() => setActiveSubTab(k)}
-                style={{ border: "none", background: activeSubTab === k ? "#FFFFFF" : "transparent", cursor: "pointer", fontSize: 10, fontWeight: 700, padding: "6px 14px", borderRadius: 99, color: activeSubTab === k ? T.text : T.muted, transition: "all .2s", boxShadow: activeSubTab === k ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>
-                {k === "members" ? "Active" : "Inactive"}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div style={{ padding: "8px 0", overflowY: "auto", flex: 1 }}>
-          {loading ? (
-            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading users…</div>
-          ) : activeSubTab === "members" ? (
-            members.filter(m => !m.banned).length === 0 ? (
-              <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No active members.</div>
-            ) : (
-              members.filter(m => !m.banned).map(m => (
-                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3 px-4 sm:px-8 border-b border-slate-200">
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <Avatar initials={m.avatar?.initials || m.name.slice(0, 2).toUpperCase()} color={m.avatar?.color || T.accent} photo={m.avatar?.photo} size={36} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
-                      <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: m.role === "core" ? T.accentLow : `${T.muted}15`, color: m.role === "core" ? T.accent : T.muted2, textTransform: "uppercase" }}>{m.role}</span>
-                    <button onClick={() => handleBan(m.id, m.name)} style={{ background: "none", border: `1px solid ${T.danger}30`, borderRadius: 6, color: T.danger, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
-                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
-                    >
-                      <Ban size={10} /> Deactivate
-                    </button>
-                  </div>
-                </div>
-              ))
-            )
-          ) : (
-            banLog.length === 0 ? (
-              <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No deactivated members.</div>
-            ) : (
-              banLog.map(m => (
-                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3 px-4 sm:px-8 border-b border-slate-200">
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.surface2, display: "flex", alignItems: "center", justifyContent: "center", color: T.muted, fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{m.userName.slice(0, 2).toUpperCase()}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.userName}</div>
-                      <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.userEmail}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-end gap-3 shrink-0 pt-1 sm:pt-0">
-                    <button onClick={() => handleUnban(m.userId, m.userName)} style={{ background: "none", border: `1px solid ${T.success}30`, borderRadius: 6, color: T.success, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.success}0d`}
-                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
-                    >
-                      <CheckCircle2 size={10} /> Activate
-                    </button>
-                  </div>
-                </div>
-              ))
-            )
-          )}
-        </div>
-      </div>
-
-      {/* Register form */}
-      <div className="w-full lg:w-2/5 bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col gap-5 overflow-y-auto">
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <UserPlus size={16} color={T.accent} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Register New Account</span>
-        </div>
-        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Full Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jane Doe" style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Address</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. jane@awsclub.dev" style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Privilege Level</label>
-            <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }}>
-              <option value="crew">Crew</option>
-              <option value="core">Core Admin</option>
-            </select>
-          </div>
-          <button type="submit" disabled={creating}
-            style={{ background: T.accent, border: "none", padding: "12px", color: "#fff", fontWeight: 700, borderRadius: 8, fontSize: 13, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background .15s", marginTop: 8 }}
-            onMouseEnter={e => { if (!creating) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
-            onMouseLeave={e => { if (!creating) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
-          >
-            <UserPlus size={14} /> {creating ? "Creating Account…" : "Create Account"}
-          </button>
-        </form>
-      </div>
     </div>
   );
 }
@@ -674,7 +502,7 @@ export default function CoreChatPage() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [activeView, setActiveView] = useState<"queries" | "kb" | "crew_chats" | "manage_users">("queries");
+  const [activeView, setActiveView] = useState<"queries" | "kb" | "crew_chats">("queries");
   const [queries, setQueries] = useState<Query[]>([]);
   const [stats, setStats] = useState<{ live: number; pending: number; resolved: number; dismissed: number; kb_docs: number }>();
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
@@ -742,369 +570,257 @@ export default function CoreChatPage() {
   });
 
   const TABS = [
-    { key: "live",      label: "Live",      color: T.warning, icon: <AlertCircle size={12} /> },
-    { key: "resolved",  label: "Resolved",  color: T.success, icon: <CheckCircle2 size={12} /> },
-    { key: "dismissed", label: "Dismissed", color: T.muted,   icon: <XCircle size={12} /> },
-    { key: "all",       label: "All",       color: T.accent,  icon: <Database size={12} /> },
+    { key: "live",      label: "Live",      count: queries.filter(q => q.status === "live" || q.status === "pending").length },
+    { key: "resolved",  label: "Resolved",  count: queries.filter(q => q.status === "resolved" || q.status === "replied").length },
+    { key: "dismissed", label: "Dismissed", count: queries.filter(q => q.status === "dismissed").length },
+    { key: "all",       label: "All",       count: queries.length },
   ] as const;
 
   // ── Auth checking ──
   if (checkingAuth) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 14, background: T.bg }}>
-        <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2.5px solid ${T.accent}`, borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-        <span style={{ fontSize: 11, color: T.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Verifying credentials…</span>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-3.5 bg-slate-50">
+        <div className="w-7 h-7 rounded-full border-2 border-[#FF9900] border-t-transparent animate-spin" />
+        <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Verifying credentials…</span>
       </div>
     );
   }
   if (!authorized) return null;
 
+  const currentTabLabel = activeView === "queries" 
+    ? "Unhandled Queries" 
+    : activeView === "kb" 
+    ? "Knowledge Base" 
+    : "Crew Channel";
+
   return (
     <div 
-      className="w-full h-[calc(100vh-64px)] lg:h-screen text-slate-900 font-sans flex flex-col select-none p-2 sm:p-5 gap-2 sm:gap-4 overflow-hidden antialiased"
+      className="min-h-screen bg-slate-50 relative selection:bg-orange-500 selection:text-white"
       style={{
         backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
         backgroundRepeat: 'repeat',
-        backgroundSize: '480px auto',
+        backgroundSize: '450px auto'
       }}
     >
-      <style>{`
-        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.16); }
-
-        .faq-input {
-          width: 100%;
-          background: #FFFFFF;
-          border: 1px solid #E2E8F0;
-          border-radius: 10px;
-          padding: 11px 15px;
-          color: #0F172A;
-          font-size: 13px;
-          outline: none;
-          box-sizing: border-box;
-          font-family: inherit;
-          transition: all 0.2s ease-in-out;
-          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
-        }
-        .faq-input:hover {
-          border-color: #CBD5E1;
-        }
-        .faq-input:focus {
-          border-color: #FF9900;
-          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12), 0 1px 2px rgba(15, 23, 42, 0.05);
-        }
-        .faq-textarea {
-          width: 100%;
-          background: #FFFFFF;
-          border: 1px solid #E2E8F0;
-          border-radius: 10px;
-          padding: 12px 15px;
-          color: #0F172A;
-          font-size: 13px;
-          outline: none;
-          box-sizing: border-box;
-          font-family: inherit;
-          transition: all 0.2s ease-in-out;
-          min-height: 120px;
-          resize: vertical;
-          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
-        }
-        .faq-textarea:hover {
-          border-color: #CBD5E1;
-        }
-        .faq-textarea:focus {
-          border-color: #FF9900;
-          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12), 0 1px 2px rgba(15, 23, 42, 0.05);
-        }
-        .faq-submit-btn {
-          background: linear-gradient(135deg, #FF9900 0%, #FF8800 100%);
-          border: none;
-          padding: 12px;
-          color: #fff;
-          font-weight: 700;
-          border-radius: 10px;
-          font-size: 13px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
-          margin-top: 8px;
-        }
-        .faq-submit-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(255, 153, 0, 0.25);
-          background: linear-gradient(135deg, #FF9900 0%, #FF7700 100%);
-        }
-        .faq-submit-btn:active {
-          transform: translateY(0);
-          box-shadow: 0 2px 8px rgba(255, 153, 0, 0.15);
-        }
-        .faq-submit-btn:disabled {
-          background: #E2E8F0;
-          color: #94A3B8;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: none;
-        }
-        @keyframes pulse {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-          70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(22, 163, 74, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-        }
-        .online-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #16A34A;
-          animation: pulse 2s infinite;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #FF9900 0%, #FF8800 100%);
-          border: none;
-          padding: 10px 22px;
-          color: #fff;
-          font-weight: 700;
-          border-radius: 10px;
-          font-size: 13px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
-        }
-        .btn-primary:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(255, 153, 0, 0.25);
-          background: linear-gradient(135deg, #FF9900 0%, #FF7700 100%);
-        }
-        .btn-primary:active {
-          transform: translateY(0);
-          box-shadow: 0 2px 8px rgba(255, 153, 0, 0.15);
-        }
-        .btn-primary:disabled {
-          background: #E2E8F0;
-          color: #94A3B8;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: none;
-        }
-
-        .btn-danger-outline {
-          background: #FFFFFF;
-          border: 1px solid rgba(220, 38, 38, 0.25);
-          padding: 10px 20px;
-          color: #dc2626;
-          font-weight: 700;
-          border-radius: 10px;
-          font-size: 13px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          transition: all 0.2s ease;
-        }
-        .btn-danger-outline:hover {
-          background: rgba(220, 38, 38, 0.05);
-          border-color: rgba(220, 38, 38, 0.4);
-          transform: translateY(-1px);
-        }
-        .btn-danger-outline:active {
-          transform: translateY(0);
-        }
-        .btn-danger-outline:disabled {
-          border-color: #E2E8F0;
-          color: #94A3B8;
-          cursor: not-allowed;
-          transform: none;
-          background: none;
-        }
-
-        .kb-match-details[open] .kb-match-chevron {
-          transform: rotate(180deg);
-        }
-        .kb-match-details summary::-webkit-details-marker {
-          display: none;
-        }
-        .kb-match-details:hover {
-          border-color: #CBD5E1 !important;
-        }
-      `}</style>
-
-      {/* ── Header ── */}
-      <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:px-6 sm:py-4 flex-shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <MessageSquare size={18} color={T.accent} />
-          </div>
-          <div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.2 }}>Chat Administration</div>
-            <div style={{ fontSize: 10.5, color: T.muted }}>AWS Club Operations Center</div>
-          </div>
-        </div>
-
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 shrink-0 overflow-x-auto max-w-full no-scrollbar w-full sm:w-auto">
-          {[
-            { key: "queries",      label: "Queries",        icon: <MessageSquare size={13} /> },
-            { key: "kb",           label: "Knowledge Base", icon: <BookOpen size={13} /> },
-            { key: "crew_chats",   label: "Crew Chat",      icon: <Users size={13} /> },
-            ...(user?.role === "core" ? [{ key: "manage_users", label: "Members", icon: <UserCog size={13} /> }] : []),
-          ].map(v => {
-            const isActive = activeView === v.key;
-            return (
-              <button key={v.key} onClick={() => {
-                setActiveView(v.key as any);
-                if (v.key !== "queries") setSelectedQuery(null);
-              }}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                  isActive ? "bg-white text-[#FF9900] shadow-xs" : "bg-transparent text-slate-500 hover:text-slate-900"
-                }`}>
-                {v.icon}
-                <span>{v.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Content ── */}
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        {activeView === "crew_chats" ? (
-          <div className="flex flex-col h-full bg-white border border-slate-200 rounded-xl overflow-hidden min-h-0">
-            <div style={{ background: T.surface, color: T.text, padding: "12px 20px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }} className="shrink-0">
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Users size={14} color={T.accent} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>AWS Club · Core–Crew Chat</span>
-                  <span style={{ fontSize: 10, color: T.muted, fontWeight: 500 }}>Private communication channel</span>
-                </div>
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, background: T.surface2, padding: "2px 7px", borderRadius: 6, textTransform: "uppercase" }}>Operations</span>
+      <div className="mx-auto max-w-[1440px] px-4 pt-4 sm:pt-10 sm:px-6 lg:px-8 flex flex-col gap-6 pb-16">
+        {/* Header with Breadcrumb Path, User Badge, and Aligned Tab Switcher */}
+        <header className="flex flex-col gap-3.5 pb-2">
+          {/* Top Bar: Breadcrumb + Operator Badge */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+              <span className="hover:text-[#FF6B00] transition-colors font-semibold">AWS SBG REC</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF6B00] font-semibold">Core Management</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-700 font-semibold">{currentTabLabel}</span>
             </div>
-            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-              <GroupChatPanel user={user} />
+
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200/90 bg-white/90 shadow-2xs text-xs select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <User size={12} className={user?.role === "core" ? "text-[#FF9900]" : "text-slate-400"} />
+              <span className="font-semibold text-slate-700 truncate max-w-[140px]">{user?.fullName || user?.name || "Member"}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400">({user?.role || "OPERATOR"})</span>
             </div>
           </div>
-        ) : activeView === "manage_users" && user?.role === "core" ? (
-          <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
-            <ManageUsersPanel showToast={showToast} />
-          </div>
-        ) : activeView === "kb" ? (
-          <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
-            <FAQChipsManager showToast={showToast} />
-          </div>
-        ) : (
-          /* ── Queries & CMS ── */
-          <div className="flex flex-col lg:flex-row gap-6 items-stretch flex-1 min-h-0 h-full overflow-hidden">
-            {/* Left: Query list */}
-            <div className={`w-full lg:w-3/5 bg-white border border-slate-200 rounded-xl flex flex-col h-full min-h-0 overflow-hidden ${selectedQuery ? "hidden lg:flex" : "flex"}`}>
-              {/* List header */}
-              <div className="px-4 py-3 sm:px-8 border-b border-slate-200 bg-slate-100/90 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
-                <div className="flex items-center justify-between w-full sm:w-auto">
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-900">Unhandled Queries</div>
-                    <div className="text-[11px] text-slate-500">{visible.length} showing</div>
-                  </div>
-                  <button onClick={fetchData} className="sm:hidden bg-white border border-slate-200 rounded-lg p-2 text-slate-500 hover:bg-slate-50 transition cursor-pointer">
-                    <RefreshCw size={13} />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs w-full sm:w-48 shadow-sm">
-                    <Search size={13} className="text-slate-400 shrink-0" />
-                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search queries…"
-                      className="bg-transparent border-none outline-none text-slate-800 text-xs w-full placeholder-slate-400" />
-                  </div>
-                  <button onClick={fetchData} className="hidden sm:flex bg-white border border-slate-200 rounded-lg p-2 text-slate-500 hover:bg-slate-50 transition cursor-pointer shrink-0">
-                    <RefreshCw size={13} />
-                  </button>
-                </div>
-              </div>
 
-              {/* Filter tabs - Segmented control on mobile */}
-              <div className="grid grid-cols-4 md:flex items-center gap-1.5 p-1.5 bg-slate-100/90 border-b border-slate-200 shrink-0">
-                {TABS.map(tab => {
-                  const isActive = filterTab === tab.key;
-                  const count = queries.filter(q => tab.key === "all" ? true : tab.key === "live" ? (q.status === "live" || q.status === "pending") : tab.key === "resolved" ? (q.status === "resolved" || q.status === "replied") : q.status === tab.key).length;
+          {/* Main Title Row: Page Heading + Tab Navigation Controls */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+                {activeView === "queries"
+                  ? "Unhandled Queries Queue"
+                  : activeView === "kb"
+                  ? "FAQ Knowledge Base"
+                  : "Core–Crew Communications"}
+              </p>
+              
+              <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed font-medium">
+                {activeView === "queries"
+                  ? "Review unhandled enthusiast inquiries, formulate official responses, and train the RAG chatbot knowledge base."
+                  : activeView === "kb"
+                  ? "Manage automated instant-answer knowledge chips for commonly asked student and community questions."
+                  : "Private internal communication stream for Core administrators and active Crew members."}
+              </p>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="shrink-0 flex items-center gap-2.5 flex-wrap">
+              <div className="inline-flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                {[
+                  { key: "queries",    label: "Unhandled Queries", icon: <MessageSquare size={13} /> },
+                  { key: "kb",         label: "Knowledge Base",    icon: <BookOpen size={13} /> },
+                  { key: "crew_chats", label: "Crew Channel",       icon: <Users size={13} /> },
+                ].map((v) => {
+                  const isActive = activeView === v.key;
                   return (
-                    <button key={tab.key} onClick={() => setFilterTab(tab.key as any)}
-                      className={`flex items-center justify-center gap-1.5 py-2 px-2 md:px-4 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${
+                    <button
+                      key={v.key}
+                      type="button"
+                      onClick={() => {
+                        setActiveView(v.key as any);
+                        if (v.key !== "queries") setSelectedQuery(null);
+                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer text-center outline-none focus:outline-none select-none",
                         isActive
-                          ? "bg-white text-slate-900 font-extrabold shadow-2xs border border-slate-200/80"
-                          : "bg-transparent text-slate-500 font-semibold hover:text-slate-800"
-                      }`}>
-                      {tab.icon}
-                      <span>{tab.label}</span>
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                        isActive ? "bg-orange-50 text-[#FF9900]" : "bg-slate-200/70 text-slate-500"
-                      }`}>
-                        {count}
-                      </span>
+                          ? "bg-white text-slate-900 shadow-2xs font-bold border border-slate-200/80"
+                          : "text-slate-600 hover:text-slate-950 hover:bg-slate-200/40 border border-transparent"
+                      )}
+                    >
+                      {v.icon}
+                      <span>{v.label}</span>
                     </button>
                   );
                 })}
               </div>
-
-              {/* Column headers */}
-              <div className="hidden md:grid grid-cols-[50px_1fr_70px_70px_100px] gap-3 px-8 py-2 bg-slate-100/70 border-b border-slate-200 shrink-0">
-                {["ID", "Message", "Match", "Time", "Status"].map(h => (
-                  <span key={h} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</span>
-                ))}
-              </div>
-
-              {/* List body */}
-              <div style={{ overflowY: "auto", flex: 1, background: "#FFFFFF" }}>
-                {visible.length === 0 ? (
-                  <div style={{ 
-                    display: "flex", 
-                    flexDirection: "column", 
-                    alignItems: "center", 
-                    justifyContent: "center", 
-                    padding: "80px 24px", 
-                    color: T.muted, 
-                    fontSize: 13,
-                    background: "#FFFFFF"
-                  }}>
-                    <div style={{ 
-                      width: 48, 
-                      height: 48, 
-                      borderRadius: "50%", 
-                      background: "rgba(241, 245, 249, 0.8)", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      marginBottom: 16,
-                      border: `1px solid ${T.border}`
-                    }}>
-                      <CheckCircle2 size={20} color={T.muted} style={{ opacity: 0.8 }} />
-                    </div>
-                    <div style={{ fontWeight: 700, color: T.text, fontSize: 14, letterSpacing: "-0.01em" }}>No queries found</div>
-                    <div style={{ fontSize: 11, marginTop: 4, color: T.muted }}>All clear for this filter.</div>
-                  </div>
-                ) : visible.map(q => <QueryRow key={q.id} q={q} isSelected={selectedQuery?.id === q.id} onSelect={setSelectedQuery} />)}
-              </div>
-            </div>
-
-            {/* Right: CMS Panel Only */}
-            <div className={`w-full lg:w-2/5 flex flex-col h-full max-h-full min-h-0 bg-white border border-slate-200 rounded-xl overflow-x-hidden overflow-y-auto ${!selectedQuery ? "hidden lg:flex" : "flex"}`}>
-              <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} user={user} onBack={() => setSelectedQuery(null)} />
             </div>
           </div>
-        )}
+        </header>
+
+        {/* ── Main View Content ── */}
+        <div className="relative">
+          {activeView === "crew_chats" ? (
+            <div className="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+              <div className="bg-slate-50/90 text-slate-800 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="text-[#FF9900]" />
+                  <span className="text-xs font-bold text-slate-900">AWS Club · Core–Crew Channel</span>
+                </div>
+                <span className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Internal Ops
+                </span>
+              </div>
+              <div className="h-[600px] overflow-hidden flex flex-col">
+                <GroupChatPanel user={user} />
+              </div>
+            </div>
+          ) : activeView === "kb" ? (
+            <FAQChipsManager showToast={showToast} />
+          ) : (
+            /* ── Queries Queue & CMS Editor ── */
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left: Query Table List */}
+              <div className={cn(
+                "lg:col-span-7 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-xs",
+                selectedQuery ? "hidden lg:flex" : "flex"
+              )}>
+                {/* List Toolbar */}
+                <div className="px-6 py-3.5 border-b border-slate-200 bg-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shrink-0">
+                  <div className="relative flex-1 max-w-sm">
+                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    <input 
+                      type="text" 
+                      value={search} 
+                      onChange={e => setSearch(e.target.value)} 
+                      placeholder="Search questions by keyword…"
+                      className="w-full pl-9 pr-8 py-2 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-900 placeholder:text-slate-500 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all" 
+                    />
+                    {search && (
+                      <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer outline-none">
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    {/* Status Segmented Tabs */}
+                    <div className="inline-flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                      {TABS.map(tab => {
+                        const isActive = filterTab === tab.key;
+                        return (
+                          <button 
+                            key={tab.key} 
+                            onClick={() => setFilterTab(tab.key as any)}
+                            className={cn(
+                              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer select-none outline-none focus:outline-none",
+                              isActive
+                                ? "bg-white text-slate-900 shadow-2xs font-bold"
+                                : "text-slate-600 font-semibold hover:text-slate-950 hover:bg-slate-200/40"
+                            )}
+                          >
+                            <span>{tab.label}</span>
+                            <span className={cn(
+                              "text-[11px] px-1.5 py-0.2 rounded font-bold",
+                              isActive ? "text-slate-900 bg-slate-100" : "text-slate-500"
+                            )}>
+                              {tab.count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button 
+                      onClick={fetchData} 
+                      className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition cursor-pointer" 
+                      title="Refresh query queue"
+                    >
+                      <RefreshCw size={13} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* The Clean Data Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/90 text-xs font-bold text-slate-600 uppercase tracking-wider select-none">
+                        <th className="py-3.5 pl-6 pr-3 w-20">ID</th>
+                        <th className="py-3.5 px-4 min-w-[220px]">Question</th>
+                        <th className="py-3.5 px-4 text-center w-28">Match</th>
+                        <th className="py-3.5 px-4 text-center w-28">Time</th>
+                        <th className="py-3.5 pl-3 pr-6 text-right w-36">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {visible.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-16 text-center text-slate-500 font-medium">
+                            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3">
+                              <CheckCircle2 size={18} className="text-slate-400" />
+                            </div>
+                            <div className="text-sm font-bold text-slate-900">No Queries in this View</div>
+                            <div className="text-xs text-slate-500 mt-1">All clear for the selected filter criteria.</div>
+                          </td>
+                        </tr>
+                      ) : (
+                        visible.map(q => (
+                          <QueryRow 
+                            key={q.id} 
+                            q={q} 
+                            isSelected={selectedQuery?.id === q.id} 
+                            onSelect={setSelectedQuery} 
+                          />
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table Footer */}
+                <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between text-xs text-slate-600 font-semibold">
+                  <span>{visible.length} queries displayed</span>
+                  <span>AWS SBG REC Chat Intelligence</span>
+                </div>
+              </div>
+
+              {/* Right: CMS Response Editor Panel */}
+              <div className={cn(
+                "lg:col-span-5 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs min-h-[500px]",
+                !selectedQuery ? "hidden lg:flex" : "flex"
+              )}>
+                <CMSPanel 
+                  query={selectedQuery} 
+                  onSaved={handleSaved} 
+                  onDismissed={handleDismissed} 
+                  showToast={showToast} 
+                  user={user} 
+                  onBack={() => setSelectedQuery(null)} 
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <Toast toast={toast} onClose={hideToast} />

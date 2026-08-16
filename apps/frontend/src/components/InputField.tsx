@@ -33,7 +33,7 @@ export const InputField = ({
 
   return (
     <div className="w-full flex flex-col gap-1.5 text-left">
-      <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
         {label}
       </label>
       <div className="relative w-full h-11">

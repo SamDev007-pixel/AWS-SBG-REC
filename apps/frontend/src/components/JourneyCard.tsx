@@ -84,7 +84,7 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
           position: "relative",
           width: "100%",
           maxWidth: "800px",
-          margin: hideDesc ? "0 auto 8px" : "0 auto 24px",
+          margin: hideDesc ? "0 auto 4px" : "0 auto 12px",
           padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
           boxSizing: "border-box"
         }}>
@@ -227,7 +227,7 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
 
         {/* desc */}
         {!hideDesc && (
-          <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto 16px" }}>
+          <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto 4px" }}>
             <AnimatePresence mode="wait">
               <motion.div key={active}
                 initial={{ opacity: 0, y: 8 }}
@@ -237,11 +237,11 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
                 style={{
                   background: isDark ? "rgba(255, 255, 255, 0.03)" : cur.light,
                   border: isDark ? "1px solid rgba(255, 255, 255, 0.08)" : `1.5px solid ${cur.color}28`,
-                  borderRadius: 16,
-                  padding: isMobile ? "10px 12px" : "15px 17px",
+                  borderRadius: 14,
+                  padding: isMobile ? "8px 10px" : "10px 14px",
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 10,
                 }}>
                   <div style={{
                     width: isMobile ? 28 : 34,

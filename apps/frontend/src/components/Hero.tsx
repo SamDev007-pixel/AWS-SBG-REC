@@ -5,14 +5,15 @@ import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-const FRAME_COUNT = 148;
+const FRAME_COUNT = 96;
 
 const DecorativeGrid = ({ 
   rows, 
   cols, 
-  dotColor = "#cbd5e1", 
+  dotColor = "#94a3b8", 
   activeDot, 
   activeColor = "#FF9900", 
+  opacity,
   style 
 }: { 
   rows: number; 
@@ -20,10 +21,11 @@ const DecorativeGrid = ({
   dotColor?: string; 
   activeDot?: { r: number; c: number }; 
   activeColor?: string; 
+  opacity?: number;
   style?: React.CSSProperties;
 }) => {
   return (
-    <div style={{ position: "absolute", pointerEvents: "none", zIndex: 1, ...style }}>
+    <div style={{ position: "absolute", pointerEvents: "none", zIndex: 2, ...style }}>
       <svg 
         width={cols * 16} 
         height={rows * 16} 
@@ -32,14 +34,17 @@ const DecorativeGrid = ({
         {Array.from({ length: rows }).map((_, r) =>
           Array.from({ length: cols }).map((_, c) => {
             const isActive = activeDot && activeDot.r === r && activeDot.c === c;
+            const isOrange = dotColor.toLowerCase().includes("ff9900");
+            const defaultOpacity = isOrange ? 0.30 : 0.42;
+            const finalOpacity = isActive ? 0.9 : (opacity !== undefined ? opacity : defaultOpacity);
             return (
               <circle
                 key={`${r}-${c}`}
                 cx={8 + c * 16}
                 cy={8 + r * 16}
-                r="1.5"
+                r={isActive ? "2.2" : "1.6"}
                 fill={isActive ? activeColor : dotColor}
-                opacity={isActive ? 0.75 : 0.28}
+                opacity={finalOpacity}
               />
             );
           })
@@ -63,9 +68,9 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
   const [isMobile, setIsMobile] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [viewportHeight, setViewportHeight] = useState(800);
-  const [images, setImages] = useState<HTMLImageElement[]>([]);
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const rafIdRef = useRef<number | null>(null);
+  const lastIndexRef = useRef<number>(-1);
   
   const [heroData, setHeroData] = useState(previewData || {
     badge: "Rajalakshmi Engineering College",
@@ -111,59 +116,32 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
     return () => window.removeEventListener("resize", handleResize);
   }, [forceMobile]);
 
-  // Preload the 182 WebP frames
-  useEffect(() => {
-    if (isMobile || !!previewData) {
-      setLoading(false);
-      return;
-    }
-
-    const loadedImages: HTMLImageElement[] = [];
-    let count = 0;
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.src = `/assets/hero-sequence/${i}.webp`;
-      
-      const handleImageLoad = () => {
-        count++;
-        setLoadedCount(count);
-        if (count === FRAME_COUNT) {
-          setImages(loadedImages);
-          setLoading(false);
-        }
-      };
-
-      img.onload = handleImageLoad;
-      img.onerror = handleImageLoad; // Count failures to avoid blocking the UI
-      loadedImages.push(img);
-    }
-  }, [isMobile]);
-
   // Framer Motion scroll hooks mapping scroll progress to frame index
   const { scrollYProgress, scrollY } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
+  // Smooth, responsive spring physics for fluid, deliberate frame scrubbing
   const smoothScroll = useSpring(scrollYProgress, {
-    stiffness: 500,
-    damping: 42,
-    mass: 0.03,
-    restDelta: 0.001
+    stiffness: 240,
+    damping: 32,
+    mass: 0.08,
+    restDelta: 0.0005,
   });
 
-  // Scrub the full frame sequence from start to end of the home section scroll range (0% to 40% progress of the container)
-  const frameIndex = useTransform(smoothScroll, [0, 0.4], [0, FRAME_COUNT - 1]);
+  // Piecewise frame scrubbing: allocates extra scroll travel to the "Hi" wave pose (frames 30-70) to make it scroll slower
+  const frameIndex = useTransform(
+    smoothScroll,
+    [0, 0.16, 0.54, 0.70],
+    [0, 30, 70, FRAME_COUNT - 1]
+  );
 
-  // Translate the fixed container up exactly as the user scrolls past the home section (from 200vh to 300vh)
-  // this acts as a 100% accurate simulation of sticky positioning, pushing the Hero section out
-  // of the screen to reveal the About Us section scrolling in sync below.
-  // We use dynamic scroll mapping functions with mutable ref values to support varying viewport heights correctly.
+  // Translate the fixed container up seamlessly as user reaches the about section (from 280vh to 380vh)
   const y = useTransform(scrollY, (latestScrollY) => {
     const currentHeight = viewportHeightRef.current;
-    const startScroll = currentHeight * 2.0;
-    const endScroll = currentHeight * 3.0;
+    const startScroll = currentHeight * 2.8;
+    const endScroll = currentHeight * 3.8;
     if (latestScrollY <= startScroll) {
       return 0;
     }
@@ -173,93 +151,179 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
     return -(latestScrollY - startScroll);
   });
   
-  // Fade out the fixed container and disable pointer events at the very end of the scroll-up transition for high GPU performance
+  // Fade out the fixed container and disable pointer events at the very end of the scroll-up transition
   const opacity = useTransform(scrollY, (latestScrollY) => {
     const currentHeight = viewportHeightRef.current;
-    const fadeStart = currentHeight * 2.9;
-    const fadeEnd = currentHeight * 3.0;
+    const fadeStart = currentHeight * 3.65;
+    const fadeEnd = currentHeight * 3.8;
     if (latestScrollY <= fadeStart) {
       return 1;
     }
     if (latestScrollY >= fadeEnd) {
       return 0;
     }
-    const progress = (latestScrollY - fadeStart) / (currentHeight * 0.1);
+    const progress = (latestScrollY - fadeStart) / (currentHeight * 0.15);
     return 1 - progress;
   });
 
   const pointerEvents = useTransform(scrollY, (v) => {
     const currentHeight = viewportHeightRef.current;
-    return v >= currentHeight * 3.0 ? "none" as const : "auto" as const;
+    return v >= currentHeight * 3.8 ? "none" as const : "auto" as const;
   });
 
+  // Find the closest loaded frame to avoid missing renders while streaming frames
+  const getNearestLoadedImage = useCallback((targetIndex: number): HTMLImageElement | null => {
+    const list = imagesRef.current;
+    if (!list || list.length === 0) return null;
+    const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(targetIndex)));
+    if (list[clamped] && list[clamped]?.complete && list[clamped]!.naturalWidth > 0) {
+      return list[clamped];
+    }
+    for (let offset = 1; offset < FRAME_COUNT; offset++) {
+      const left = clamped - offset;
+      const right = clamped + offset;
+      if (left >= 0 && list[left] && list[left]?.complete && list[left]!.naturalWidth > 0) {
+        return list[left];
+      }
+      if (right < FRAME_COUNT && list[right] && list[right]?.complete && list[right]!.naturalWidth > 0) {
+        return list[right];
+      }
+    }
+    return null;
+  }, []);
 
-  // Paint single frame onto canvas with cropping (removing black pillars) and responsive right-alignment
-  const renderFrame = useCallback((index: number, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-    const validIndex = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(index)));
-    const img = images[validIndex];
-    if (img && img.complete) {
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
+  // Paint single frame onto canvas with 4x Super-Resolution scaling, balanced symmetry, and clean background blend
+  const renderFrame = useCallback((index: number, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, forceRedraw = false) => {
+    const valid = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(index)));
+    if (!forceRedraw && valid === lastIndexRef.current) return;
+    lastIndexRef.current = valid;
+
+    const img = getNearestLoadedImage(valid);
+    if (img && img.complete && img.naturalWidth > 0) {
+      const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2.5);
+      const cssWidth = window.innerWidth;
+      const cssHeight = window.innerHeight;
+      const targetWidth = Math.round(cssWidth * dpr);
+      const targetHeight = Math.round(cssHeight * dpr);
+
+      // Ensure canvas internal bitmap matches display DPI 1:1
+      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        canvas.style.width = `${cssWidth}px`;
+        canvas.style.height = `${cssHeight}px`;
+      }
       
-      // The extracted frames have black pillars on the left and right sides.
-      // We crop 10px further in (sx = 110, sw = 1060) to avoid bilinear texture filtering bleed (Cols 99 and 1180).
-      const sx = 110;
-      const sy = 0;
-      const sw = 1060;
-      const sh = 720;
+      // Reset transform and scale for high-DPI
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
+      // Tightly-cropped Super-Resolution image dimensions (1640 x 1440, ratio ~1.1388)
+      const imgW = img.naturalWidth;
+      const imgH = img.naturalHeight;
+      const cropRatio = imgW / imgH; // ~1.1388
       
-      const cropRatio = sw / sh; // ~1.472
+      // Right half of screen
+      const rightSectionWidth = cssWidth * 0.50;
       
-      // Fit to 98% of viewport height by default (zoomed in to fill space), and constrain to 78% of viewport width
-      let drawHeight = canvasHeight * 0.98;
+      // Prominent, balanced height (76% of viewport height, max 620px, min 420px) to eliminate empty gaps
+      let drawHeight = Math.min(Math.max(cssHeight * 0.76, 420), 620);
       let drawWidth = drawHeight * cropRatio;
       
-      const maxDrawWidth = canvasWidth * 0.78;
+      // Ensure drawWidth fits comfortably within 92% of the right half
+      const maxDrawWidth = rightSectionWidth * 0.92;
       if (drawWidth > maxDrawWidth) {
         drawWidth = maxDrawWidth;
         drawHeight = drawWidth / cropRatio;
       }
       
-      // Align to exact integer boundaries and shift slightly to the right to move the overall animation rightward
-      const roundedOffsetX = Math.round(canvasWidth - drawWidth + (canvasWidth > 1200 ? 110 : 70));
-      // Center vertically but enforce a minimum of 85px top offset to ensure the top of the globe/illustration is fully visible under the 80px fixed navbar
-      const roundedOffsetY = Math.max(85, Math.round((canvasHeight - drawHeight) / 2));
+      // Symmetrically centered in the right column
+      const shiftLeft = cssWidth > 1400 ? 35 : cssWidth > 1100 ? 20 : 10;
+      const roundedOffsetX = Math.round(cssWidth * 0.50 + (rightSectionWidth - drawWidth) / 2 - shiftLeft);
+      
+      // Vertically balanced and shifted slightly down to align with CTA buttons
+      const shiftDown = cssHeight > 800 ? 32 : 20;
+      const roundedOffsetY = Math.round((cssHeight - drawHeight) / 2 + shiftDown);
       const roundedDrawWidth = Math.round(drawWidth);
       const roundedDrawHeight = Math.round(drawHeight);
       
-      // Clear the canvas to white to blend seamlessly with the page
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
       
-      // Boost near-white render background pixels to pure #ffffff
-      ctx.filter = "brightness(1.04) contrast(1.05)";
-      ctx.drawImage(img, sx, sy, sw, sh, roundedOffsetX, roundedOffsetY, roundedDrawWidth, roundedDrawHeight);
-      ctx.filter = "none";
-
-      // Feather the left edge of the image (roundedOffsetX) to dissolve any ambient shadow box boundaries smoothly into pure white
-      ctx.save();
-      ctx.globalCompositeOperation = "destination-out";
-      const leftFade = ctx.createLinearGradient(roundedOffsetX - 5, 0, roundedOffsetX + 120, 0);
-      leftFade.addColorStop(0, "rgba(0, 0, 0, 1)");
-      leftFade.addColorStop(0.5, "rgba(0, 0, 0, 0.6)");
-      leftFade.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = leftFade;
-      ctx.fillRect(roundedOffsetX - 10, 0, 140, canvasHeight);
-
-      // Feather bottom edge
-      const bottomFade = ctx.createLinearGradient(0, roundedOffsetY + roundedDrawHeight - 70, 0, roundedOffsetY + roundedDrawHeight + 5);
-      bottomFade.addColorStop(0, "rgba(0, 0, 0, 0)");
-      bottomFade.addColorStop(1, "rgba(0, 0, 0, 1)");
-      ctx.fillStyle = bottomFade;
-      ctx.fillRect(0, roundedOffsetY + roundedDrawHeight - 75, canvasWidth, 85);
-      ctx.restore();
+      // Direct 2K Super-Resolution frame draw downscaled on Retina canvas for crystal-clear quality
+      ctx.drawImage(img, 0, 0, imgW, imgH, roundedOffsetX, roundedOffsetY, roundedDrawWidth, roundedDrawHeight);
     }
-  }, [images]);
+  }, [getNearestLoadedImage]);
+
+  // Non-blocking streaming frame loader with immediate Canvas High-DPI setup
+  useEffect(() => {
+    if (isMobile || !!previewData) return;
+
+    const loadedList: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
+    imagesRef.current = loadedList;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Immediately initialize canvas bitmap to High-DPI resolution on mount
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+
+    const triggerRedraw = () => {
+      if (canvas && ctx) {
+        renderFrame(frameIndex.get(), ctx, canvas, true);
+      }
+    };
+
+    // 1. Immediately load frame 0 with cache-buster to render instantly on mount
+    const frame0 = new Image();
+    frame0.src = `/assets/hero-sequence/0.webp?v=len96`;
+    frame0.onload = () => {
+      loadedList[0] = frame0;
+      triggerRedraw();
+    };
+    loadedList[0] = frame0;
+
+    // 2. Stream remaining frames in non-blocking background batches
+    let currentIndex = 1;
+    let timer: NodeJS.Timeout | null = null;
+    const BATCH_SIZE = 8;
+
+    const streamNextBatch = () => {
+      if (currentIndex >= FRAME_COUNT) return;
+      const limit = Math.min(currentIndex + BATCH_SIZE, FRAME_COUNT);
+      for (let i = currentIndex; i < limit; i++) {
+        const img = new Image();
+        img.src = `/assets/hero-sequence/${i}.webp?v=len96`;
+        img.onload = () => {
+          loadedList[i] = img;
+        };
+        img.onerror = () => {
+          // ignore failures
+        };
+        loadedList[i] = img;
+      }
+      currentIndex = limit;
+      if (currentIndex < FRAME_COUNT) {
+        timer = setTimeout(streamNextBatch, 25);
+      }
+    };
+
+    timer = setTimeout(streamNextBatch, 40);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isMobile, previewData, frameIndex, renderFrame]);
 
   // Canvas drawing effect triggered on resize and scroll index updates
   useEffect(() => {
-    if (loading || isMobile || images.length === 0) return;
+    if (isMobile) return;
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -267,74 +331,35 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
     if (!ctx) return;
     
     const handleCanvasResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      renderFrame(frameIndex.get(), ctx, canvas);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      lastIndexRef.current = -1; // force redraw
+      renderFrame(frameIndex.get(), ctx, canvas, true);
     };
     
     handleCanvasResize();
     window.addEventListener("resize", handleCanvasResize);
     
     const unsubscribe = frameIndex.on("change", (latest) => {
-      requestAnimationFrame(() => {
+      if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = requestAnimationFrame(() => {
         renderFrame(latest, ctx, canvas);
+        rafIdRef.current = null;
       });
     });
     
     return () => {
-      window.removeEventListener("resize", handleCanvasResize);
       unsubscribe();
+      window.removeEventListener("resize", handleCanvasResize);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
-  }, [loading, isMobile, images, frameIndex, renderFrame]);
-
-  // Render a clean loading progress screen while caching frames on desktop
-  if (loading && !isMobile) {
-    return (
-      <div
-        style={{
-          width: "100%",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#05111f",
-          color: "#ffffff",
-          fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
-          gap: "20px",
-        }}
-      >
-        <div style={{ position: "relative", width: "80px", height: "80px" }}>
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: "50%",
-              border: "3px solid rgba(255, 153, 0, 0.1)",
-              borderTopColor: "#FF9900",
-              animation: "spin 1s linear infinite",
-            }}
-          />
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <h3 style={{ margin: "0 0 6px 0", fontWeight: 700, fontSize: "16px", color: "#E2E8F0" }}>
-            Assembling Cloud Environment...
-          </h3>
-          <span style={{ fontSize: "14px", color: "#FF9900", fontWeight: 800 }}>
-            {Math.round((loadedCount / FRAME_COUNT) * 100)}%
-          </span>
-        </div>
-      </div>
-    );
-  }
+  }, [isMobile, frameIndex, renderFrame]);
 
   // Mobile View: Clean responsive layout with single static image fallback
   if (isMobile) {
@@ -345,16 +370,14 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           width: "100%",
           minHeight: previewData ? "400px" : "100vh",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "#ffffff",
-          backgroundImage: "linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, #ffffff 100%)",
-          backgroundSize: "200% auto",
-          backgroundPosition: "center 85%",
-          backgroundRepeat: "no-repeat",
           position: "relative",
           overflow: "hidden",
-          padding: previewData ? "20px 12px" : "72px 16px 40px",
+          padding: previewData ? "20px 12px" : "80px 20px 32px",
+          boxSizing: "border-box",
           zIndex: 2,
         }}
       >
@@ -378,16 +401,16 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
         {/* Decorative Grid Ornaments for Mobile */}
         {!previewData && (
           <>
-            <DecorativeGrid rows={3} cols={5} activeDot={{ r: 0, c: 3 }} style={{ top: "120px", left: "6%" }} />
-            <DecorativeGrid rows={5} cols={3} dotColor="#FF9900" style={{ bottom: "140px", right: "6%" }} />
+            <DecorativeGrid rows={3} cols={4} style={{ top: "35px", left: "2%" }} />
+            <DecorativeGrid rows={4} cols={3} dotColor="#FF9900" opacity={0.25} style={{ bottom: "60px", right: "3%" }} />
 
             {/* Top Right Circuit Graphic - Scaled for Mobile */}
             <div 
               style={{ 
                 position: "absolute",
-                top: "110px", 
-                right: "12px",
-                width: "130px",
+                top: "35px", 
+                right: "0px",
+                width: "100px",
                 zIndex: 10,
                 pointerEvents: "none",
               }}
@@ -418,69 +441,8 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
                   strokeLinejoin="round" 
                 />
                 <circle cx="100" cy="20" r="1.8" fill="#0f172a" />
-                <rect x="142" y="37" width="6" height="6" transform="rotate(45 145 40)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
+                <rect x="142" y="37" width="6" height="6" transform="rotate(45 145 40)" fill="#FF9900" stroke="#475569" strokeWidth="1.0" rx="1" />
                 <circle cx="145" cy="40" r="1.0" fill="#ffffff" />
-              </svg>
-            </div>
-
-            {/* Bottom Left Circuit Graphic - Scaled for Mobile */}
-            <div 
-              style={{ 
-                position: "absolute",
-                bottom: "64px",
-                left: "24px",
-                width: "160px",
-                zIndex: 10,
-                pointerEvents: "none",
-              }}
-            >
-              <svg 
-                viewBox="0 0 500 130" 
-                width="100%" 
-                height="auto" 
-                style={{ 
-                  opacity: 0.95,
-                  display: "block"
-                }}
-              >
-                {/* Grid Dots */}
-                {Array.from({ length: 4 }).map((_, rIndex) => 
-                  Array.from({ length: 9 }).map((_, cIndex) => {
-                    const cx = 350 + cIndex * 15;
-                    const cy = 35 + rIndex * 10;
-                    const isOrange = rIndex === 0 && cIndex === 0;
-                    return (
-                      <circle 
-                        key={`mobile-dot-${rIndex}-${cIndex}`} 
-                        cx={cx} 
-                        cy={cy} 
-                        r="0.8"
-                        fill={isOrange ? "#E68A00" : "#cbd5e1"} 
-                      />
-                    );
-                  })
-                )}
-                <path 
-                  d="M 0 25 L 25 25 L 65 65 L 250 65 L 270 45 L 410 45" 
-                  stroke="#475569" 
-                  strokeWidth="1.0"
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  fill="none" 
-                />
-                <path 
-                  d="M 65 35 a 10 10 0 0 1 5 -18 a 15 15 0 0 1 25 -5 a 10 10 0 0 1 15 8 a 8 8 0 0 1 2 15 z" 
-                  stroke="#cbd5e1" 
-                  strokeWidth="1.0"
-                  fill="#ffffff" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                />
-                <rect x="22" y="22" width="6" height="6" transform="rotate(45 25 25)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
-                <circle cx="25" cy="25" r="1.0" fill="#ffffff" />
-                <rect x="317" y="42" width="6" height="6" transform="rotate(45 320 45)" fill="#E68A00" stroke="#475569" strokeWidth="1.0" rx="1" />
-                <circle cx="320" cy="45" r="1.0" fill="#ffffff" />
-                <circle cx="410" cy="45" r="1.8" fill="#0f172a" />
               </svg>
             </div>
           </>
@@ -516,138 +478,166 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           }}
         />
 
-        {/* Main Container */}
+        {/* Main Container - Balanced Vertical Stack */}
         <div
           style={{
             width: "100%",
-            maxWidth: "1340px",
+            maxWidth: "520px",
             margin: "0 auto",
-            height: "auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
             position: "relative",
             zIndex: 10,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
           }}
         >
-          {/* Centered Content */}
-          <div
+          {/* Main Title */}
+          <h1
             style={{
-              width: "100%",
-              maxWidth: "800px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              zIndex: 20,
+              fontSize: previewData ? "20px" : "clamp(25px, 6.2vw, 36px)",
+              lineHeight: 1.18,
+              fontWeight: 800,
+              color: "#0F172A",
+              letterSpacing: "-0.02em",
+              marginBottom: "10px",
+              fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             }}
           >
-            {/* Main Title */}
-            <h1
-              style={{
-                fontSize: previewData ? "20px" : "36px",
-                lineHeight: 1.2,
-                fontWeight: 800,
-                color: "#0F172A",
-                letterSpacing: "-0.01em",
-                marginBottom: previewData ? "8px" : "16px",
-                fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-              }}
-            >
-              Build Your Cloud Future
-              <br />
-              With <span style={{ color: "#E68A00", fontWeight: 800 }}>{heroData.titleHighlight}</span>
-            </h1>
+            Build Your Cloud Future
+            <br />
+            With <span style={{ color: "#FF9900", fontWeight: 800 }}>{heroData.titleHighlight}</span>
+          </h1>
 
-            <p
-              style={{
-                fontSize: previewData ? "12px" : "16px",
-                lineHeight: 1.5,
-                color: "#334155",
-                fontWeight: 600,
-                marginBottom: previewData ? "14px" : "20px",
-                maxWidth: "680px",
-                margin: previewData ? "0 auto 14px auto" : "0 auto 20px auto",
-                fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                textShadow: "0 1px 10px rgba(255, 255, 255, 0.95)",
-              }}
-            >
-              {heroData.subtitle}
-            </p>
+          {/* Subtitle */}
+          <p
+            style={{
+              fontSize: previewData ? "12px" : "clamp(13px, 3.4vw, 15px)",
+              lineHeight: 1.5,
+              color: "#475569",
+              fontWeight: 500,
+              maxWidth: "460px",
+              margin: "0 auto 16px auto",
+              fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            }}
+          >
+            {heroData.subtitle}
+          </p>
 
-            {/* Buttons */}
-            <div
+          {/* Action Buttons */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              width: "100%",
+              maxWidth: "380px",
+              margin: "0 auto 20px auto",
+            }}
+          >
+            {/* Join Community button */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => router.push("/signup")}
               style={{
+                flex: "1 1 0",
+                height: "48px",
+                padding: "0 18px",
+                background: "linear-gradient(180deg, #FF9900 0%, #FF8800 100%)",
+                color: "#ffffff",
+                border: "none",
+                fontWeight: 700,
+                fontSize: "14px",
+                cursor: "pointer",
+                fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                borderRadius: "12px",
+                boxShadow: "0 4px 14px rgba(255, 153, 0, 0.28)",
+                outline: "none",
+                whiteSpace: "nowrap",
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: previewData ? "8px" : "12px",
-                width: "100%",
               }}
             >
-              {/* Join Community slanted orange button */}
-              <button
-                onClick={() => router.push("/signup")}
-                style={{
-                  width: "100%",
-                  padding: previewData ? "10px 24px" : "16px 36px",
-                  background: "#FF9900",
-                  color: "#ffffff",
-                  border: "none",
-                  fontWeight: 700,
-                  fontSize: previewData ? "14px" : "18px",
-                  cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                  borderRadius: "12px",
-                  boxShadow: "none",
-                  outline: "none",
-                }}
-              >
-                <span>Join Community</span>
-              </button>
+              Join Community
+            </motion.button>
 
-              {/* Explore Roadmap button */}
-              <motion.button
-                onClick={() => router.push("/login")}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+            {/* Explore Roadmap button */}
+            <motion.button
+              onClick={() => router.push("/login")}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                flex: "1 1 0",
+                height: "48px",
+                background: "#ffffff",
+                border: "1.5px solid rgba(226, 232, 240, 0.95)",
+                color: "#0F172A",
+                fontSize: "13.5px",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "0 16px",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+                fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                outline: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <div
                 style={{
-                  width: "100%",
-                  background: "transparent",
-                  border: "none",
-                  color: "#0F172A",
-                  fontSize: previewData ? "14px" : "18px",
-                  fontWeight: 700,
-                  cursor: "pointer",
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  border: "1.5px solid #FF9900",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: previewData ? "8px" : "12px",
-                  padding: "10px 16px",
-                  fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                  outline: "none",
+                  color: "#FF9900",
+                  backgroundColor: "rgba(255, 153, 0, 0.08)",
+                  flexShrink: 0,
                 }}
               >
-                <div
-                  style={{
-                    width: previewData ? "32px" : "48px",
-                    height: previewData ? "32px" : "48px",
-                    borderRadius: "50%",
-                    border: "2px solid #FF9900",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FF9900",
-                    backgroundColor: "rgba(255, 153, 0, 0.03)",
-                  }}
-                >
-                  <Play size={18} fill="#FF9900" style={{ marginLeft: "4px" }} />
-                </div>
-                Explore Roadmap
-              </motion.button>
-            </div>
+                <Play size={10} fill="#FF9900" style={{ marginLeft: "2px" }} />
+              </div>
+              Explore Roadmap
+            </motion.button>
           </div>
+
+          {/* Character Illustration - Cleanly scaled and positioned */}
+          {!previewData && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              style={{
+                width: "100%",
+                maxWidth: "330px",
+                position: "relative",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <img
+                src="/assets/hero-mobile-last.webp?v=last_pose_v1"
+                alt="AWS SBG REC Student Builder"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  display: "block",
+                  filter: "drop-shadow(0 12px 24px rgba(0, 0, 0, 0.05))",
+                }}
+              />
+            </motion.div>
+          )}
         </div>
       </section>
     );
@@ -660,7 +650,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
       ref={containerRef}
       style={{
         position: "relative",
-        height: previewData ? "450px" : "300vh", // scrolling track
+        height: previewData ? "450px" : "380vh", // scrolling track
         width: "100%",
       }}
     >
@@ -705,7 +695,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
               <path 
                 d="M 100 20 L 125 40 L 165 40 L 190 20 L 240 20" 
                 stroke="#475569" 
-                strokeWidth="1.0"
+                strokeWidth="1.0" 
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
                 fill="none" 
@@ -731,18 +721,18 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           </div>
         )}
 
-        {/* Radial-Masked Grid Background Pattern inside the same stacking context */}
+        {/* Radial-Masked Grid Background Pattern */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             backgroundImage: `
-              linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px)
+              linear-gradient(to right, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(15, 23, 42, 0.02) 1px, transparent 1px)
             `,
             backgroundSize: "40px 40px",
-            maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+            maskImage: "radial-gradient(ellipse at center, black 50%, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 50%, transparent 85%)",
             zIndex: 0,
             pointerEvents: "none",
           }}
@@ -761,7 +751,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           </>
         )}
 
-        {/* Canvas Background Frame Playback (only when not in preview mode) */}
+        {/* Canvas Background Frame Playback */}
         {!previewData && (
           <canvas
             ref={canvasRef}
@@ -772,7 +762,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
               height: "100%",
               zIndex: 1,
               pointerEvents: "none",
-              mixBlendMode: "multiply", // Blends frame white background with the grid pattern underneath
+              mixBlendMode: "multiply", // Multiplies frame white background seamlessly with the grid and tech pattern
             }}
           />
         )}
@@ -798,7 +788,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
               flexDirection: "column",
               justifyContent: "center", // Vertically center the text content wrapper
               alignItems: "center",     // Horizontally center the text content wrapper
-              paddingLeft: "40px",
+              paddingLeft: "clamp(30px, 4vw, 60px)",
               paddingRight: "20px",
               boxSizing: "border-box",
               position: "relative",
@@ -808,7 +798,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
             <div
               style={{
                 width: "100%",
-                maxWidth: previewData ? "100%" : (windowWidth > 1280 ? "560px" : windowWidth > 1100 ? "480px" : "400px"),
+                maxWidth: previewData ? "100%" : (windowWidth > 1400 ? "600px" : windowWidth > 1200 ? "540px" : "460px"),
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",    // Left-aligned items
@@ -1014,7 +1004,7 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
           )}
         </div> {/* closes 50% Left Half Container */}
 
-        {/* Right half container for 3D building (only in previewData mode) */}
+        {/* Right half container for illustration (only in previewData mode) */}
         {previewData && (
           <div
             style={{
@@ -1023,18 +1013,19 @@ export default function Hero({ previewData, forceMobile }: HeroProps = {}) {
               position: "relative",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "flex-end",
+              paddingRight: "30px",
               overflow: "hidden",
             }}
           >
             <img
               src="/assets/hero-sequence/0.webp"
-              alt="3D Building Preview"
+              alt="AWS SBG REC Preview"
               style={{
-                height: "100%",
-                aspectRatio: "1920/1080",
-                objectFit: "cover",
-                objectPosition: "center",
+                maxHeight: "85%",
+                maxWidth: "90%",
+                objectFit: "contain",
+                objectPosition: "center right",
                 mixBlendMode: "multiply",
                 pointerEvents: "none",
               }}

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 import { Prisma } from '@prisma/client';
 
 export interface GetServicesFilters {
@@ -12,78 +13,86 @@ export interface GetServicesFilters {
 
 @Injectable()
 export class AwsServicesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: MemoryCacheService,
+  ) {}
 
   async getAll(filters: GetServicesFilters = {}) {
-    const where: Prisma.AWSServiceWhereInput = {
-      isDeleted: false,
-    };
+    const cacheKey = `aws-services:list:${JSON.stringify(filters)}`;
+    return this.cache.getOrSet(cacheKey, async () => {
+      const where: Prisma.AWSServiceWhereInput = {
+        isDeleted: false,
+      };
 
-    if (filters.categoryId) {
-      where.categoryId = filters.categoryId;
-    }
+      if (filters.categoryId) {
+        where.categoryId = filters.categoryId;
+      }
 
-    if (filters.isFeatured !== undefined) {
-      where.isFeatured = filters.isFeatured;
-    }
+      if (filters.isFeatured !== undefined) {
+        where.isFeatured = filters.isFeatured;
+      }
 
-    if (filters.status) {
-      where.status = filters.status;
-    }
+      if (filters.status) {
+        where.status = filters.status;
+      }
 
-    if (filters.isActive !== undefined) {
-      where.isActive = filters.isActive;
-    }
+      if (filters.isActive !== undefined) {
+        where.isActive = filters.isActive;
+      }
 
-    if (filters.search) {
-      where.OR = [
-        { name: { contains: filters.search, mode: 'insensitive' } },
-        { serviceCode: { contains: filters.search, mode: 'insensitive' } },
-        { shortDescription: { contains: filters.search, mode: 'insensitive' } },
-        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
-      ];
-    }
+      if (filters.search) {
+        where.OR = [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { serviceCode: { contains: filters.search, mode: 'insensitive' } },
+          { shortDescription: { contains: filters.search, mode: 'insensitive' } },
+          { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+        ];
+      }
 
-    return this.prisma.aWSService.findMany({
-      where,
-      select: {
-        id: true,
-        serviceCode: true,
-        name: true,
-        slug: true,
-        categoryId: true,
-        iconUrl: true,
-        shortDescription: true,
-        isFeatured: true,
-        isVisibleToEnthusiasts: true,
-        status: true,
-        displayOrder: true,
-        isActive: true,
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+      return this.prisma.aWSService.findMany({
+        where,
+        select: {
+          id: true,
+          serviceCode: true,
+          name: true,
+          slug: true,
+          categoryId: true,
+          iconUrl: true,
+          shortDescription: true,
+          isFeatured: true,
+          isVisibleToEnthusiasts: true,
+          status: true,
+          displayOrder: true,
+          isActive: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
           },
         },
-      },
-      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-    });
+        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      });
+    }, 180);
   }
 
   async getById(id: string) {
-    const service = await this.prisma.aWSService.findFirst({
-      where: { id, isDeleted: false },
-      include: {
-        category: {
-          select: { id: true, name: true, slug: true },
+    return this.cache.getOrSet(`aws-services:${id}`, async () => {
+      const service = await this.prisma.aWSService.findFirst({
+        where: { id, isDeleted: false },
+        include: {
+          category: {
+            select: { id: true, name: true, slug: true },
+          },
         },
-      },
-    });
-    if (!service) {
-      throw new NotFoundException(`AWS Service with ID ${id} not found`);
-    }
-    return service;
+      });
+      if (!service) {
+        throw new NotFoundException(`AWS Service with ID ${id} not found`);
+      }
+      return service;
+    }, 180);
   }
 
   async create(data: any) {
@@ -102,12 +111,14 @@ export class AwsServicesService {
         'A service with the same serviceCode, name, or slug already exists.',
       );
     }
-    return this.prisma.aWSService.create({
+    const created = await this.prisma.aWSService.create({
       data: {
         ...data,
         relatedServices: data.relatedServices || [],
       },
     });
+    this.cache.invalidatePattern('aws-services:');
+    return created;
   }
 
   async update(id: string, data: any) {
@@ -135,13 +146,15 @@ export class AwsServicesService {
       );
     }
 
-    return this.prisma.aWSService.update({
+    const updated = await this.prisma.aWSService.update({
       where: { id },
       data: {
         ...data,
         relatedServices: data.relatedServices || [],
       },
     });
+    this.cache.invalidatePattern('aws-services:');
+    return updated;
   }
 
   async delete(id: string) {
@@ -151,17 +164,21 @@ export class AwsServicesService {
     if (!service) {
       throw new NotFoundException('Service not found');
     }
-    return this.prisma.aWSService.update({
+    const res = await this.prisma.aWSService.update({
       where: { id },
       data: { isDeleted: true },
     });
+    this.cache.invalidatePattern('aws-services:');
+    return res;
   }
 
   async getCategories() {
-    return this.prisma.aWSServiceCategory.findMany({
-      where: { isDeleted: false },
-      orderBy: { displayOrder: 'asc' },
-    });
+    return this.cache.getOrSet('aws-service-categories:all', async () => {
+      return this.prisma.aWSServiceCategory.findMany({
+        where: { isDeleted: false },
+        orderBy: { displayOrder: 'asc' },
+      });
+    }, 300);
   }
 
   async exportData(format: 'json' | 'csv'): Promise<string> {
@@ -274,6 +291,7 @@ export class AwsServicesService {
       importedCount++;
     }
 
+    this.cache.invalidatePattern('aws-services:');
     return { count: importedCount };
   }
 

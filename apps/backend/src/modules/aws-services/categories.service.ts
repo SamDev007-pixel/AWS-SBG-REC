@@ -1,24 +1,31 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: MemoryCacheService,
+  ) {}
 
   async getAll(options: { includeInactive?: boolean } = {}) {
-    const where: any = {
-      isDeleted: false,
-    };
-    if (!options.includeInactive) {
-      where.isActive = true;
-    }
+    const cacheKey = `categories:all:${!!options.includeInactive}`;
+    return this.cache.getOrSet(cacheKey, async () => {
+      const where: any = {
+        isDeleted: false,
+      };
+      if (!options.includeInactive) {
+        where.isActive = true;
+      }
 
-    return this.prisma.category.findMany({
-      where,
-      orderBy: {
-        displayOrder: 'asc',
-      },
-    });
+      return this.prisma.category.findMany({
+        where,
+        orderBy: {
+          displayOrder: 'asc',
+        },
+      });
+    }, 300);
   }
 
   async getById(id: string) {
@@ -58,7 +65,7 @@ export class CategoriesService {
       throw new ConflictException(`Category with slug '${data.slug}' already exists`);
     }
 
-    return this.prisma.category.create({
+    const created = await this.prisma.category.create({
       data: {
         name: data.name,
         slug: data.slug,
@@ -67,6 +74,8 @@ export class CategoriesService {
         isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
       },
     });
+    this.cache.invalidatePattern('categories:');
+    return created;
   }
 
   async update(id: string, data: { name?: string; slug?: string; flag?: string; displayOrder?: number; isActive?: boolean }) {
@@ -93,17 +102,21 @@ export class CategoriesService {
     if (data.displayOrder !== undefined) updateData.displayOrder = Number(data.displayOrder);
     if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
 
-    return this.prisma.category.update({
+    const updated = await this.prisma.category.update({
       where: { id },
       data: updateData,
     });
+    this.cache.invalidatePattern('categories:');
+    return updated;
   }
 
   async delete(id: string) {
     await this.getById(id);
-    return this.prisma.category.update({
+    const res = await this.prisma.category.update({
       where: { id },
       data: { isDeleted: true },
     });
+    this.cache.invalidatePattern('categories:');
+    return res;
   }
 }

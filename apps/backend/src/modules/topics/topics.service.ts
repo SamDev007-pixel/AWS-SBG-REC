@@ -4,6 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { MemoryCacheService } from '@/shared/cache/memory-cache.service';
 import { ModuleLevel } from '@prisma/client';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { UpdateTopicDto } from './dto/update-topic.dto';
@@ -15,22 +16,27 @@ export class RoadmapTopicsService {
   constructor(
     private prisma: PrismaService,
     private progressService: RoadmapProgressService,
+    private cache: MemoryCacheService,
   ) {}
 
   async findAll() {
-    return this.prisma.roadmapTopic.findMany({
-      orderBy: { orderIndex: 'asc' },
-      include: { modules: { orderBy: { orderIndex: 'asc' } } },
-    });
+    return this.cache.getOrSet('roadmap:topics:all', async () => {
+      return this.prisma.roadmapTopic.findMany({
+        orderBy: { orderIndex: 'asc' },
+        include: { modules: { orderBy: { orderIndex: 'asc' } } },
+      });
+    }, 300);
   }
 
   async findOne(id: string) {
-    const topic = await this.prisma.roadmapTopic.findUnique({
-      where: { id },
-      include: { modules: { orderBy: { orderIndex: 'asc' } } },
-    });
-    if (!topic) throw new NotFoundException(`Topic with ID "${id}" not found`);
-    return topic;
+    return this.cache.getOrSet(`roadmap:topics:${id}`, async () => {
+      const topic = await this.prisma.roadmapTopic.findUnique({
+        where: { id },
+        include: { modules: { orderBy: { orderIndex: 'asc' } } },
+      });
+      if (!topic) throw new NotFoundException(`Topic with ID "${id}" not found`);
+      return topic;
+    }, 300);
   }
 
   async create(dto: CreateTopicDto) {
@@ -49,6 +55,7 @@ export class RoadmapTopicsService {
         },
       });
       this.progressService.invalidateCache();
+      this.cache.invalidatePattern('roadmap:topics:');
       return { ...topic, modules: [] };
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -89,6 +96,7 @@ export class RoadmapTopicsService {
           include: { modules: { orderBy: { orderIndex: 'asc' } } },
         });
         this.progressService.invalidateCache();
+        this.cache.invalidatePattern('roadmap:topics:');
         return res;
       });
     } catch (error: any) {
@@ -115,6 +123,7 @@ export class RoadmapTopicsService {
       }
       await tx.roadmapTopic.delete({ where: { id } });
       this.progressService.invalidateCache();
+      this.cache.invalidatePattern('roadmap:topics:');
       return { success: true };
     });
   }
@@ -168,6 +177,7 @@ export class RoadmapTopicsService {
         await tx.roadmapModule.update({ where: { id: m.id }, data: { orderIndex: m.final } });
 
       this.progressService.invalidateCache();
+      this.cache.invalidatePattern('roadmap:topics:');
       return { success: true };
     });
   }

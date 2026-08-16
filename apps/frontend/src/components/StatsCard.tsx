@@ -41,13 +41,13 @@ export default function StatsCard({
   const CardContent = () => (
     <div className="flex items-center justify-between">
       <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-[11px] sm:text-xs font-semibold text-foreground/60 tracking-wider uppercase">
+        <span className="text-xs sm:text-[13px] font-bold text-slate-500 tracking-wider uppercase">
           {label}
         </span>
-        <span className="text-lg sm:text-xl font-medium text-slate-800 font-display tracking-tight leading-tight">
+        <span className="text-xl sm:text-2xl font-bold text-slate-900 font-display tracking-tight leading-tight">
           {value}
         </span>
-        <span className="text-[10px] sm:text-[11px] font-semibold text-foreground/50 flex items-center gap-1.5 truncate">
+        <span className="text-xs sm:text-[13px] font-semibold text-slate-500 flex items-center gap-1.5 truncate">
           {subtext}
         </span>
       </div>

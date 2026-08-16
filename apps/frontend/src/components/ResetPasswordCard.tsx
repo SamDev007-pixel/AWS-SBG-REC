@@ -133,21 +133,21 @@ export const ResetPasswordCard = () => {
           />
 
           {/* Validation Checklist */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-1">
             {validationItems.map((item) => {
               const isValid = validations[item.key as keyof typeof validations];
               return (
                 <div key={item.key} className="flex items-center gap-2">
                   <div>
                     {isValid ? (
-                      <CheckCircle2 size={12} className="text-green-500" />
+                      <CheckCircle2 size={15} className="text-green-600" />
                     ) : (
-                      <Circle size={12} className="text-aws-slate/30" />
+                      <Circle size={15} className="text-slate-400" />
                     )}
                   </div>
                   <span className={cn(
-                    "text-[9px] font-bold uppercase tracking-wider transition-colors duration-300",
-                    isValid ? "text-green-600" : "text-slate-500"
+                    "text-xs font-semibold uppercase tracking-wider transition-colors duration-300",
+                    isValid ? "text-green-700" : "text-slate-500"
                   )}>
                     {item.label}
                   </span>
@@ -172,7 +172,7 @@ export const ResetPasswordCard = () => {
           {passwordsMatch !== null && (
             <div>
               <p className={cn(
-                "text-[10px] font-semibold",
+                "text-xs font-bold",
                 passwordsMatch ? "text-green-600" : "text-red-500"
               )}>
                 {passwordsMatch ? "✓ Passwords Match" : "⚠ Passwords do not match"}
