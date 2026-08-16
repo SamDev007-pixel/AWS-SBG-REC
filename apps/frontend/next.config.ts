@@ -1,7 +1,18 @@
 import type { NextConfig } from 'next';
 import path from 'path';
 
-const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+function sanitizeBackendUrl(raw?: string): string {
+  if (!raw) return 'http://127.0.0.1:4000';
+  let cleaned = raw.trim().replace(/^['"]|['"]$/g, '').trim();
+  if (!cleaned) return 'http://127.0.0.1:4000';
+  if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+    cleaned = `https://${cleaned}`;
+  }
+  return cleaned.replace(/\/+$/, '');
+}
+
+const rawBackendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+const backendUrl = sanitizeBackendUrl(rawBackendUrl);
 
 const nextConfig: NextConfig = {
   // ── Build settings ──────────────────────────────────────────────────────────
