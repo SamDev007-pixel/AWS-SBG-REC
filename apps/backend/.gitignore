@@ -54,9 +54,6 @@ pids
 # Uploads
 /uploads/events/*
 
-# Prisma
-prisma/migrations/
-
 # Build
 dist/
 

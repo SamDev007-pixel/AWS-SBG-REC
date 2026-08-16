@@ -5,6 +5,7 @@ const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL ||
 
 const nextConfig: NextConfig = {
   // ── Build settings ──────────────────────────────────────────────────────────
+  output: 'standalone',
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   transpilePackages: ['framer-motion'],
