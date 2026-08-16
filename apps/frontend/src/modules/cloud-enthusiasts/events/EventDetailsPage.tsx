@@ -294,6 +294,12 @@ export default function EventDetailsPage() {
                         src={getPosterSrcAndPosition(event.banner_url).src}
                         alt={event.title}
                         className="relative z-10 max-w-full max-h-full object-contain"
+                        onError={(e) => {
+                          const el = e.target as HTMLImageElement;
+                          if (!el.src.includes('default-event-poster.png')) {
+                            el.src = '/default-event-poster.png';
+                          }
+                        }}
                       />
                     </div>
                   ) : (

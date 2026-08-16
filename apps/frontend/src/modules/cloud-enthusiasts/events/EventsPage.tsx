@@ -427,7 +427,12 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
               decoding="async"
               className="w-full h-full object-cover"
               style={{ objectPosition: imgPosterPosition }}
-              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                if (!el.src.includes('default-event-poster.png')) {
+                  el.src = '/default-event-poster.png';
+                }
+              }}
             />
             {/* Heavy dark overlay so text is readable */}
             <div className="absolute inset-0 bg-black/70" />
@@ -507,7 +512,12 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
               decoding="async"
               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out"
               style={{ objectPosition: imgPosterPosition }}
-              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                if (!el.src.includes('default-event-poster.png')) {
+                  el.src = '/default-event-poster.png';
+                }
+              }}
             />
           </div>
 

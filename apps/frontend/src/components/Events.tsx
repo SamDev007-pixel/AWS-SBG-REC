@@ -4,22 +4,35 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 
 const EVENTS_DATA = [
   {
-    title: "Robowolke",
-    type: "WORKSHOP",
-    image: "/images/robo_wolke.jpg",
-    desc: "Where robotics meets cloud intelligence. TRS REC x AWS REC present a workshop on DOBOT and Computer Vision Integration with AWS. Open to all UG departments with free registrations and certificates provided.",
-    date: "29th April 2026",
-    time: "9:00 AM to 2:00 PM",
-    location: "ANEW104",
-    attendees: "80 attendees",
+    title: "AWS Community Day 2026",
+    type: "BOOTCAMP",
+    image: "/events/community_day.jpg",
+    desc: "Experience a day of Cloud, Code, Community and Innovation! Join developers, cloud enthusiasts, and tech leaders from across the region. Let's Build Together!",
+    date: "12th September 2026",
+    time: "9:30 AM to 5:00 PM",
+    location: "Rajalakshmi Engineering College",
+    attendees: "300 attendees",
     theme: "linear-gradient(135deg, rgba(254, 243, 199, 0.6) 0%, rgba(253, 230, 138, 0.5) 100%)", // warm amber/orange
     borderTheme: "rgba(245, 158, 11, 0.22)",
     textColor: "#d97706"
   },
   {
+    title: "Robowolke",
+    type: "WORKSHOP",
+    image: "/events/robowolke.jpg",
+    desc: "Where robotics meets cloud intelligence. TRS REC x AWS REC present a workshop on DOBOT and Computer Vision Integration with AWS. Open to all UG departments with free registrations and certificates provided.",
+    date: "29th April 2026",
+    time: "9:00 AM to 2:00 PM",
+    location: "ANEW104",
+    attendees: "80 attendees",
+    theme: "linear-gradient(135deg, rgba(238, 242, 255, 0.7) 0%, rgba(224, 231, 255, 0.6) 100%)", // soft indigo
+    borderTheme: "rgba(99, 102, 241, 0.22)",
+    textColor: "#4f46e5"
+  },
+  {
     title: "Cloud Matrix",
     type: "SEMINAR",
-    image: "/images/cloud_matrix.jpg",
+    image: "/events/cloud_matrix.jpg",
     desc: "Cloud Computing — From Basics to Careers & Certifications. Learn cloud fundamentals, career paths, and AWS certifications in one comprehensive session.",
     date: "18th April 2026",
     time: "8 to 10:00 AM",
@@ -28,6 +41,19 @@ const EVENTS_DATA = [
     theme: "linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(178, 223, 219, 0.5) 100%)", // cool teal/green
     borderTheme: "rgba(0, 115, 187, 0.22)",
     textColor: "#0073BB"
+  },
+  {
+    title: "Investiture Ceremony",
+    type: "CEREMONY",
+    image: "/events/investiture.jpg",
+    desc: "Formal establishment of the AWS Cloud Club REC student chapter. Introducing office bearers, the annual roadmap, and hands-on cloud learning pathways.",
+    date: "21st February 2026",
+    time: "9:30 AM to 12:00 PM",
+    location: "ANEW201",
+    attendees: "150 attendees",
+    theme: "linear-gradient(135deg, rgba(254, 226, 226, 0.6) 0%, rgba(254, 202, 202, 0.5) 100%)", // soft rose
+    borderTheme: "rgba(239, 68, 68, 0.22)",
+    textColor: "#dc2626"
   }
 ];
 
