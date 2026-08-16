@@ -81,17 +81,37 @@ async function bootstrap() {
   // Gzip compress all responses — reduces JSON payload size by ~70-80%
   app.use(compression());
 
-  // Serve uploads directory statically (shared root uploads folder)
-  app.use('/uploads', express.static(path.join(process.cwd(), '..', '..', 'uploads')));
+  // Serve uploads directory statically
+  const uploadsBaseDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsBaseDir)) {
+    fs.mkdirSync(uploadsBaseDir, { recursive: true });
+  }
+  const uploadsEventsDir = path.join(uploadsBaseDir, 'events');
+  if (!fs.existsSync(uploadsEventsDir)) {
+    fs.mkdirSync(uploadsEventsDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsBaseDir));
 
-
-  const corsOrigin = process.env.CORS_ORIGIN;
-  const allowedOrigins = corsOrigin
-    ? corsOrigin.split(',')
+  const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
+  const configuredOrigins = corsOrigin
+    ? corsOrigin.split(',').map((o) => o.trim())
     : ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3000'];
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, server-to-server, SSR)
+      if (!origin) return callback(null, true);
+      if (
+        corsOrigin === '*' ||
+        configuredOrigins.includes('*') ||
+        configuredOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -115,11 +135,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
-
-  const uploadsDir = path.join(process.cwd(), '..', '..', 'uploads', 'events');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
 
 
 const port = Number(process.env.PORT || process.env.APP_PORT || 3000);
