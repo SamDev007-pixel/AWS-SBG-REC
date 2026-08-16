@@ -274,7 +274,7 @@ export default function EventsPage() {
 
   const dynamicCategories = useMemo(() => {
     const defaultCategories = ['Technology', 'Workshop', 'Bootcamp', 'DevOps'];
-    const fetchedEvents = allEventsData?.data || [];
+    const fetchedEvents = Array.isArray(allEventsData) ? allEventsData : (allEventsData?.data ?? []);
     const uniqueEventCats = Array.from(
       new Set(
         fetchedEvents
@@ -331,8 +331,8 @@ export default function EventsPage() {
     }
   }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation, revertMutation]);
 
-  const events = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const events: Event[] = Array.isArray(data) ? data : (data?.data ?? []);
+  const totalPages = Array.isArray(data) ? 1 : (data?.totalPages ?? 1);
 
   const selectCls = "appearance-none pl-3.5 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all";
 

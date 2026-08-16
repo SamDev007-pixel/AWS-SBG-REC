@@ -88,7 +88,7 @@ export default function TicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
 
   const { data: eventsData } = useEvents({ limit: 200 });
-  const events = eventsData?.data ?? [];
+  const events = Array.isArray(eventsData) ? eventsData : (eventsData?.data ?? []);
 
   const { data, isLoading } = useTickets({
     page,
@@ -98,9 +98,9 @@ export default function TicketsPage() {
     ...(eventFilter && { eventId: eventFilter }),
   });
 
-  const tickets = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
-  const totalCount = data?.total ?? 0;
+  const tickets = Array.isArray(data) ? data : (data?.data ?? []);
+  const totalPages = Array.isArray(data) ? 1 : (data?.totalPages ?? 1);
+  const totalCount = Array.isArray(data) ? data.length : (data?.total ?? 0);
 
   const regenerateMutation = useRegenerateTicket();
   const emailMutation = useEmailTicket();

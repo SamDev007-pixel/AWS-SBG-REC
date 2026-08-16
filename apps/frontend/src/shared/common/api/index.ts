@@ -45,7 +45,17 @@ export async function fetcher<T>(url: string, options?: RequestInit): Promise<T>
   }
 
   const json = await res.json();
-  return json && typeof json === 'object' && 'data' in json ? json.data : json;
+  if (json && typeof json === 'object') {
+    // If response is a PaginatedResponse containing pagination metadata, preserve the full structure
+    if ('data' in json && ('total' in json || 'totalPages' in json || 'page' in json || 'limit' in json)) {
+      return json as T;
+    }
+    // Otherwise unwrap standard envelope { success: true, data: ... }
+    if ('data' in json) {
+      return json.data as T;
+    }
+  }
+  return json as T;
 }
 
 export function buildQueryString(params?: Record<string, unknown>): string {

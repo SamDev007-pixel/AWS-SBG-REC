@@ -524,7 +524,7 @@ export default function DashboardPage() {
     sortOrder: 'desc',
   });
 
-  const recentEvents = eventsData?.data ?? [];
+  const recentEvents = Array.isArray(eventsData) ? eventsData : (eventsData?.data ?? []);
 
   const deleteEventMutation = useDeleteEvent();
   const archiveMutation = useMutation({ mutationFn: (id: string) => api.archiveEvent(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });

@@ -236,9 +236,9 @@ function TicketScannerPageContent() {
     ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
   });
 
-  const tickets = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
-  const totalCount = data?.total ?? 0;
+  const tickets = Array.isArray(data) ? data : (data?.data ?? []);
+  const totalPages = Array.isArray(data) ? 1 : (data?.totalPages ?? 1);
+  const totalCount = Array.isArray(data) ? data.length : (data?.total ?? 0);
 
   const statsTotal = statsTotalData?.total ?? 0;
   const statsAttended = statsAttendedData?.total ?? 0;

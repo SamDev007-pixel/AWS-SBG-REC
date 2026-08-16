@@ -93,7 +93,7 @@ export default function RegistrationsPage() {
 
 
   const { data: eventsData } = useEvents({ limit: 200 });
-  const events = eventsData?.data ?? [];
+  const events = Array.isArray(eventsData) ? eventsData : (eventsData?.data ?? []);
 
   const { data, isLoading } = useRegistrations({
     page,
@@ -105,9 +105,9 @@ export default function RegistrationsPage() {
     ...(dateTo && { endDate: dateTo }),
   });
 
-  const registrations = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
-  const totalCount = data?.total ?? 0;
+  const registrations = Array.isArray(data) ? data : (data?.data ?? []);
+  const totalPages = Array.isArray(data) ? 1 : (data?.totalPages ?? 1);
+  const totalCount = Array.isArray(data) ? data.length : (data?.total ?? 0);
 
   function handleExportCsv() {
     const rows = [['ID', 'Name', 'Email', 'Event', 'Date', 'Status']];

@@ -203,7 +203,7 @@ function AttendancePageContent() {
   const lastScannedTime = useRef<number>(0);
 
   const { data: eventsData } = useEvents({ limit: 200 });
-  const events = eventsData?.data ?? [];
+  const events = Array.isArray(eventsData) ? eventsData : (eventsData?.data ?? []);
 
   const currentEvent = events.find((ev) => ev.id === eventFilter);
   const eventTitle = currentEvent?.title || '';
@@ -237,9 +237,9 @@ function AttendancePageContent() {
     ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
   });
 
-  const tickets = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
-  const totalCount = data?.total ?? 0;
+  const tickets = Array.isArray(data) ? data : (data?.data ?? []);
+  const totalPages = Array.isArray(data) ? 1 : (data?.totalPages ?? 1);
+  const totalCount = Array.isArray(data) ? data.length : (data?.total ?? 0);
 
   const statsTotal = statsTotalData?.total ?? 0;
   const statsAttended = statsAttendedData?.total ?? 0;
