@@ -144,7 +144,7 @@ export default function CTA() {
             maxWidth: "440px",
           }}
         >
-          Join AWS Student Builders Group REC. Connect with mentors, build real applications, and launch your cloud career.
+          Join AWS Student Builder Group REC. Connect with mentors, build real applications, and launch your cloud career.
         </motion.p>
 
         {/* Buttons (Bounce-in entrance) */}

@@ -80,53 +80,59 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
         )}
 
         {/* nodes */}
-        <div style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "800px",
-          margin: hideDesc ? "0 auto 4px" : "0 auto 12px",
-          padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
-          boxSizing: "border-box"
-        }}>
-          {/* Progress bar background line — starts/ends at center of first/last circle */}
-          <div style={{
-            position: "absolute",
-            top: isMobile ? 18 : 24, // vertically centered with node circles
-            left: isMobile ? "30px" : "55px",   // = half of node column width (60px / 110px)
-            right: isMobile ? "30px" : "55px",
-            height: 2,
-            background: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(35, 47, 62, 0.08)",
-            borderRadius: 2,
-            zIndex: 1  // circles are zIndex:3 so they sit on top of the line
-          }} />
-          
-          {/* Active progress bar line fill — same bounds as background track */}
-          <motion.div 
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: active / (STAGES.length - 1) }}
-            transition={{ duration: 0.4 }}
-            style={{
-              position: "absolute",
-              top: isMobile ? 18 : 24,
-              left: isMobile ? "30px" : "55px",
-              width: `calc(100% - ${isMobile ? '60px' : '110px'})`,
-              height: 2,
-              background: "#FF9900",
-              transformOrigin: "left",
-              borderRadius: 2,
-              zIndex: 2  // circles are zIndex:3 so they sit on top of the line
-            }}
-          />
+        {(() => {
+          const pad = plain ? (isMobile ? 2 : 32) : 32;
+          const colHalf = isMobile ? 30 : 55;
+          const lineOffset = pad + colHalf;
 
-          {/* Flex Container for Nodes */}
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            position: "relative",
-            zIndex: 3,
-            width: "100%"
-          }}>
+          return (
+            <div style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: "800px",
+              margin: hideDesc ? "0 auto 4px" : "0 auto 12px",
+              padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
+              boxSizing: "border-box"
+            }}>
+              {/* Progress bar background line — starts/ends precisely at center of first/last circle */}
+              <div style={{
+                position: "absolute",
+                top: isMobile ? 18 : 24, // vertically centered with node circles
+                left: `${lineOffset}px`,
+                right: `${lineOffset}px`,
+                height: 2,
+                background: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(35, 47, 62, 0.08)",
+                borderRadius: 2,
+                zIndex: 1  // circles are zIndex:3 so they sit on top of the line
+              }} />
+              
+              {/* Active progress bar line fill — same bounds as background track */}
+              <motion.div 
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: active / (STAGES.length - 1) }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  top: isMobile ? 18 : 24,
+                  left: `${lineOffset}px`,
+                  width: `calc(100% - ${lineOffset * 2}px)`,
+                  height: 2,
+                  background: "#FF9900",
+                  transformOrigin: "left",
+                  borderRadius: 2,
+                  zIndex: 2  // circles are zIndex:3 so they sit on top of the line
+                }}
+              />
+
+              {/* Flex Container for Nodes */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                position: "relative",
+                zIndex: 3,
+                width: "100%"
+              }}>
             {STAGES.map((st, i) => {
               const isA = i === active, isP = i < active, isH = hov === i;
               const circleSize = isMobile ? 36 : 48; // Uniform node size
@@ -224,6 +230,8 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
             })}
           </div>
         </div>
+          );
+        })()}
 
         {/* desc */}
         {!hideDesc && (

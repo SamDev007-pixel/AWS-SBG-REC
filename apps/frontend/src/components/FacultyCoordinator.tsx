@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 const DESCRIPTION = `The driving force behind the AWS Student Builder Group at Rajalakshmi Engineering College, he has played a pivotal role in establishing and nurturing the community. Through his guidance, he empowers students to innovate, collaborate, and execute impactful cloud initiatives.`;
 
 const DEFAULT_COORD = {
-  name: "Bhuvaneswaran B.",
+  name: "Mr. Bhuvaneswaran B",
   role: "Asst. Professor (Senior Grade) & Training Manager",
   department: "Dept. of CSE · Rajalakshmi Engineering College",
   image: "/images/faculty_bhuvaneswaran.jpg",
@@ -52,13 +52,17 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
   // Handle ESC key to close modal & prevent background scrolling
   useEffect(() => {
     if (isModalOpen) {
+      const origBody = document.body.style.overflow;
+      const origHtml = document.documentElement.style.overflow;
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") setIsModalOpen(false);
       };
       window.addEventListener("keydown", handleKeyDown);
       return () => {
-        document.body.style.overflow = "";
+        document.body.style.overflow = origBody;
+        document.documentElement.style.overflow = origHtml;
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
@@ -387,6 +391,8 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             backgroundColor: "rgba(8, 12, 20, 0.85)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
+            overscrollBehavior: "contain",
+            touchAction: "none",
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsModalOpen(false);
@@ -400,6 +406,9 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
               maxWidth: "680px",
               maxHeight: "85vh",
               overflowY: "auto",
+              overscrollBehavior: "contain",
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-y",
               backgroundColor: "#0D1424",
               border: "1px solid rgba(255, 153, 0, 0.4)",
               borderRadius: "8px",
@@ -458,7 +467,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
                   FACULTY COORDINATOR SPOTLIGHT
                 </span>
                 <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#FFFFFF", margin: 0, lineHeight: 1.25 }}>
-                  Dr. Bhuvaneshwaran B
+                  {coord.name || "Mr. Bhuvaneswaran B"}
                 </h3>
                 <p style={{ fontSize: "12px", color: "#94A3B8", margin: "2px 0 0 0", fontWeight: 500 }}>
                   Assistant Professor, School of Computer Engineering · REC
@@ -494,7 +503,7 @@ export default function FacultyCoordinator({ previewData, forceMobile }: Faculty
             {/* Full 5-Paragraph Tribute Content */}
             <div style={{ fontSize: "13.5px", lineHeight: "1.75", color: "#CBD5E1" }}>
               <p style={{ marginTop: 0, marginBottom: "14px" }}>
-                At the heart of every thriving student community is a mentor who inspires, guides, and empowers. We are privileged to have <strong style={{ color: "#FFFFFF" }}>Dr. Bhuvaneshwaran B</strong>, Assistant Professor, School of Computer Engineering, Rajalakshmi Engineering College, as the Faculty Coordinator of AWS Student Builders Group (SBG) REC.
+                At the heart of every thriving student community is a mentor who inspires, guides, and empowers. We are privileged to have <strong style={{ color: "#FFFFFF" }}>{coord.name || "Mr. Bhuvaneswaran B"}</strong>, Assistant Professor, School of Computer Engineering, Rajalakshmi Engineering College, as the Faculty Coordinator of AWS Student Builder Group (SBG) REC.
               </p>
 
               <p style={{ marginBottom: "14px" }}>

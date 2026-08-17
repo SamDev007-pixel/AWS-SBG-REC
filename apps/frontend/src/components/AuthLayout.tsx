@@ -81,7 +81,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <main className="fixed inset-0 flex flex-col md:flex-row overflow-hidden bg-[#030409]">
+    <main className="fixed inset-0 flex flex-col lg:flex-row overflow-hidden bg-[#030409]">
       {/* Style tag for keyframes */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes floatStar {
@@ -99,12 +99,12 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         }
       `}} />
 
-      {/* Left side: Image section (hidden on mobile, shown on md and up) */}
-      <div className="hidden md:flex md:w-1/2 lg:w-3/5 h-full relative overflow-hidden flex-col justify-between p-12 text-white select-none">
+      {/* Left side: Image section (hidden on mobile & tablet, shown on desktop lg: and up) */}
+      <div className="hidden lg:flex lg:w-3/5 h-full relative overflow-hidden flex-col justify-between p-12 text-white select-none">
         {/* Background Static Image */}
         <img 
           src="/auth-bg.jpg" 
-          alt="AWS Student Builders Group" 
+          alt="AWS Student Builder Group" 
           className="absolute inset-0 w-full h-full object-cover z-0" 
         />
 
@@ -170,23 +170,22 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
           {/* Footer note */}
           <p className="text-xs text-slate-400 font-medium tracking-wide">
-            © 2026 AWS Student Builders Group REC. All rights reserved.
+            © 2026 AWS Student Builder Group REC. All rights reserved.
           </p>
         </div>
       </div>
 
       {/* Right side: Login / Auth form card */}
-      <div className="flex-1 md:w-1/2 lg:w-2/5 h-full bg-[#030409] relative overflow-hidden">
+      <div className="flex-1 lg:w-2/5 h-full bg-[#030409] relative overflow-hidden">
         {/* Background Image for mobile/tablet (hidden on desktop since left panel has it) */}
         <img 
           src="/auth-bg.jpg" 
-          alt="AWS Student Builders Group background" 
-          className="absolute inset-0 w-full h-full object-cover z-0 block md:hidden opacity-35" 
+          alt="AWS Student Builder Group background" 
+          className="absolute inset-0 w-full h-full object-cover z-0 block lg:hidden opacity-35" 
         />
-        {/* Ambient Overlays to make it feel extremely premium and high contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/40 z-0 block md:hidden pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,153,0,0.2)_0%,transparent_50%)] z-0 block md:hidden pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.15)_0%,transparent_50%)] z-0 block md:hidden pointer-events-none" />
+        {/* Ambient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30 z-0 block lg:hidden pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,153,0,0.2)_0%,transparent_50%)] z-0 block lg:hidden pointer-events-none" />
 
         {/* Floating Stars for Right Panel */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
@@ -216,14 +215,14 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
           <div className="w-full flex flex-col items-center justify-center py-8 relative">
             
             {/* Mobile/Tablet Branding Header */}
-            <div className="flex md:hidden items-center gap-3.5 mb-8 select-none">
-              <img src="/brand-logo.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(255,153,0,0.4)]" />
-              <div className="h-7 w-px bg-white/20" />
-              <div className="flex flex-col gap-0.5">
-                <span className="block text-[15px] font-extrabold tracking-tight text-white leading-tight font-sans">
+            <div className="flex lg:hidden items-center gap-4 sm:gap-4.5 mb-8 sm:mb-10 select-none">
+              <img src="/brand-logo.png" alt="Logo" className="w-11 h-11 sm:w-12 sm:h-12 object-contain drop-shadow-[0_0_14px_rgba(255,153,0,0.45)] shrink-0" />
+              <div className="h-8 sm:h-9 w-px bg-white/25 shrink-0" />
+              <div className="flex flex-col gap-0.5 sm:gap-1">
+                <span className="block text-[18px] sm:text-[20px] font-extrabold tracking-tight text-white leading-tight font-sans">
                   AWS Student Builder Group
                 </span>
-                <span className="block text-[9.5px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
+                <span className="block text-[10.5px] sm:text-[11.5px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
                   Rajalakshmi Engineering College
                 </span>
               </div>

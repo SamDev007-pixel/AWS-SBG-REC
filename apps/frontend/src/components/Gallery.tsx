@@ -6,25 +6,25 @@ import { api } from "@/lib/api";
 /* ─── Card data ─────────────────────────────────────────────────────────── */
 const DEFAULT_CARDS = [
   {
-    gradient: "linear-gradient(135deg, rgb(130,68,239), #4a7a9b)",
-    label: "Cloud Matrix",
-    sublabel: "Cloud Computing Awareness Session",
-    image: "/images/cloud_jam.jpg",
-    description: "CLOUD MATRIX was an engaging cloud computing awareness session organized by AWS Cloud Club REC. The event introduced participants to cloud fundamentals, career opportunities, and industry-recognized certifications through practical insights shared by a DevOps professional. The session concluded with an interactive live quiz, making learning both informative and enjoyable.",
+    gradient: "linear-gradient(135deg, #FF9900, #E68900)",
+    label: "St. Joseph Student Community Day",
+    sublabel: "Interactive Community Meetup",
+    image: "/images/community_meetup.jpg",
+    description: "A dynamic student meetup bringing together diverse tracks and inspiring speakers from different domains. Each track features insightful sessions led by speakers with expertise in their respective fields, giving students the opportunity to explore new domains, gain valuable perspectives, and connect with a wider student community.",
   },
   {
     gradient: "linear-gradient(135deg, #243448, #2d4f6b)",
-    label: "Robo Wolke",
-    sublabel: "From Pixels to Motion Workshop",
+    label: "RoboWolke – From Pixels to Motion",
+    sublabel: "Robotics & Cloud Intelligence",
     image: "/images/robo_wolke_journey.jpg",
-    description: "ROBO WOLKE – From Pixels to Motion is a hands-on technical workshop jointly organized by The Robotics Society and AWS Cloud Club REC. The session introduces participants to computer vision, motion planning, inverse kinematics, and intelligent cloud-powered robotics through live demonstrations and practical learning experiences.",
+    description: "Where robotics meets cloud intelligence. RoboWolke explores how machines see, analyze, and act in real time through Computer Vision, cloud integration, and data-driven automation.",
   },
   {
-    gradient: "linear-gradient(135deg, #FF9900, #E68900)",
-    label: "AWS Student Community Day",
-    sublabel: "St. Joseph's Institute of Technology",
-    image: "/images/community_meetup.jpg",
-    description: "AWS Student Community Day at St. Joseph's Institute of Technology was a community-driven event that brought together students, AWS experts, and cloud enthusiasts. The event featured insightful technical sessions, real-world AWS use cases, networking opportunities, and hands-on learning, enabling participants to enhance their cloud knowledge and connect with the AWS community.",
+    gradient: "linear-gradient(135deg, rgb(130,68,239), #4a7a9b)",
+    label: "Cloud Matrix",
+    sublabel: "Cloud Computing Fundamentals",
+    image: "/images/cloud_jam.jpg",
+    description: "An engaging introduction to the world of cloud computing, covering its fundamentals, diverse career paths, and industry-relevant certifications. The session concludes with an interactive quiz, putting participants’ cloud knowledge to the test.",
   },
 ];
 
@@ -140,7 +140,7 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
         width: "100%",
         minHeight: "auto",
         padding: "32px 24px 16px",
-        background: "#0b0f19", // Solid rich dark background to prevent bleed-through
+        background: "#0D1320", // Deep balanced dark background
         position: "relative",
         zIndex: 2, // Layer above fixed light-gradient background
         overflow: "hidden",
@@ -159,7 +159,7 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
             <motion.div
               key={currentTopCard.image}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }} // Increased ambient glow
+              animate={{ opacity: 0.52 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
               style={{
@@ -168,17 +168,17 @@ export default function Gallery({ previewData }: GalleryProps = {}) {
                 backgroundImage: `url(${currentTopCard.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                filter: "blur(50px) scale(1.15)", // Smooth edge blur
+                filter: "blur(50px) scale(1.15)", // Smooth natural ambient blur
               }}
             />
           )}
         </AnimatePresence>
-        {/* Dark radial gradient overlay for high contrast */}
+        {/* Balanced dark radial gradient overlay */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(circle at center, rgba(10, 15, 30, 0.65) 0%, rgba(10, 15, 30, 0.95) 100%)",
+            background: "radial-gradient(circle at center, rgba(13, 19, 32, 0.55) 0%, rgba(10, 15, 26, 0.88) 100%)",
           }}
         />
       </div>

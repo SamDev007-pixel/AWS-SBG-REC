@@ -70,12 +70,12 @@ export async function POST(request: Request) {
       resend.emails.send({
         from: "AWS SGB REC <onboarding@resend.dev>",
         to: normalizedEmail,
-        subject: "Login Successful - AWS Student Builders Group REC",
+        subject: "Login Successful - AWS Student Builder Group REC",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #232f3e;">Login Successful</h2>
             <p>Hello, ${fullName},</p>
-            <p>You have successfully logged into your <strong>AWS Student Builders Group REC</strong> account.</p>
+            <p>You have successfully logged into your <strong>AWS Student Builder Group REC</strong> account.</p>
             <p>If this wasn't you, please reset your password immediately to secure your account.</p>
             <br />
             <div style="text-align: center;">

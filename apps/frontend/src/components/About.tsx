@@ -84,12 +84,17 @@ export default function About() {
                 width: "100%",
               }}
             >
-              {/* Dot Grid Background */}
+              {/* Black Doodle Background Pattern */}
               <div style={{
                 position: "absolute",
                 inset: 0,
-                backgroundImage: "radial-gradient(rgba(35, 47, 62, 0.025) 1.2px, transparent 1.2px)",
-                backgroundSize: "20px 20px",
+                backgroundImage: `
+                  linear-gradient(to bottom, rgba(6, 12, 23, 0.85) 0%, rgba(6, 12, 23, 0.75) 50%, rgba(6, 12, 23, 0.88) 100%),
+                  url('/images/crew_doodle_black_bg.png')
+                `,
+                backgroundSize: "450px auto",
+                backgroundRepeat: "repeat",
+                backgroundPosition: "center",
                 pointerEvents: "none",
                 zIndex: 1,
               }} />
@@ -196,25 +201,29 @@ export default function About() {
                 }}
               >
                 <p
+                  className="about-mission-text"
                   style={{
-                    fontSize: "15px",
-                    color: "#475569",
-                    lineHeight: 1.8,
+                    fontSize: "15.5px",
+                    color: "#FFFFFF",
+                    lineHeight: 1.75,
                     margin: 0,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     textAlign: "center",
+                    textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
                   }}
                 >
-                  AWS Student Builders Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
+                  AWS Student Builder Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
                 </p>
                 <p
+                  className="about-mission-text"
                   style={{
-                    fontSize: "15px",
-                    color: "#475569",
-                    lineHeight: 1.8,
+                    fontSize: "15.5px",
+                    color: "#FFFFFF",
+                    lineHeight: 1.75,
                     margin: 0,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     textAlign: "center",
+                    textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
                   }}
                 >
                   By combining technical knowledge with hands-on implementation, we help students transform ideas into real-world solutions while preparing them for the rapidly evolving technology industry.

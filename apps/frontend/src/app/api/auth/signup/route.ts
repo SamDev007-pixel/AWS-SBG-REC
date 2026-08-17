@@ -75,7 +75,7 @@ export async function POST(request: Request) {
               <h1 style="color: #232f3e; margin: 0;">Welcome, ${fullName}!</h1>
             </div>
             <div style="color: #444; line-height: 1.6;">
-              <p>Thank you for joining the <strong>AWS Student Builders Group REC</strong>.</p>
+              <p>Thank you for joining the <strong>AWS Student Builder Group REC</strong>.</p>
               <p>Your account has been successfully created. You can now log in and explore our cloud resources, community events, and technical workshops.</p>
               <div style="margin: 30px 0; text-align: center;">
                 <a href="${loginUrl}" style="background-color: #232f3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
             <p style="color: #888; font-size: 12px; text-align: center;">
               Best regards,<br />AWS SGB REC Team<br />
-              © 2026 AWS Student Builders Group REC
+              © 2026 AWS Student Builder Group REC
             </p>
           </div>
         `,

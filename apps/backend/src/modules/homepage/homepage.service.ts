@@ -9,7 +9,7 @@ const DEFAULT_HERO = {
 };
 
 const DEFAULT_COORDINATOR = {
-  name: 'Bhuvaneswaran B.',
+  name: 'Mr. Bhuvaneswaran B',
   role: 'Asst. Professor (Senior Grade) & Training Manager',
   department: 'Dept. of CSE · Rajalakshmi Engineering College',
   image: '/images/faculty_bhuvaneswaran.jpg',
@@ -19,52 +19,28 @@ const DEFAULT_COORDINATOR = {
 
 const DEFAULT_JOURNEYS = [
   {
-    label: 'Cloud Matrix',
-    sublabel: '120+ builders · Oct 2025 · 24 hours',
-    image: '/images/cloud_jam.jpg',
-    description: 'An intensive cloud computing hackathon challenge where student builders collaborate in teams to architect, deploy, and scale innovative solutions on AWS. A true 24-hour sprint from concept to a production-ready application.',
-    gradient: 'linear-gradient(135deg,rgb(130,68,239),#4a7a9b)',
+    label: 'St. Joseph Student Community Day',
+    sublabel: 'Interactive Community Meetup',
+    image: '/images/community_meetup.jpg',
+    description: 'A dynamic student meetup bringing together diverse tracks and inspiring speakers from different domains. Each track features insightful sessions led by speakers with expertise in their respective fields, giving students the opportunity to explore new domains, gain valuable perspectives, and connect with a wider student community.',
+    gradient: 'linear-gradient(135deg,#FF9900,#E68900)',
     order: 0,
   },
   {
-    label: 'AI Workshop',
-    sublabel: 'Bedrock & LLMs · Feb 2026',
-    image: '/images/ai_workshop.jpg',
-    description: 'A comprehensive generative AI hands-on session focusing on Amazon Bedrock. Students explored building applications using large language models (LLMs), prompt engineering, and building agentic assistants.',
-    gradient: 'linear-gradient(135deg,#0073BB,#005f9e)',
+    label: 'RoboWolke – From Pixels to Motion',
+    sublabel: 'Robotics & Cloud Intelligence',
+    image: '/images/robo_wolke_journey.jpg',
+    description: 'Where robotics meets cloud intelligence. RoboWolke explores how machines see, analyze, and act in real time through Computer Vision, cloud integration, and data-driven automation.',
+    gradient: 'linear-gradient(135deg,#243448,#2d4f6b)',
     order: 1,
   },
   {
-    label: 'Community Meetup',
-    sublabel: '150+ members · Networking',
-    image: '/images/community_meetup.jpg',
-    description: 'A community gathering bringing together cloud practitioners, student developers, and tech professionals to network, share case studies, and discuss the latest industry innovations.',
-    gradient: 'linear-gradient(135deg,#FF9900,#E68900)',
+    label: 'Cloud Matrix',
+    sublabel: 'Cloud Computing Fundamentals',
+    image: '/images/cloud_jam.jpg',
+    description: 'An engaging introduction to the world of cloud computing, covering its fundamentals, diverse career paths, and industry-relevant certifications. The session concludes with an interactive quiz, putting participants’ cloud knowledge to the test.',
+    gradient: 'linear-gradient(135deg,rgb(130,68,239),#4a7a9b)',
     order: 2,
-  },
-  {
-    label: 'Certification Bootcamp',
-    sublabel: '100+ students certified',
-    image: '/images/bootcamp.jpg',
-    description: 'A focused interactive workspace session where students collaborated on preparation for AWS certifications, shared learnings from technical bootcamps, and engaged in peer mentoring.',
-    gradient: 'linear-gradient(135deg,#2c4a62,#3d6680)',
-    order: 3,
-  },
-  {
-    label: 're:Invent Watch Party',
-    sublabel: 'Cloud Matrix Event',
-    image: '/images/ai_workshop.jpg',
-    description: 'An expert panel discussion and watch party highlighting the most exciting announcements and technical breakthroughs from AWS re:Invent, sharing actionable insights for developers.',
-    gradient: 'linear-gradient(135deg,#005f9e,#0073BB)',
-    order: 4,
-  },
-  {
-    label: 'Robo Wolke',
-    sublabel: 'Robotics & IoT Showcase · Dobot Magician',
-    image: '/images/robo_wolke_journey.jpg',
-    description: 'An experimental robotics exhibition demonstrating the integration of cloud computing with physical hardware. The showcase highlighted controlling Dobot Magician robotic arms using AWS-backed cloud services.',
-    gradient: 'linear-gradient(135deg,#243448,#2d4f6b)',
-    order: 5,
   },
 ];
 
@@ -113,7 +89,7 @@ const DEFAULT_TESTIMONIALS = [
 
 const DEFAULT_TEAM = [
   // CORE
-  { name: 'V Thirunavukkarasu', role: 'Social Media Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/thirunavukkarasu.jpg', accent: '#16A34A', type: 'core', order: 0 },
+  { name: 'V Thirunavukkarasu', role: 'Social Media Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/thirunavukkarasu.jpg', accent: '#FF9900', type: 'core', order: 0 },
   { name: 'Prathakshanaa T', role: 'Captain', department: 'AWS Cloud Clubs REC', image: '/images/core/prathakshanaa_t.jpg', accent: '#E68A00', type: 'core', order: 1 },
   { name: 'K N Pranav Ranjan', role: 'Tech Lead', department: 'AWS Cloud Clubs REC', image: '/images/core/pranav_ranjan.jpg', accent: '#E68A00', type: 'core', order: 2 },
   // CREW (alphabetical)
@@ -122,7 +98,8 @@ const DEFAULT_TEAM = [
   { name: 'Goutham R', role: 'Cloud Associate', department: 'Projects & Innovation', image: '/images/crew/goutham_r.jpg', accent: '#0073BB', type: 'crew', order: 5 },
   { name: 'Harini S', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/harini_s.jpg', accent: '#7C3AED', type: 'crew', order: 6 },
   { name: 'Jaiganesh G', role: 'Marketing Associate', department: 'Marketing & Media', image: '/images/crew/jaiganesh_g.jpg', accent: '#E68A00', type: 'crew', order: 7 },
-  { name: 'Neil Daniel', role: 'Content Strategist', department: 'Marketing & Media', image: '/images/crew/neil_daniel.jpg', accent: '#7C3AED', type: 'crew', order: 8 },
+  { name: 'Lakshminarasimhan Uppili', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/lakshminarasimhan_uppili.jpg', accent: '#0073BB', type: 'crew', order: 8 },
+  { name: 'Neil Daniel', role: 'Content Strategist', department: 'Marketing & Media', image: '/images/crew/neil_daniel.jpg', accent: '#7C3AED', type: 'crew', order: 9 },
   { name: 'Rannesh Khumar B R', role: 'Web Developer', department: 'Projects & Innovation', image: '/images/crew/rannesh_khumar_b_r.jpg', accent: '#E68A00', type: 'crew', order: 9 },
   { name: 'Sam Devaraja J', role: 'Lead Developer', department: 'Projects & Innovation', image: '/images/crew/sam_devaraja_j.jpg', accent: '#0073BB', type: 'crew', order: 10 },
   { name: 'Sudhish', role: 'Events Associate', department: 'Events & Outreach', image: '/images/crew/sudhish.jpg', accent: '#16A34A', type: 'crew', order: 11 },

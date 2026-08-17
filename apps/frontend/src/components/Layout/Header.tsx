@@ -29,7 +29,7 @@ export default function Header({ activeContinent, onContinentChange }: HeaderPro
                    AWS Intelligence
                   <Shield size={14} className="text-[#0073BB]" />
                 </h1>
-                <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Student Builders Group • Global Network</span>
+                <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Student Builder Group • Global Network</span>
               </div>
             </div>
           </div>

@@ -19,7 +19,7 @@ const CORE_MEMBERS: TeamMember[] = [
     role: "Social Media Lead",
     department: "AWS Cloud Clubs REC",
     image: "/images/core/thirunavukkarasu.jpg",
-    accent: "#16A34A",
+    accent: "#FF9900",
   },
   {
     id: "core-4",
@@ -79,6 +79,14 @@ const CREW_MEMBERS: TeamMember[] = [
     department: "Marketing & Media",
     image: "/images/crew/jaiganesh_g.jpg",
     accent: "#FF9900",
+  },
+  {
+    id: "crew-7",
+    name: "Lakshminarasimhan Uppili",
+    role: "Events Associate",
+    department: "Events & Outreach",
+    image: "/images/crew/lakshminarasimhan_uppili.jpg",
+    accent: "#0073BB",
   },
   {
     id: "crew-8",
@@ -185,9 +193,7 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             height: (!member.image || imageError) ? "auto" : "100%",
             display: "block",
             objectFit: (!member.image || imageError) ? "contain" : "cover",
-            objectPosition: (member.name?.includes("Neil") || member.image?.includes("neil"))
-              ? "22% center"
-              : (member.name?.includes("Jaiganesh") || member.image?.includes("jaiganesh") || member.name?.includes("Sunchitha") || member.image?.includes("sunchitha") || member.name?.includes("Sam") || member.image?.includes("sam"))
+            objectPosition: (member.name?.includes("Jaiganesh") || member.image?.includes("jaiganesh") || member.name?.includes("Sunchitha") || member.image?.includes("sunchitha") || member.name?.includes("Sam") || member.image?.includes("sam") || member.name?.includes("Neil") || member.image?.includes("neil") || member.name?.includes("Lakshminarasimhan") || member.image?.includes("lakshminarasimhan"))
               ? "top center"
               : "center center",
             transition: "transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -254,7 +260,15 @@ function TeamMemberCard({ member, isActive }: { member: TeamMember & { type: "co
             textOverflow: "ellipsis",
             maxWidth: "100%",
           }}>
-            <span style={{ width: 4.5, height: 4.5, borderRadius: "50%", background: member.accent, flexShrink: 0 }} />
+            <span style={{
+              width: 4.5,
+              height: 4.5,
+              borderRadius: "50%",
+              background: (member.type === "core" || member.role?.toLowerCase().includes("social media") || member.name?.toLowerCase().includes("thirunavukkarasu"))
+                ? "#FF9900"
+                : (member.accent || "#0073BB"),
+              flexShrink: 0
+            }} />
             {member.role}
           </span>
         )}
@@ -299,7 +313,13 @@ export default function OurTeamShowcase({
     api.get<any[]>("/homepage/team")
       .then((res) => {
         if (active && res && res.length > 0) {
-          setFetchedMembers(res as any);
+          const mapped = res.map((m) => {
+            if (m.type === "core" || m.name?.toLowerCase().includes("thirunavukkarasu") || m.role?.toLowerCase().includes("social media")) {
+              return { ...m, accent: "#FF9900" };
+            }
+            return m;
+          });
+          setFetchedMembers(mapped as any);
         }
       })
       .catch((err) => {

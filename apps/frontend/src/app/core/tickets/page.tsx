@@ -271,6 +271,9 @@ function TicketsPageContent() {
   const statsUsed = statsUsedData?.total ?? 0;
   const statsCancelled = statsCancelledData?.total ?? 0;
 
+  const currentEvent = events.find((e: any) => e.id === eventFilter);
+  const eventTitle = currentEvent?.title || '';
+
   const regenerateMutation = useRegenerateTicket();
   const emailMutation = useEmailTicket();
 

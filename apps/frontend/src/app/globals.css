@@ -1274,10 +1274,6 @@ footer * {
 #home h2,
 #home h3,
 #home h4,
-#about h1,
-#about h2,
-#about h3,
-#about h4,
 #events h1,
 #events h2,
 #events h3,
@@ -1297,18 +1293,23 @@ footer * {
 
 /* Align description text colors to --secondary */
 #home p,
-#about p,
 #events p,
 #reviews p,
 #team p,
 #community p,
 #home li,
-#about li,
 #events li,
 #reviews li,
 #team li,
 #community li {
   color: var(--secondary) !important;
+}
+
+/* About dark section text styling */
+#about p,
+#about li,
+.about-mission-text {
+  color: #FFFFFF !important;
 }
 
 /* Color overrides mapping exact hex/rgb styles case-insensitively */

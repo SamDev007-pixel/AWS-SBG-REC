@@ -15,7 +15,7 @@ const COLS = [
     h: "Resources",
     links: [
       { label: "Our Team", href: "/#team-bottom" },
-      { label: "Community", href: "/#community" }
+      { label: "Reviews", href: "/#reviews" }
     ]
   }
 ];
@@ -103,7 +103,7 @@ export default function Footer() {
                   AWS SBG REC
                 </div>
                 <div style={{ fontSize: "9.5px", color: "#94A3B8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  Student Builders Group
+                  Student Builder Group
                 </div>
               </div>
             </div>
@@ -218,8 +218,9 @@ export default function Footer() {
             gap: "16px",
           }}
         >
-          <div style={{ fontSize: "12px", color: "#94A3B8", fontWeight: 500, textAlign: "center" }}>
-            © 2026 AWS Student Builders Group REC. All rights reserved.
+          <div style={{ fontSize: "12px", color: "#94A3B8", fontWeight: 500, textAlign: "center", lineHeight: "1.6" }}>
+            <span className="block sm:inline">© 2026 AWS Student Builder Group REC. </span>
+            <span className="block sm:inline">All rights reserved.</span>
           </div>
         </div>
       </div>

@@ -153,7 +153,7 @@ function CoreHeroBanner() {
                 className="tracking-wider font-semibold"
                 style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
               >
-                AWS Student Builders Group REC
+                AWS Student Builder Group REC
               </span>
             </motion.div>
 

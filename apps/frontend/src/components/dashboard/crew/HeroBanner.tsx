@@ -80,7 +80,7 @@ export default function HeroBanner() {
               className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-orange-50/90 border border-orange-200 text-orange-900 text-[11.5px] font-semibold mb-3 shadow-2xs"
             >
               <img src="/sbg_logo.svg" alt="AWS SBG Logo" className="w-4 h-4 object-contain shrink-0" />
-              <span>AWS Student Builders Group REC</span>
+              <span>AWS Student Builder Group REC</span>
             </motion.div>
 
             <h1 

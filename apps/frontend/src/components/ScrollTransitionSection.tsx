@@ -42,7 +42,14 @@ export default function ScrollTransitionSection() {
         position: "relative",
         minHeight: "auto",
         width: "100%",
-        backgroundColor: "#05111f",
+        backgroundColor: "#060C17",
+        backgroundImage: `
+          linear-gradient(to bottom, rgba(6, 12, 23, 0.85) 0%, rgba(6, 12, 23, 0.75) 50%, rgba(6, 12, 23, 0.88) 100%),
+          url('/images/crew_doodle_black_bg.png')
+        `,
+        backgroundSize: "450px auto",
+        backgroundRepeat: "repeat",
+        backgroundPosition: "center",
         zIndex: 10,
         scrollMarginTop: "80px",
         overflow: "hidden",
@@ -55,23 +62,6 @@ export default function ScrollTransitionSection() {
         clipPath: clipPath,
       }}
     >
-      {/* Grid Background Pattern */}
-      <motion.div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(ellipse at center, black 40%, transparent 85%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 85%)",
-          pointerEvents: "none",
-          zIndex: 1,
-          opacity: visualEffectsOpacity,
-        }}
-      />
 
       {/* Ambient Dark Theme Glow Effects */}
       <motion.div
@@ -182,25 +172,29 @@ export default function ScrollTransitionSection() {
           }}
         >
           <p
+            className="about-mission-text"
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(12.5px, 1.3vw, 14px)",
-              color: "#CBD5E1",
-              lineHeight: 1.55,
+              fontSize: "clamp(13.5px, 1.35vw, 15.5px)",
+              color: "#FFFFFF",
+              lineHeight: 1.65,
               margin: 0,
-              fontWeight: 400,
+              fontWeight: 600,
+              textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
             }}
           >
-            AWS Student Builders Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
+            AWS Student Builder Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
           </p>
           <p
+            className="about-mission-text"
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(12.5px, 1.3vw, 14px)",
-              color: "#CBD5E1",
-              lineHeight: 1.55,
+              fontSize: "clamp(13.5px, 1.35vw, 15.5px)",
+              color: "#FFFFFF",
+              lineHeight: 1.65,
               margin: 0,
-              fontWeight: 400,
+              fontWeight: 600,
+              textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
             }}
           >
             By combining technical knowledge with hands-on implementation, we help students transform ideas into real-world solutions while preparing them for the rapidly evolving technology industry.

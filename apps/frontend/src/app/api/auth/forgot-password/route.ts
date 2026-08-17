@@ -65,12 +65,12 @@ export async function POST(request: Request) {
       await transporter.sendMail({
         from: '"AWS Student Builder Group REC" <noreply@awsrec.in>',
         to: normalizedEmail,
-        subject: "Password Reset Request - AWS Student Builders Group REC",
+        subject: "Password Reset Request - AWS Student Builder Group REC",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #232f3e;">Password Reset Request</h2>
             <p>Hello, ${fullName},</p>
-            <p>We received a request to reset your password for your <strong>AWS Student Builders Group REC</strong> account.</p>
+            <p>We received a request to reset your password for your <strong>AWS Student Builder Group REC</strong> account.</p>
             <p>Click the button below to reset your password (valid for 1 hour):</p>
             <div style="margin: 20px 0;">
               <a href="${resetUrl}" style="background-color: #232f3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
