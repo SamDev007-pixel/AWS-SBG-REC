@@ -1309,7 +1309,8 @@ footer * {
 #about p,
 #about li,
 .about-mission-text {
-  color: #FFFFFF !important;
+  color: #CBD5E1 !important;
+  font-weight: 500 !important;
 }
 
 /* Color overrides mapping exact hex/rgb styles case-insensitively */

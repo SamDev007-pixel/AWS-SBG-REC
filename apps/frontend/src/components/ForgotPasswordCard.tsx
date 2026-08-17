@@ -43,23 +43,27 @@ export const ForgotPasswordCard = () => {
 
   return (
     <div className="relative z-10 w-full max-w-[440px] lg:max-w-[460px] bg-white/90 backdrop-blur-md border border-slate-300/80 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xl shadow-black/25">
-      {/* Header with Minimalist Circular Back Button */}
-      <div className="flex items-start gap-3.5 mb-6 w-full">
+      {/* Top Back Navigation */}
+      <div className="mb-5">
         <Link
           href="/login"
-          title="Back to Login"
-          className="mt-0.5 w-9 h-9 shrink-0 rounded-full bg-slate-100/90 hover:bg-[#FF9900]/15 text-slate-600 hover:text-[#E47911] border border-slate-200 hover:border-[#FF9900]/40 flex items-center justify-center transition-all duration-200 shadow-xs group"
+          className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-slate-500 hover:text-slate-900 transition-colors group"
         >
-          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+          <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-500 group-hover:bg-[#FF9900] group-hover:border-[#FF9900] group-hover:text-white transition-all duration-200 shadow-2xs">
+            <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
+          </div>
+          <span>Back to Login</span>
         </Link>
-        <div className="flex flex-col text-left flex-1 min-w-0">
-          <h1 className="text-slate-900 text-2xl sm:text-3xl font-bold tracking-tight mb-1 font-display auth-card-heading">
-            Forgot Password?
-          </h1>
-          <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
-            No worries, we&apos;ll send you reset instructions.
-          </p>
-        </div>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col text-left mb-6 w-full">
+        <h1 className="text-slate-900 text-2xl sm:text-3xl font-bold tracking-tight mb-1.5 font-display auth-card-heading">
+          Forgot Password?
+        </h1>
+        <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
+          No worries, we&apos;ll send you reset instructions.
+        </p>
       </div>
 
       {/* Form Section */}

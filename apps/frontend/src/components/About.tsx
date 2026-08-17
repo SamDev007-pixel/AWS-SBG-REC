@@ -172,8 +172,8 @@ export default function About() {
               <h2
                 style={{
                   fontSize: "clamp(2rem, 3.5vw, 2.5rem)",
-                  fontWeight: 900,
-                  color: "#232F3E",
+                  fontWeight: 800,
+                  color: "#FFFFFF",
                   lineHeight: 1.2,
                   margin: 0,
                   letterSpacing: "-0.03em",
@@ -204,12 +204,12 @@ export default function About() {
                   className="about-mission-text"
                   style={{
                     fontSize: "15.5px",
-                    color: "#FFFFFF",
+                    color: "#CBD5E1",
                     lineHeight: 1.75,
                     margin: 0,
-                    fontWeight: 600,
+                    fontWeight: 500,
                     textAlign: "center",
-                    textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
+                    textShadow: "0 1px 4px rgba(0, 0, 0, 0.5)",
                   }}
                 >
                   AWS Student Builder Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
@@ -218,12 +218,12 @@ export default function About() {
                   className="about-mission-text"
                   style={{
                     fontSize: "15.5px",
-                    color: "#FFFFFF",
+                    color: "#CBD5E1",
                     lineHeight: 1.75,
                     margin: 0,
-                    fontWeight: 600,
+                    fontWeight: 500,
                     textAlign: "center",
-                    textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
+                    textShadow: "0 1px 4px rgba(0, 0, 0, 0.5)",
                   }}
                 >
                   By combining technical knowledge with hands-on implementation, we help students transform ideas into real-world solutions while preparing them for the rapidly evolving technology industry.

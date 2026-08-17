@@ -151,13 +151,9 @@ export default function ScrollTransitionSection() {
             margin: 0,
             lineHeight: 1.2,
             letterSpacing: "-0.02em",
-            backgroundImage: "linear-gradient(135deg, #FFFFFF 50%, #FFE9CC 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
           }}
         >
-          Empowering students to learn, build, and innovate on AWS.
+          Empowering students to learn, build, and innovate on AWS
         </h2>
 
         {/* Description paragraphs stacked vertically */}
@@ -176,11 +172,11 @@ export default function ScrollTransitionSection() {
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(13.5px, 1.35vw, 15.5px)",
-              color: "#FFFFFF",
+              color: "#CBD5E1",
               lineHeight: 1.65,
               margin: 0,
-              fontWeight: 600,
-              textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
+              fontWeight: 500,
+              textShadow: "0 1px 4px rgba(0, 0, 0, 0.5)",
             }}
           >
             AWS Student Builder Group REC is a student-driven cloud community at Rajalakshmi Engineering College dedicated to learning, building, and innovating with Amazon Web Services. We bring together aspiring developers, cloud enthusiasts, and future technology leaders to explore modern cloud technologies through practical experiences and collaborative learning.
@@ -190,11 +186,11 @@ export default function ScrollTransitionSection() {
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(13.5px, 1.35vw, 15.5px)",
-              color: "#FFFFFF",
+              color: "#CBD5E1",
               lineHeight: 1.65,
               margin: 0,
-              fontWeight: 600,
-              textShadow: "0 1px 12px rgba(0, 0, 0, 0.9)",
+              fontWeight: 500,
+              textShadow: "0 1px 4px rgba(0, 0, 0, 0.5)",
             }}
           >
             By combining technical knowledge with hands-on implementation, we help students transform ideas into real-world solutions while preparing them for the rapidly evolving technology industry.
