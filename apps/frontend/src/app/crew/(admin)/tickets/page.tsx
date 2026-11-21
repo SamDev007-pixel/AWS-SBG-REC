@@ -135,7 +135,7 @@ export default function TicketsPage() {
               {/* Pill Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full mb-3 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Crew · Tickets</span>
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-normal">Crew · Tickets</span>
               </div>
               
               <div className="flex items-center gap-3">

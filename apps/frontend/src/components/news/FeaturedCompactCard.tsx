@@ -73,7 +73,7 @@ export const FeaturedCompactCard = memo(function FeaturedCompactCard({
           width: '100%'
         }}
       >
-        <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] backdrop-blur" style={{ color: 'white' }}>
+        <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-normal backdrop-blur" style={{ color: 'white' }}>
           {getCategoryLabel(article.category)}
         </span>
         <h3

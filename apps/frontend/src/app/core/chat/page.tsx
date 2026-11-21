@@ -419,9 +419,9 @@ export default function CoreChatPage() {
           {/* Top Bar: Breadcrumbs + User */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 min-w-0">
-              <span className="hover:text-[#FF6B00] transition-colors font-semibold truncate">AWS SBG REC</span>
+              <span className="hover:text-[#FF9900] transition-colors font-semibold truncate">AWS SBG REC</span>
               <span className="text-slate-300">/</span>
-              <span className="text-[#FF6B00] font-semibold truncate">Core</span>
+              <span className="text-[#FF9900] font-semibold truncate">Core</span>
               <span className="text-slate-300">/</span>
               <span className="text-slate-700 font-semibold truncate">
                 {activeTab === "queries" ? "Questions" : "Quick Answers"}

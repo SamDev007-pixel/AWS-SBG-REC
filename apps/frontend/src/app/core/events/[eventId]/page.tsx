@@ -29,7 +29,7 @@ import {
   Info,
 } from 'lucide-react';
 import type { EventStatus, EventMode, Announcement } from '@/lib/types';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { getPosterSrcAndPosition, getEventRegistrationCount } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -207,7 +207,10 @@ export default function EventDetailsPage() {
     Array.isArray(announcementsData) ? announcementsData : []
   ) as Announcement[];
   const registrations = registrationsData?.data || [];
-  const totalRegistrations = registrationsData?.total || event?.registrations?.length || 0;
+  const totalRegistrations =
+    typeof registrationsData?.total === 'number'
+      ? registrationsData.total
+      : getEventRegistrationCount(event);
 
   const sc = event ? statusConfig(event.status) : null;
   const mc = event ? modeConfig(event.mode) : null;

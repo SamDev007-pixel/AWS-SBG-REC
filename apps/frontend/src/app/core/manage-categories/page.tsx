@@ -122,20 +122,16 @@ export default function ManageCategoriesPage() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
         backgroundRepeat: 'repeat',
-        backgroundSize: '480px auto',
-        backgroundColor: '#f8fafc',
+        backgroundSize: '450px auto',
         padding: '40px 24px 64px',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
 
-      {/* Background Gradients */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.1)_0%,transparent_50%)]" />
-      </div>
+
 
       {/* TOAST SYSTEM */}
       {toast && (
@@ -156,7 +152,7 @@ export default function ManageCategoriesPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 border-b border-slate-100 pb-8">
           <div>
             <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">AWS Geographic Categories</h1>
-            <p className="text-slate-400 text-[10px] font-medium tracking-[0.05em] uppercase mt-2">Create, modify, order, and archive explorer category filters</p>
+            <p className="text-slate-400 text-[10px] font-medium tracking-normal uppercase mt-2">Create, modify, order, and archive explorer category filters</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -180,7 +176,7 @@ export default function ManageCategoriesPage() {
         {loading && (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <RefreshCw className="animate-spin text-slate-400" size={32} />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Querying categories database...</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-normal">Querying categories database...</p>
           </div>
         )}
 
@@ -205,7 +201,7 @@ export default function ManageCategoriesPage() {
           <div className="py-24 text-center bg-white border border-slate-100 rounded-[2.5rem] shadow-sm">
             <Shield size={48} className="text-slate-200 mx-auto mb-6" />
             <h3 className="text-slate-950 font-black text-xl">Categories Empty</h3>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">No categories present in the database</p>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-normal mt-2">No categories present in the database</p>
           </div>
         )}
 
@@ -214,7 +210,7 @@ export default function ManageCategoriesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] bg-slate-50/80 backdrop-blur-sm select-none">
+                  <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-500 tracking-normal bg-slate-50/80 backdrop-blur-sm select-none">
                     <th className="py-3.5 px-8">Flag</th>
                     <th className="py-3.5 px-6">Name</th>
                     <th className="py-3.5 px-6">Slug ID</th>
@@ -497,7 +493,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
             <h3 className="text-2xl font-semibold text-slate-900 tracking-tight">
               {editingCategory ? `Edit ${editingCategory.name}` : 'Register Category'}
             </h3>
-            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">Configure database category metrics</p>
+            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-normal mt-1">Configure database category metrics</p>
           </div>
           <button
             onClick={onCancel}

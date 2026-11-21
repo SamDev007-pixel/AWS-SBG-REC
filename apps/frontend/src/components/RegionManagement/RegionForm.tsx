@@ -332,7 +332,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       )}
 
       {/* Identification Header */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] pb-2 border-b border-slate-50 uppercase">Identification</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal pb-2 border-b border-slate-50 uppercase">Identification</h4>
 
       <div className="grid grid-cols-2 gap-4">
         {/* AWS Region Code */}
@@ -466,7 +466,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Coordinate metrics */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Geographic Coordinates</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Geographic Coordinates</h4>
 
       <div className="grid grid-cols-3 gap-4">
         {/* Latitude */}
@@ -548,7 +548,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Infrastructure specs */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Infrastructure Specifications</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Infrastructure Specifications</h4>
 
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Infrastructure Description (Max 250)</label>
@@ -621,7 +621,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Service coverage */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Regional Service Statistics</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Regional Service Statistics</h4>
 
       <div className="grid grid-cols-4 gap-4">
         {/* Total Services */}
@@ -678,7 +678,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Connectivity */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Global Connectivity Metric</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Global Connectivity Metric</h4>
 
       <div className="grid grid-cols-2 gap-4">
         {/* Edge Locations */}
@@ -737,7 +737,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Services List Dynamic Collection */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Core Services List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Core Services List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.services.map((service, index) => (
@@ -770,7 +770,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Key Benefits List */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Key Benefits List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Key Benefits List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.benefits.map((benefit, index) => (
@@ -803,7 +803,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* AI Capabilities List */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">AI Capabilities List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">AI Capabilities List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.aiCapabilities.map((cap, index) => (
@@ -836,7 +836,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Top Services List */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Top Services List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Top Services List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.topServices.map((topSvc, index) => (
@@ -869,7 +869,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Workloads List */}
-      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Workloads List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-normal mt-2 pb-2 border-b border-slate-50 uppercase">Workloads List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.workloads.map((workload, index) => (

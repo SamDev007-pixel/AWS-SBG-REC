@@ -135,7 +135,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           {/* Leaderboard Table Container */}
           <div className="w-full border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
             {/* Header Columns (Uppercase, smaller, muted gray) */}
-            <div className="w-full grid grid-cols-[48px_1fr_95px] sm:grid-cols-[65px_1fr_125px] bg-slate-50/70 border-b border-slate-100 py-3 px-3 sm:px-6 text-[9.5px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
+            <div className="w-full grid grid-cols-[48px_1fr_95px] sm:grid-cols-[65px_1fr_125px] bg-slate-50/70 border-b border-slate-100 py-3 px-3 sm:px-6 text-[9.5px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-normal select-none">
               <div className="flex items-center gap-1">
                 <span>Rank</span>
               </div>

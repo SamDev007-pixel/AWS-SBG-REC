@@ -129,7 +129,7 @@ export const GuidelineEditorDrawer: React.FC<GuidelineEditorDrawerProps> = ({
         <div className="relative w-full max-w-md h-full bg-white border-l border-slate-200 flex flex-col shadow-2xl z-10 animate-in slide-in-from-right duration-300">
           {/* Header */}
           <div className="px-6 py-4 border-b border-slate-100 relative flex items-center justify-center lg:justify-between bg-slate-50/50">
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-widest font-heading text-center lg:text-left pr-8 lg:pr-0">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-normal font-heading text-center lg:text-left pr-8 lg:pr-0">
               {guideline ? 'Edit Learning Guideline' : 'Create Learning Guideline'}
             </h2>
             <button

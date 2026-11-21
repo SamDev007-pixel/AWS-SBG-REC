@@ -112,7 +112,7 @@ export default function SuccessPage() {
           {/* Header Accent (Primary dark color) */}
           <div className="bg-[#1A1C1E] text-white p-6 relative">
             <div className="absolute top-0 right-0 w-32 h-full bg-[radial-gradient(circle_at_70%_20%,rgba(255,153,0,0.08)_0%,transparent_60%)] pointer-events-none" />
-            <span className="text-[10px] font-extrabold tracking-widest uppercase text-[#FF9900]">
+            <span className="text-[10px] font-extrabold tracking-normal uppercase text-[#FF9900]">
               Cloud Enthusiasts Success Ticket
             </span>
             <h2 className="font-extrabold text-lg mt-1 font-display line-clamp-1 text-white">

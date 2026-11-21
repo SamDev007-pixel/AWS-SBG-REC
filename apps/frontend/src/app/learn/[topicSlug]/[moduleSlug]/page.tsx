@@ -313,7 +313,7 @@ export default function ModuleLearningPage() {
             <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
             <Icons.Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
           </div>
-          <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading">
+          <span className="text-[10px] text-slate-500 font-bold tracking-normal uppercase animate-pulse font-heading">
             Loading learning path...
           </span>
         </div>

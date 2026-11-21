@@ -158,7 +158,7 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
 
           {/* Center Info Overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Total Passes</span>
+            <span className="text-[9px] text-slate-400 font-bold tracking-normal uppercase mb-0.5">Total Passes</span>
             <span className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums">{total}</span>
           </div>
         </div>

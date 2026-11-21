@@ -80,7 +80,7 @@ export default function MobileSlideEditor({
           </span>
           <div className="flex items-center gap-1.5 text-[10px] font-bold">
             {saveStatus === 'saving' && (
-              <span className="text-[#FF6B00] animate-pulse flex items-center gap-1">
+              <span className="text-[#FF9900] animate-pulse flex items-center gap-1">
                 <Icons.Loader2 className="w-3 h-3 animate-spin" /> saving...
               </span>
             )}

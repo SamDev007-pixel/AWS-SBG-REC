@@ -174,8 +174,8 @@ export default function IncidentReportingPage() {
         {/* Header Row */}
         <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/20 flex items-center justify-center text-[#FF6B00] shrink-0 mt-0.5 sm:mt-0">
-              <AWSSidebarIcon name="incidents" className="w-5 h-5 sm:w-6 sm:h-6 text-[#FF6B00]" />
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FF9900]/10 border border-[#FF9900]/20 flex items-center justify-center text-[#FF9900] shrink-0 mt-0.5 sm:mt-0">
+              <AWSSidebarIcon name="incidents" className="w-5 h-5 sm:w-6 sm:h-6 text-[#FF9900]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -208,7 +208,7 @@ export default function IncidentReportingPage() {
             <div className="flex flex-col flex-1 h-full min-h-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 overflow-y-auto shadow-xs custom-scrollbar">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3.5 shrink-0">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#FF6B00]" />
+                  <FileText className="h-4 w-4 text-[#FF9900]" />
                   <h2 className="text-sm font-bold text-slate-900">Submit New Incident Report</h2>
                 </div>
                 <span className="text-[10px] font-medium text-slate-400">* Required fields</span>
@@ -242,7 +242,7 @@ export default function IncidentReportingPage() {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     placeholder="e.g., Stage mic connectivity issue"
-                    className="w-full bg-slate-50/70 border border-slate-200 rounded-xl text-xs px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all font-medium placeholder:text-slate-400"
+                    className="w-full bg-slate-50/70 border border-slate-200 rounded-xl text-xs px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all font-medium placeholder:text-slate-400"
                   />
                 </div>
 
@@ -272,7 +272,7 @@ export default function IncidentReportingPage() {
                     onChange={(e) => setDescription(e.target.value)}
                     required
                     placeholder="Describe what happened, impact, and immediate action..."
-                    className="w-full flex-1 bg-slate-50/70 border border-slate-200 rounded-xl text-xs p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all resize-none font-medium placeholder:text-slate-400 min-h-[90px]"
+                    className="w-full flex-1 bg-slate-50/70 border border-slate-200 rounded-xl text-xs p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all resize-none font-medium placeholder:text-slate-400 min-h-[90px]"
                   />
                 </div>
 
@@ -299,11 +299,11 @@ export default function IncidentReportingPage() {
                         type="button"
                         disabled={isUploading}
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full border border-dashed border-slate-300 hover:border-[#FF6B00] hover:bg-[#FF6B00]/5 rounded-xl p-2.5 text-center transition-all cursor-pointer flex items-center justify-center gap-2 bg-slate-50/40 text-xs font-semibold text-slate-600 hover:text-[#FF6B00]"
+                        className="w-full border border-dashed border-slate-300 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-xl p-2.5 text-center transition-all cursor-pointer flex items-center justify-center gap-2 bg-slate-50/40 text-xs font-semibold text-slate-600 hover:text-[#FF9900]"
                       >
                         {isUploading ? (
                           <>
-                            <Loader2 size={14} className="animate-spin text-[#FF6B00]" />
+                            <Loader2 size={14} className="animate-spin text-[#FF9900]" />
                             <span>Uploading...</span>
                           </>
                         ) : (
@@ -337,7 +337,7 @@ export default function IncidentReportingPage() {
                       !description.trim() ||
                       isUploading
                     }
-                    className="w-full bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white font-bold rounded-xl py-3 px-4 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+                    className="w-full bg-[#FF9900] hover:bg-[#FF9900]/90 text-white font-bold rounded-xl py-3 px-4 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                   >
                     {createIncidentMutation.isPending ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -405,7 +405,7 @@ export default function IncidentReportingPage() {
                         className="border border-slate-200/90 rounded-xl p-3.5 bg-white hover:border-slate-300 transition-all shadow-2xs space-y-2 group"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#FF6B00] transition-colors line-clamp-1">
+                          <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#FF9900] transition-colors line-clamp-1">
                             {inc.title}
                           </h3>
                           <span

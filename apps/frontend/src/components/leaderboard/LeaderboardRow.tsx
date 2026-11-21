@@ -24,7 +24,7 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
     return (
       <div className="w-full flex items-center py-4 my-2 select-none pointer-events-none px-6">
         <div className="flex-1 border-t border-dashed border-slate-200" />
-        <span className="px-4 text-[9px] uppercase font-bold tracking-[0.25em] text-slate-400 whitespace-nowrap bg-white">
+        <span className="px-4 text-[9px] uppercase font-bold tracking-normal text-slate-400 whitespace-nowrap bg-white">
           Your Position Context
         </span>
         <div className="flex-1 border-t border-dashed border-slate-200" />

@@ -137,7 +137,7 @@ export default function PathwayBuilderPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-career-roles"] });
       toast.success("Role deleted");
-      router.push("/core/certifications?tab=pathways");
+      router.push("/core/career-pathways");
     },
     onError: () => toast.error("Failed to delete role"),
   });
@@ -157,7 +157,7 @@ export default function PathwayBuilderPage({
       <div className="min-h-screen w-full bg-[#F8F9FA] text-[#1A1C1E] py-6 px-4 sm:py-8 sm:px-8">
         <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6">
           <Link
-            href="/core/certifications?tab=pathways"
+            href="/core/career-pathways"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#FF9900] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -179,11 +179,17 @@ export default function PathwayBuilderPage({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
           <div>
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2">
-              <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors font-semibold">Admin</Link>
-              <span className="text-slate-300">/</span>
-              <Link href="/core/certifications?tab=pathways" className="hover:text-[#FF9900] transition-colors font-semibold">Career Pathways</Link>
-            </div>
+            <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-2">
+              <Link 
+                href="/core/career-pathways" 
+                className="hover:text-slate-850 transition-colors flex items-center gap-1 text-[#ff9900] font-semibold"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 text-[#ff9900]" />
+                <span>Career Pathways</span>
+              </Link>
+              <span className="text-slate-300 font-normal">/</span>
+              <span className="text-slate-400 font-normal">{role.name}</span>
+            </nav>
             
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight m-0">
@@ -443,7 +449,7 @@ export default function PathwayBuilderPage({
                         <h4 className="text-[12px] font-bold text-slate-800 tracking-tight leading-snug line-clamp-2 min-h-[32px]">
                           {cert.title.replace("AWS Certified ", "")}
                         </h4>
-                        <p className={cn("text-[9px] font-black tracking-widest mt-1 uppercase", textClass)}>
+                        <p className={cn("text-[9px] font-black tracking-normal mt-1 uppercase", textClass)}>
                           {lvlName}
                         </p>
                       </div>

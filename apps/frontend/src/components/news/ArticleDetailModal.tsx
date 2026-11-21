@@ -109,7 +109,7 @@ export function ArticleDetailModal({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-4 backdrop-blur-xl sm:px-7">
           <div>
-            <p className="brand-note-text text-xs uppercase tracking-[0.08em]">
+            <p className="brand-note-text text-xs uppercase tracking-normal">
               Article Reader
             </p>
           </div>
@@ -160,7 +160,7 @@ export function ArticleDetailModal({
                 </div>
 
                 <div className="mt-6 w-full" style={{ width: "100%", maxWidth: "100%" }}>
-                  <span className="inline-flex rounded-full bg-foreground px-3 py-1 text-xs font-semibold uppercase tracking-[0.06em] text-background">
+                  <span className="inline-flex rounded-full bg-foreground px-3 py-1 text-xs font-semibold uppercase tracking-normal text-background">
                     {getCategoryLabel(article.category)}
                   </span>
                   <h1
@@ -169,7 +169,7 @@ export function ArticleDetailModal({
                   >
                     {article.title}
                   </h1>
-                  <p className="mt-4 text-sm font-semibold uppercase tracking-[0.06em] text-muted">
+                  <p className="mt-4 text-sm font-semibold uppercase tracking-normal text-muted">
                     {article.sourceName} -{' '}
                     {formatPublishedDate(article.publishedAt)}
                   </p>
@@ -185,7 +185,7 @@ export function ArticleDetailModal({
                       id="article-detail-summary"
                       className="mt-8 border-l-4 border-[#FF9900] bg-slate-50 p-5 pl-6 rounded-r-[var(--radius-lg)]"
                     >
-                      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                      <p className="text-xs font-semibold uppercase tracking-normal text-muted">
                         AI Summary
                       </p>
                       <p className="mt-2.5 font-display text-lg leading-8 text-foreground">

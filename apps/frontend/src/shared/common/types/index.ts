@@ -96,6 +96,9 @@ export interface Event {
     registrations?: number;
     [key: string]: number | undefined;
   };
+  attendeeCount?: number;
+  registeredCount?: number;
+  registered?: number;
 }
 
 export interface EventAgenda {

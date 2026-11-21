@@ -48,7 +48,7 @@ export const QuizEntry: React.FC<QuizEntryProps> = ({
     >
       <div className="space-y-4 flex-1">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 font-heading">
+          <h3 className="text-xs font-black text-slate-500 uppercase tracking-normal flex items-center gap-1.5 font-heading">
             <Icons.ShieldQuestion className="w-4 h-4 text-blue-500" />
             Architecture Validation
           </h3>

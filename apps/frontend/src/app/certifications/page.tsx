@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect, Suspense } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { certificationsService, careerPathwaysService } from "@/services/api";
 import { CertificationListItem, LearnerPathwayDetail } from "@/lib/types";
@@ -402,7 +402,7 @@ function RoleSection({
                         <span className="text-[9px] sm:text-[10px] md:text-[11px] font-bold text-slate-800 leading-snug line-clamp-2 min-h-[28px] sm:min-h-[32px] flex items-center justify-center">
                           {shortenName(cert.title)}
                         </span>
-                        <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest" style={{ color: tierColor }}>
+                        <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-normal" style={{ color: tierColor }}>
                           {getTierLabel(cert.level.name)}
                         </span>
                       </div>
@@ -705,7 +705,7 @@ function CertCard({ cert }: { cert: CertificationListItem }) {
           <div>
             {domains.length > 0 && (
               <>
-                <div className="text-[9px] font-extrabold text-slate-400 tracking-widest uppercase mb-3">
+                <div className="text-[9px] font-extrabold text-slate-400 tracking-normal uppercase mb-3">
                   EXAM DOMAINS
                 </div>
 
@@ -766,8 +766,16 @@ function CertificationsPageContent() {
     queryFn: careerPathwaysService.list,
   });
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const levelParam = searchParams.get("level");
+  const tabParam = searchParams.get("tab");
+
+  useEffect(() => {
+    if (tabParam === "pathways") {
+      router.replace("/career-pathways");
+    }
+  }, [tabParam, router]);
 
   const [selectedLevel, setSelectedLevel] = useState("All");
 
@@ -876,50 +884,38 @@ function CertificationsPageContent() {
           <div className="max-w-4xl">
             {/* Breadcrumb Path */}
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2">
-              <span className="hover:text-[#FF6B00] transition-colors font-semibold">AWS SBG REC</span>
+              <span className="hover:text-[#FF9900] transition-colors font-semibold">AWS SBG REC</span>
               <span className="text-slate-300">/</span>
-              <span className="text-[#FF6B00] font-semibold">Certifications Directory</span>
+              <span className="text-[#FF9900] font-semibold">Certifications Directory</span>
             </div>
             
             <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl">
-              {activeTab === "certifications" ? "All AWS Certifications" : "AWS Career Pathways"}
+              All AWS Certifications
             </p>
             
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              {activeTab === "certifications"
-                ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
-                : "See how AWS certifications stack up to guide your path to high-demand cloud roles."}
+              Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more.
             </p>
           </div>
 
-          {/* Custom Tab Switcher (Standard Core Layout) */}
+          {/* Dedicated Tab Switcher */}
           <div className="shrink-0">
             <div className="inline-flex items-center gap-1 bg-slate-100/80 p-1 rounded-[6px] border border-slate-200">
               <button
-                onClick={() => setActiveTab("certifications")}
-                className={cn(
-                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
-                  activeTab === "certifications"
-                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
-                    : "text-slate-500 hover:text-slate-800 font-medium"
-                )}
+                type="button"
+                className="flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all select-none bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80 cursor-default"
               >
-                <GraduationCap className={cn("h-4 w-4", activeTab === "certifications" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <GraduationCap className="h-4 w-4 text-[#FF9900]" />
                 <span>AWS Certifications</span>
               </button>
               
-              <button
-                onClick={() => setActiveTab("pathways")}
-                className={cn(
-                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
-                  activeTab === "pathways"
-                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
-                    : "text-slate-500 hover:text-slate-800 font-medium"
-                )}
+              <Link
+                href="/career-pathways"
+                className="flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none text-slate-500 hover:text-slate-800 font-medium"
               >
-                <BriefcaseBusiness className={cn("h-4 w-4", activeTab === "pathways" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <BriefcaseBusiness className="h-4 w-4 text-slate-400" />
                 <span>Career Pathways</span>
-              </button>
+              </Link>
             </div>
           </div>
         </header>

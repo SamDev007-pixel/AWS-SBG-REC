@@ -7,7 +7,7 @@ function NewCareerRoleRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/core/certifications?tab=pathways&new=true");
+    router.replace("/core/career-pathways?new=true");
   }, [router]);
 
   return null;

@@ -601,7 +601,7 @@ export default function LearnPage() {
               <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
               <Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
             </div>
-            <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading">
+            <span className="text-[10px] text-slate-500 font-bold tracking-normal uppercase animate-pulse font-heading">
               Loading Learning Tracks...
             </span>
           </div>
@@ -700,7 +700,7 @@ export default function LearnPage() {
                     className="flex items-start sm:items-center gap-3 sm:gap-4 w-full md:w-auto min-w-0"
                   >
                     <div className="flex flex-col text-slate-800 min-w-0 flex-1">
-                      <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-heading">
+                      <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-normal block font-heading">
                         CONTINUE YOUR JOURNEY
                       </span>
                       <span className="text-sm sm:text-base font-black text-slate-900 block leading-snug font-heading mt-0.5 break-words whitespace-normal [text-wrap:balance]">
@@ -892,7 +892,7 @@ export default function LearnPage() {
                           className="w-full"
                         >
                           {isFirstLocked && (
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-heading mt-6 mb-3 self-start pl-2">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-normal block font-heading mt-6 mb-3 self-start pl-2">
                               UPCOMING TOPICS
                             </span>
                           )}
@@ -915,7 +915,7 @@ export default function LearnPage() {
                                   <div className="flex justify-between items-start gap-4">
                                     <div className="flex-1">
                                       <span className={cn(
-                                        "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
+                                        "inline-block text-[9px] font-bold uppercase tracking-normal px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
                                         topic.id === animatingTopicId && isArrowSuccessVisual
                                           ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
                                           : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
@@ -1145,7 +1145,7 @@ export default function LearnPage() {
                                   animate={{ clipPath: "inset(0 0 0 0)" }}
                                   exit={{ clipPath: "inset(0 0 0 100%)" }}
                                   transition={{ duration: 0.8, ease: "easeInOut" }}
-                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block font-heading whitespace-nowrap"
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-normal text-slate-400 block font-heading whitespace-nowrap"
                                 >
                                   Current Topic Focus
                                 </motion.span>
@@ -1155,7 +1155,7 @@ export default function LearnPage() {
                                   initial={{ clipPath: "inset(0 100% 0 0)" }}
                                   animate={{ clipPath: "inset(0 0 0 0)" }}
                                   transition={{ duration: 0.8, ease: "easeInOut" }}
-                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 block font-heading whitespace-nowrap"
+                                  className="absolute left-0 top-0 text-[9px] font-extrabold uppercase tracking-normal text-emerald-600 block font-heading whitespace-nowrap"
                                 >
                                   Completed
                                 </motion.span>

@@ -4,12 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Sidebar, { type NavItem, type SidebarUser } from "./Sidebar";
+import Sidebar, { type NavItem, type SidebarUser, SIDEBAR_OPEN_W, SIDEBAR_COLLAPSED_W } from "./Sidebar";
 import { clearSessionCache } from "./AuthWrapper";
 
-const SIDEBAR_OPEN_W = 240;
-const SIDEBAR_COLLAPSED_W = 72;
 const MOBILE_BREAKPOINT = 768;
+const SIDEBAR_STORAGE_KEY = 'aws_sbg_sidebar_open';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
@@ -40,6 +39,35 @@ export default function SidebarLayout({
   const pathname = usePathname();
   const router = useRouter();
 
+  // Load persisted minimized/expanded preference on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (stored !== null) {
+        setIsOpen(stored === 'true');
+      }
+    } catch {}
+  }, []);
+
+  // Listen for storage / custom event changes across layouts or tabs
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+        if (stored !== null) {
+          setIsOpen(stored === 'true');
+        }
+      } catch {}
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('aws_sbg_sidebar_toggle', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('aws_sbg_sidebar_toggle', handleSync);
+    };
+  }, []);
+
   // Single resize listener — shared between sidebar state concerns
   useEffect(() => {
     const onResize = () => {
@@ -52,14 +80,32 @@ export default function SidebarLayout({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Automatically collapse sidebar when navigating to the OD Generator page
+  // Automatically collapse sidebar on OD Generator, or restore user preference on route changes
   useEffect(() => {
     if (pathname && pathname.includes('/core/attendance/od-generator')) {
       setIsOpen(false);
+    } else {
+      try {
+        const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+        if (stored !== null) {
+          setIsOpen(stored === 'true');
+        }
+      } catch {}
     }
     // Always ensure mobile sidebar closes whenever the route/pathname changes
     setIsMobileOpen(false);
   }, [pathname]);
+
+  const handleToggle = useCallback(() => {
+    setIsOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+        window.dispatchEvent(new Event('aws_sbg_sidebar_toggle'));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const handleSignOut = useCallback(() => {
     setIsMobileOpen(false);
@@ -196,7 +242,7 @@ export default function SidebarLayout({
           isOpen={isOpen}
           isMobile={isMobile}
           isMobileOpen={isMobileOpen}
-          onToggle={() => setIsOpen((v) => !v)}
+          onToggle={handleToggle}
           onMobileClose={() => setIsMobileOpen(false)}
           currentPath={pathname}
           onNavigate={handleNavigate}

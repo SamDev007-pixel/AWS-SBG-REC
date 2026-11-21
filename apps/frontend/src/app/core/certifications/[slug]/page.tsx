@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { certificationsService } from "@/services/certifications";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -71,6 +71,8 @@ export default function CertificationDetailPage({
 }) {
   const { slug } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPathways = searchParams?.get("from") === "pathways";
   const queryClient = useQueryClient();
   const [addDomainOpen, setAddDomainOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -133,11 +135,11 @@ export default function CertificationDetailPage({
     return (
       <div>
         <Link
-          href="/core/certifications"
+          href={fromPathways ? "/core/career-pathways" : "/core/certifications"}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
         >
           <ArrowLeft className="mr-1.5 h-4 w-4" />
-          Back to Certifications
+          {fromPathways ? "Back to Career Pathways" : "Back to Certifications"}
         </Link>
         <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive font-medium">
           Failed to load certification details.
@@ -158,28 +160,35 @@ export default function CertificationDetailPage({
   const config = levelBadgeConfig[levelName] ?? levelBadgeConfig.Foundational;
 
   return (
-    <div className="bg-slate-50/30 min-h-screen pb-24">
-      {/* Header Navigation Bar - Simple & Dedicated */}
-      <header className="bg-white border-b border-slate-200/80 py-4 shadow-sm sm:sticky sm:top-0 sm:z-30 px-4 sm:px-10 lg:px-14">
-        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+    <div 
+      className="min-h-screen pb-24 antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '450px auto',
+      }}
+    >
+      <div className="w-full px-4 sm:px-10 lg:px-14 pt-4 sm:pt-8 flex flex-col gap-6">
+        {/* Header Section - Seamlessly Integrated without harsh full-bleed separation line */}
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           
           {/* Breadcrumbs & Title Stack */}
           <div className="flex flex-col gap-1 min-w-0">
             {/* Breadcrumbs */}
             <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
               <Link 
-                href={`/core/certifications?level=${levelName.toLowerCase()}`}
-                className="hover:text-slate-850 transition-colors flex items-center gap-1 text-[#ff9900] font-semibold"
+                href={fromPathways ? "/core/career-pathways" : `/core/certifications?level=${levelName.toLowerCase()}`}
+                className="hover:text-slate-850 transition-colors flex items-center gap-1.5 text-[#ff9900] font-semibold"
               >
                 <ArrowLeft className="h-3.5 w-3.5 text-[#ff9900]" />
-                <span>Certifications</span>
+                <span>{fromPathways ? "Career Pathways" : "Certifications"}</span>
               </Link>
               <span className="text-slate-300 font-normal">/</span>
               <span className="text-slate-400 font-normal">{levelName}</span>
             </nav>
 
             <div className="flex items-center mt-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-snug sm:truncate">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug sm:truncate">
                 {certification.title}
               </h1>
             </div>
@@ -187,10 +196,10 @@ export default function CertificationDetailPage({
 
           {/* Level Badges, Code & Actions */}
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
-            <Badge variant="outline" className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-[4px] uppercase border", config.badgeClass)}>
+            <Badge variant="outline" className={cn("text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-[4px] uppercase border", config.badgeClass)}>
               {levelName}
             </Badge>
-            <span className="text-[10px] text-slate-500 font-mono tracking-wider font-bold bg-slate-100 border border-slate-200/80 rounded-[4px] px-1.5 py-0.5 shadow-sm">
+            <span className="text-[10px] text-slate-500 font-mono tracking-wider font-bold bg-white/90 border border-slate-200/80 rounded-[4px] px-2 py-0.5 shadow-2xs">
               {certification.examCode}
             </span>
 
@@ -200,7 +209,7 @@ export default function CertificationDetailPage({
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:text-slate-800 font-semibold cursor-pointer h-8 rounded-[8px] text-xs"
+                className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:text-slate-800 font-semibold cursor-pointer h-8 rounded-[8px] text-xs shadow-2xs"
                 onClick={() => setEditOpen(true)}
               >
                 <Pencil className="mr-1.5 h-3.5 w-3.5" />
@@ -209,7 +218,7 @@ export default function CertificationDetailPage({
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-red-50 hover:bg-red-100 text-red-600 border-red-100 hover:text-red-750 font-semibold cursor-pointer h-8 rounded-[8px] text-xs"
+                className="bg-red-50 hover:bg-red-100 text-red-600 border-red-100 hover:text-red-750 font-semibold cursor-pointer h-8 rounded-[8px] text-xs shadow-2xs"
                 onClick={() => setDeleteOpen(true)}
               >
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" />
@@ -218,11 +227,10 @@ export default function CertificationDetailPage({
             </div>
           </div>
 
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content Area */}
-      <main className="w-full px-4 sm:px-10 lg:px-14 py-6 sm:py-8">
+        {/* Main Content Area */}
+        <main className="w-full">
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 items-start">
           
           {/* Left Column: Domains list (Width: 9/12) */}
@@ -285,7 +293,7 @@ export default function CertificationDetailPage({
                   <GraduationCap className="h-16 w-16 text-slate-300" />
                 )}
               </div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1">
                 AWS Certified
               </span>
               <span className="text-[11px] font-extrabold text-slate-850 tracking-tight leading-snug max-w-[180px]">
@@ -312,6 +320,7 @@ export default function CertificationDetailPage({
 
         </div>
       </main>
+      </div>
 
       {/* Add Domain Dialog */}
       <DomainFormDialog

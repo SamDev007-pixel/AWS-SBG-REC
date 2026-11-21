@@ -61,9 +61,9 @@ export default function CustomSelect({
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'w-full bg-slate-50/70 border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/20 focus:border-[#FF6B00] transition-all font-medium flex items-center justify-between text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+          'w-full bg-slate-50/70 border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all font-medium flex items-center justify-between text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
           sizeClasses[size],
-          isOpen && 'border-[#FF6B00] ring-2 ring-[#FF6B00]/20 bg-white shadow-2xs',
+          isOpen && 'border-[#FF9900] ring-2 ring-[#FF9900]/20 bg-white shadow-2xs',
           triggerClassName
         )}
       >
@@ -73,7 +73,7 @@ export default function CustomSelect({
         <ChevronDown
           className={cn(
             'w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2',
-            isOpen && 'rotate-180 text-[#FF6B00]'
+            isOpen && 'rotate-180 text-[#FF9900]'
           )}
         />
       </button>
@@ -106,12 +106,12 @@ export default function CustomSelect({
                   className={cn(
                     'w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed',
                     isSelected
-                      ? 'bg-[#FF6B00]/10 text-[#FF6B00] font-bold'
+                      ? 'bg-[#FF9900]/10 text-[#FF9900] font-bold'
                       : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                   )}
                 >
                   <span className="truncate">{opt.label}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-[#FF6B00] shrink-0 ml-2 stroke-[2.5]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[#FF9900] shrink-0 ml-2 stroke-[2.5]" />}
                 </button>
               );
             })

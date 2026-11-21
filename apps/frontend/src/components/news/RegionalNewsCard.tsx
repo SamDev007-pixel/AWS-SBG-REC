@@ -26,7 +26,7 @@ export default function RegionalNewsCard({ news, minimal = false }: RegionalNews
     return (
       <div className="bg-white border border-slate-100 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer">
         <div className="flex items-center justify-between mb-2">
-          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${tagStyle}`}>{news.category}</span>
+          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-normal ${tagStyle}`}>{news.category}</span>
           <span className="text-[9px] text-slate-400 font-bold">{news.date}</span>
         </div>
         <h4 className="text-xs font-black text-slate-800 line-clamp-1">{news.title}</h4>
@@ -44,7 +44,7 @@ export default function RegionalNewsCard({ news, minimal = false }: RegionalNews
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF9900]/5 to-transparent rounded-full -mr-10 -mt-10 blur-2xl group-hover:from-[#FF9900]/10" />
  
       <div className="flex justify-between items-start mb-4 relative z-10">
-        <span className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[10px] font-black tracking-widest uppercase transition-colors ${tagStyle}`}>
+        <span className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[10px] font-black tracking-normal uppercase transition-colors ${tagStyle}`}>
           <Tag size={12} />
           {news.category}
         </span>
@@ -65,14 +65,14 @@ export default function RegionalNewsCard({ news, minimal = false }: RegionalNews
       <div className="flex items-center justify-between mt-auto pt-5 border-t border-slate-100/50 relative z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-2.5 h-2.5 rounded-full bg-[#FF9900] shadow-[0_0_10px_#FF9900]" />
-          <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Official Update</span>
+          <span className="text-[10px] uppercase tracking-normal text-slate-500 font-black">Official Update</span>
         </div>
         
         <a 
           href={news.link} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-[#1A1C1E] text-white px-4 py-2 rounded-xl text-[10px] font-black hover:bg-[#0073BB] transition-all uppercase tracking-widest shadow-lg shadow-[#1A1C1E]/10"
+          className="flex items-center gap-2 bg-[#1A1C1E] text-white px-4 py-2 rounded-xl text-[10px] font-black hover:bg-[#0073BB] transition-all uppercase tracking-normal shadow-lg shadow-[#1A1C1E]/10"
         >
           Explore <ArrowRight size={14} />
         </a>

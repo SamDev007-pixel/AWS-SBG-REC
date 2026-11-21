@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Server, Cloud, Trophy, Brain, Cpu, Database, 
-  Network, ArrowUpRight, CheckCircle2, Shield, MapPin, Calendar, HelpCircle, ChevronLeft, Layers
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ChevronRight, ArrowUpRight } from 'lucide-react';
 import { AWSRegionData } from '@/lib/api';
 import FlagImage from '../Layout/FlagImage';
 
@@ -14,450 +11,473 @@ interface IntelligenceDashboardProps {
   onBack: () => void;
 }
 
-// 16 AWS Regions Specific Metric Data
-interface RegionalSpecification {
-  zones: number;
-  launchYear: number;
-  primaryLocation: string;
-  compliance: string;
-  totalServices: string;
-  aimlServices: string;
-  analyticsServices: string;
-  networkingServices: string;
-  edgeLocations: string;
-  directConnect: string;
-  reach: string;
-  latency: string;
-}
-
-// Specifications are now resolved dynamically from the normalized Region database object.
-
-
-// Simple and Professional Flat Data Card Component (Mobile/Tablet only)
-function PremiumDataCard({ 
-  icon, 
-  title, 
-  frontContent, 
-  backContent,
-  accentColor = "#0073BB"
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  frontContent: React.ReactNode; 
-  backContent: React.ReactNode;
-  accentColor?: string;
-}) {
-  return (
-    <div className="w-full rounded-2xl bg-white border border-slate-200/60 flex flex-col shadow-xs overflow-hidden transition-all duration-200 relative">
-      {/* Top color strip */}
-      <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
-      
-      {/* Card Header */}
-      <div className="p-5 pb-3.5 border-b border-slate-100 flex items-center gap-3.5 mt-1">
-        <div className="p-2.5 rounded-xl border border-slate-100 bg-slate-50/50" style={{ color: accentColor }}>
-          {icon}
-        </div>
-        <h3 className="text-[16px] font-bold text-slate-800 tracking-tight leading-tight">{title}</h3>
-      </div>
-
-      {/* Card Body */}
-      <div className="p-5 flex flex-col gap-4">
-        {/* Core Metrics */}
-        <div className="flex flex-col gap-2">
-          {frontContent}
-        </div>
-
-        {/* Muted divider */}
-        <div className="h-px bg-slate-100 w-full" />
-
-        {/* Detailed context */}
-        <div className="text-[13px] text-slate-600 leading-relaxed">
-          {backContent}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Interactive 3D Flip Card Component (Desktop only)
-function PremiumFlipCard({ 
-  frontIcon, 
-  frontTitle, 
-  frontContent, 
-  backContent,
-  accentColor = "#0073BB"
-}: { 
-  frontIcon: React.ReactNode; 
-  frontTitle: string; 
-  frontContent: React.ReactNode; 
-  backContent: React.ReactNode;
-  accentColor?: string;
-}) {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  return (
-    <div 
-      className="w-full h-[360px] relative perspective-1000 cursor-pointer select-none"
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
-      onClick={() => setIsFlipped(!isFlipped)}
-    >
-      <motion.div
-        className="w-full h-full transform-style-3d relative rounded-2xl"
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ type: "spring", stiffness: 120, damping: 16 }}
-      >
-        {/* FRONT SIDE */}
-        <div className="absolute inset-0 backface-hidden w-full h-full rounded-2xl bg-white border border-slate-100/80 p-6 flex flex-col shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-          {/* Top color strip */}
-          <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: accentColor }} />
-          
-          {/* Icon row */}
-          <div className="flex items-center gap-4 mb-4.5 mt-1">
-            <div className="p-3 rounded-xl border border-slate-100 bg-slate-50" style={{ color: accentColor }}>
-              {frontIcon}
-            </div>
-            <h3 className="text-[18px] font-bold text-slate-800 tracking-tight leading-tight">{frontTitle}</h3>
-          </div>
-
-          {/* Data rows */}
-          <div className="flex flex-col gap-3">
-            {frontContent}
-          </div>
-
-          {/* Subtle flip hint */}
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 mt-auto mb-0.5 select-none">
-            <ArrowUpRight size={13} style={{ color: accentColor }} />
-            <span>Hover to see details</span>
-          </div>
-        </div>
-
-        {/* BACK SIDE */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full rounded-2xl border border-slate-100 backdrop-blur-xl p-6 flex flex-col gap-4 shadow-sm overflow-hidden" style={{ background: `linear-gradient(135deg, white 0%, ${accentColor}08 100%)` }}>
-          {/* Top color strip */}
-          <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: accentColor }} />
-
-          <div className="flex items-center gap-3 pb-3 border-b border-slate-100/80 mt-1">
-            <div className="p-2.5 rounded-xl" style={{ color: accentColor, backgroundColor: `${accentColor}12` }}>
-              {frontIcon}
-            </div>
-            <h4 className="text-[15.5px] font-bold tracking-tight" style={{ color: accentColor }}>{frontTitle}</h4>
-          </div>
-
-          <div className="flex-grow text-xs text-slate-650 leading-relaxed overflow-y-auto premium-scrollbar pr-1">
-            {backContent}
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// Responsive Wrapper Card
-function ResponsiveDataCard({
-  accentColor,
-  icon,
-  title,
-  frontContent,
-  backContent,
-  isDesktop
-}: {
-  accentColor: string;
-  icon: React.ReactNode;
-  title: string;
-  frontContent: React.ReactNode;
-  backContent: React.ReactNode;
-  isDesktop: boolean;
-}) {
-  if (isDesktop) {
-    return (
-      <PremiumFlipCard
-        accentColor={accentColor}
-        frontIcon={icon}
-        frontTitle={title}
-        frontContent={frontContent}
-        backContent={backContent}
-      />
-    );
-  }
-  return (
-    <PremiumDataCard
-      accentColor={accentColor}
-      icon={icon}
-      title={title}
-      frontContent={frontContent}
-      backContent={backContent}
-    />
-  );
-}
-
 export default function IntelligenceDashboard({ region, onBack }: IntelligenceDashboardProps) {
-  const [isDesktop, setIsDesktop] = useState(true);
+  const [activeTab, setActiveTab] = useState<'infrastructure' | 'services' | 'compliance'>('infrastructure');
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Extract compliance list from database field
+  const complianceBadges = region.compliance
+    ? region.compliance.split(',').map(c => c.trim()).filter(Boolean)
+    : [];
 
-  // Use specifications resolved dynamically from the region payload
-  const spec = {
-    zones: region.availabilityZones,
-    launchYear: region.launchYear,
-    primaryLocation: region.primaryLocation,
-    compliance: region.compliance,
-    totalServices: region.totalServices,
-    aimlServices: region.aimlServices,
-    analyticsServices: region.analyticsServices,
-    networkingServices: region.networkingServices,
-    edgeLocations: region.edgeLocations,
-    directConnect: region.directConnect,
-    reach: region.reach,
-    latency: region.latency
-  };
+  const topServices = region.topServices || [];
+  const aiCapabilities = region.aiCapabilities || [];
+  const workloads = region.workloads || [];
+  const benefits = region.benefits || [];
+  const regionalServices = region.services || [];
 
   return (
-    <div className="relative w-full h-auto lg:h-screen text-slate-800 font-jakarta overflow-visible lg:overflow-hidden bg-slate-50/60 flex flex-col">
-
-      {/* 1. LIGHT CLOUD BACKGROUND SYSTEMS */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Soft, modern gradient background */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `
-              linear-gradient(135deg, rgba(255, 153, 0, 0.04) 0%, rgba(0, 115, 187, 0.03) 100%),
-              radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.08) 0%, rgba(0, 115, 187, 0.04) 35%, transparent 65%),
-              #FFFFFF
-            `
-          }}
-        />
-
-        {/* Soft blur light blobs */}
-        <div className="absolute top-[10%] left-[15%] w-[450px] h-[450px] rounded-full bg-orange-400/3 blur-[100px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[550px] h-[550px] rounded-full bg-blue-400/4 blur-[120px]" />
-      </div>
-
-      {/* VIEWPORT-CONTAINED DASHBOARD WRAPPER */}
-      <div className="pt-4 lg:pt-6 pb-4 lg:pb-8 px-4 sm:px-12 w-full flex flex-col items-center justify-start relative z-10 flex-grow h-auto lg:h-full overflow-visible lg:overflow-y-auto premium-scrollbar">
-        <div className="max-w-[1300px] w-full flex flex-col items-center gap-4 lg:gap-8 py-0 lg:py-4 relative">
-          
-          {/* Left Aligned Breadcrumb */}
-          <div className="w-full flex justify-start mb-0">
+    <div className="w-full min-h-screen text-slate-900 font-sans bg-[#F9FAFB] pb-16">
+      
+      {/* ── Top Navigation Bar ── */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-xs active:scale-95 text-[10px] font-bold uppercase tracking-wider select-none outline-none group"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors cursor-pointer"
             >
-              <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-200 text-slate-500 group-hover:text-slate-800" />
+              <ArrowLeft size={13} className="text-slate-500" />
               <span>Back to Services</span>
+            </button>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+            <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 select-none">
+              <span className="font-semibold text-slate-700">AWS Infrastructure</span>
+              <span className="text-slate-300">/</span>
+              <span>{region.category || 'Global'}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-900 font-semibold">{region.name}</span>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              Active (GA)
+            </span>
+            <span className="px-2 py-0.5 rounded-[4px] bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono font-medium">
+              {region.code || region.id}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex flex-col gap-6">
+
+        {/* ── Hero Region Profile Header ── */}
+        <section className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-start sm:items-center gap-4">
+            <FlagImage
+              flag={region.flagUrl || region.flag}
+              name={region.name}
+              className="w-[58px] h-[38px] sm:w-[64px] sm:h-[42px] rounded-none border border-slate-300 shadow-2xs shrink-0"
+              imgClassName="w-full h-full object-cover rounded-none"
+            />
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-slate-900 m-0">
+                  {region.name}
+                </h1>
+                <span className="px-2 py-0.5 text-xs font-mono font-medium bg-slate-100 text-slate-700 rounded-[4px] border border-slate-200">
+                  {region.code || region.id}
+                </span>
+                {region.category && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-[4px] border border-slate-200">
+                    {region.category}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+                {region.primaryLocation && (
+                  <span>Primary Location: <strong className="text-slate-900 font-medium">{region.primaryLocation}</strong></span>
+                )}
+                {region.launchYear && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span>Launched: <strong className="text-slate-900 font-medium">{region.launchYear}</strong></span>
+                  </>
+                )}
+                {region.compliance && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span>Compliance: <strong className="text-slate-900 font-medium">{region.compliance}</strong></span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Core KPI Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+            <div className="flex flex-col items-center justify-center px-4 py-2.5 rounded-[4px] bg-slate-50 border border-slate-200 min-w-[95px] text-center">
+              <span className="text-[11px] font-medium text-slate-500">Availability</span>
+              <span className="text-base font-semibold text-slate-900">{region.availabilityZones || 3} AZs</span>
+            </div>
+            <div className="flex flex-col items-center justify-center px-4 py-2.5 rounded-[4px] bg-slate-50 border border-slate-200 min-w-[95px] text-center">
+              <span className="text-[11px] font-medium text-slate-500">Services</span>
+              <span className="text-base font-semibold text-slate-900">{region.totalServices || "Standard"}</span>
+            </div>
+            <div className="flex flex-col items-center justify-center px-4 py-2.5 rounded-[4px] bg-slate-50 border border-slate-200 min-w-[95px] text-center">
+              <span className="text-[11px] font-medium text-slate-500">Edge PoPs</span>
+              <span className="text-base font-semibold text-slate-900">{region.edgeLocations || "Local"}</span>
+            </div>
+            <div className="flex flex-col items-center justify-center px-4 py-2.5 rounded-[4px] bg-slate-50 border border-slate-200 min-w-[95px] text-center">
+              <span className="text-[11px] font-medium text-slate-500">Direct Connect</span>
+              <span className="text-base font-semibold text-slate-900">{region.directConnect || "Available"}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Segmented Navigation Tabs ── */}
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+          <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-[4px] border border-slate-200">
+            <button
+              onClick={() => setActiveTab('infrastructure')}
+              className={`px-3.5 py-1.5 rounded-[3px] text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'infrastructure'
+                  ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Infrastructure Specifications
+            </button>
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`px-3.5 py-1.5 rounded-[3px] text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'services'
+                  ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Services & AI Capabilities
+            </button>
+            <button
+              onClick={() => setActiveTab('compliance')}
+              className={`px-3.5 py-1.5 rounded-[3px] text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'compliance'
+                  ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Connectivity & Compliance
             </button>
           </div>
 
-          {/* HERO PROFILE SECTION */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center text-center animate-fade-in"
-          >
-
-            {/* Flag */}
-            <div className="w-16 h-16 bg-white rounded-2xl border border-slate-200/60 flex items-center justify-center mb-1.5 shadow-sm overflow-hidden">
-              <FlagImage flag={region.flagUrl || region.flag} name={region.name} className="w-11 h-8 object-contain" />
-            </div>
-
-            {/* Region Title */}
-            <h1 className="text-[34px] font-extrabold tracking-tight text-slate-900 mb-1.5 leading-tight">
-              {region.name}
-            </h1>
-
-            {/* Profile Tag */}
-            <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200/50 px-3.5 py-1.5 rounded-xl shadow-xs">
-              <Shield size={12.5} className="text-[#0073BB]" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                Region Intelligence Profile
-              </span>
-            </div>
-          </motion.div>
-
-          {/* 3 INTERACTIVE FLIP CARDS GRID */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full"
-          >
-            
-            {/* CARD 1: Infrastructure Overview */}
-            <ResponsiveDataCard
-              isDesktop={isDesktop}
-              accentColor="#FF9900"
-              icon={<Server size={20} />}
-              title="Infrastructure Overview"
-              frontContent={
-                <>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Availability Zones</span>
-                    <span className="text-amber-600 font-bold text-[15.5px]">{spec.zones}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Launch Year</span>
-                    <span className="text-amber-600 font-bold text-[15.5px]">{spec.launchYear}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Primary Location</span>
-                    <span className="text-slate-800 font-bold text-[15.5px] truncate max-w-[150px]">{spec.primaryLocation}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Compliance Focus</span>
-                    <span className="text-slate-800 font-bold text-[15.5px] truncate max-w-[150px]">{spec.compliance.split(",")[0] || "Global Standard"}</span>
-                  </div>
-                </>
-              }
-              backContent={
-                <div className="flex flex-col gap-4">
-                  <div className="p-3.5 rounded-xl bg-orange-500/5 border border-orange-500/10 flex flex-col gap-1">
-                    <span className="text-[11px] text-orange-600 font-black uppercase tracking-wider">Region Strength</span>
-                    <p className="text-[13px] text-slate-700 leading-relaxed font-medium">{region.infrastructure}</p>
-                  </div>
-                  <div className="flex flex-col gap-2.5 pt-1">
-                    <div className="flex justify-between border-b border-slate-100 pb-2 text-[14px]">
-                      <span className="text-slate-500 font-semibold">Residency:</span>
-                      <span className="text-slate-800 font-bold">Local Sovereignty</span>
-                    </div>
-                    <div className="flex justify-between text-[14px]">
-                      <span className="text-slate-500 font-semibold">Audited Standards:</span>
-                      <span className="text-slate-800 font-bold text-right truncate max-w-[180px]">
-                        {spec.compliance}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-[11.5px] text-slate-400 italic mt-1 font-medium leading-relaxed">
-                    Designed to comply with local regulatory frameworks (HIPAA, GDPR, or PoPIA).
-                  </div>
-                </div>
-              }
-            />
-
-            {/* CARD 2: Regional Service Coverage */}
-            <ResponsiveDataCard
-              isDesktop={isDesktop}
-              accentColor="#0073BB"
-              icon={<Layers size={20} />}
-              title="Regional Service Coverage"
-              frontContent={
-                <>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">AWS Services Available</span>
-                    <span className="text-[#0073BB] font-bold text-[15.5px]">{spec.totalServices}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">AI/ML Services</span>
-                    <span className="text-[#0073BB] font-bold text-[15.5px]">{spec.aimlServices}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Analytics Services</span>
-                    <span className="text-[#0073BB] font-bold text-[15.5px]">{spec.analyticsServices}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Networking Services</span>
-                    <span className="text-slate-800 font-bold text-[15.5px]">{spec.networkingServices}</span>
-                  </div>
-                </>
-              }
-              backContent={
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] text-[#0073BB] font-black uppercase tracking-wider">AI Capabilities</span>
-                    {region.aiCapabilities && region.aiCapabilities.length > 0 ? (
-                      <p className="text-[13.5px] text-slate-700 leading-normal font-medium">
-                        {region.aiCapabilities.join(", ")}
-                      </p>
-                    ) : (
-                      <p className="text-[13px] text-slate-400 italic">No AI capabilities registered.</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] text-[#0073BB] font-black uppercase tracking-wider block mb-0.5">Top Services</span>
-                    {region.topServices && region.topServices.length > 0 ? (
-                      <p className="text-[13.5px] text-slate-600 leading-normal font-bold">
-                        {region.topServices.join(", ")}
-                      </p>
-                    ) : (
-                      <p className="text-[13px] text-slate-400 italic">No top services registered.</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] text-[#0073BB] font-black uppercase tracking-wider block mb-0.5">Workloads</span>
-                    {region.workloads && region.workloads.length > 0 ? (
-                      <p className="text-[13px] text-slate-500 leading-normal">
-                        {region.workloads.join(", ")}
-                      </p>
-                    ) : (
-                      <p className="text-[13px] text-slate-400 italic">No workloads registered.</p>
-                    )}
-                  </div>
-                </div>
-              }
-            />
-
-            {/* CARD 3: Global Connectivity */}
-            <ResponsiveDataCard
-              isDesktop={isDesktop}
-              accentColor="#4F46E5"
-              icon={<Network size={20} />}
-              title="Global Connectivity"
-              frontContent={
-                <>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Edge Locations</span>
-                    <span className="text-indigo-600 font-bold text-[15.5px]">{spec.edgeLocations}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Direct Connect</span>
-                    <span className="text-emerald-600 font-bold text-[15px] flex items-center gap-1.5">
-                      <CheckCircle2 size={13} className="text-emerald-500" /> {spec.directConnect}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Regional Reach</span>
-                    <span className="text-slate-800 font-bold text-[15.5px] truncate max-w-[150px]">{spec.reach}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-2xl px-4.5 py-3 transition-colors">
-                    <span className="text-slate-500 font-medium text-[14px]">Intra-Region Latency</span>
-                    <span className="text-slate-800 font-bold text-[15.5px] truncate max-w-[150px]">{spec.latency}</span>
-                  </div>
-                </>
-              }
-              backContent={
-                <div className="flex flex-col gap-4">
-                  <div className="p-3.5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 flex flex-col gap-1">
-                    <span className="text-[11px] text-indigo-600 font-black uppercase tracking-wider">Latency Benefits</span>
-                    <p className="text-[13px] text-slate-700 leading-normal font-semibold">{spec.latency}</p>
-                  </div>
-                  <div className="flex flex-col gap-2.5 pt-1">
-                    <div className="flex justify-between border-b border-slate-100 pb-2 text-[14px]">
-                      <span className="text-slate-500 font-semibold">CDN Nodes:</span>
-                      <span className="text-slate-800 font-bold">{spec.edgeLocations} points of presence</span>
-                    </div>
-                    <div className="flex justify-between text-[14px]">
-                      <span className="text-slate-500 font-semibold">Backbone speed:</span>
-                      <span className="text-slate-800 font-bold text-right">Redundant 100Gbps Peering</span>
-                    </div>
-                  </div>
-                  <div className="text-[11.5px] text-slate-400 italic mt-1 font-medium leading-relaxed">
-                    Connected directly to the global AWS backbone network for low-latency routing.
-                  </div>
-                </div>
-              }
-            />
-
-          </motion.div>
-
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline-block">
+            {region.id}
+          </span>
         </div>
-      </div>
+
+        {/* ── Tab Content Panels ── */}
+        <AnimatePresence mode="wait">
+          {activeTab === 'infrastructure' && (
+            <motion.div
+              key="tab-infrastructure"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full"
+            >
+              {/* Panel 1: Regional Specifications */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">Regional Specifications</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Physical deployment and network performance parameters</p>
+                  </div>
+
+                  <div className="flex flex-col divide-y divide-slate-100 text-xs">
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Availability Zones</span>
+                      <span className="font-medium text-slate-900">{region.availabilityZones || 3} Zones</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Launch Year</span>
+                      <span className="font-medium text-slate-900">{region.launchYear || "N/A"}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Primary Location</span>
+                      <span className="font-medium text-slate-900">{region.primaryLocation || region.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Latency Profile</span>
+                      <span className="font-medium text-slate-900">{region.latency || "Standard low-latency routing"}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Regional Reach</span>
+                      <span className="font-medium text-slate-900">{region.reach || region.category || "Regional"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {region.infrastructure && (
+                  <div className="mt-5 pt-4 border-t border-slate-100">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                      Infrastructure Summary
+                    </span>
+                    <p className="text-xs text-slate-700 leading-relaxed m-0">
+                      {region.infrastructure}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Panel 2: Benefits & Workloads */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">Workloads & Operational Benefits</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Deployment recommendations and region advantages</p>
+                  </div>
+
+                  {benefits.length > 0 && (
+                    <div className="mb-5">
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        Region Benefits
+                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        {benefits.map((b, i) => (
+                          <div key={i} className="flex items-start gap-2 text-xs text-slate-800">
+                            <span className="text-slate-400 font-bold mt-0.5">•</span>
+                            <span>{b}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {workloads.length > 0 && (
+                    <div>
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        Common Workloads
+                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        {workloads.map((w, i) => (
+                          <div key={i} className="flex items-start gap-2 text-xs text-slate-800">
+                            <span className="text-slate-400 font-bold mt-0.5">•</span>
+                            <span>{w}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span>Region Code: <strong className="font-mono text-slate-800 font-semibold">{region.id}</strong></span>
+                  <span>Category: <strong className="text-slate-800 font-semibold">{region.category || "AWS Global"}</strong></span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'services' && (
+            <motion.div
+              key="tab-services"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full"
+            >
+              {/* Panel 1: Service Catalog Metrics & Top Services */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">Available Services</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Overview of supported service categories and core offerings</p>
+                  </div>
+
+                  {/* Quantitative Metrics */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+                    <div className="p-2.5 rounded-[4px] bg-slate-50 border border-slate-200 text-center">
+                      <span className="text-[11px] font-medium text-slate-500 block">Total</span>
+                      <span className="text-sm font-semibold text-slate-900">{region.totalServices || "Standard"}</span>
+                    </div>
+                    <div className="p-2.5 rounded-[4px] bg-slate-50 border border-slate-200 text-center">
+                      <span className="text-[11px] font-medium text-slate-500 block">AI / ML</span>
+                      <span className="text-sm font-semibold text-slate-900">{region.aimlServices || "Available"}</span>
+                    </div>
+                    <div className="p-2.5 rounded-[4px] bg-slate-50 border border-slate-200 text-center">
+                      <span className="text-[11px] font-medium text-slate-500 block">Analytics</span>
+                      <span className="text-sm font-semibold text-slate-900">{region.analyticsServices || "Available"}</span>
+                    </div>
+                    <div className="p-2.5 rounded-[4px] bg-slate-50 border border-slate-200 text-center">
+                      <span className="text-[11px] font-medium text-slate-500 block">Networking</span>
+                      <span className="text-sm font-semibold text-slate-900">{region.networkingServices || "Available"}</span>
+                    </div>
+                  </div>
+
+                  {topServices.length > 0 && (
+                    <div>
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        Core AWS Services Available
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {topServices.map((srv, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-[4px] bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium">
+                            {srv}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Need specific service availability?</span>
+                  <button
+                    onClick={onBack}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-slate-900 hover:text-[#FF9900] transition-colors cursor-pointer"
+                  >
+                    <span>Browse Service Directory</span>
+                    <ArrowUpRight size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Panel 2: AI Capabilities & Regional Services */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">AI Capabilities & Solutions</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Machine learning offerings and registered regional capabilities</p>
+                  </div>
+
+                  {aiCapabilities.length > 0 && (
+                    <div className="mb-5">
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        AI & Machine Learning Capabilities
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {aiCapabilities.map((cap, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-800 text-xs font-medium">
+                            {cap}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {regionalServices.length > 0 && (
+                    <div>
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        Supported Regional Solutions
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {regionalServices.map((s, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500">
+                  Regional service catalog updated from active AWS infrastructure manifest.
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'compliance' && (
+            <motion.div
+              key="tab-compliance"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full"
+            >
+              {/* Panel 1: Compliance Standards */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">Audited Compliance Standards</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Certifications and regional regulatory accreditations</p>
+                  </div>
+
+                  {complianceBadges.length > 0 ? (
+                    <div>
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+                        Recognized Frameworks
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {complianceBadges.map((comp, i) => (
+                          <span key={i} className="px-3 py-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900">
+                            {comp}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 m-0">
+                      Standard international AWS cloud compliance attestations apply.
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500">
+                  Compliance accreditations are verified periodically by third-party auditors.
+                </div>
+              </div>
+
+              {/* Panel 2: Network Connectivity */}
+              <div className="bg-white border border-slate-200 rounded-[6px] p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="pb-3 border-b border-slate-100 mb-4">
+                    <h2 className="text-sm font-semibold text-slate-900 m-0">Connectivity & Edge Points of Presence</h2>
+                    <p className="text-xs text-slate-500 m-0 mt-0.5">Network peering, direct connect, and low-latency edge caching</p>
+                  </div>
+
+                  <div className="flex flex-col divide-y divide-slate-100 text-xs">
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Edge Locations (PoPs)</span>
+                      <span className="font-medium text-slate-900">{region.edgeLocations || "Local"} Points of Presence</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">AWS Direct Connect</span>
+                      <span className="font-medium text-slate-900">{region.directConnect || "Available"}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Regional Reach</span>
+                      <span className="font-medium text-slate-900">{region.reach || region.category || "Regional"}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-slate-500 font-medium">Intra-Region Latency</span>
+                      <span className="font-medium text-slate-900">{region.latency || "Optimized intra-AZ"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-slate-100 text-xs text-slate-500">
+                  Global private network routing interconnects this region with the AWS global backbone.
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Footer Navigation Strip ── */}
+        <div className="w-full bg-white border border-slate-200 rounded-[6px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-xs font-semibold text-slate-900 m-0">AWS Global Services Directory</h3>
+            <p className="text-xs text-slate-500 m-0 mt-0.5">Explore catalog services and cross-region availability matrices.</p>
+          </div>
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[4px] bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-colors shrink-0 cursor-pointer"
+          >
+            <span>Return to Services Directory</span>
+            <ChevronRight size={13} />
+          </button>
+        </div>
+
+      </main>
     </div>
   );
 }

@@ -42,7 +42,7 @@ export const RoadmapProgressUpdater: React.FC<RoadmapProgressUpdaterProps> = ({
     <div className={cn("bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4 text-left", className)}>
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block font-heading">
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-normal block font-heading">
             ROADMAP PROGRESS
           </span>
           <h3 className="text-base font-extrabold text-slate-900 tracking-tight leading-tight mt-0.5">

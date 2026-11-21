@@ -43,7 +43,7 @@ export const QuizReview: React.FC<QuizReviewProps> = ({ review, onReturn, return
       {/* Score Summary HUD */}
       <div className="grid grid-cols-3 gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-normal font-heading">
             Score
           </span>
           <span className="text-lg font-black text-slate-900 leading-none mt-1">
@@ -51,7 +51,7 @@ export const QuizReview: React.FC<QuizReviewProps> = ({ review, onReturn, return
           </span>
         </div>
         <div className="flex flex-col border-x border-slate-200">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-normal font-heading">
             Percentage
           </span>
           <span className="text-lg font-black text-emerald-600 leading-none mt-1">
@@ -59,7 +59,7 @@ export const QuizReview: React.FC<QuizReviewProps> = ({ review, onReturn, return
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-heading">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-normal font-heading">
             XP Earned
           </span>
           <span className="text-lg font-black text-amber-500 leading-none mt-1">
@@ -70,7 +70,7 @@ export const QuizReview: React.FC<QuizReviewProps> = ({ review, onReturn, return
 
       {/* Detailed Scrollable Questions Review */}
       <div className="space-y-4 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin">
-        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-normal">
           Detailed Review
         </h4>
 

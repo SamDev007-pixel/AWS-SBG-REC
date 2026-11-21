@@ -177,7 +177,7 @@ export function DomainCard({ domain, certificationId, index, levelName }: Domain
 
         {/* Separator & Topics */}
         <div className="mt-4 pt-3.5 border-t border-slate-100">
-          <p className="mb-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+          <p className="mb-2 text-[9px] font-black text-slate-400 uppercase tracking-normal">
             Syllabus Topics
           </p>
 

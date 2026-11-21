@@ -45,7 +45,7 @@ export class CrewService {
         },
         include: {
           _count: {
-            select: { registrations: true },
+            select: { registrations: { where: { status: { not: 'CANCELLED' } } } },
           },
         },
       }),
@@ -130,7 +130,15 @@ export class CrewService {
         totalCheckIns,
         pendingTasksCount,
       },
-      todayEvents,
+      todayEvents: todayEvents.map((e) => {
+        const count = e._count?.registrations ?? 0;
+        return {
+          ...e,
+          attendeeCount: count,
+          registeredCount: count,
+          registered: count,
+        };
+      }),
       pendingTasks,
       recentActivity: activities.slice(0, 5),
     };
@@ -141,17 +149,22 @@ export class CrewService {
       orderBy: { date: 'desc' },
       include: {
         _count: {
-          select: { registrations: true },
+          select: { registrations: { where: { status: { not: 'CANCELLED' } } } },
         },
       },
     });
 
     // Map each event with default role assigned to the crew
-    return events.map((event) => ({
-      ...event,
-      assignedRole: 'Operational Crew',
-      attendeeCount: event._count.registrations,
-    }));
+    return events.map((event) => {
+      const count = event._count?.registrations ?? 0;
+      return {
+        ...event,
+        assignedRole: 'Operational Crew',
+        attendeeCount: count,
+        registeredCount: count,
+        registered: count,
+      };
+    });
   }
 
   async getAttendance(query?: { search?: string }) {

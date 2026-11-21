@@ -24,7 +24,7 @@ export class EventScheduler {
         },
         include: {
           _count: {
-            select: { registrations: true },
+            select: { registrations: { where: { status: { not: 'CANCELLED' } } } },
           },
         },
       });
@@ -45,10 +45,8 @@ export class EventScheduler {
         const isCompletedTime = end && now > end;
 
         if (isCompletedTime) {
-          // Only auto-complete if it is currently ongoing
-          if (event.status === EventStatus.ONGOING) {
-            targetStatus = EventStatus.COMPLETED;
-          }
+          // Auto-complete if the event duration or date has ended
+          targetStatus = EventStatus.COMPLETED;
         } else if (isOngoingTime) {
           // Transition to ongoing when start time passes
           if (

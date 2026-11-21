@@ -17,7 +17,7 @@ const categoriesData = [
   { slug: "korea", name: "Korea", flag: "https://flagcdn.com/kr.svg", displayOrder: 6 },
   { slug: "middle-east", name: "Middle East", flag: "https://flagcdn.com/ae.svg", displayOrder: 7 },
   { slug: "africa", name: "Africa", flag: "https://flagcdn.com/za.svg", displayOrder: 8 },
-  { slug: "south-america", name: "South America", flag: "https://flagcdn.com/br.svg", displayOrder: 9 },
+  { slug: "south-america", name: "Brazil", flag: "https://flagcdn.com/br.svg", displayOrder: 9 },
   { slug: "australia", name: "Australia", flag: "https://flagcdn.com/au.svg", displayOrder: 10 },
 ];
 

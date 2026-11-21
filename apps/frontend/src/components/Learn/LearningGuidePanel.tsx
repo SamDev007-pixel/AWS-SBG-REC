@@ -97,7 +97,7 @@ export const LearningGuidePanel: React.FC<LearningGuidePanelProps> = ({
               {renderGuidelineIcon(icon, 20, 'w-[20px] h-[20px] flex-shrink-0 select-none')}
             </div>
           )}
-          <h2 className="text-[12px] font-black text-slate-800 uppercase tracking-widest font-heading">
+          <h2 className="text-[12px] font-black text-slate-800 uppercase tracking-normal font-heading">
             {title}
           </h2>
         </div>

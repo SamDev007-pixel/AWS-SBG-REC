@@ -75,3 +75,48 @@ export function getPosterSrcAndPosition(posterImage: string | null | undefined):
   }
   return { src: posterImage, position: '50% 25%' };
 }
+
+export function getEventRegistrationCount(event: any): number {
+  if (!event) return 0;
+  if (typeof event.registeredCount === 'number') return event.registeredCount;
+  if (typeof event.attendeeCount === 'number') return event.attendeeCount;
+  if (typeof event.registered === 'number') return event.registered;
+  if (typeof event._count?.registrations === 'number') return event._count.registrations;
+  if (Array.isArray(event.registrations)) {
+    return event.registrations.filter((r: any) => r && r.status !== 'CANCELLED').length;
+  }
+  return 0;
+}
+
+export function getEventSeatsRemaining(capacity?: number | null, regCount: number = 0): number {
+  if (capacity == null) return 0;
+  return Math.max(0, capacity - regCount);
+}
+
+export function isEventCompleted(event: any): boolean {
+  if (!event) return false;
+  const status = (event.status || event.event_status || '').toUpperCase();
+  if (status === 'COMPLETED' || status === 'ARCHIVED' || status === 'ENDED') {
+    return true;
+  }
+
+  // Check explicit end datetime if provided
+  const end = event.endDatetime || event.end_datetime;
+  if (end) {
+    const endDate = new Date(end);
+    if (!isNaN(endDate.getTime()) && Date.now() > endDate.getTime()) {
+      return true;
+    }
+  }
+
+  // If date / start_datetime was more than 4 hours ago
+  const start = event.date || event.start_datetime;
+  if (start) {
+    const startDate = new Date(start);
+    if (!isNaN(startDate.getTime()) && Date.now() > startDate.getTime() + 4 * 60 * 60 * 1000) {
+      return true;
+    }
+  }
+
+  return false;
+}

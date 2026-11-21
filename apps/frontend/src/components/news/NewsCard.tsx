@@ -51,7 +51,7 @@ export const NewsCard = memo(function NewsCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/5" />
         <div className="relative flex w-full min-w-0 flex-col justify-end p-4">
-          <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] backdrop-blur-sm">
+          <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-normal backdrop-blur-sm">
             {getCategoryLabel(article.category)}
           </span>
           <h2 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight [overflow-wrap:anywhere] group-hover:text-[color:var(--accent)] transition-colors duration-200">
@@ -78,7 +78,7 @@ export const NewsCard = memo(function NewsCard({
         )}
       >
         <div className="flex items-start gap-2">
-          <span className="mt-0.5 shrink-0 text-[10px] font-semibold uppercase tracking-[0.06em] text-[color:var(--accent)]">
+          <span className="mt-0.5 shrink-0 text-[10px] font-semibold uppercase tracking-normal text-[color:var(--accent)]">
             {getCategoryLabel(article.category)}
           </span>
           <span className="text-[10px] font-medium text-muted">
@@ -112,7 +112,7 @@ export const NewsCard = memo(function NewsCard({
           className,
         )}
       >
-        <span className="shrink-0 rounded bg-foreground/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.05em] text-muted">
+        <span className="shrink-0 rounded bg-foreground/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-normal text-muted">
           {getCategoryLabel(article.category)}
         </span>
         <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)]">
@@ -146,7 +146,7 @@ export const NewsCard = memo(function NewsCard({
             sizes="(min-width: 1024px) 33vw, 100vw"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
           />
-          <span className="absolute left-2.5 top-2.5 rounded-full border border-white/10 bg-black/50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.05em] text-white backdrop-blur">
+          <span className="absolute left-2.5 top-2.5 rounded-full border border-white/10 bg-black/50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-normal text-white backdrop-blur">
             {getCategoryLabel(article.category)}
           </span>
         </div>
@@ -159,7 +159,7 @@ export const NewsCard = memo(function NewsCard({
               {article.aiSummary}
             </p>
           ) : null}
-          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted/60">
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-normal text-muted/60">
             {article.sourceName} · {formatPublishedDate(article.publishedAt)}
           </p>
         </div>
@@ -192,7 +192,7 @@ export const NewsCard = memo(function NewsCard({
         </div>
         {/* Right: text */}
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 px-3.5 py-3">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[color:var(--accent)]">
+          <span className="text-[10px] font-semibold uppercase tracking-normal text-[color:var(--accent)]">
             {getCategoryLabel(article.category)}
           </span>
           <h2 className="break-words font-display text-[13.5px] font-semibold leading-[1.4] tracking-tight text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)]">
@@ -232,7 +232,7 @@ export const NewsCard = memo(function NewsCard({
             </p>
           ) : null}
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-border/20 pt-2 text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+        <div className="mt-3 flex items-center justify-between border-t border-border/20 pt-2 text-[9px] font-semibold uppercase tracking-normal text-muted">
           <span>{article.sourceName}</span>
           <span>{formatPublishedDate(article.publishedAt)}</span>
         </div>
@@ -277,7 +277,7 @@ export const NewsCard = memo(function NewsCard({
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
         />
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground backdrop-blur">
+        <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-normal text-foreground backdrop-blur">
           {getCategoryLabel(article.category)}
         </span>
       </div>
@@ -304,7 +304,7 @@ export const NewsCard = memo(function NewsCard({
             {article.aiSummary}
           </p>
         ) : null}
-        <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+        <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-normal text-muted">
           {article.sourceName} · {formatPublishedDate(article.publishedAt)}
         </p>
       </div>

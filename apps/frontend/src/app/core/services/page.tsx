@@ -131,10 +131,9 @@ export default function CoreServicesManagementPage() {
     <div
       className="min-h-screen w-full text-[#1A1C1E] relative p-4 sm:p-6 md:p-8 overflow-y-auto premium-scrollbar scroll-smooth"
       style={{
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
         backgroundRepeat: 'repeat',
-        backgroundSize: '480px auto',
-        backgroundColor: '#f8fafc',
+        backgroundSize: '450px auto',
       }}
     >
       <div className="max-w-[1600px] mx-auto relative space-y-6">

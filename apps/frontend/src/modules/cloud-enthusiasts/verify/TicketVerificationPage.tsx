@@ -189,7 +189,7 @@ export default function TicketVerificationPage() {
           <div className="bg-white border border-slate-200 rounded-[10px] shadow-sm overflow-hidden mb-5">
             {/* AWS Navy Accent Header */}
             <div className="bg-[#232F3E] text-white p-4.5">
-              <span className="text-[10px] font-medium tracking-widest uppercase text-slate-300">
+              <span className="text-[10px] font-medium tracking-normal uppercase text-slate-300">
                 Ticket Information Log
               </span>
               <h3 className="font-medium text-base mt-1 line-clamp-1 text-white font-display">

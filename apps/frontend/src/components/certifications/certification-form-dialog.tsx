@@ -157,7 +157,7 @@ export function CertificationFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           <div className="space-y-1.5">
-            <Label htmlFor="cert-title" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Title</Label>
+            <Label htmlFor="cert-title" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Title</Label>
             <Input
               id="cert-title"
               value={title}
@@ -170,7 +170,7 @@ export function CertificationFormDialog({
 
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <Label htmlFor="cert-examCode" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Exam Code</Label>
+              <Label htmlFor="cert-examCode" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Exam Code</Label>
               <Input
                 id="cert-examCode"
                 value={examCode}
@@ -181,7 +181,7 @@ export function CertificationFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cert-level" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Level</Label>
+              <Label htmlFor="cert-level" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Level</Label>
               <Select value={levelId} onValueChange={(v) => v && setLevelId(v)}>
                 <SelectTrigger className="w-full h-9 bg-slate-50 border border-slate-200 focus:border-[#ff9900]/50 focus:bg-white rounded-[8px] text-xs font-semibold px-3 text-slate-700 shadow-none">
                   <span data-slot="select-value" className={cn("flex flex-1 text-left", !levelId && "text-slate-400 font-normal")}>
@@ -201,7 +201,7 @@ export function CertificationFormDialog({
 
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <Label htmlFor="cert-duration" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Exam Duration</Label>
+              <Label htmlFor="cert-duration" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Exam Duration</Label>
               <Input
                 id="cert-duration"
                 value={examDuration}
@@ -212,7 +212,7 @@ export function CertificationFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cert-questions" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Total Questions</Label>
+              <Label htmlFor="cert-questions" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Total Questions</Label>
               <Input
                 id="cert-questions"
                 type="number"
@@ -228,7 +228,7 @@ export function CertificationFormDialog({
 
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <Label htmlFor="cert-cost" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Exam Cost ($)</Label>
+              <Label htmlFor="cert-cost" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Exam Cost ($)</Label>
               <Input
                 id="cert-cost"
                 type="number"
@@ -242,7 +242,7 @@ export function CertificationFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cert-mode" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Exam Mode</Label>
+              <Label htmlFor="cert-mode" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Exam Mode</Label>
               <Input
                 id="cert-mode"
                 value={examMode}
@@ -255,7 +255,7 @@ export function CertificationFormDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="cert-order" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Display Order</Label>
+            <Label htmlFor="cert-order" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Display Order</Label>
             <Input
               id="cert-order"
               type="number"
@@ -270,7 +270,7 @@ export function CertificationFormDialog({
 
           {/* Badge Image Upload */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Badge Image</Label>
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Badge Image</Label>
             {badgeImageUrl ? (
               <div className="relative flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-none">
                 <img

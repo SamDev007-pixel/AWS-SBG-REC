@@ -32,7 +32,7 @@ export const CloudHeadlines = memo(function CloudHeadlines({
     >
       <div className="mb-3">
         <div className="mb-2 h-px w-12 bg-[color:var(--accent)]" />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
+        <p className="text-[10px] font-semibold uppercase tracking-normal text-muted">
           Fast scan
         </p>
         <h2 className="mt-1 font-display text-lg font-semibold tracking-tight">
@@ -48,7 +48,7 @@ export const CloudHeadlines = memo(function CloudHeadlines({
             onClick={() => onArticleClick(article.id)}
             className="group block w-full py-3 text-left transition first:pt-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
           >
-            <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
+            <span className="text-[10px] font-semibold uppercase tracking-normal text-muted">
               {getCategoryLabel(article.category)} ·{" "}
               {formatRelativeTime(article.publishedAt)}
             </span>

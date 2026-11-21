@@ -73,7 +73,7 @@ export default function AnnouncementsSection() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span 
-            className="text-xs font-bold uppercase tracking-widest text-[#FF9900] bg-amber-50 px-3 py-1 rounded-full border border-amber-100"
+            className="text-xs font-bold uppercase tracking-normal text-[#FF9900] bg-amber-50 px-3 py-1 rounded-full border border-amber-100"
             style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
           >
             Stay Informed

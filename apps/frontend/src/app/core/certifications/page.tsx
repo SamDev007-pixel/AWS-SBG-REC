@@ -267,7 +267,7 @@ function CertCard({
           <div>
             {domains.length > 0 && (
               <>
-                <div className="text-[9px] font-extrabold text-slate-400 tracking-widest uppercase mb-3">
+                <div className="text-[9px] font-extrabold text-slate-400 tracking-normal uppercase mb-3">
                   EXAM DOMAINS
                 </div>
 
@@ -332,11 +332,9 @@ function CertificationsPageContent() {
 
   useEffect(() => {
     if (tabParam === "pathways") {
-      setActiveTab("pathways");
-    } else {
-      setActiveTab("certifications");
+      router.replace("/core/career-pathways");
     }
-  }, [tabParam]);
+  }, [tabParam, router]);
 
   useEffect(() => {
     if (levelParam) {
@@ -506,21 +504,19 @@ function CertificationsPageContent() {
         <header className="pb-5 border-b border-slate-200/80 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div className="max-w-4xl">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2">
-              <span className="hover:text-[#FF6B00] transition-colors font-semibold">AWS SBG REC</span>
+              <span className="hover:text-[#FF9900] transition-colors font-semibold">AWS SBG REC</span>
               <span className="text-slate-300">/</span>
-              <span className="text-[#FF6B00] font-semibold">Core Management</span>
+              <span className="text-[#FF9900] font-semibold">Core Management</span>
               <span className="text-slate-300">/</span>
               <span className="text-slate-700 font-semibold">Certifications</span>
             </div>
             
             <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-3xl">
-              {activeTab === "certifications" ? "All AWS Certifications" : "AWS Career Pathways"}
+              All AWS Certifications
             </p>
             
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              {activeTab === "certifications"
-                ? "Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more."
-                : "Manage career roles and build structured cloud certification pathways to guide learners towards high-demand industry jobs."}
+              Explore every AWS Certification with complete exam details, syllabus details, domain breakdowns, duration, pricing and many more.
             </p>
           </div>
 
@@ -528,50 +524,30 @@ function CertificationsPageContent() {
           <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="inline-flex items-center gap-1 bg-slate-100/80 p-1 rounded-[6px] border border-slate-200">
               <button
-                onClick={() => handleTabChange("certifications")}
-                className={cn(
-                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
-                  activeTab === "certifications"
-                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
-                    : "text-slate-500 hover:text-slate-800 font-medium"
-                )}
+                type="button"
+                className="flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all select-none bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80 cursor-default"
               >
-                <GraduationCap className={cn("h-4 w-4", activeTab === "certifications" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <GraduationCap className="h-4 w-4 text-[#FF9900]" />
                 <span>AWS Certifications</span>
               </button>
               
-              <button
-                onClick={() => handleTabChange("pathways")}
-                className={cn(
-                  "flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none",
-                  activeTab === "pathways"
-                    ? "bg-white text-slate-900 shadow-xs font-bold border border-slate-200/80"
-                    : "text-slate-500 hover:text-slate-800 font-medium"
-                )}
+              <Link
+                href="/core/career-pathways"
+                className="flex items-center gap-2 rounded-[4px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none text-slate-500 hover:text-slate-800 font-medium"
               >
-                <BriefcaseBusiness className={cn("h-4 w-4", activeTab === "pathways" ? "text-[#FF6B00]" : "text-slate-400")} />
+                <BriefcaseBusiness className="h-4 w-4 text-slate-400" />
                 <span>Career Pathways</span>
-              </button>
+              </Link>
             </div>
 
             {/* Admin Add Buttons */}
-            {activeTab === "certifications" ? (
-              <Button 
-                onClick={() => setAddOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer border-none"
-              >
-                <Plus size={13} className="text-white" />
-                Add Certification
-              </Button>
-            ) : (
-              <Button 
-                onClick={() => setAddPathOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer border-none"
-              >
-                <Plus size={13} className="text-white" />
-                Create Pathway
-              </Button>
-            )}
+            <Button 
+              onClick={() => setAddOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer border-none"
+            >
+              <Plus size={13} className="text-white" />
+              Add Certification
+            </Button>
           </div>
         </header>
 

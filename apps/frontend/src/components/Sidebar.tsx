@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { LogOut, Menu, X, User as UserIcon, PlusCircle, HelpCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+export const SIDEBAR_OPEN_W = 220;
+export const SIDEBAR_COLLAPSED_W = 68;
 
 export interface NavItem {
   icon: React.ReactNode;
@@ -51,17 +55,44 @@ export default function Sidebar({
   brandTitle,
   brandSubtitle,
 }: SidebarProps) {
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [hoveredTooltip, setHoveredTooltip] = useState<{
+    label: string;
+    top: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    const handleResize = () => setHoveredTooltip(null);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    setHoveredTooltip(null);
+  }, [isOpen]);
+
+  const handleHover = (label: string, element: HTMLElement) => {
+    if (isOpen || isMobile) return;
+    const rect = element.getBoundingClientRect();
+    setHoveredTooltip({
+      label,
+      top: rect.top + rect.height / 2,
+    });
+  };
+
+  const handleLeave = () => {
+    setHoveredTooltip(null);
+  };
+
   const isHome = currentPath === homeHref;
 
-  // Sidebar width: CSS-driven, no JS animation overhead
+  // Sidebar width: CSS-driven
   const sidebarW = isMobile
     ? "100%"
-    : isOpen ? 240 : 70;
-
-  const sidebarVisible = isMobile ? isMobileOpen : true;
-
-  console.log('Sidebar render: navItems length =', navItems?.length, 'items =', navItems?.map(item => item.label));
+    : isOpen ? SIDEBAR_OPEN_W : SIDEBAR_COLLAPSED_W;
 
   return (
     <>
@@ -73,11 +104,10 @@ export default function Sidebar({
         />
       )}
 
-      {/* Sidebar — CSS transitions only, no Framer Motion */}
+      {/* Sidebar — CSS transitions only */}
       <aside
         className={cn(
           "fixed left-0 top-0 h-full z-[1500] flex flex-col overflow-hidden font-sans",
-          // CSS transition on width and transform
           "transition-[width,transform] duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         )}
         style={{
@@ -92,7 +122,7 @@ export default function Sidebar({
         {isMobile && (
           <button
             onClick={onMobileClose}
-            className="absolute right-4 top-4 z-50 p-2 rounded-xl hover:bg-white/10 active:scale-95 transition-all text-slate-400 hover:text-white"
+            className="absolute right-4 top-4 z-50 p-2 rounded-none hover:bg-white/10 active:scale-95 transition-all text-slate-400 hover:text-white"
             aria-label="Close menu"
           >
             <X className="w-5.5 h-5.5" />
@@ -100,208 +130,240 @@ export default function Sidebar({
         )}
 
         {/* Brand Header / User profile */}
-        {brandTitle ? (
-          <div className={cn("border-b border-white/5 shrink-0 px-6 py-5 flex items-center justify-between")}>
-            {isOpen ? (
-              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className="flex flex-col gap-0.5 text-left group cursor-pointer">
-                <h1 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-slate-200 transition-colors">{brandTitle}</h1>
-                {brandSubtitle && (
-                  <p className="text-[13px] font-medium text-slate-400 mt-0.5">{brandSubtitle}</p>
-                )}
-              </button>
-            ) : (
-              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className="w-8 h-8 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center shrink-0 mx-auto transition-colors cursor-pointer">
-                <span className="text-[#FF6B00] font-black text-sm">{brandTitle[0]}</span>
-              </button>
-            )}
-            {!isMobile && isOpen && (
+        <div className={cn(
+          "border-b border-white/5 shrink-0 flex items-center transition-all",
+          isOpen ? "h-20 px-4 justify-between" : "h-20 justify-center px-0"
+        )}>
+          {isOpen ? (
+            <>
               <button
-                onClick={onToggle}
-                className="p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0 ml-2"
-                aria-label="Collapse sidebar"
+                onClick={() => { onNavigate(homeHref); onMobileClose(); }}
+                className="flex items-center gap-3 text-left group cursor-pointer min-w-0 flex-1"
               >
-                <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
-              </button>
-            )}
-          </div>
-        ) : user ? (
-          <div className={cn("border-b border-white/5 shrink-0", isOpen ? "px-3 py-3" : "px-0 py-3 flex justify-center")}>
-            {isOpen ? (
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => { onNavigate(homeHref); onMobileClose(); }}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-xl transition-colors duration-150 flex-1 min-w-0 px-2 py-2 text-left",
-                    isHome ? "bg-white/10 text-white" : "hover:bg-white/5 text-slate-200"
+                <div className="w-10 h-10 rounded-none bg-[#F66E0A]/10 border border-[#F66E0A]/30 flex items-center justify-center shrink-0">
+                  <span className="text-[#F66E0A] font-black text-base">
+                    {brandTitle ? brandTitle[0] : (user?.initials || 'A')}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <h1 className="text-[14px] font-semibold text-white tracking-tight truncate leading-tight group-hover:text-slate-200 transition-colors">
+                    {brandTitle || user?.name || 'Admin'}
+                  </h1>
+                  {(brandSubtitle || user?.badge) && (
+                    <p className="text-[11px] font-medium text-slate-400 truncate leading-tight mt-0.5">
+                      {brandSubtitle || user?.badge}
+                    </p>
                   )}
-                >
-                  <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
-                    <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(isMobile ? "text-2xl" : "text-lg", "font-extrabold truncate text-white tracking-tight leading-tight")}>{user.name}</p>
-                    {user.badge && (
-                      <p className={cn(isMobile ? "text-[16px]" : "text-[13px]", "font-medium text-slate-400 mt-0.5 truncate")}>
-                        {user.badge}
-                      </p>
-                    )}
-                  </div>
-                </button>
-                {/* Collapse button — desktop only */}
-                {!isMobile && (
-                  <button
-                    onClick={onToggle}
-                    className="p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0"
-                    aria-label="Collapse sidebar"
-                  >
-                    <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
-                  </button>
-                )}
-              </div>
-            ) : (
-              <button onClick={() => { onNavigate(homeHref); onMobileClose(); }} className={cn("flex items-center justify-center rounded-xl transition-colors duration-150 p-2", isHome ? "bg-white/10" : "hover:bg-white/5")}>
-                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm overflow-hidden">
-                  <img src="/brand-logo.svg" alt="Profile" className="w-full h-full object-contain" />
                 </div>
               </button>
-            )}
-          </div>
-        ) : null}
+              {!isMobile && (
+                <button
+                  onClick={onToggle}
+                  className="w-8 h-8 rounded-none flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 ml-1.5 cursor-pointer"
+                  aria-label="Collapse sidebar"
+                >
+                  <Menu className="w-4.5 h-4.5" />
+                </button>
+              )}
+            </>
+          ) : (
+            /* When sidebar is hidden/minimized: The initial S box appears here */
+            <button
+              onClick={() => { onNavigate(homeHref); onMobileClose(); handleLeave(); }}
+              className="w-10 h-10 rounded-none bg-[#F66E0A]/10 hover:bg-[#F66E0A]/20 border border-[#F66E0A]/30 flex items-center justify-center transition-all cursor-pointer group"
+              aria-label={brandTitle || user?.name || 'Dashboard'}
+            >
+              <span className="text-[#F66E0A] font-black text-base group-hover:scale-105 transition-transform">
+                {brandTitle ? brandTitle[0] : (user?.initials || 'A')}
+              </span>
+            </button>
+          )}
+        </div>
 
         {/* Expand button when collapsed (desktop) */}
         {!isOpen && !isMobile && (
-          <div className="px-0 py-2.5 flex justify-center border-b border-white/5 shrink-0">
+          <div className="h-14 flex items-center justify-center border-b border-white/5 shrink-0">
             <button
               onClick={onToggle}
-              className="w-9 h-9 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-center justify-center transition-colors duration-150"
+              className="w-10 h-10 rounded-none bg-white/[0.03] hover:bg-white/[0.08] hover:text-white border border-white/10 flex items-center justify-center text-slate-400 transition-all cursor-pointer"
               aria-label="Expand sidebar"
             >
-              <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
+              <Menu className="w-4.5 h-4.5" />
             </button>
           </div>
         )}
 
         {/* Nav items */}
-        <nav className={cn("flex-1 py-4 overflow-y-auto no-scrollbar", isOpen ? "space-y-1" : "px-3 space-y-2")}>
+        <nav
+          onScroll={handleLeave}
+          className={cn(
+            "flex-1 py-4 overflow-y-auto no-scrollbar",
+            isOpen ? "px-3 space-y-1" : "flex flex-col items-center gap-2 py-4"
+          )}
+        >
           {navItems.map((item) => {
-            const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
+            const isCertificationsItem = item.href === '/certifications' || item.href === '/core/certifications';
+            const isPathwayPath = currentPath === '/career-pathways' || currentPath.startsWith('/career-pathways/') || currentPath === '/core/career-pathways' || currentPath.startsWith('/core/career-pathways/');
+            const isActive = !isHome && (
+              currentPath === item.href || 
+              currentPath.startsWith(item.href + '/') ||
+              (isCertificationsItem && isPathwayPath)
+            );
             return (
               <div
                 key={item.label}
-                className="relative"
-                onMouseEnter={() => !isOpen && setHoveredItem(item.label)}
-                onMouseLeave={() => setHoveredItem(null)}
+                className={cn("relative", !isOpen && "flex justify-center w-full")}
               >
                 <button
-                  onClick={() => { onNavigate(item.href); onMobileClose(); }}
+                  onClick={() => { onNavigate(item.href); onMobileClose(); handleLeave(); }}
+                  onMouseEnter={(e) => handleHover(item.label, e.currentTarget)}
+                  onMouseLeave={handleLeave}
                   className={cn(
-                    "flex items-center transition-all duration-150 w-full group py-2.5 gap-3.5 text-left font-sans border-l-[3px]",
-                    isOpen ? "px-4" : "px-2 justify-center",
+                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-none",
+                    isOpen
+                      ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
+                      : "w-10 h-10 flex items-center justify-center",
                     isActive
-                      ? "border-[#FF6B00] bg-[#FF6B00]/[0.08] text-[#FF6B00] font-semibold"
-                      : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
+                      ? "bg-[#F66E0A]/12 text-[#F66E0A] font-semibold"
+                      : "text-slate-400 hover:text-white hover:bg-[#F66E0A]/[0.07] font-normal"
                   )}
+                  aria-label={item.label}
                 >
+                  {/* Left indicator line: appears only on selected item when sidebar is expanded, NOT in hidden/minimized sidebar */}
+                  {isActive && isOpen && (
+                    <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#F66E0A] pointer-events-none" />
+                  )}
                   <div className={cn(
-                    "flex items-center justify-center shrink-0",
-                    isMobile ? "[&>svg]:w-[30px] [&>svg]:h-[30px] [&>img]:w-[30px] [&>img]:h-[30px]" : "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]",
-                    isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
+                    "flex items-center justify-center shrink-0 pointer-events-none",
+                    isMobile
+                      ? "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]"
+                      : "[&>svg]:w-[24px] [&>svg]:h-[24px] [&>img]:w-[24px] [&>img]:h-[24px]",
+                    isActive ? "text-[#F66E0A]" : "text-slate-400 group-hover:text-white"
                   )}>
                     {item.icon}
                   </div>
-                  {/* Label — CSS opacity/translate/width transition, no Framer Motion */}
-                  <span
-                    className={cn(
-                      isMobile ? "text-base" : "text-[15px]",
-                      "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out",
-                      isActive ? "font-semibold capitalize" : "font-normal capitalize"
-                    )}
-                    style={{
-                      opacity: isOpen ? 1 : 0,
-                      transform: isOpen ? 'translateX(0)' : 'translateX(-8px)',
-                      pointerEvents: isOpen ? 'auto' : 'none',
-                      width: isOpen ? 'auto' : '0px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {item.label}
-                  </span>
+                  {isOpen && (
+                    <span
+                      className={cn(
+                        isMobile ? "text-[15px]" : "text-[14px]",
+                        "truncate flex-1 capitalize tracking-normal",
+                        isActive ? "font-semibold text-[#F66E0A]" : "font-normal text-slate-300 group-hover:text-white"
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                  )}
                 </button>
-
-                {/* Tooltip — collapsed desktop only */}
-                {!isOpen && !isMobile && hoveredItem === item.label && (
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-gray-900/90 text-white text-xs font-semibold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none animate-[fadeIn_100ms_ease-out]">
-                    {item.label}
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-gray-900/90" />
-                  </div>
-                )}
               </div>
             );
           })}
         </nav>
 
-        {/* Sign out */}
-        <div className="border-t border-white/5 shrink-0 py-4 px-3 space-y-1">
-          {/* Bottom nav items (e.g. Incidents) — sit just above sign-out */}
+        {/* Sign out and bottom items */}
+        <div className={cn(
+          "border-t border-white/5 shrink-0 py-3",
+          isOpen ? "px-3 space-y-1" : "flex flex-col items-center gap-2"
+        )}>
           {bottomNavItems && bottomNavItems.map((item) => {
             const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
             return (
               <div
                 key={item.label}
-                className="relative"
-                onMouseEnter={() => !isOpen && setHoveredItem(item.label)}
-                onMouseLeave={() => setHoveredItem(null)}
+                className={cn("relative", !isOpen && "flex justify-center w-full")}
               >
                 <button
-                  onClick={() => { onNavigate(item.href); onMobileClose(); }}
+                  onClick={() => { onNavigate(item.href); onMobileClose(); handleLeave(); }}
+                  onMouseEnter={(e) => handleHover(item.label, e.currentTarget)}
+                  onMouseLeave={handleLeave}
                   className={cn(
-                    "flex items-center transition-all duration-150 w-full group py-3 gap-4 text-left font-sans border-l-[3px] px-3",
+                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-none",
+                    isOpen
+                      ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
+                      : "w-10 h-10 flex items-center justify-center",
                     isActive
-                      ? "border-[#FF6B00] bg-[#FF6B00]/[0.08] text-[#FF6B00] font-semibold"
-                      : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
+                      ? "bg-[#F66E0A]/12 text-[#F66E0A] font-semibold"
+                      : "text-slate-400 hover:text-white hover:bg-[#F66E0A]/[0.07] font-normal"
                   )}
+                  aria-label={item.label}
                 >
+                  {/* Left indicator line: appears only on selected item when sidebar is expanded, NOT in hidden/minimized sidebar */}
+                  {isActive && isOpen && (
+                    <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#F66E0A] pointer-events-none" />
+                  )}
                   <div className={cn(
-                    "flex items-center justify-center shrink-0",
-                    isMobile ? "[&>svg]:w-[30px] [&>svg]:h-[30px] [&>img]:w-[30px] [&>img]:h-[30px]" : "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]",
-                    isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white"
+                    "flex items-center justify-center shrink-0 pointer-events-none",
+                    isMobile
+                      ? "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]"
+                      : "[&>svg]:w-[24px] [&>svg]:h-[24px] [&>img]:w-[24px] [&>img]:h-[24px]",
+                    isActive ? "text-[#F66E0A]" : "text-slate-400 group-hover:text-white"
                   )}>
                     {item.icon}
                   </div>
-                  <span
-                    className={cn(isMobile ? "text-base" : "text-[15px]", "truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
-                    style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
-                  >
-                    {item.label}
-                  </span>
+                  {isOpen && (
+                    <span
+                      className={cn(
+                        isMobile ? "text-[15px]" : "text-[14px]",
+                        "truncate flex-1 capitalize tracking-normal",
+                        isActive ? "font-semibold text-[#F66E0A]" : "font-normal text-slate-300 group-hover:text-white"
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                  )}
                 </button>
-                {/* Tooltip — collapsed desktop only */}
-                {!isOpen && !isMobile && hoveredItem === item.label && (
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-gray-900/90 text-white text-xs font-semibold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none">
-                    {item.label}
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-gray-900/90" />
-                  </div>
-                )}
               </div>
             );
           })}
 
-          <button
-            onClick={() => { onMobileClose(); onSignOut?.(); }}
-            className="flex items-center transition-all duration-150 group w-full px-3 py-3 gap-4 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-lg font-sans font-normal"
+          <div
+            className={cn("relative", !isOpen && "flex justify-center w-full")}
           >
-            <div className={cn("text-slate-300 group-hover:text-red-400 flex items-center justify-center shrink-0", isMobile ? "[&>svg]:w-[24px] [&>svg]:h-[24px]" : "[&>svg]:w-[20px] [&>svg]:h-[20px]")}>
-              <LogOut className="w-[20px] h-[20px]" />
-            </div>
-            <span
-              className={cn(isMobile ? "text-base" : "text-sm", "truncate transition-[opacity,transform,width] duration-[200ms] ease-out")}
-              style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
+            <button
+              onClick={() => { onMobileClose(); handleLeave(); onSignOut?.(); }}
+              onMouseEnter={(e) => handleHover(signOutLabel, e.currentTarget)}
+              onMouseLeave={handleLeave}
+              className={cn(
+                "transition-all duration-150 font-sans cursor-pointer group text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-none",
+                isOpen
+                  ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
+                  : "w-10 h-10 flex items-center justify-center"
+              )}
+              aria-label={signOutLabel}
             >
-              {signOutLabel}
-            </span>
-          </button>
+              <div className="flex items-center justify-center shrink-0 [&>svg]:w-[22px] [&>svg]:h-[22px] pointer-events-none">
+                <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-400 transition-colors" />
+              </div>
+              {isOpen && (
+                <span className={cn(isMobile ? "text-[15px]" : "text-[14px]", "truncate font-medium text-slate-300 group-hover:text-red-400")}>
+                  {signOutLabel}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </aside>
+
+      {/* Floating Tooltip Portal for Minimized Sidebar */}
+      {mounted && !isOpen && !isMobile && hoveredTooltip && createPortal(
+        <div
+          className="fixed z-[99999] pointer-events-none select-none flex items-center"
+          style={{
+            top: hoveredTooltip.top,
+            left: SIDEBAR_COLLAPSED_W + 6,
+            transform: "translateY(-50%)",
+          }}
+        >
+          <div className="flex items-center animate-[tooltipShow_100ms_ease-out]">
+            {/* Arrow */}
+            <div className="w-0 h-0 border-y-[5px] border-y-transparent border-r-[6px] mr-[-1px] border-r-[#0d131f]" />
+            {/* Tooltip bubble */}
+            <div className="px-3 py-1.5 rounded shadow-2xl flex items-center whitespace-nowrap border border-white/10 text-[13px] font-medium tracking-wide bg-[#0d131f] text-slate-100">
+              <span className="capitalize">{hoveredTooltip.label}</span>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

@@ -172,10 +172,10 @@ function Dot({
       >
         <div
           style={{ fontSize: '10px' }}
-          className="w-max inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-md text-[#1A1C1E] rounded-xl shadow-[0_10px_30px_rgba(0,115,187,0.15)] border border-slate-100 whitespace-nowrap"
+          className="w-max inline-flex items-center gap-2 px-2.5 py-1 bg-white/95 backdrop-blur-md text-[#1A1C1E] rounded-[4px] shadow-sm border border-slate-200 whitespace-nowrap font-bold uppercase tracking-normal"
         >
-          <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain flex-shrink-0" />
-          <span className="font-black tracking-tight text-slate-800 uppercase">{item.name}</span>
+          <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 rounded-none border border-slate-200/60 object-contain flex-shrink-0" />
+          <span className="font-bold tracking-tight text-slate-800 uppercase">{item.name}</span>
         </div>
       </Html>
 
@@ -189,10 +189,10 @@ function Dot({
               exit={{ opacity: 0, scale: 0.8, y: 5 }}
               transition={{ duration: 0.2 }}
               style={{ fontSize: '10px' }}
-              className="w-max inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF9900] text-white rounded-xl shadow-[0_10px_30px_rgba(255,153,0,0.3)] border border-[#FF9900]/30 whitespace-nowrap font-black uppercase tracking-wider"
+              className="w-max inline-flex items-center gap-2 px-2.5 py-1 bg-[#FF9900] text-white rounded-[4px] shadow-sm border border-[#FF9900]/40 whitespace-nowrap font-bold uppercase tracking-normal"
             >
-              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain flex-shrink-0" />
-              <span className="font-extrabold">{item.name}</span>
+              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 rounded-none border border-white/20 object-contain flex-shrink-0" />
+              <span className="font-bold">{item.name}</span>
             </motion.div>
           </Html>
         )}

@@ -43,7 +43,7 @@ export default function RegionTable({ regions, onEditClick, onDeleteClick }: Reg
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] bg-slate-50/80 backdrop-blur-sm select-none">
+            <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-500 tracking-normal bg-slate-50/80 backdrop-blur-sm select-none">
               <th className="py-3.5 px-8">Flag</th>
               <th className="py-3.5 px-6">Name</th>
               <th className="py-3.5 px-6">AWS Region Code</th>

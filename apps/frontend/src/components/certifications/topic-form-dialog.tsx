@@ -53,7 +53,7 @@ export function TopicFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           <div className="space-y-1.5">
-            <Label htmlFor="topic-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Topic Name</Label>
+            <Label htmlFor="topic-name" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Topic Name</Label>
             <Input
               id="topic-name"
               value={name}
@@ -64,7 +64,7 @@ export function TopicFormDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="topic-order" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Display Order</Label>
+            <Label htmlFor="topic-order" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Display Order</Label>
             <Input
               id="topic-order"
               type="number"

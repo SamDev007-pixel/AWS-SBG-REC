@@ -10,7 +10,7 @@ import { ArrowLeft, Calendar, MapPin, Clock, Users, ShieldAlert, Ticket as Ticke
 import TicketModal from '../shared/components/TicketModal';
 import { Ticket } from '../shared/types';
 import { STORAGE_KEYS } from '../../../context/mockData';
-import { cn, getPosterSrcAndPosition } from '@/lib/utils';
+import { cn, getPosterSrcAndPosition, isEventCompleted } from '@/lib/utils';
 
 /** Shape of a ticket entry saved to localStorage */
 interface LocalTicket {
@@ -241,7 +241,7 @@ export default function EventDetailsPage() {
   const { event } = detailData;
   const seatsLeft = Math.max(0, event.max_capacity - (event.registered || 0));
   const isFull = seatsLeft === 0;
-  const isEnded = event.event_status === 'Ended';
+  const isEnded = event.event_status === 'Ended' || isEventCompleted(event);
 
   const startTimeStr = event.start_datetime ? (() => {
     const d = new Date(event.start_datetime);
@@ -497,8 +497,12 @@ export default function EventDetailsPage() {
       {/* Mobile Fixed Bottom Registration Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex items-center justify-between">
         <div className="min-w-0">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Seats Available</span>
-          <span className="text-sm sm:text-base font-extrabold text-slate-800 block mt-0.5">{seatsLeft} / {event.max_capacity} Left</span>
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+            {isEnded ? 'Event Status' : 'Seats Available'}
+          </span>
+          <span className="text-sm sm:text-base font-extrabold text-slate-800 block mt-0.5">
+            {isEnded ? 'Concluded' : `${seatsLeft} / ${event.max_capacity} Left`}
+          </span>
         </div>
         <div className="shrink-0 w-48">
           {checkingRegistration ? (

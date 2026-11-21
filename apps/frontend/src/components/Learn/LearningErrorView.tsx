@@ -391,7 +391,7 @@ export default function LearningErrorView({ error, reset }: LearningErrorViewPro
           <button
             onClick={handleRetryClick}
             disabled={isRetrying}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-[0_4px_12px_rgba(14,165,233,0.25)] hover:shadow-[0_6px_16px_rgba(14,165,233,0.35)] active:scale-[0.98] disabled:opacity-80 uppercase tracking-widest font-heading cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-[0_4px_12px_rgba(14,165,233,0.25)] hover:shadow-[0_6px_16px_rgba(14,165,233,0.35)] active:scale-[0.98] disabled:opacity-80 uppercase tracking-normal font-heading cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
             {isRetrying ? 'Retrying...' : 'Retry'}
@@ -400,7 +400,7 @@ export default function LearningErrorView({ error, reset }: LearningErrorViewPro
           {/* Secondary Action: Return Home */}
           <Link
             href="/"
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-[0_2px_6px_rgba(15,23,42,0.02)] active:scale-[0.98] uppercase tracking-widest font-heading"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-[0_2px_6px_rgba(15,23,42,0.02)] active:scale-[0.98] uppercase tracking-normal font-heading"
           >
             <Home className="w-3.5 h-3.5" />
             Home

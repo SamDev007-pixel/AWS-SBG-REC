@@ -50,7 +50,7 @@ export default function CoreLayoutWrapper({ children }: { children: React.ReactN
       <div className="fixed inset-0 flex items-center justify-center bg-[#161d26] text-white font-mono text-sm z-50">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-3 border-[#FF9900] border-t-transparent rounded-full animate-spin" />
-          <div className="text-xs uppercase tracking-widest font-bold text-[#68717A]">
+          <div className="text-xs uppercase tracking-normal font-bold text-[#68717A]">
             Verifying Access...
           </div>
         </div>

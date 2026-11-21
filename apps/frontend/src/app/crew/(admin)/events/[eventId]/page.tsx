@@ -10,12 +10,13 @@ import {
   MapPin,
   Users,
   CheckCircle,
+  CheckCircle2,
   AlertCircle,
   Info,
   TrendingUp,
   List,
 } from 'lucide-react';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { getPosterSrcAndPosition, getEventRegistrationCount, isEventCompleted } from '@/lib/utils';
 import type { EventStatus, EventMode, Announcement, EventAgenda, EventSpeaker } from '@/lib/types';
 
 function formatDate(dateString: string): string {
@@ -156,7 +157,10 @@ export default function EventDetailsPage() {
     Array.isArray(announcementsData) ? announcementsData : []
   ) as Announcement[];
   const registrations = registrationsData?.data || [];
-  const totalRegistrations = registrationsData?.total || event?.registrations?.length || 0;
+  const totalRegistrations =
+    typeof registrationsData?.total === 'number'
+      ? registrationsData.total
+      : getEventRegistrationCount(event);
 
   const sc = event ? statusConfig(event.status) : null;
   const mc = event ? modeConfig(event.mode) : null;
@@ -390,18 +394,24 @@ export default function EventDetailsPage() {
               {/* Capacity Progress Bar */}
               <div className="pt-6 border-t border-slate-100 space-y-2.5">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-slate-400" />
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Capacity</h3>
+                  {isEventCompleted(event) ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <TrendingUp className="w-4 h-4 text-slate-400" />
+                  )}
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                    {isEventCompleted(event) ? 'Event Attendance' : 'Capacity'}
+                  </h3>
                 </div>
                 <div className="flex justify-between items-center text-sm font-bold text-slate-700">
-                  <span>Seats Filled</span>
+                  <span>{isEventCompleted(event) ? 'Attendance Ratio' : 'Seats Filled'}</span>
                   <span>{Math.round(capacityPercent)}%</span>
                 </div>
 
                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/40">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      capacityPercent >= 100 ? 'bg-rose-500' : 'bg-[#FF9900]'
+                      isEventCompleted(event) ? 'bg-slate-500' : capacityPercent >= 100 ? 'bg-rose-500' : 'bg-[#FF9900]'
                     }`}
                     style={{ width: `${Math.min(100, Math.max(2, capacityPercent))}%` }}
                   />
@@ -409,7 +419,13 @@ export default function EventDetailsPage() {
 
                 <div className="flex justify-between items-center text-xs text-slate-500 font-bold">
                   <span>{totalRegistrations} Registered</span>
-                  <span>{seatsLeft !== null ? `${seatsLeft} Seats Available` : 'No limit'}</span>
+                  <span>
+                    {isEventCompleted(event)
+                      ? 'Event Concluded'
+                      : seatsLeft !== null
+                        ? `${seatsLeft} Seats Available`
+                        : 'No limit'}
+                  </span>
                 </div>
               </div>
 

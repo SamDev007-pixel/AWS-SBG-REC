@@ -28,9 +28,10 @@ import {
   ClipboardList,
   CheckCircle,
   RotateCcw,
+  CheckCircle2,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
-import { getPosterSrcAndPosition, cn } from '@/lib/utils';
+import { getPosterSrcAndPosition, cn, getEventRegistrationCount, getEventSeatsRemaining, isEventCompleted } from '@/lib/utils';
 import CustomSelect from '@/components/ui/CustomSelect';
 
 function formatDate(dateString: string): string {
@@ -481,7 +482,7 @@ export default function EventsPage() {
             {events.map((event) => {
               const sc = statusConfig(event.status);
               const mc = modeConfig(event.mode);
-              const regCount = event.registrations?.length ?? 0;
+              const regCount = getEventRegistrationCount(event);
               const capacity = event.capacity;
               const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
               return (
@@ -547,9 +548,20 @@ export default function EventsPage() {
 
                   {/* Card Footer Container */}
                   <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto">
-                    {/* Remaining Seats */}
-                    {capacity != null && (() => {
-                      const remaining = Math.max(0, capacity - regCount);
+                    {/* Remaining Seats or Event Concluded Status */}
+                    {isEventCompleted(event) ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-slate-400" />
+                          <span>Event Status</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] text-[11.5px] font-bold border bg-slate-500/10 text-slate-700 border-slate-500/20">
+                          <span className="h-1.5 w-1.5 rounded-[2px] bg-slate-400" />
+                          Concluded
+                        </span>
+                      </div>
+                    ) : capacity != null && (() => {
+                      const remaining = getEventSeatsRemaining(capacity, regCount);
                       let statusCls = "bg-slate-500/10 text-slate-700 border-slate-500/20";
                       let dotColor = "bg-slate-450";
                       if (remaining === 0) {
@@ -616,7 +628,7 @@ export default function EventsPage() {
                  {/* Rows */}
                  {events.map((event) => {
                    const sc = statusConfig(event.status);
-                   const regCount = event.registrations?.length ?? 0;
+                   const regCount = getEventRegistrationCount(event);
                    const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
                    return (
                      <div

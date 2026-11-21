@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { events } from "@/lib/data/crewMockData";
-import type { Event } from "@/lib/types/crew";
+import { useCrewEvents } from "@/lib/hooks";
+import type { Event } from "@/lib/types";
 
 function AwsCloudWatchIcon({ className }: { className?: string }) {
   return (
@@ -14,13 +14,25 @@ function AwsCloudWatchIcon({ className }: { className?: string }) {
   );
 }
 
-function parseEventDate(dateStr: string): Date {
-  return new Date(dateStr);
+// Parse event date safely without timezone shift
+function parseEventDate(dateStr: string | Date | undefined): Date {
+  if (!dateStr) return new Date();
+  if (dateStr instanceof Date) return dateStr;
+  const datePart = String(dateStr).split('T')[0];
+  if (datePart && datePart.includes('-')) {
+    const parts = datePart.split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date() : d;
 }
 
 function buildEventMap(evts: Event[]): Record<string, Event[]> {
   const map: Record<string, Event[]> = {};
   for (const evt of evts) {
+    if (!evt.date) continue;
     const d = parseEventDate(evt.date);
     const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
     if (!map[key]) map[key] = [];
@@ -44,8 +56,15 @@ export default function CalendarCard() {
 
   useEffect(() => setMounted(true), []);
 
+  const { data: rawEvents = [], isLoading } = useCrewEvents();
+  const events = Array.isArray(rawEvents) ? rawEvents : [];
+
   const eventMap = buildEventMap(events);
-  const upcomingCount = events.filter(e => parseEventDate(e.date) >= today).length;
+  const upcomingCount = events.filter(e => {
+    if (e.status === 'COMPLETED' || e.status === 'ARCHIVED') return false;
+    if (e.status === 'REGISTRATION_OPEN' || e.status === 'PUBLISHED' || e.status === 'ONGOING') return true;
+    return parseEventDate(e.date) >= today;
+  }).length;
 
   const prevMonth = useCallback(() => {
     setSelectedDay(null);
@@ -65,9 +84,14 @@ export default function CalendarCard() {
   while (cells.length < 42) cells.push(null);
 
   const monthEvents = events.filter(evt => {
+    if (!evt.date) return false;
     const d = parseEventDate(evt.date);
     return d.getFullYear() === viewYear && d.getMonth() === viewMonth;
   });
+
+  const displayedEvents = selectedDay !== null
+    ? monthEvents.filter(evt => parseEventDate(evt.date).getDate() === selectedDay)
+    : monthEvents;
 
   const openModal = () => { setSelectedDay(null); setIsOpen(true); };
   const closeModal = () => setIsOpen(false);
@@ -80,7 +104,6 @@ export default function CalendarCard() {
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
         className="rounded-xl border border-slate-200 !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm bg-white"
-        whileHover={undefined}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">
@@ -93,13 +116,8 @@ export default function CalendarCard() {
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>
-          <div className="relative" onMouseEnter={() => setIconHovered(true)} onMouseLeave={() => setIconHovered(false)}>
+          <div onMouseEnter={() => setIconHovered(true)} onMouseLeave={() => setIconHovered(false)}>
             <AwsCloudWatchIcon className={`w-12 h-12 sm:w-14 sm:h-14 transition-transform duration-200 ${iconHovered ? "scale-105" : ""}`} />
-            {iconHovered && (
-              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-extrabold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
-                CloudWatch
-              </div>
-            )}
           </div>
         </div>
       </motion.div>
@@ -157,22 +175,40 @@ export default function CalendarCard() {
                 </div>
 
                 <div className="overflow-y-auto flex-1 border-t border-black/[0.06] px-8 py-5 space-y-4">
-                  <p className="text-xs font-bold text-foreground/40 uppercase tracking-wider">Events this Month</p>
-                  {monthEvents.length > 0 ? monthEvents.map(evt => {
-                    const d = parseEventDate(evt.date);
-                    const isHighlighted = selectedDay !== null && d.getDate() === selectedDay;
-                    return (
-                      <button key={evt.id} onClick={() => { closeModal(); router.push(`/crew/events/${evt.id || (evt as any).event_id}`); }} className={`flex items-center gap-4 text-base w-full text-left rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer ${isHighlighted ? "bg-brand-orange/10 border-brand-orange/30 shadow-sm shadow-brand-orange/5 translate-x-1.5" : "border-transparent hover:bg-black/[0.03]"}`}>
-                        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform duration-200 ${isHighlighted ? "bg-brand-orange scale-125" : "bg-brand-orange/60"}`} />
-                        <div className="flex-1 min-w-0">
-                          <span className={`font-semibold text-foreground truncate block transition-colors duration-200 ${isHighlighted ? "text-brand-orange" : ""}`}>{evt.title}</span>
-                          <span className="text-xs text-foreground/50 mt-0.5 block">{evt.date} · {evt.time}</span>
-                        </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-foreground/40 uppercase tracking-wider">
+                      {selectedDay !== null ? `Events on ${MONTHS[viewMonth]} ${selectedDay}` : "Events this Month"}
+                    </p>
+                    {selectedDay !== null && (
+                      <button
+                        onClick={() => setSelectedDay(null)}
+                        className="text-[11px] font-bold text-brand-orange hover:underline uppercase tracking-wider cursor-pointer"
+                      >
+                        Clear Filter
                       </button>
-                    );
-                  }) : (
+                    )}
+                  </div>
+
+                  {isLoading ? (
+                    <p className="text-xs text-slate-400 py-3">Loading events...</p>
+                  ) : displayedEvents.length > 0 ? (
+                    displayedEvents.map(evt => {
+                      const d = parseEventDate(evt.date);
+                      const formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                      const isHighlighted = selectedDay !== null && d.getDate() === selectedDay;
+                      return (
+                        <button key={evt.id} onClick={() => { closeModal(); router.push(`/crew/events/${evt.id || (evt as any).event_id}`); }} className={`flex items-center gap-4 text-base w-full text-left rounded-2xl px-4 py-3.5 border transition-all duration-200 cursor-pointer ${isHighlighted ? "bg-brand-orange/10 border-brand-orange/30 shadow-sm shadow-brand-orange/5 translate-x-1.5" : "border-transparent hover:bg-black/[0.03]"}`}>
+                          <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform duration-200 ${isHighlighted ? "bg-brand-orange scale-125" : "bg-brand-orange/60"}`} />
+                          <div className="flex-1 min-w-0">
+                            <span className={`font-semibold text-foreground truncate block transition-colors duration-200 ${isHighlighted ? "text-brand-orange" : ""}`}>{evt.title}</span>
+                            <span className="text-xs text-foreground/50 mt-0.5 block">{formattedDate} · {evt.time || '09:30 AM'}</span>
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
                     <div className="flex flex-col items-center justify-center text-center py-10">
-                      <p className="text-[14px] text-slate-500">No events scheduled for this month</p>
+                      <p className="text-[14px] text-slate-500">No events scheduled for this period</p>
                     </div>
                   )}
                 </div>

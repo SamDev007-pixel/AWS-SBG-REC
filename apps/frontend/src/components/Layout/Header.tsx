@@ -29,16 +29,16 @@ export default function Header({ activeContinent, onContinentChange }: HeaderPro
                    AWS Intelligence
                   <Shield size={14} className="text-[#0073BB]" />
                 </h1>
-                <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Student Builder Group • Global Network</span>
+                <span className="text-[9px] font-bold text-slate-400 tracking-normal uppercase">Student Builder Group • Global Network</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="px-6 py-2.5 bg-white hover:bg-slate-50 text-[#161D26] text-[11px] font-extrabold rounded-xl transition-all border border-slate-200 uppercase tracking-widest">
+            <button className="px-6 py-2.5 bg-white hover:bg-slate-50 text-[#161D26] text-[11px] font-extrabold rounded-xl transition-all border border-slate-200 uppercase tracking-normal">
               Documentation
             </button>
-            <button className="px-6 py-2.5 bg-[#161D26] hover:bg-[#161D26]/90 text-white text-[11px] font-extrabold rounded-xl transition-all uppercase tracking-widest shadow-xl shadow-[#161D26]/10">
+            <button className="px-6 py-2.5 bg-[#161D26] hover:bg-[#161D26]/90 text-white text-[11px] font-extrabold rounded-xl transition-all uppercase tracking-normal shadow-xl shadow-[#161D26]/10">
               Go to Account
             </button>
           </div>

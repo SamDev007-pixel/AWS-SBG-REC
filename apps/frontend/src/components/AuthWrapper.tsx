@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 // Routes that any visitor can view without being logged in
 const PUBLIC_PREFIXES = [
   '/certifications',
+  '/career-pathways',
   '/services',
   '/events',
   '/learn',
@@ -196,7 +197,7 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
       <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-[3px] border-[#FF9900] border-t-transparent rounded-full animate-spin" />
-          <div suppressHydrationWarning className="text-[10px] uppercase tracking-widest font-bold text-[#68717A] font-mono">
+          <div suppressHydrationWarning className="text-[10px] uppercase tracking-normal font-bold text-[#68717A] font-mono">
             Authenticating...
           </div>
         </div>

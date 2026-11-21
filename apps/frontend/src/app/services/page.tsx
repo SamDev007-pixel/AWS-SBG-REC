@@ -208,7 +208,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center relative">
+      <main className="min-h-screen bg-transparent flex items-center justify-center relative">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-[3px] border-[#232F3E]/10 border-t-[#FF9900] rounded-full animate-spin" />
           <p className="text-xs font-semibold text-slate-500 tracking-wider">Loading...</p>
@@ -219,7 +219,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4 relative">
+      <main className="min-h-screen bg-transparent flex items-center justify-center p-4 relative">
         <ErrorAlert
           title="Mesh Connection Failure"
           message={error}
@@ -232,7 +232,7 @@ export default function Home() {
 
   return (
     <main
-      className={`w-full text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'lg:overflow-hidden lg:h-screen h-auto' : 'lg:overflow-y-auto lg:h-screen h-auto'}`}
+      className={`w-full text-[#1A1C1E] flex flex-col font-jakarta relative ${showIntelligence ? 'min-h-screen overflow-y-auto bg-[#FAFAFC]' : 'lg:overflow-y-auto lg:h-screen h-auto'}`}
     >
 
       <AnimatePresence mode="wait">
@@ -248,10 +248,6 @@ export default function Home() {
           >
             {/* 3D Globe View viewport (takes exactly 100vh on desktop, flows naturally on mobile) */}
             <div className="h-auto lg:h-screen w-full relative overflow-visible lg:overflow-hidden flex flex-col lg:flex-shrink-0">
-            {/* Background Gradient */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.15)_0%,transparent_60%)]" />
-            </div>
 
             {/* Top Header */}
             <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 sm:px-10 pt-6 sm:pt-8 pb-2 lg:pt-10 lg:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto lg:pointer-events-none">
@@ -289,7 +285,7 @@ export default function Home() {
                   <div className="flex items-center gap-2.5 truncate">
                     {selectedRegion ? (
                       <>
-                        <FlagImage flag={selectedRegion.flagUrl || selectedRegion.flag} name={selectedRegion.name} className="w-5.5 h-3.5 object-contain flex-shrink-0 rounded-sm border border-slate-200/50 shadow-xs" />
+                        <FlagImage flag={selectedRegion.flagUrl || selectedRegion.flag} name={selectedRegion.name} className="w-[27px] h-[18px] rounded-none" />
                         <span className="text-[13px] font-bold text-slate-800 truncate">
                           {selectedRegion.name}
                         </span>
@@ -322,7 +318,7 @@ export default function Home() {
                           return (
                             <div key={cat.id} className="flex flex-col gap-1">
                               <div className="flex items-center gap-2 px-2 py-1">
-                                <FlagImage flag={cat.flag} name={cat.name} className="w-4 h-2.5 object-contain rounded-xs border border-slate-200/50" />
+                                <FlagImage flag={cat.flag} name={cat.name} className="w-[24px] h-[16px] rounded-none" />
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{cat.name}</span>
                               </div>
                               
@@ -341,12 +337,12 @@ export default function Home() {
                                       className={cn(
                                         "w-full px-3 py-2 rounded-lg text-left transition-all flex items-center justify-between select-none cursor-pointer",
                                         isSubSelected
-                                          ? "bg-[#0073BB]/8 text-[#0073BB] font-extrabold"
+                                          ? "bg-[#FF9900]/12 text-slate-900 font-bold"
                                           : "hover:bg-slate-50 text-slate-650 font-semibold text-[11.5px]"
                                       )}
                                     >
                                       <span className="text-[11.5px] truncate">{r.name}</span>
-                                      {isSubSelected && <CheckCircle2 size={12} className="text-[#0073BB] shrink-0" />}
+                                      {isSubSelected && <CheckCircle2 size={12} className="text-[#FF9900] shrink-0" />}
                                     </button>
                                   );
                                 })}
@@ -364,18 +360,18 @@ export default function Home() {
               <motion.aside
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="hidden lg:flex w-72 flex-col gap-4 z-20"
+                className="hidden lg:flex w-80 flex-col gap-4 z-20 shrink-0"
               >
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-4 sm:p-6 h-auto lg:h-full flex flex-col shadow-sm">
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-4 sm:p-5 h-auto lg:h-full flex flex-col shadow-sm">
 
                   {/* Header */}
                   <div className="mb-4 pb-4 border-b border-slate-100/80">
-                    <p className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1.5">Global Regions</p>
+                    <p className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-normal mb-1.5">Global Regions</p>
                     <p className="text-[11.5px] sm:text-[12px] font-semibold text-slate-500 leading-snug">Select a region to begin exploration.</p>
                   </div>
 
                   {/* Region list */}
-                  <div className="flex flex-col gap-1 flex-grow overflow-y-auto max-h-48 lg:max-h-none premium-scrollbar">
+                  <div className="flex flex-col gap-1.5 flex-grow overflow-y-auto max-h-48 lg:max-h-none premium-scrollbar pr-2 py-1">
                     {sidebarCategories.map((cat) => {
                       const isExpanded = expandedCategory === cat.id;
                       const hasActiveChild = cat.regionIds.includes(selectedRegion?.id || '');
@@ -394,26 +390,28 @@ export default function Home() {
                               }
                             }}
                             className={cn(
-                              "w-full px-3 py-2.5 rounded-xl flex items-center justify-between transition-all text-left group border border-transparent select-none cursor-pointer",
+                              "w-full px-3 py-2.5 rounded-none flex items-center justify-between transition-all text-left group border select-none cursor-pointer",
                               hasActiveChild
-                                ? "bg-slate-900 text-white shadow-sm border-slate-900"
+                                ? "bg-orange-50/90 text-slate-900 border-orange-200/80 border-l-[3px] border-l-[#FF9900] shadow-xs"
                                 : isExpanded
-                                  ? "bg-slate-100 text-slate-900 border-slate-200/50"
-                                  : "hover:bg-slate-50 text-slate-700"
+                                  ? "bg-slate-100 text-slate-900 border-slate-200/60"
+                                  : "hover:bg-slate-50/80 text-slate-700 hover:text-slate-900 border-transparent"
                             )}
                           >
                             <div className="flex items-center gap-3 truncate">
-                              <FlagImage flag={cat.flag} name={cat.name} className="w-5.5 h-3.5 object-contain flex-shrink-0 rounded-sm border border-slate-200/50 shadow-xs" />
-                              <span className="text-[11px] sm:text-[12px] font-black tracking-wide truncate uppercase">{cat.name}</span>
+                              <FlagImage flag={cat.flag} name={cat.name} className="w-[27px] h-[18px] rounded-none border border-slate-300 shadow-xs shrink-0" />
+                              <span className="text-[11px] sm:text-[12px] font-bold tracking-normal truncate uppercase text-slate-900">
+                                {cat.name}
+                              </span>
                             </div>
-                            <ChevronRight size={12} className={cn(
+                            <ChevronRight size={13} className={cn(
                               "flex-shrink-0 transition-transform duration-200",
                               isExpanded ? "rotate-90" : "",
                               hasActiveChild
-                                ? "text-white/60"
+                                ? "text-[#FF9900]"
                                 : isExpanded
                                   ? "text-slate-600"
-                                  : "text-slate-400"
+                                  : "text-slate-400 group-hover:text-slate-600"
                             )} />
                           </button>
 
@@ -425,7 +423,7 @@ export default function Home() {
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="overflow-hidden ml-1 mt-2 flex flex-col gap-1.5"
+                                className="overflow-hidden ml-1.5 mr-0.5 mt-2 flex flex-col gap-1.5"
                               >
                                 {cat.regionIds.map((rId) => {
                                   const r = regions.find(region => region.id === rId);
@@ -437,23 +435,23 @@ export default function Home() {
                                       key={r.id}
                                       onClick={() => handleRegionSelect(r)}
                                       className={cn(
-                                        "w-full px-3.5 py-2.5 rounded-xl text-left transition-all flex items-center justify-between border border-slate-100/50 select-none cursor-pointer group/sub",
+                                        "w-full px-3.5 py-2.5 rounded-none text-left transition-all flex items-center justify-between border select-none cursor-pointer group/sub",
                                         isSubSelected
-                                          ? "bg-gradient-to-r from-sky-50 to-white border-sky-200/80 text-sky-600 font-extrabold shadow-sm"
-                                          : "bg-white text-slate-650 hover:text-slate-800 hover:bg-slate-50/50 hover:border-slate-200/60 font-semibold"
+                                          ? "bg-gradient-to-r from-[#FF9900]/12 to-[#FF9900]/5 border-[#FF9900]/40 text-slate-900 font-bold shadow-xs"
+                                          : "bg-white text-slate-650 hover:text-slate-900 hover:bg-slate-50 border-slate-100 font-medium"
                                       )}
                                     >
-                                      <div className="flex items-center gap-2 truncate">
+                                      <div className="flex items-center gap-2.5 truncate">
                                         <span className={cn(
-                                          "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors",
-                                          isSubSelected ? "bg-sky-500 animate-pulse" : "bg-slate-300"
+                                          "w-2 h-2 rounded-full flex-shrink-0 transition-colors",
+                                          isSubSelected ? "bg-[#FF9900] ring-2 ring-[#FF9900]/30" : "bg-slate-300"
                                         )} />
                                         <span className="text-[11.5px] tracking-tight truncate">{r.name}</span>
                                       </div>
                                       {isSubSelected ? (
-                                        <CheckCircle2 size={12} className="text-sky-500 shrink-0" />
+                                        <CheckCircle2 size={13} className="text-[#FF9900] shrink-0" />
                                       ) : (
-                                        <ChevronRight size={11} className="text-slate-300 group-hover/sub:text-slate-400 shrink-0 transition-colors" />
+                                        <ChevronRight size={11} className="text-slate-300 group-hover/sub:text-slate-500 shrink-0 transition-colors" />
                                       )}
                                     </button>
                                   );
@@ -526,17 +524,18 @@ export default function Home() {
           /* SECTION 2: INTELLIGENCE HUB (DETAILS VIEW) */
           <motion.div
             key="intelligence-hub"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            className="w-full min-h-screen bg-slate-950 z-50 flex flex-col"
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            className="w-full min-h-screen bg-[#FAFAFC] z-50 flex flex-col"
           >
             {selectedRegion && (
               <IntelligenceDashboard
                 region={selectedRegion}
                 onBack={() => {
-                  window.history.back();
+                  setShowIntelligence(false);
+                  window.history.pushState({ view: 'globe' }, '');
                 }}
               />
             )}
@@ -555,24 +554,27 @@ function RegionBriefModal({ region, onClose, onExplore }: { region: AWSRegionDat
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.95, opacity: 0, y: 16 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="absolute bottom-20 left-4 right-4 sm:left-auto sm:right-10 z-[100] w-auto sm:w-[360px] overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.12)] border border-slate-100/80 bg-white"
+      className="absolute bottom-20 left-4 right-4 sm:left-auto sm:right-10 z-[100] w-auto sm:w-[360px] overflow-hidden rounded-[8px] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12)] border border-slate-200/90 bg-white"
     >
-      <div className="p-6 flex flex-col gap-5">
+      <div className="p-5 flex flex-col gap-4">
 
         {/* Header row: flag + close */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
-              <FlagImage flag={region.flagUrl || region.flag} name={region.name} className="w-8 h-6 object-contain" />
-            </div>
+            <FlagImage
+              flag={region.flagUrl || region.flag}
+              name={region.name}
+              className="w-10 h-[26px] sm:w-11 sm:h-[28px] rounded-none border border-slate-300 shadow-xs shrink-0"
+              imgClassName="w-full h-full object-cover rounded-none"
+            />
             <div>
-              <h3 className="text-[17px] font-bold tracking-tight text-slate-900 leading-tight">{region.name}</h3>
-              <p className="text-[10px] font-semibold text-[#0073BB] uppercase tracking-[0.1em] mt-0.5">AWS Infrastructure Region</p>
+              <h3 className="text-[16px] font-bold tracking-tight text-slate-900 leading-tight">{region.name}</h3>
+              <p className="text-[10px] font-semibold text-[#0073BB] uppercase tracking-normal mt-0.5">AWS Infrastructure Region</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all text-sm"
+            className="w-7 h-7 rounded-[4px] bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all text-xs cursor-pointer"
           >
             ✕
           </button>
@@ -582,14 +584,14 @@ function RegionBriefModal({ region, onClose, onExplore }: { region: AWSRegionDat
         <div className="h-px bg-slate-100" />
 
         {/* Description */}
-        <p className="text-[13px] text-slate-500 font-normal leading-relaxed">
+        <p className="text-[13px] text-slate-650 font-normal leading-relaxed m-0">
           {region.infrastructure}
         </p>
 
         {/* CTA */}
         <button
           onClick={onExplore}
-          className="w-full py-3 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-xl font-semibold text-[12px] tracking-wide flex items-center justify-center gap-2 transition-all duration-200"
+          className="w-full py-2.5 bg-[#1A1C1E] hover:bg-slate-800 text-white rounded-[6px] font-semibold text-xs tracking-normal flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-xs"
         >
           Explore Specification <ArrowDown size={13} />
         </button>

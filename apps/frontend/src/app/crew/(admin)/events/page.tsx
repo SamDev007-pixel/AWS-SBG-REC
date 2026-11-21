@@ -18,9 +18,11 @@ import {
   Image as ImageIcon,
   QrCode,
   ClipboardList,
+  CheckCircle2,
+  UserCheck,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
-import { cn, getPosterSrcAndPosition } from '@/lib/utils';
+import { cn, getPosterSrcAndPosition, getEventRegistrationCount, getEventSeatsRemaining, isEventCompleted } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -405,7 +407,7 @@ export default function AssignedEventsPage() {
             {paginatedEvents.map((event) => {
               const sc = statusConfig(event.status as EventStatus);
               const mc = modeConfig(event.mode);
-              const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
+              const regCount = getEventRegistrationCount(event);
               const capacity = event.capacity;
               const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
               return (
@@ -465,9 +467,20 @@ export default function AssignedEventsPage() {
 
                   {/* Card Footer */}
                   <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto">
-                    {/* Remaining Seats */}
-                    {capacity != null && (() => {
-                      const remaining = Math.max(0, capacity - regCount);
+                    {/* Remaining Seats or Event Concluded Status */}
+                    {isEventCompleted(event) ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-slate-400" />
+                          <span>Event Status</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] text-[11.5px] font-bold border bg-slate-500/10 text-slate-700 border-slate-500/20">
+                          <span className="h-1.5 w-1.5 rounded-[2px] bg-slate-400" />
+                          Concluded
+                        </span>
+                      </div>
+                    ) : capacity != null && (() => {
+                      const remaining = getEventSeatsRemaining(capacity, regCount);
                       let statusCls = "bg-slate-500/10 text-slate-700 border-slate-500/20";
                       let dotColor = "bg-slate-450";
                       if (remaining === 0) {
@@ -503,11 +516,19 @@ export default function AssignedEventsPage() {
                         <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                       
-                      <Link href={`/crew/scanner?eventId=${event.id}`}
-                        className="flex-1 h-10 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-sm rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
-                        <QrCode className="h-4 w-4" />
-                        <span>Scan Tickets</span>
-                      </Link>
+                      {isEventCompleted(event) ? (
+                        <Link href={`/crew/attendance?eventId=${event.id}`}
+                          className="flex-1 h-10 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-sm rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-2 shadow-sm hover:shadow active:scale-[0.98]">
+                          <UserCheck className="h-4 w-4 text-slate-500" />
+                          <span>Attendance</span>
+                        </Link>
+                      ) : (
+                        <Link href={`/crew/scanner?eventId=${event.id}`}
+                          className="flex-1 h-10 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-sm rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                          <QrCode className="h-4 w-4" />
+                          <span>Scan Tickets</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -536,7 +557,7 @@ export default function AssignedEventsPage() {
                   {/* Rows */}
                   {paginatedEvents.map((event) => {
                     const sc = statusConfig(event.status as EventStatus);
-                    const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
+                    const regCount = getEventRegistrationCount(event);
                     const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
                     return (
                       <div
@@ -726,11 +747,19 @@ export default function AssignedEventsPage() {
                                       <span>View Details</span>
                                       <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                                     </Link>
-                                    <Link href={`/crew/scanner?eventId=${event.id}`}
-                                      className="flex-1 h-8 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
-                                      <QrCode className="h-3.5 w-3.5" />
-                                      <span>Scanner</span>
-                                    </Link>
+                                    {isEventCompleted(event) ? (
+                                      <Link href={`/crew/attendance?eventId=${event.id}`}
+                                        className="flex-1 h-8 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
+                                        <UserCheck className="h-3.5 w-3.5 text-slate-500" />
+                                        <span>Attendance</span>
+                                      </Link>
+                                    ) : (
+                                      <Link href={`/crew/scanner?eventId=${event.id}`}
+                                        className="flex-1 h-8 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                                        <QrCode className="h-3.5 w-3.5" />
+                                        <span>Scanner</span>
+                                      </Link>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -748,7 +777,7 @@ export default function AssignedEventsPage() {
             <div className="flex flex-col gap-2.5 md:hidden">
               {paginatedEvents.map((event) => {
                 const sc = statusConfig(event.status as EventStatus);
-                const regCount = event.attendeeCount ?? event.registrations?.length ?? 0;
+                const regCount = getEventRegistrationCount(event);
                 const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
                 const isExpanded = !!expandedEventIds[event.id];
                 return (
@@ -843,11 +872,19 @@ export default function AssignedEventsPage() {
                             <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
                           
-                          <Link href={`/crew/scanner?eventId=${event.id}`}
-                            className="flex-1 h-9 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[12px] rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md">
-                            <QrCode className="h-3.5 w-3.5" />
-                            <span>Scanner</span>
-                          </Link>
+                          {isEventCompleted(event) ? (
+                            <Link href={`/crew/attendance?eventId=${event.id}`}
+                              className="flex-1 h-9 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[12px] rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm">
+                              <UserCheck className="h-3.5 w-3.5 text-slate-500" />
+                              <span>Attendance</span>
+                            </Link>
+                          ) : (
+                            <Link href={`/crew/scanner?eventId=${event.id}`}
+                              className="flex-1 h-9 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[12px] rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md">
+                              <QrCode className="h-3.5 w-3.5" />
+                              <span>Scanner</span>
+                            </Link>
+                          )}
                         </div>
                       </div>
                     )}

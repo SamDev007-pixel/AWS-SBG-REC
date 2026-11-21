@@ -32,7 +32,7 @@ export default function QuestionCard({
       {/* Card Header details */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="space-y-0.5">
-          <span className="text-[10px] font-black uppercase text-[#FF6B00] tracking-wider">
+          <span className="text-[10px] font-black uppercase text-[#FF9900] tracking-wider">
             Question {index + 1}
           </span>
           <span className="text-[9.5px] text-slate-400 block font-medium">

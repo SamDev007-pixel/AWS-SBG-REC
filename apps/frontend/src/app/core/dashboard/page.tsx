@@ -27,11 +27,12 @@ import {
   Home,
   ChevronRight,
   RotateCcw,
+  CheckCircle2,
 } from 'lucide-react';
 import { useEvents, useDeleteEvent } from '@/lib/hooks';
 import type { EventStatus, Event, EventMode } from '@/lib/types';
 import GlassCard from '@/components/GlassCard';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { getPosterSrcAndPosition, getEventRegistrationCount, getEventSeatsRemaining, isEventCompleted } from '@/lib/utils';
 import * as api from '@/lib/api';
 
 function formatDate(dateString: string): string {
@@ -398,7 +399,7 @@ const RecentEventCard = ({
   onAction: (action: string, eventId: string) => void;
 }) => {
   const sc = statusConfig(event.status);
-  const regCount = event.registrations?.length ?? 0;
+  const regCount = getEventRegistrationCount(event);
   const capacity = event.capacity;
   const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
 
@@ -465,9 +466,20 @@ const RecentEventCard = ({
 
       {/* Card Footer Container */}
       <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto rounded-b-[6px]">
-        {/* Remaining Seats */}
-        {capacity != null && (() => {
-          const remaining = Math.max(0, capacity - regCount);
+        {/* Remaining Seats or Event Concluded Status */}
+        {isEventCompleted(event) ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <CheckCircle2 className="h-3.5 w-3.5 text-slate-400" />
+              <span>Event Status</span>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] text-[11.5px] font-bold border bg-slate-500/10 text-slate-700 border-slate-500/20">
+              <span className="h-1.5 w-1.5 rounded-[2px] bg-slate-400" />
+              Concluded
+            </span>
+          </div>
+        ) : capacity != null && (() => {
+          const remaining = getEventSeatsRemaining(capacity, regCount);
           let statusCls = "bg-slate-500/10 text-slate-700 border-slate-500/20";
           let dotColor = "bg-slate-450";
           if (remaining === 0) {
@@ -587,7 +599,7 @@ export default function DashboardPage() {
                 <Sliders className="h-4 w-4" />
               </div>
               <div className="flex flex-col gap-0.5" style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-                <h3 className="text-[11.5px] font-bold text-slate-800 uppercase tracking-[0.06em] leading-none m-0">
+                <h3 className="text-[11.5px] font-bold text-slate-800 uppercase tracking-normal leading-none m-0">
                   Console Utilities
                 </h3>
                 <p className="text-[10.5px] text-slate-500 font-normal leading-none m-0">

@@ -149,7 +149,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
               <span className="block text-[16px] font-extrabold tracking-tight text-white leading-tight font-sans">
                 AWS Student Builder Group
               </span>
-              <span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
+              <span className="block text-[10px] font-bold uppercase tracking-normal text-[#FF9900]/90 leading-none mt-0.5 font-sans">
                 Rajalakshmi Engineering College
               </span>
             </div>
@@ -222,7 +222,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                 <span className="block text-[18px] sm:text-[20px] font-extrabold tracking-tight text-white leading-tight font-sans">
                   AWS Student Builder Group
                 </span>
-                <span className="block text-[10.5px] sm:text-[11.5px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
+                <span className="block text-[10.5px] sm:text-[11.5px] font-bold uppercase tracking-normal text-[#FF9900]/90 leading-none mt-0.5 font-sans">
                   Rajalakshmi Engineering College
                 </span>
               </div>

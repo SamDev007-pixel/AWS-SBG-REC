@@ -93,7 +93,7 @@ export default function ServiceDetailsModal({
           {loading ? (
             <div className="flex-grow flex flex-col items-center justify-center p-20 gap-3 min-h-[500px]">
               <div className="w-10 h-10 border-4 border-[#FF9900]/20 border-t-[#FF9900] rounded-full animate-spin" />
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest animate-pulse">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-normal animate-pulse">
                 Fetching Service Blueprint...
               </p>
             </div>

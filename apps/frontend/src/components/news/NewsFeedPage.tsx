@@ -68,7 +68,7 @@ export function NewsFeedPage() {
 
       <div className="mx-auto max-w-[1440px]">
         <header className="mb-4 max-w-4xl">
-          <p className="brand-note-text text-[10px] uppercase tracking-[0.08em]">
+          <p className="brand-note-text text-[10px] uppercase tracking-normal">
             AWS Community Newsroom
           </p>
           <p className="mt-2 max-w-[calc(100vw-2rem)] break-words font-display text-2xl font-semibold leading-tight tracking-tight text-foreground [overflow-wrap:anywhere] sm:max-w-full sm:text-3xl">
@@ -500,7 +500,7 @@ function SecurityBulletin({
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#131921] via-black/45 to-transparent" />
             <div className="relative flex w-full flex-col justify-end p-5">
-              <span className="mb-2 inline-flex w-fit rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-red-200 backdrop-blur-sm">
+              <span className="mb-2 inline-flex w-fit rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-normal text-red-200 backdrop-blur-sm">
                 SECURITY ADVISORY
               </span>
               <h3 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight text-white group-hover:text-red-300 transition-colors duration-200">
@@ -521,7 +521,7 @@ function SecurityBulletin({
           {others.length > 0 ? (
             <div className="flex flex-col border-t border-white/10 p-5 lg:border-l lg:border-t-0">
               <div>
-                <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.06em] text-white/40">
+                <p className="mb-2 font-mono text-[9px] uppercase tracking-normal text-white/40">
                   {"// LATEST INCIDENT LOGS"}
                 </p>
                 <div className="flex flex-col">
@@ -683,7 +683,7 @@ function TrendingStoryRail({
                     boxSizing: 'border-box'
                   }}
                 >
-                  <span className="mb-1 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-white backdrop-blur-sm">
+                  <span className="mb-1 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-normal text-white backdrop-blur-sm">
                     {getCategoryLabel(article.category)}
                   </span>
                   <h3 className="break-words font-display text-[13px] font-semibold leading-[1.3] tracking-tight text-white group-hover:text-[#B07024] transition-colors duration-200">

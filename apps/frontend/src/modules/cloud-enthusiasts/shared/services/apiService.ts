@@ -37,7 +37,9 @@ function mapBackendEventToFrontend(e: any): Event {
     }
   }
 
-  const isEnded = e.status === 'COMPLETED' || e.status === 'ARCHIVED' || e.status === 'Ended' || isPast;
+  const isExplicitlyActive = e.status === 'REGISTRATION_OPEN' || e.status === 'PUBLISHED' || e.status === 'ONGOING' || e.status === 'Ongoing';
+  const isExplicitlyEnded = e.status === 'COMPLETED' || e.status === 'ARCHIVED' || e.status === 'Ended';
+  const isEnded = isExplicitlyEnded || isPast;
   const isOngoing = !isEnded && (e.status === 'ONGOING' || e.status === 'Ongoing');
 
   return {
@@ -54,7 +56,14 @@ function mapBackendEventToFrontend(e: any): Event {
     end_datetime: e.endDatetime || '',
     registration_deadline: e.registrationDeadline || '',
     event_status: isEnded ? 'Ended' : (isOngoing ? 'Ongoing' : 'Upcoming'),
-    registered: e._count?.registrations || e.registered || 0,
+    registered:
+      e.registeredCount ??
+      e.attendeeCount ??
+      e.registered ??
+      e._count?.registrations ??
+      (Array.isArray(e.registrations)
+        ? e.registrations.filter((r: any) => r && r.status !== 'CANCELLED').length
+        : 0),
     created_at: e.createdAt || '',
     updated_at: e.updatedAt || '',
     agenda: e.agendaJson || e.agenda || [],

@@ -121,7 +121,7 @@ function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
 
           {/* Center Info Overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Attendance Rate</span>
+            <span className="text-[10px] text-slate-400 font-bold tracking-normal uppercase mb-0.5">Attendance Rate</span>
             <span className="text-4xl font-bold text-slate-900 tracking-tight tabular-nums">{stats.rate}%</span>
           </div>
         </div>
@@ -770,7 +770,7 @@ function TicketScannerPageContent() {
                 /* Manual text input */
                 <form onSubmit={handleScanSubmit} className="flex flex-col gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-normal mb-1.5">
                       Ticket Code
                     </label>
                     <input

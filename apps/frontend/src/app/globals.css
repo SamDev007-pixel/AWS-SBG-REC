@@ -88,9 +88,11 @@ textarea::-webkit-scrollbar-button {
 }
 
 /* Firefox scrollbar compatibility */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(100, 116, 139, 0.25) transparent;
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.25) transparent;
+  }
 }
 
 /* Standardize textarea resizing to only vertical to protect layouts */
@@ -442,6 +444,13 @@ img {
 .sidebar-gpu {
   will-change: width, transform;
   contain: layout;
+}
+
+/* Enforce normal letter spacing across the entire application */
+.tracking-widest,
+.tracking-wider,
+[class*="tracking-[0."] {
+  letter-spacing: normal !important;
 }
 
 /* Completed Rubber Stamp Styles & Animation keyframes - Grey solid thick border theme */
@@ -1337,10 +1346,10 @@ footer * {
 }
 
 /* Boldness adjustments mapping to theme weights */
-h1,
-h2,
-h3,
-h4,
+h1:not([class*="font-"]),
+h2:not([class*="font-"]),
+h3:not([class*="font-"]),
+h4:not([class*="font-"]),
 [style*="font-weight: 900" i],
 [style*="font-weight:900" i],
 [style*="font-weight: 800" i],
@@ -1350,6 +1359,22 @@ h4,
 [style*="fontWeight: 800" i],
 [style*="fontWeight:800" i] {
   font-weight: var(--font-weight-bold) !important;
+}
+
+/* Explicit font weight utility overrides */
+.font-medium,
+[class*="font-medium"] {
+  font-weight: 500 !important;
+}
+
+.font-normal,
+[class*="font-normal"] {
+  font-weight: 400 !important;
+}
+
+.font-semibold,
+[class*="font-semibold"] {
+  font-weight: 600 !important;
 }
 
 [style*="font-weight: 700" i],
@@ -1531,22 +1556,33 @@ h4,
   width: 5px;
 }
 
+.premium-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 .premium-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+  margin: 6px 0;
 }
 
 .premium-scrollbar::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
-  border-radius: 10px;
+  background: #CBD5E1;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 .premium-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #CBD5E1;
+  background: #94A3B8;
 }
 
-.premium-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #E2E8F0 transparent;
+@supports not selector(::-webkit-scrollbar) {
+  .premium-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+  }
 }
 
 .continent-pill {

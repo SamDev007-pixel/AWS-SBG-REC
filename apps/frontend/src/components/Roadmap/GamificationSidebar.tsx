@@ -63,7 +63,7 @@ export const GamificationSidebar: React.FC<GamificationSidebarProps> = ({
           </div>
 
           <div>
-            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">
+            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-normal block">
               Explorer Rank
             </span>
             <h4 className="text-base font-bold text-white leading-tight">
@@ -94,7 +94,7 @@ export const GamificationSidebar: React.FC<GamificationSidebarProps> = ({
 
       {/* 3. Achievements / Badges Case (3D Hover Effect) */}
       <div className="space-y-3">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-normal flex items-center gap-2">
           <Icons.Award className="w-4 h-4 text-blue-400" />
           Earned Badges ({badges.filter(b => b.unlocked).length}/4)
         </h4>
@@ -155,7 +155,7 @@ export const GamificationSidebar: React.FC<GamificationSidebarProps> = ({
 
       {/* 4. Daily Quests checklist */}
       <div className="space-y-3">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-normal flex items-center gap-2">
           <Icons.CalendarRange className="w-4 h-4 text-blue-400" />
           Daily Missions
         </h4>

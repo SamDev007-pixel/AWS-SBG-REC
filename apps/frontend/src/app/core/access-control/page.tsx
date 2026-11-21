@@ -647,9 +647,9 @@ function AccessControlDashboard() {
           {/* Top Bar: Breadcrumb + Operator Badge */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-              <span className="hover:text-[#FF6B00] transition-colors font-semibold">AWS SBG REC</span>
+              <span className="hover:text-[#FF9900] transition-colors font-semibold">AWS SBG REC</span>
               <span className="text-slate-300">/</span>
-              <span className="text-[#FF6B00] font-semibold">Core Management</span>
+              <span className="text-[#FF9900] font-semibold">Core Management</span>
               <span className="text-slate-300">/</span>
               <span className="text-slate-700 font-semibold">{activeTab}</span>
             </div>

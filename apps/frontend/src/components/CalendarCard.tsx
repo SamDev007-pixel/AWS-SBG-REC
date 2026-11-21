@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Clock, MapPin, ArrowRight, CalendarDays } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,16 +19,28 @@ function AwsCloudWatchIcon({ className }: { className?: string }) {
   );
 }
 
-// Parse "Jun 20, 2026" → Date object
-function parseEventDate(dateStr: string): Date {
-  return new Date(dateStr);
+// Parse event date safely without timezone shift
+function parseEventDate(dateStr: string | Date | undefined): Date {
+  if (!dateStr) return new Date();
+  if (dateStr instanceof Date) return dateStr;
+  const datePart = String(dateStr).split('T')[0];
+  if (datePart && datePart.includes('-')) {
+    const parts = datePart.split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date() : d;
 }
 
 // Build lookup: "YYYY-M-D" → Event[]
 function buildEventMap(evts: Event[]): Record<string, Event[]> {
   const map: Record<string, Event[]> = {};
   for (const evt of evts) {
-    const d = parseEventDate(evt.start_datetime);
+    const rawDate = evt.start_datetime || (evt as any).date;
+    if (!rawDate) continue;
+    const d = parseEventDate(rawDate);
     const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
     if (!map[key]) map[key] = [];
     map[key].push(evt);
@@ -53,11 +66,18 @@ export default function CalendarCard() {
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [iconHovered, setIconHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const { data: realEvents = [], isLoading } = useEvents();
 
   const eventMap = buildEventMap(realEvents);
-  const upcomingCount = realEvents.filter(e => parseEventDate(e.start_datetime) >= today).length;
+  const upcomingCount = realEvents.filter(e => {
+    if (e.event_status === 'Ended' || (e as any).status === 'COMPLETED' || (e as any).status === 'ARCHIVED') return false;
+    if ((e as any).status === 'REGISTRATION_OPEN' || (e as any).status === 'PUBLISHED' || (e as any).status === 'ONGOING' || e.event_status === 'Ongoing' || e.event_status === 'Upcoming') return true;
+    return parseEventDate(e.start_datetime) >= today;
+  }).length;
 
   /* ── month navigation ── */
   const prevMonth = useCallback(() => {
@@ -154,6 +174,8 @@ export default function CalendarCard() {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
+        onClick={openModal}
+        whileTap={{ scale: 0.98 }}
         className="rounded-xl border border-slate-200 bg-white !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm"
       >
         <div className="flex items-center justify-between">
@@ -176,7 +198,8 @@ export default function CalendarCard() {
       </motion.div>
 
       {/* ── Modal ── */}
-      <AnimatePresence>
+      {mounted && createPortal(
+        <AnimatePresence>
         {isOpen && (
           <motion.div
             key="calendar-overlay"
@@ -372,7 +395,9 @@ export default function CalendarCard() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

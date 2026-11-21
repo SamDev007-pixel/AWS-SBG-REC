@@ -12,7 +12,7 @@ import {
   HelpCircle, ChevronDown, QrCode
 } from 'lucide-react';
 import { EVENT_CATEGORIES, AVAILABILITY_FILTERS } from '../../../context/mockData';
-import { getPosterSrcAndPosition } from '@/lib/utils';
+import { getPosterSrcAndPosition, isEventCompleted } from '@/lib/utils';
 
 const getCategoryStyle = (category: string) => {
   const c = category.toUpperCase();
@@ -373,8 +373,8 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   const { event_id, title, short_description, category, mode, start_datetime, venue, event_status, max_capacity, registered = 0, banner_url } = event;
   const seatsLeft = Math.max(0, max_capacity - registered);
   const isFull = seatsLeft === 0;
-  const isEnded = event_status === 'Ended';
-  const isOngoing = event_status === 'Ongoing';
+  const isEnded = event_status === 'Ended' || isEventCompleted(event);
+  const isOngoing = event_status === 'Ongoing' && !isEnded;
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -609,7 +609,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
   const { event_id, title, category, mode, start_datetime, venue, event_status, max_capacity, registered = 0, banner_url } = event;
   const seatsLeft = Math.max(0, max_capacity - registered);
   const isFull = seatsLeft === 0;
-  const isEnded = event_status === 'Ended';
+  const isEnded = event_status === 'Ended' || isEventCompleted(event);
 
   const rowRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);

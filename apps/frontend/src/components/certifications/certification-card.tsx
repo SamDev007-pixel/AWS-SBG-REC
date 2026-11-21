@@ -242,7 +242,7 @@ export function CertificationCard({ certification, onDelete }: CertificationCard
         {domains.length > 0 && (
           <div className="mt-5 border-t border-slate-100 pt-4 flex-1 flex flex-col justify-between">
             <div>
-              <div className="text-[9px] font-black text-slate-400 tracking-widest uppercase mb-3">
+              <div className="text-[9px] font-black text-slate-400 tracking-normal uppercase mb-3">
                 EXAM DOMAINS
               </div>
 

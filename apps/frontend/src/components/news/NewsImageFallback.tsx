@@ -35,7 +35,7 @@ export function NewsImageFallback({
         </div>
         
         {category && (
-          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 bg-slate-200/50 border border-slate-200 px-2 py-0.5 rounded-[4px]">
+          <span className="text-[9px] font-black uppercase tracking-normal text-slate-400 bg-slate-200/50 border border-slate-200 px-2 py-0.5 rounded-[4px]">
             {getCategoryLabel(category)}
           </span>
         )}

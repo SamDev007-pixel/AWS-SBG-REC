@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { use } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { certificationsService } from "@/services/api";
 import {
@@ -52,6 +53,9 @@ export default function CertificationDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const searchParams = useSearchParams();
+  const fromPathways = searchParams?.get("from") === "pathways";
+
   const { data: cert, isLoading, error } = useQuery({
     queryKey: ["certification", slug],
     queryFn: () => certificationsService.getBySlug(slug),
@@ -71,11 +75,11 @@ export default function CertificationDetailPage({
       <div className="mx-auto max-w-[1440px] px-4 py-32 text-center">
         <p className="text-slate-500 font-medium">Certification not found.</p>
         <Link 
-          href="/certifications" 
+          href={fromPathways ? "/career-pathways" : "/certifications"} 
           className="mt-6 inline-flex items-center gap-1.5 text-xs font-black text-[#ff9900] hover:underline uppercase tracking-wider"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to certifications
+          {fromPathways ? "Back to Career Pathways" : "Back to certifications"}
         </Link>
       </div>
     );
@@ -86,28 +90,35 @@ export default function CertificationDetailPage({
   const config = levelBadgeConfig[levelName] ?? levelBadgeConfig.Foundational;
 
   return (
-    <div className="bg-slate-50/30 min-h-screen pb-24">
-      {/* Header Navigation Bar - Simple & Dedicated */}
-      <header className="bg-white border-b border-slate-200/80 py-4 shadow-sm sticky top-0 z-30">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div 
+      className="min-h-screen pb-24 antialiased"
+      style={{
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundRepeat: 'repeat',
+        backgroundSize: '450px auto',
+      }}
+    >
+      <div className="mx-auto max-w-[1440px] px-4 pt-4 sm:pt-8 sm:px-6 lg:px-8 flex flex-col gap-6">
+        {/* Header Navigation Section - Seamlessly Integrated without harsh full-bleed separation line */}
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           
           {/* Breadcrumbs & Title Stack */}
           <div className="flex flex-col gap-1 min-w-0">
             {/* Breadcrumbs */}
             <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
               <Link 
-                href={`/certifications?level=${levelName.toLowerCase()}`}
-                className="hover:text-slate-850 transition-colors flex items-center gap-1 text-[#ff9900] font-semibold"
+                href={fromPathways ? "/career-pathways" : `/certifications?level=${levelName.toLowerCase()}`}
+                className="hover:text-slate-850 transition-colors flex items-center gap-1.5 text-[#ff9900] font-semibold"
               >
                 <ArrowLeft className="h-3.5 w-3.5 text-[#ff9900]" />
-                <span>Certifications</span>
+                <span>{fromPathways ? "Career Pathways" : "Certifications"}</span>
               </Link>
               <span className="text-slate-300 font-normal">/</span>
               <span className="text-slate-400 font-normal">{levelName}</span>
             </nav>
 
             <div className="flex items-center mt-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight truncate">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
                 {cert.title}
               </h1>
             </div>
@@ -115,19 +126,17 @@ export default function CertificationDetailPage({
 
           {/* Level Badges & Code */}
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant="outline" className={cn("text-[9px] font-extrabold px-2 py-0.5 rounded-[4px] uppercase border", config.badgeClass)}>
+            <Badge variant="outline" className={cn("text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-[4px] uppercase border", config.badgeClass)}>
               {levelName}
             </Badge>
-            <span className="text-[10px] text-slate-500 font-mono tracking-wider font-bold bg-slate-100 border border-slate-200/80 rounded-[4px] px-1.5 py-0.5 shadow-sm">
+            <span className="text-[10px] text-slate-500 font-mono tracking-wider font-bold bg-white/90 border border-slate-200/80 rounded-[4px] px-2 py-0.5 shadow-2xs">
               {cert.examCode}
             </span>
           </div>
+        </header>
 
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
+        {/* Main Content Area */}
+        <main className="w-full">
         <div className="grid gap-8 lg:grid-cols-12 items-start">
           {/* Left Column: Domains list (Width: 9/12) */}
           <div className="lg:col-span-9 space-y-6">
@@ -180,7 +189,7 @@ export default function CertificationDetailPage({
                         <>
                           <Separator className="my-4 border-slate-100" />
                           <div>
-                            <p className="mb-2.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                            <p className="mb-2.5 text-[9px] font-bold text-slate-400 uppercase tracking-normal">
                               Syllabus Topics
                             </p>
                             <div className="flex flex-wrap gap-1.5">
@@ -220,7 +229,7 @@ export default function CertificationDetailPage({
                   <GraduationCap className="h-16 w-16 text-slate-300" />
                 )}
               </div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1">
                 AWS Certified
               </span>
               <span className="text-[11px] font-extrabold text-slate-850 tracking-tight leading-snug max-w-[180px]">
@@ -284,6 +293,7 @@ export default function CertificationDetailPage({
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 }

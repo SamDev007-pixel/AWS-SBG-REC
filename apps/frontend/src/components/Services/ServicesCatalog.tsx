@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { List } from "react-window";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -121,6 +120,17 @@ export default function ServicesCatalog() {
     return { total, active, featured, categoriesCount };
   }, [servicesForRole, visibleCategories]);
 
+  // Category counts map for interactive pill badges
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: servicesForRole.length };
+    servicesForRole.forEach(s => {
+      if (s.category?.slug) {
+        counts[s.category.slug] = (counts[s.category.slug] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [servicesForRole]);
+
   // Filter services locally for instant speed
   const filteredServices = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -152,222 +162,178 @@ export default function ServicesCatalog() {
     });
   }, [servicesForRole, searchQuery, selectedCategorySlug, showOnlyFeatured, statusFilter]);
 
-  // Chunk filtered services into rows
-  const serviceRows = useMemo(() => {
-    const rows = [];
-    for (let i = 0; i < filteredServices.length; i += columns) {
-      rows.push(filteredServices.slice(i, i + columns));
-    }
-    return rows;
-  }, [filteredServices, columns]);
-
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-  // Virtualized row renderer
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const rowServices = serviceRows[index];
-
-    return (
-      <div style={style} className="px-1 py-2">
-        <div
-          className="grid gap-4 h-full"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-        >
-          {rowServices.map(service => {
-            const iconSrc = service.iconUrl?.startsWith('http') || service.iconUrl?.startsWith('/')
-              ? service.iconUrl
-              : (service.iconUrl ? `${API_URL}/${service.iconUrl}` : '/fallback.svg');
-
-            return (
-            <div
-              key={service.id}
-              onClick={() => setSelectedServiceId(service.id)}
-              className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-5 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden h-full"
-            >
-              {/* Featured dot */}
-              {service.isFeatured && (
-                <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-amber-400" />
-              )}
-
-              {/* Icon + meta */}
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-                  <img
-                    src={iconSrc}
-                    alt={service.name}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
-                    }}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{service.serviceCode}</span>
-                    {service.status !== "GA" && (
-                      <span className="px-1.5 py-0.5 text-[8px] font-semibold bg-amber-50 text-amber-500 rounded border border-amber-100 leading-none">
-                        {service.status}
-                      </span>
-                    )}
-                  </div>
-                  <h4 className="text-[14px] font-semibold text-slate-800 truncate group-hover:text-[#FF9900] transition-colors leading-tight">
-                    {service.name}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Description */}
-              <p className="text-[11.5px] text-slate-400 leading-relaxed line-clamp-2 flex-grow">
-                {service.shortDescription}
-              </p>
-
-              {/* Footer */}
-              <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] font-medium text-slate-400 truncate max-w-[60%]">
-                  {service.category?.name || "AWS Core"}
-                </span>
-                <span className="text-[10px] font-medium text-[#FF9900] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
-                  View <BookOpen size={10} />
-                </span>
-              </div>
-            </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <section className="w-full min-h-screen py-10 px-4 sm:px-10 bg-transparent relative flex flex-col items-center">
-      {/* Subtle background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none" />
-
       <div ref={containerRef} className="max-w-7xl w-full flex flex-col gap-7 z-10">
 
-        {/* ── Header Row ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            <p className="text-[10px] font-bold text-[#FF9900] uppercase tracking-[0.2em] mb-1.5">AWS Services Directory</p>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
-              <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight leading-tight m-0">AWS Services Catalog</h2>
-              {userRole === "core" && (
-                <div className="mt-0.5 sm:mt-0">
+        {/* ── Sticky Catalog Header & Filter Controls ── */}
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md -mx-4 px-4 sm:-mx-6 sm:px-6 pt-5 pb-5 border-b border-slate-200/80 flex flex-col gap-6">
+          {/* Header Row (Standard Core Breadcrumb Layout) */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+            <div className="max-w-2xl">
+              {/* Breadcrumb Path */}
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2 select-none">
+                <span className="hover:text-[#FF9900] transition-colors font-semibold">AWS SBG REC</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-[#FF9900] font-semibold">Services Directory</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <h2
+                  className="font-display text-2xl sm:text-3xl font-medium leading-tight tracking-tight text-slate-900 m-0"
+                  style={{ fontWeight: 500 }}
+                >
+                  AWS Services Catalog
+                </h2>
+                {userRole === "core" && (
                   <Link
                     href="/core/services"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs hover:-translate-y-0.5 whitespace-nowrap shrink-0 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-[6px] text-xs font-semibold transition-all shadow-xs hover:-translate-y-0.5 whitespace-nowrap shrink-0 cursor-pointer self-start sm:self-auto"
                   >
                     <Settings2 size={13} className="text-[#FF9900]" />
                     <span>Manage Services</span>
                   </Link>
+                )}
+              </div>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-500 m-0">
+                Comprehensive reference covering major AWS global cloud service offerings.
+              </p>
+            </div>
+
+            {/* Metrics Pills matching project design system */}
+            <div className="shrink-0">
+              <div className="inline-flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/80 shadow-xs">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Services</span>
+                  <span className="text-xs font-extrabold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded-md leading-none">{stats.total}</span>
                 </div>
-              )}
-            </div>
-            <p className="text-xs text-slate-400 font-normal mt-1.5 m-0 leading-relaxed">
-              Comprehensive reference covering major AWS global cloud service offerings.
-            </p>
-          </div>
-
-          {/* Stats row: grid cards on mobile, flex row on desktop */}
-          <div className="grid grid-cols-2 gap-2 w-full md:flex md:items-center md:gap-6 md:w-auto bg-slate-100/50 md:bg-white border border-slate-200/40 md:border-slate-100 rounded-2xl p-2 md:px-6 md:py-4 shadow-sm">
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">Services</span>
-              <span className="text-xl font-black text-slate-800 mt-0.5">{stats.total}</span>
-            </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">Categories</span>
-              <span className="text-xl font-black text-slate-800 mt-0.5">{stats.categoriesCount}</span>
-            </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-orange-400/80 md:text-slate-400 font-bold uppercase tracking-wider">Featured</span>
-              <span className="text-xl font-black text-orange-500 mt-0.5">{stats.featured}</span>
-            </div>
-            <div className="hidden md:block w-px h-8 bg-slate-100" />
-            <div className="bg-white md:bg-transparent border border-slate-200/40 md:border-0 rounded-xl md:rounded-none py-3.5 px-4 md:p-0 flex flex-col items-center text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] md:shadow-none">
-              <span className="text-[9.5px] text-emerald-500/80 md:text-slate-400 font-bold uppercase tracking-wider">Active GA</span>
-              <span className="text-xl font-black text-emerald-500 mt-0.5">{stats.active}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Filter Panel ── */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 sm:px-6 sm:py-5 shadow-sm flex flex-col gap-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-            {/* Search */}
-            <div className="lg:col-span-6 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                placeholder="Search by service code, name, category, or description..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700"
-              />
-            </div>
-
-            {/* Status Dropdown */}
-            <div className="lg:col-span-3">
-              <select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all"
-              >
-                <option value="all">All Launch Statuses</option>
-                <option value="GA">General Availability (GA)</option>
-                <option value="Deprecated">Deprecated</option>
-              </select>
-            </div>
-
-            {/* Featured Toggle */}
-            <div className="lg:col-span-3">
-              <button
-                onClick={() => setShowOnlyFeatured(!showOnlyFeatured)}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-[12px] font-medium ${showOnlyFeatured ? "bg-amber-50 border-amber-200 text-amber-600" : "bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-500"}`}
-              >
-                <Star size={13} className={showOnlyFeatured ? "fill-amber-500 stroke-none" : "text-slate-400"} />
-                Featured Services Only
-              </button>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Categories</span>
+                  <span className="text-xs font-extrabold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded-md leading-none">{stats.categoriesCount}</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Featured</span>
+                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded-md leading-none">{stats.featured}</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Active GA</span>
+                  <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md leading-none">{stats.active}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Category Pills */}
-          <div className="flex flex-col gap-2">
-            <span className="text-[9.5px] font-extrabold text-slate-400 uppercase tracking-wider">Filter by Cloud Category</span>
-            <div className="relative w-full overflow-hidden">
-              {/* Fade gradient overlay for visual scroll cue on mobile */}
-              <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10 md:hidden" />
-              
-              <div 
-                className="flex items-center gap-2 overflow-x-auto pb-1.5 -mx-4 px-4 scroll-smooth"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
+          {/* Filter Controls */}
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+              {/* Search */}
+              <div className="lg:col-span-6 relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                <input
+                  type="text"
+                  placeholder="Search by service code, name, category, or description..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 focus:outline-none rounded-xl text-xs sm:text-[13px] font-normal transition-all text-slate-800 placeholder:text-slate-400 shadow-xs"
+                />
+              </div>
+
+              {/* Status Dropdown */}
+              <div className="lg:col-span-3">
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 focus:outline-none rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 cursor-pointer transition-all shadow-xs"
+                >
+                  <option value="all">All Launch Statuses</option>
+                  <option value="GA">General Availability (GA)</option>
+                  <option value="Deprecated">Deprecated</option>
+                </select>
+              </div>
+
+              {/* Featured Toggle */}
+              <div className="lg:col-span-3">
                 <button
-                  onClick={() => setSelectedCategorySlug("all")}
+                  onClick={() => setShowOnlyFeatured(!showOnlyFeatured)}
                   className={cn(
-                    "px-4 py-1.5 rounded-full text-[11px] font-black flex-shrink-0 border transition-all select-none cursor-pointer duration-200",
-                    selectedCategorySlug === "all"
-                      ? "bg-[#FF9900] border-[#FF9900] text-white shadow-sm shadow-[#FF9900]/15"
-                      : "bg-slate-50/80 border-slate-200/50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
+                    "w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border transition-all text-xs font-semibold shadow-xs cursor-pointer select-none active:scale-98",
+                    showOnlyFeatured
+                      ? "bg-amber-50/90 border-amber-300 text-amber-700 font-bold"
+                      : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-medium"
                   )}
                 >
-                  All Categories
+                  <Star size={13} className={showOnlyFeatured ? "fill-amber-500 stroke-none" : "text-slate-400"} />
+                  <span>Featured Services Only</span>
                 </button>
-                {visibleCategories.map(cat => (
+              </div>
+            </div>
+
+            {/* Category Filter Pills with count badges */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none">Filter by Cloud Category</span>
+              <div className="relative w-full overflow-hidden">
+                {/* Fade gradient overlay for visual scroll cue on mobile */}
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10 md:hidden" />
+                
+                <div 
+                  className="flex items-center gap-2 overflow-x-auto pb-1.5 scroll-smooth no-scrollbar select-none"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {/* All Categories Pill */}
                   <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategorySlug(cat.slug)}
+                    onClick={() => setSelectedCategorySlug("all")}
                     className={cn(
-                      "px-4 py-1.5 rounded-full text-[11px] font-black flex-shrink-0 border transition-all select-none cursor-pointer duration-200",
-                      selectedCategorySlug === cat.slug
-                        ? "bg-[#FF9900] border-[#FF9900] text-white shadow-sm shadow-[#FF9900]/15"
-                        : "bg-slate-50/80 border-slate-200/50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
+                      "flex items-center gap-2 rounded-[8px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none active:scale-95 border shrink-0",
+                      selectedCategorySlug === "all"
+                        ? "bg-orange-50/90 border-orange-300 text-[#FF9900] font-semibold shadow-xs"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 font-medium"
                     )}
                   >
-                    {cat.name}
+                    <span>All Categories</span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-[5px] h-4.5 min-w-[20px] px-1 text-[10px] font-semibold leading-none border",
+                        selectedCategorySlug === "all"
+                          ? "bg-orange-100/60 border-orange-200 text-[#FF9900]"
+                          : "bg-slate-100/70 border-slate-200 text-slate-400"
+                      )}
+                    >
+                      {categoryCounts.all}
+                    </span>
                   </button>
-                ))}
+
+                  {/* Category Pills */}
+                  {visibleCategories.map(cat => {
+                    const count = categoryCounts[cat.slug] ?? 0;
+                    const isActive = selectedCategorySlug === cat.slug;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategorySlug(cat.slug)}
+                        className={cn(
+                          "flex items-center gap-2 rounded-[8px] px-3.5 py-1.5 text-xs transition-all cursor-pointer select-none active:scale-95 border shrink-0",
+                          isActive
+                            ? "bg-orange-50/90 border-orange-300 text-[#FF9900] font-semibold shadow-xs"
+                            : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 font-medium"
+                        )}
+                      >
+                        <span>{cat.name}</span>
+                        <span
+                          className={cn(
+                            "inline-flex items-center justify-center rounded-[5px] h-4.5 min-w-[20px] px-1 text-[10px] font-semibold leading-none border",
+                            isActive
+                              ? "bg-orange-100/60 border-orange-200 text-[#FF9900]"
+                              : "bg-slate-100/70 border-slate-200 text-slate-400"
+                          )}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -377,7 +343,7 @@ export default function ServicesCatalog() {
         {loading ? (
           <div className="h-[400px] flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-[3px] border-[#FF9900]/20 border-t-[#FF9900] rounded-full animate-spin" />
-            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Loading AWS Catalog...</p>
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-normal">Loading AWS Catalog...</p>
           </div>
         ) : error ? (
           <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center text-red-500 text-sm">
@@ -392,15 +358,72 @@ export default function ServicesCatalog() {
             </p>
           </div>
         ) : (
-          <div className="w-full flex-grow min-h-[500px]">
-            <List
-              rowCount={serviceRows.length}
-              rowHeight={190}
-              rowComponent={Row as any}
-              rowProps={{}}
-              style={{ height: 700, width: "100%" }}
-              className="premium-scrollbar"
-            />
+          <div className="w-full pb-16">
+            <div
+              className="grid gap-4 w-full"
+              style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+            >
+              {filteredServices.map(service => {
+                const iconSrc = service.iconUrl?.startsWith('http') || service.iconUrl?.startsWith('/')
+                  ? service.iconUrl
+                  : (service.iconUrl ? `${API_URL}/${service.iconUrl}` : '/fallback.svg');
+
+                return (
+                  <div
+                    key={service.id}
+                    onClick={() => setSelectedServiceId(service.id)}
+                    className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-5 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden min-h-[174px]"
+                  >
+                    {/* Featured dot */}
+                    {service.isFeatured && (
+                      <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-amber-400" />
+                    )}
+
+                    {/* Icon + meta */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+                        <img
+                          src={iconSrc}
+                          alt={service.name}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
+                          }}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{service.serviceCode}</span>
+                          {service.status !== "GA" && (
+                            <span className="px-1.5 py-0.5 text-[8px] font-semibold bg-amber-50 text-amber-500 rounded border border-amber-100 leading-none">
+                              {service.status}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-[14px] font-semibold text-slate-800 truncate group-hover:text-[#FF9900] transition-colors leading-tight">
+                          {service.name}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[11.5px] text-slate-400 leading-relaxed line-clamp-2 flex-grow">
+                      {service.shortDescription}
+                    </p>
+
+                    {/* Footer */}
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[10px] font-medium text-slate-400 truncate max-w-[60%]">
+                        {service.category?.name || "AWS Core"}
+                      </span>
+                      <span className="text-[10px] font-medium text-[#FF9900] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
+                        View <BookOpen size={10} />
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

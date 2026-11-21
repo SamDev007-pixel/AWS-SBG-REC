@@ -11,12 +11,40 @@ import { CreateAgendaDto } from './dto/create-agenda.dto';
 import { CreateSpeakerDto } from './dto/create-speaker.dto';
 import { UpdateFormFieldDto } from './dto/update-form-field.dto';
 
+const registrationsCountSelect = {
+  registrations: {
+    where: {
+      status: { not: 'CANCELLED' as const },
+    },
+  },
+};
+
 @Injectable()
 export class EventsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: MemoryCacheService,
   ) {}
+
+  private formatEvent<T extends Record<string, any>>(event: T): T & {
+    attendeeCount: number;
+    registeredCount: number;
+    registered: number;
+  } {
+    if (!event) return event as any;
+    const count =
+      event._count?.registrations ??
+      (Array.isArray(event.registrations)
+        ? event.registrations.filter((r: any) => r.status !== 'CANCELLED').length
+        : 0);
+
+    return {
+      ...event,
+      attendeeCount: count,
+      registeredCount: count,
+      registered: count,
+    };
+  }
 
   async create(dto: CreateEventDto) {
     const created = await this.prisma.event.create({
@@ -76,11 +104,11 @@ export class EventsService {
         organizer: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        _count: { select: { registrations: true } },
+        _count: { select: registrationsCountSelect },
       },
     });
     this.cache.invalidatePattern('events:');
-    return created;
+    return this.formatEvent(created);
   }
 
   async findAll(pagination: GetEventsDto) {
@@ -159,13 +187,18 @@ export class EventsService {
             organizer: {
               select: { id: true, firstName: true, lastName: true, email: true },
             },
-            _count: { select: { registrations: true } },
+            _count: { select: registrationsCountSelect },
           },
         }),
         this.prisma.event.count({ where }),
       ]);
 
-      return new PaginatedResponseDto(events, total, page, limit);
+      return new PaginatedResponseDto(
+        events.map((e) => this.formatEvent(e)),
+        total,
+        page,
+        limit,
+      );
     }, 60);
   }
 
@@ -180,7 +213,7 @@ export class EventsService {
           organizer: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
-          _count: { select: { registrations: true } },
+          _count: { select: registrationsCountSelect },
         },
       });
 
@@ -188,7 +221,7 @@ export class EventsService {
         throw new NotFoundException(`Event with ID "${id}" not found`);
       }
 
-      return event;
+      return this.formatEvent(event);
     }, 120);
   }
 
@@ -222,13 +255,18 @@ export class EventsService {
           organizer: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
-          _count: { select: { registrations: true } },
+          _count: { select: registrationsCountSelect },
         },
       }),
       this.prisma.event.count({ where }),
     ]);
 
-    return new PaginatedResponseDto(events, total, page, limit);
+    return new PaginatedResponseDto(
+      events.map((e) => this.formatEvent(e)),
+      total,
+      page,
+      limit,
+    );
   }
 
   async update(id: string, dto: UpdateEventDto) {
@@ -318,11 +356,11 @@ export class EventsService {
         organizer: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        _count: { select: { registrations: true } },
+        _count: { select: registrationsCountSelect },
       },
     });
     this.cache.invalidatePattern('events:');
-    return updated;
+    return this.formatEvent(updated);
   }
 
   async remove(id: string) {
@@ -410,10 +448,11 @@ export class EventsService {
         organizer: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
+        _count: { select: registrationsCountSelect },
       },
     });
     this.cache.invalidatePattern('events:');
-    return created;
+    return this.formatEvent(created);
   }
 
   async uploadPoster(id: string, file: Express.Multer.File) {
@@ -594,10 +633,10 @@ export class EventsService {
         organizer: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        _count: { select: { registrations: true } },
+        _count: { select: registrationsCountSelect },
       },
     });
     this.cache.invalidatePattern('events:');
-    return updated;
+    return this.formatEvent(updated);
   }
 }

@@ -66,7 +66,7 @@ const LevelIslandHeader: React.FC<{
       <div className={cn(locked ? "p-3 sm:p-5" : "gradient-overlay p-3 sm:p-5")}>
         <div className="relative z-10 flex flex-col">
           <span className={cn(
-            "text-[7px] sm:text-[9px] font-black uppercase tracking-widest block font-heading",
+            "text-[7px] sm:text-[9px] font-black uppercase tracking-normal block font-heading",
             !locked ? "text-slate-500" : "text-slate-400"
           )}>
             LEVEL {number}
@@ -496,7 +496,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <div className="absolute w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-sky-500/10 animate-ping" />
             <Icons.Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-sky-500 animate-spin stroke-[2.5]" />
           </div>
-          <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading text-center">
+          <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold tracking-normal uppercase animate-pulse font-heading text-center">
             Preparing Your Journey...
           </span>
         </div>
@@ -529,7 +529,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <div className="flex items-center justify-center pointer-events-auto">
               <div className="flex items-center gap-2 sm:gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 backdrop-blur-md">
                 <div className="flex flex-col">
-                  <span className="text-[7px] sm:text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
+                  <span className="text-[7px] sm:text-[9px] font-extrabold text-slate-400 uppercase tracking-normal leading-none font-heading">
                     Progress
                   </span>
                   <span className="text-[9px] sm:text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
@@ -733,7 +733,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
                 top: `${coordinates['fundamentals'].y - 80}px`
               }}
             >
-              <div className="bg-[#0dce88] text-slate-950 font-black text-[7px] sm:text-[9px] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white tracking-widest shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
+              <div className="bg-[#0dce88] text-slate-950 font-black text-[7px] sm:text-[9px] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white tracking-normal shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
                 START HERE
               </div>
               {/* Tiny red flag flagpost */}

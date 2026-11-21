@@ -172,7 +172,7 @@ export default function RoadmapProgress() {
                 Overall Completion
               </span>
               <span className="font-bold text-slate-800">
-                {overallPercent}% / {totalModules} Modules
+                {overallPercent}% | {totalModules} Modules
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">

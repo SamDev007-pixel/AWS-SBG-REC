@@ -33,10 +33,9 @@ export default function ServicesLayout({ children }: { children: React.ReactNode
     <div
       className="services-theme min-h-screen w-full relative"
       style={{
-        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), url('/images/aws_tech_doodle_bg.png')",
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('/images/aws_tech_doodle_bg.png')",
         backgroundRepeat: 'repeat',
-        backgroundSize: '480px auto',
-        backgroundColor: '#f8fafc',
+        backgroundSize: '450px auto',
       }}
     >
       {children}

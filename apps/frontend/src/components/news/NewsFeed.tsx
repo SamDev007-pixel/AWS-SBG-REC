@@ -35,7 +35,7 @@ export default function NewsFeed({ news, selectedRegion, onClearRegion, isLoadin
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Regional Intelligence</h3>
+          <h3 className="text-xs font-black text-slate-400 uppercase tracking-normal">Regional Intelligence</h3>
           <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500">
             <Wifi size={10} className="animate-pulse" />
             LIVE
@@ -58,12 +58,12 @@ export default function NewsFeed({ news, selectedRegion, onClearRegion, isLoadin
           <div>
             <h2 className="text-5xl font-black text-[#1A1C1E] tracking-tight flex items-center justify-center gap-4">
               Infrastructure Intelligence
-              <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black border border-emerald-100 italic tracking-[0.1em]">
+              <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black border border-emerald-100 italic tracking-normal">
                 <Wifi size={12} className="animate-pulse" />
                 SYSTEM LIVE
               </div>
             </h2>
-            <p className="text-slate-400 text-[11px] font-extrabold tracking-[0.3em] uppercase mt-4">Global AWS Network Activity & Updates</p>
+            <p className="text-slate-400 text-[11px] font-extrabold tracking-normal uppercase mt-4">Global AWS Network Activity & Updates</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export default function NewsFeed({ news, selectedRegion, onClearRegion, isLoadin
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-8 py-3 rounded-full text-[11px] font-black whitespace-nowrap transition-all tracking-widest uppercase border ${
+              className={`px-8 py-3 rounded-full text-[11px] font-black whitespace-nowrap transition-all tracking-normal uppercase border ${
                 selectedCategory === cat 
                 ? 'bg-[#1A1C1E] text-white border-[#1A1C1E] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.2)] scale-105' 
                 : 'bg-white text-slate-400 hover:bg-slate-50 border-slate-100'
@@ -111,13 +111,13 @@ export default function NewsFeed({ news, selectedRegion, onClearRegion, isLoadin
                   <Stars size={32} className="text-[#FF9900]" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black text-[#FF9900] uppercase tracking-[0.25em] mb-1.5">Active Matrix</p>
+                  <p className="text-[11px] font-black text-[#FF9900] uppercase tracking-normal mb-1.5">Active Matrix</p>
                   <p className="text-2xl font-black">{selectedRegion.details}</p>
                 </div>
               </div>
               <button 
                 onClick={onClearRegion}
-                className="text-[11px] font-black bg-white/5 hover:bg-white/10 text-white uppercase tracking-widest px-8 py-3.5 rounded-2xl transition-all border border-white/10"
+                className="text-[11px] font-black bg-white/5 hover:bg-white/10 text-white uppercase tracking-normal px-8 py-3.5 rounded-2xl transition-all border border-white/10"
               >
                 Reset Matrix
               </button>
@@ -148,7 +148,7 @@ export default function NewsFeed({ news, selectedRegion, onClearRegion, isLoadin
               <Search size={36} className="text-slate-200" />
             </div>
             <h3 className="text-[#1A1C1E] font-black text-2xl tracking-tight">No active streams found</h3>
-            <p className="text-slate-400 text-xs font-bold mt-3 uppercase tracking-[0.2em]">Adjust filters to re-initialize regional intelligence</p>
+            <p className="text-slate-400 text-xs font-bold mt-3 uppercase tracking-normal">Adjust filters to re-initialize regional intelligence</p>
           </div>
         )}
       </div>

@@ -57,7 +57,7 @@ export function DomainFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 pt-4">
           <div className="space-y-1.5">
-            <Label htmlFor="domain-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Domain Name</Label>
+            <Label htmlFor="domain-name" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Domain Name</Label>
             <Input
               id="domain-name"
               value={name}
@@ -69,7 +69,7 @@ export function DomainFormDialog({
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <Label htmlFor="domain-weightage" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Weightage (%)</Label>
+              <Label htmlFor="domain-weightage" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Weightage (%)</Label>
               <Input
                 id="domain-weightage"
                 type="number"
@@ -83,7 +83,7 @@ export function DomainFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="domain-order" className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 block">Display Order</Label>
+              <Label htmlFor="domain-order" className="text-[10px] font-black text-slate-400 uppercase tracking-normal leading-none mb-1 block">Display Order</Label>
               <Input
                 id="domain-order"
                 type="number"
