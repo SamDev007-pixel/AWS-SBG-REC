@@ -250,14 +250,17 @@ export default function Home() {
             <div className="h-auto lg:h-screen w-full relative overflow-visible lg:overflow-hidden flex flex-col lg:flex-shrink-0">
 
             {/* Top Header */}
-            <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 sm:px-10 pt-6 sm:pt-8 pb-2 lg:pt-10 lg:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto lg:pointer-events-none">
+            <header className="relative lg:absolute lg:top-0 lg:left-0 lg:right-0 z-50 w-full px-4 sm:px-10 pt-6 sm:pt-8 pb-2 lg:pt-8 lg:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto lg:pointer-events-none">
               <div className="flex items-center gap-4 pointer-events-auto w-full sm:w-auto">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-slate-900 m-0" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+                <div className="max-w-4xl">
+                  <p className="brand-note-text text-[10px] uppercase tracking-normal">
+                    AWS Global Infrastructure
+                  </p>
+                  <h1 className="mt-1 max-w-[calc(100vw-2rem)] break-words font-display text-2xl font-semibold leading-tight tracking-tight text-foreground [overflow-wrap:anywhere] sm:max-w-full sm:text-3xl">
                     AWS Region Intelligence
                   </h1>
-                  <p className="text-slate-400 text-[10px] sm:text-xs font-medium tracking-wider uppercase mt-1.5 leading-relaxed m-0">
-                    Interactive 3D explorer visualizing global cloud infrastructure partitions
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+                    Interactive 3D explorer visualizing global cloud infrastructure partitions.
                   </p>
                 </div>
               </div>
@@ -285,7 +288,7 @@ export default function Home() {
                   <div className="flex items-center gap-2.5 truncate">
                     {selectedRegion ? (
                       <>
-                        <FlagImage flag={selectedRegion.flagUrl || selectedRegion.flag} name={selectedRegion.name} className="w-[27px] h-[18px] rounded-none" />
+                        <FlagImage flag={selectedRegion.flagUrl || selectedRegion.flag} name={selectedRegion.name} className="w-[27px] h-[18px] rounded-[3px]" />
                         <span className="text-[13px] font-bold text-slate-800 truncate">
                           {selectedRegion.name}
                         </span>
@@ -318,7 +321,7 @@ export default function Home() {
                           return (
                             <div key={cat.id} className="flex flex-col gap-1">
                               <div className="flex items-center gap-2 px-2 py-1">
-                                <FlagImage flag={cat.flag} name={cat.name} className="w-[24px] h-[16px] rounded-none" />
+                                <FlagImage flag={cat.flag} name={cat.name} className="w-[24px] h-[16px] rounded-[3px]" />
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{cat.name}</span>
                               </div>
                               
@@ -362,7 +365,7 @@ export default function Home() {
                 animate={{ x: 0, opacity: 1 }}
                 className="hidden lg:flex w-80 flex-col gap-4 z-20 shrink-0"
               >
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-4 sm:p-5 h-auto lg:h-full flex flex-col shadow-sm">
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-xl p-4 sm:p-5 h-auto lg:h-full flex flex-col shadow-sm">
 
                   {/* Header */}
                   <div className="mb-4 pb-4 border-b border-slate-100/80">
@@ -390,7 +393,7 @@ export default function Home() {
                               }
                             }}
                             className={cn(
-                              "w-full px-3 py-2.5 rounded-none flex items-center justify-between transition-all text-left group border select-none cursor-pointer",
+                              "w-full px-3 py-2.5 rounded-lg flex items-center justify-between transition-all text-left group border select-none cursor-pointer",
                               hasActiveChild
                                 ? "bg-orange-50/90 text-slate-900 border-orange-200/80 border-l-[3px] border-l-[#FF9900] shadow-xs"
                                 : isExpanded
@@ -399,7 +402,7 @@ export default function Home() {
                             )}
                           >
                             <div className="flex items-center gap-3 truncate">
-                              <FlagImage flag={cat.flag} name={cat.name} className="w-[27px] h-[18px] rounded-none border border-slate-300 shadow-xs shrink-0" />
+                              <FlagImage flag={cat.flag} name={cat.name} className="w-[27px] h-[18px] rounded-[3px] border border-slate-300 shadow-xs shrink-0" />
                               <span className="text-[11px] sm:text-[12px] font-bold tracking-normal truncate uppercase text-slate-900">
                                 {cat.name}
                               </span>
@@ -422,8 +425,8 @@ export default function Home() {
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="overflow-hidden ml-1.5 mr-0.5 mt-2 flex flex-col gap-1.5"
+                                transition={{ duration: 0.18, ease: 'easeInOut' }}
+                                className="overflow-hidden ml-3.5 pl-2.5 border-l border-slate-200/80 my-1 flex flex-col gap-0.5"
                               >
                                 {cat.regionIds.map((rId) => {
                                   const r = regions.find(region => region.id === rId);
@@ -435,24 +438,13 @@ export default function Home() {
                                       key={r.id}
                                       onClick={() => handleRegionSelect(r)}
                                       className={cn(
-                                        "w-full px-3.5 py-2.5 rounded-none text-left transition-all flex items-center justify-between border select-none cursor-pointer group/sub",
+                                        "w-full px-2.5 py-1.5 rounded-md text-left transition-colors flex items-center justify-between select-none cursor-pointer text-xs",
                                         isSubSelected
-                                          ? "bg-gradient-to-r from-[#FF9900]/12 to-[#FF9900]/5 border-[#FF9900]/40 text-slate-900 font-bold shadow-xs"
-                                          : "bg-white text-slate-650 hover:text-slate-900 hover:bg-slate-50 border-slate-100 font-medium"
+                                          ? "bg-orange-50 text-[#FF9900] font-bold"
+                                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
                                       )}
                                     >
-                                      <div className="flex items-center gap-2.5 truncate">
-                                        <span className={cn(
-                                          "w-2 h-2 rounded-full flex-shrink-0 transition-colors",
-                                          isSubSelected ? "bg-[#FF9900] ring-2 ring-[#FF9900]/30" : "bg-slate-300"
-                                        )} />
-                                        <span className="text-[11.5px] tracking-tight truncate">{r.name}</span>
-                                      </div>
-                                      {isSubSelected ? (
-                                        <CheckCircle2 size={13} className="text-[#FF9900] shrink-0" />
-                                      ) : (
-                                        <ChevronRight size={11} className="text-slate-300 group-hover/sub:text-slate-500 shrink-0 transition-colors" />
-                                      )}
+                                      <span className="truncate">{r.name}</span>
                                     </button>
                                   );
                                 })}
@@ -517,7 +509,7 @@ export default function Home() {
 
           {/* Catalog wrapper stacked below the globe scene */}
           <div id="services-catalog-anchor" className="w-full">
-            <ServicesCatalog />
+            <ServicesCatalog userRole={userRole} />
           </div>
         </motion.section>
         ) : (
@@ -564,8 +556,8 @@ function RegionBriefModal({ region, onClose, onExplore }: { region: AWSRegionDat
             <FlagImage
               flag={region.flagUrl || region.flag}
               name={region.name}
-              className="w-10 h-[26px] sm:w-11 sm:h-[28px] rounded-none border border-slate-300 shadow-xs shrink-0"
-              imgClassName="w-full h-full object-cover rounded-none"
+              className="w-10 h-[26px] sm:w-11 sm:h-[28px] rounded-[3px] border border-slate-300 shadow-xs shrink-0"
+              imgClassName="w-full h-full object-cover rounded-[3px]"
             />
             <div>
               <h3 className="text-[16px] font-bold tracking-tight text-slate-900 leading-tight">{region.name}</h3>

@@ -453,33 +453,53 @@ img {
   letter-spacing: normal !important;
 }
 
-/* Completed Rubber Stamp Styles & Animation keyframes - Grey solid thick border theme */
+/* Completed Rubber Stamp Styles & Animation keyframes */
 .completed-stamp {
   font-family: var(--font-sans);
-  font-size: 23px;
-  font-weight: 855;
+  font-size: 24px;
+  font-weight: 850;
   text-transform: uppercase;
-  color: rgba(85, 85, 85, 0.80);
-  border: 4px solid rgba(85, 85, 85, 0.80);
-  padding: 8px 18px;
-  border-radius: 10px;
-  letter-spacing: 4px;
+  color: #ffffff;
+  border: 4px solid #ffffff;
+  padding: 8px 20px;
+  border-radius: 9px;
+  letter-spacing: 3.5px;
   display: inline-block;
-  background-color: transparent;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.2);
   opacity: 0;
-  transform: translateY(-30px) scale(1.4) rotate(-18deg);
+  transform: translateY(-20px) scale(1.3) rotate(-14deg);
   transform-origin: center;
   position: relative;
+}
+
+@media (min-width: 640px) {
+  .completed-stamp {
+    font-size: 28px;
+    border-width: 4.5px;
+    padding: 10px 24px;
+    border-radius: 10px;
+    letter-spacing: 4px;
+  }
 }
 
 .completed-stamp::after {
   content: '';
   position: absolute;
   inset: 3px;
-  border: 1.5px solid rgba(85, 85, 85, 0.80);
-  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 5px;
   pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .completed-stamp::after {
+    inset: 3.5px;
+    border-width: 1.8px;
+    border-radius: 6px;
+  }
 }
 
 .completed-stamp.animate-stamp {
@@ -489,12 +509,16 @@ img {
 
 /* White variant for dark card backgrounds */
 .completed-stamp.on-dark {
-  color: rgba(255, 255, 255, 0.90);
-  border-color: rgba(255, 255, 255, 0.90);
+  color: #ffffff;
+  border-color: #ffffff;
+  background-color: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .completed-stamp.on-dark::after {
-  border-color: rgba(255, 255, 255, 0.90);
+  border-color: rgba(255, 255, 255, 0.9);
 }
 
 .completed-stamp-mini {

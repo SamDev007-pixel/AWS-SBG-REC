@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import {
   Clock,
   DollarSign,
-  IndianRupee,
   Loader2,
   User,
   FileText,
@@ -20,7 +19,6 @@ import {
   BriefcaseBusiness,
   Check,
   GraduationCap,
-  Sparkles,
   AlertTriangle,
   RefreshCw,
 } from "lucide-react";
@@ -328,7 +326,7 @@ function RoleSection({
         <div 
           onClick={onToggleFlip}
           className={cn(
-            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
+            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between items-center transition-all duration-300 h-full cursor-pointer hover:shadow-lg hover:border-slate-300/80",
             isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
           )}
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
@@ -442,55 +440,73 @@ function RoleSection({
         <div 
           onClick={onToggleFlip}
           className={cn(
-            "absolute inset-0 w-full h-full bg-[#0B0F19] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-[#FF9900]/40 hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.3),0_0_15px_rgba(255,153,0,0.15)]",
+            "absolute inset-0 w-full h-full bg-[#0F172A] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-slate-700 overflow-hidden",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg) translate3d(0,0,0)" }}
         >
-          <div className="w-full relative flex items-start justify-between">
+          <div className="w-full relative flex items-start justify-between pb-3 border-b border-slate-800/80 shrink-0">
             <div className="flex-1 text-left">
-              <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Role Profile</span>
-              <h3 className="text-lg font-black text-white tracking-tight leading-tight mt-0.5">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Role Profile</span>
+              <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-tight mt-0.5">
                 {path.name}
               </h3>
             </div>
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 bg-slate-800/80 border border-slate-700/80 px-2.5 py-1 rounded-[4px] shrink-0">
+              AWS Specialization
+            </span>
           </div>
 
-          <div className="mt-4 flex-1 flex flex-col gap-4 text-left overflow-y-auto premium-scrollbar pr-1 max-h-[220px] sm:max-h-[240px]">
+          <div className="my-auto py-1 flex-1 flex flex-col justify-around gap-2.5 sm:gap-3 text-left overflow-hidden">
+            {/* Section 1: Role Overview */}
             <div className="space-y-1">
-              <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Description</span>
-              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+              <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Role Overview
+              </span>
+              <p className="text-[11px] sm:text-[11.5px] text-slate-300 leading-snug font-normal">
                 {details.role}
               </p>
             </div>
 
+            {/* Section 2: Certification Pathway */}
             {details.path.length > 0 && (
               <div className="space-y-1.5">
-                <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Recommended Certifications</span>
-                <ul className="space-y-1.5">
-                  {details.path.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-[11px] text-slate-300 font-semibold leading-normal">
-                      <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
+                <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Recommended Certification Pathway
+                </span>
+                <div className="flex flex-col gap-1.5 pl-0.5">
+                  {details.path.map((step, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-[11px] sm:text-[11.5px] text-slate-200">
+                      <span className="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700 text-[9px] text-slate-400 font-semibold flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="leading-snug">{step}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Section 3: Industry Salary Benchmark */}
+            {details.salary && details.salary !== "N/A" && (
+              <div className="space-y-1">
+                <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Market Compensation (India)
+                </span>
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[4px] bg-slate-800/80 border border-slate-700/90 text-[11px] text-slate-100">
+                  <span className="font-semibold text-white tracking-tight">{details.salary}</span>
+                  <span className="text-[10px] text-slate-400 font-normal border-l border-slate-700 pl-2">Est. Industry Range</span>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">
-                <IndianRupee className="h-4.5 w-4.5 text-emerald-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-500 tracking-wider uppercase leading-none mb-1">Average Salary in India</span>
-                <span className="text-[13px] font-extrabold text-white leading-none">
-                  {details.salary}
-                </span>
-              </div>
-            </div>
+          <div className="w-full pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs shrink-0">
+            <span className="text-[11px] font-medium text-slate-500">Click card to return</span>
+            <span className="text-[#FF9900] hover:text-[#ffaa2b] font-medium flex items-center gap-1 transition-colors">
+              <span>View certifications</span>
+              <span className="text-sm leading-none">→</span>
+            </span>
           </div>
         </div>
       </motion.div>
@@ -546,8 +562,11 @@ function getCertTheme(examCode: string, level: string) {
       progress: "bg-[#5A6572]/70",
       pillBg: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/15",
       badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25",
-      hoverBorder: "hover:border-[#5A6572]/25",
-      cardBorder: "border-2 border-[#5A6572]/15 hover:border-[#5A6572]/25",
+      hoverBorder: "hover:border-[#5A6572]/35",
+      cardBorder: "border-2 border-[#5A6572]/15",
+      cardHoverBg: "group-hover:border-[#687584]/60",
+      hoverGradient: "bg-[linear-gradient(180deg,#687584_0%,#5A6572_25%,#46505B_60%,#353D46_100%)]",
+      hoverShadow: "hover:shadow-[0_12px_28px_-4px_rgba(53,61,70,0.35),0_4px_10px_-2px_rgba(90,101,114,0.20)]",
       iconColor: "text-[#5A6572]",
       hoverText: "group-hover:text-[#5A6572]",
       hoverBg: "group-hover:bg-[#F1F5F9]",
@@ -561,8 +580,11 @@ function getCertTheme(examCode: string, level: string) {
       progress: "bg-[#0972D3]/75",
       pillBg: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/15",
       badgeClass: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/25",
-      hoverBorder: "hover:border-[#0972D3]/25",
-      cardBorder: "border-2 border-[#0972D3]/15 hover:border-[#0972D3]/25",
+      hoverBorder: "hover:border-[#0972D3]/35",
+      cardBorder: "border-2 border-[#0972D3]/15",
+      cardHoverBg: "group-hover:border-[#127EE3]/60",
+      hoverGradient: "bg-[linear-gradient(180deg,#127EE3_0%,#0972D3_25%,#075399_60%,#064480_100%)]",
+      hoverShadow: "hover:shadow-[0_12px_28px_-4px_rgba(6,68,128,0.35),0_4px_10px_-2px_rgba(9,114,211,0.20)]",
       iconColor: "text-[#0972D3]",
       hoverText: "group-hover:text-[#0972D3]",
       hoverBg: "group-hover:bg-[#F0F7FF]",
@@ -576,8 +598,11 @@ function getCertTheme(examCode: string, level: string) {
       progress: "bg-[#0083A0]/75",
       pillBg: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/15",
       badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25",
-      hoverBorder: "hover:border-[#0083A0]/25",
-      cardBorder: "border-2 border-[#0083A0]/15 hover:border-[#0083A0]/25",
+      hoverBorder: "hover:border-[#0083A0]/35",
+      cardBorder: "border-2 border-[#0083A0]/15",
+      cardHoverBg: "group-hover:border-[#0096B4]/60",
+      hoverGradient: "bg-[linear-gradient(180deg,#0096B4_0%,#0083A0_25%,#006B83_60%,#005265_100%)]",
+      hoverShadow: "hover:shadow-[0_12px_28px_-4px_rgba(0,82,101,0.35),0_4px_10px_-2px_rgba(0,131,160,0.20)]",
       iconColor: "text-[#00627A]",
       hoverText: "group-hover:text-[#00627A]",
       hoverBg: "group-hover:bg-[#E6F8FA]",
@@ -592,8 +617,11 @@ function getCertTheme(examCode: string, level: string) {
     progress: "bg-[#5A30A6]/75",
     pillBg: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/15",
     badgeClass: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/25",
-    hoverBorder: "hover:border-[#5A30A6]/25",
-    cardBorder: "border-2 border-[#5A30A6]/15 hover:border-[#5A30A6]/25",
+    hoverBorder: "hover:border-[#5A30A6]/35",
+    cardBorder: "border-2 border-[#5A30A6]/15",
+    cardHoverBg: "group-hover:border-[#6A3CBD]/60",
+    hoverGradient: "bg-[linear-gradient(180deg,#6A3CBD_0%,#5A30A6_25%,#4B258D_60%,#3B1C72_100%)]",
+    hoverShadow: "hover:shadow-[0_12px_28px_-4px_rgba(59,28,114,0.35),0_4px_10px_-2px_rgba(90,48,166,0.20)]",
     iconColor: "text-[#5A30A6]",
     hoverText: "group-hover:text-[#5A30A6]",
     hoverBg: "group-hover:bg-[#F8F5FF]",
@@ -627,126 +655,155 @@ function CertCard({ cert }: { cert: CertificationListItem }) {
 
   return (
     <Link href={`/certifications/${cert.slug}`} className="group block h-full">
-      <div className={cn("relative flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-2xs transition-all duration-300 ease-out hover:shadow-md hover:translate-y-[-2px] overflow-hidden h-full will-change-transform", theme.cardBorder)}>
+      <div
+        className={cn(
+          "relative flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-2xs transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 overflow-hidden h-full transform-gpu",
+          theme.cardBorder,
+          theme.cardHoverBg,
+          theme.hoverShadow
+        )}
+      >
+        {/* Subtle decorative gradient overlay on hover */}
+        <div
+          className={cn(
+            "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none rounded-2xl",
+            theme.hoverGradient
+          )}
+        />
 
-        <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border uppercase shadow-2xs ${theme.badgeClass}`}
-            >
-              {level}
-            </span>
-            {secondaryBadge !== level.toUpperCase() && (
-              <span className="rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border bg-slate-50 text-slate-600 border-slate-200/80 uppercase shadow-2xs">
-                {secondaryBadge}
-              </span>
-            )}
-          </div>
-
-          <div className="mt-3 min-h-[50px] flex items-start">
-            <h3 className={cn("text-lg font-bold text-slate-900 tracking-tight leading-snug line-clamp-2 transition-colors duration-300", theme.hoverText)}>
-              {cert.title}
-            </h3>
-          </div>
-
-          <div className="mt-1 flex items-start gap-1.5 text-[11.5px] text-slate-500 font-medium min-h-[36px]">
-            <User className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5" />
-            <span className="line-clamp-2 leading-relaxed">{targetRoles}</span>
-          </div>
-
-          {/* Attributes */}
-          <div className="mt-4 space-y-2">
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
-                <Clock className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">DURATION</span>
-                  <span className="text-xs font-bold text-slate-800 whitespace-nowrap leading-none">
-                    {formatDuration(cert.examDuration)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
-                <FileText className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">QUESTIONS</span>
-                  <span className="text-xs font-bold text-slate-800 leading-none">
-                    {cert.totalQuestions ?? 65}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0">
-                <DollarSign className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">COST</span>
-                  <span className="text-xs font-bold text-slate-800 leading-none">
-                    ${cert.examCost ?? 100}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2.5 px-3 min-w-0">
-              <Monitor className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
-              <div className="flex items-center justify-between w-full min-w-0">
-                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none">EXAM MODE</span>
-                <span className="text-xs font-bold text-slate-800 leading-none truncate pl-2" title={formatMode(cert.examMode)}>
-                  {formatMode(cert.examMode)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Domains & Bottom Link */}
-        <div className="mt-5 border-t border-slate-100 pt-4 flex-1 flex flex-col justify-between">
+        {/* Content container elevated on z-10 */}
+        <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
-            {domains.length > 0 && (
-              <>
-                <div className="text-[9px] font-extrabold text-slate-400 tracking-normal uppercase mb-3">
-                  EXAM DOMAINS
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border uppercase shadow-2xs transition-colors duration-200",
+                  theme.badgeClass,
+                  "group-hover:bg-white/20 group-hover:text-white group-hover:border-white/35 group-hover:shadow-none"
+                )}
+              >
+                {level}
+              </span>
+              {secondaryBadge !== level.toUpperCase() && (
+                <span className="rounded-[5px] px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-wider border bg-slate-50 text-slate-600 border-slate-200/80 uppercase shadow-2xs transition-colors duration-200 group-hover:bg-white/20 group-hover:text-white group-hover:border-white/35 group-hover:shadow-none">
+                  {secondaryBadge}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-3 min-h-[50px] flex items-start">
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight leading-snug line-clamp-2 transition-colors duration-200 group-hover:text-white group-hover:drop-shadow-xs">
+                {cert.title}
+              </h3>
+            </div>
+
+            <div className="mt-1 flex items-start gap-1.5 text-[11.5px] text-slate-500 font-medium min-h-[36px] transition-colors duration-200 group-hover:text-white/90">
+              <User className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5 transition-colors duration-200 group-hover:text-white/80" />
+              <span className="line-clamp-2 leading-relaxed">{targetRoles}</span>
+            </div>
+
+            {/* Attributes */}
+            <div className="mt-4 space-y-2">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0 transition-colors duration-200 group-hover:bg-white/15 group-hover:border-white/25">
+                  <Clock className={cn("h-4 w-4 shrink-0 transition-colors duration-200", theme.iconColor, "group-hover:text-white")} />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1 transition-colors duration-200 group-hover:text-white/75">
+                      DURATION
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 whitespace-nowrap leading-none transition-colors duration-200 group-hover:text-white">
+                      {formatDuration(cert.examDuration)}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  {domains.map((dom) => (
-                    <div key={dom.id} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-800">
-                        <span className="truncate pr-2">{dom.name}</span>
-                        <span className={cn("rounded-[4px] px-1.5 py-0.5 text-[9px] font-extrabold leading-none border shadow-2xs", theme.pillBg)}>
-                          {dom.weightage}%
-                        </span>
-                      </div>
-
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${theme.progress} rounded-full transition-all duration-500`}
-                          style={{ width: `${dom.weightage}%` }}
-                        />
-                      </div>
-
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                        {dom.topics.map((topic) => (
-                          <span
-                            key={topic.id}
-                            className="rounded-[6px] bg-slate-100/70 border border-slate-200/70 px-2 py-0.5 text-[9.5px] text-slate-600 font-medium whitespace-nowrap"
-                          >
-                            {topic.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0 transition-colors duration-200 group-hover:bg-white/15 group-hover:border-white/25">
+                  <FileText className={cn("h-4 w-4 shrink-0 transition-colors duration-200", theme.iconColor, "group-hover:text-white")} />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1 transition-colors duration-200 group-hover:text-white/75">
+                      QUESTIONS
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 leading-none transition-colors duration-200 group-hover:text-white">
+                      {cert.totalQuestions ?? 65}
+                    </span>
+                  </div>
                 </div>
-              </>
-            )}
+
+                <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2 min-w-0 transition-colors duration-200 group-hover:bg-white/15 group-hover:border-white/25">
+                  <DollarSign className={cn("h-4 w-4 shrink-0 transition-colors duration-200", theme.iconColor, "group-hover:text-white")} />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1 transition-colors duration-200 group-hover:text-white/75">
+                      COST
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 leading-none transition-colors duration-200 group-hover:text-white">
+                      ${cert.examCost ?? 100}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/70 p-2.5 px-3 min-w-0 transition-colors duration-200 group-hover:bg-white/15 group-hover:border-white/25">
+                <Monitor className={cn("h-4 w-4 shrink-0 transition-colors duration-200", theme.iconColor, "group-hover:text-white")} />
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none transition-colors duration-200 group-hover:text-white/75">
+                    EXAM MODE
+                  </span>
+                  <span className="text-xs font-bold text-slate-800 leading-none truncate pl-2 transition-colors duration-200 group-hover:text-white" title={formatMode(cert.examMode)}>
+                    {formatMode(cert.examMode)}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-5 flex justify-end pt-2">
-            <div className={cn("inline-flex items-center gap-1.5 text-xs font-bold transition-all duration-300", theme.iconColor)}>
-              <span>View Details</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+          {/* Domains & Bottom Link */}
+          <div className="mt-5 border-t border-slate-100 pt-4 flex-1 flex flex-col justify-between transition-colors duration-200 group-hover:border-white/20">
+            <div>
+              {domains.length > 0 && (
+                <>
+                  <div className="text-[9px] font-extrabold text-slate-400 tracking-normal uppercase mb-3 transition-colors duration-200 group-hover:text-white/80">
+                    EXAM DOMAINS
+                  </div>
+
+                  <div className="space-y-4">
+                    {domains.map((dom) => (
+                      <div key={dom.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-800 transition-colors duration-200 group-hover:text-white">
+                          <span className="truncate pr-2">{dom.name}</span>
+                          <span className={cn("rounded-[4px] px-1.5 py-0.5 text-[9px] font-extrabold leading-none border shadow-2xs transition-colors duration-200", theme.pillBg, "group-hover:bg-white/25 group-hover:text-white group-hover:border-white/40 group-hover:shadow-none")}>
+                            {dom.weightage}%
+                          </span>
+                        </div>
+
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden transition-colors duration-200 group-hover:bg-black/30">
+                          <div
+                            className={cn("h-full rounded-full transition-all duration-300", theme.progress, "group-hover:bg-white group-hover:shadow-[0_0_8px_rgba(255,255,255,0.7)]")}
+                            style={{ width: `${dom.weightage}%` }}
+                          />
+                        </div>
+
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {dom.topics.map((topic) => (
+                            <span
+                              key={topic.id}
+                              className="rounded-[6px] bg-slate-100/70 border border-slate-200/70 px-2 py-0.5 text-[9.5px] text-slate-600 font-medium whitespace-nowrap transition-colors duration-200 group-hover:bg-white/18 group-hover:border-white/25 group-hover:text-white"
+                            >
+                              {topic.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-5 flex justify-end pt-2">
+              <div className={cn("inline-flex items-center gap-1.5 text-xs font-bold transition-colors duration-200", theme.iconColor, "group-hover:text-white")}>
+                <span>View Details</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1.5" />
+              </div>
             </div>
           </div>
         </div>

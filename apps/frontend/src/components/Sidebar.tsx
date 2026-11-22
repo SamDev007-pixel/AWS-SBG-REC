@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const SIDEBAR_OPEN_W = 220;
+export const SIDEBAR_OPEN_W = 240;
 export const SIDEBAR_COLLAPSED_W = 68;
 
 export interface NavItem {
@@ -140,7 +140,7 @@ export default function Sidebar({
                 onClick={() => { onNavigate(homeHref); onMobileClose(); }}
                 className="flex items-center gap-3 text-left group cursor-pointer min-w-0 flex-1"
               >
-                <div className="w-10 h-10 rounded-none bg-[#F66E0A]/10 border border-[#F66E0A]/30 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-[5px] bg-[#F66E0A]/10 border border-[#F66E0A]/30 flex items-center justify-center shrink-0">
                   <span className="text-[#F66E0A] font-black text-base">
                     {brandTitle ? brandTitle[0] : (user?.initials || 'A')}
                   </span>
@@ -150,7 +150,7 @@ export default function Sidebar({
                     {brandTitle || user?.name || 'Admin'}
                   </h1>
                   {(brandSubtitle || user?.badge) && (
-                    <p className="text-[11px] font-medium text-slate-400 truncate leading-tight mt-0.5">
+                    <p className="text-[11px] font-medium text-slate-300 truncate leading-tight mt-0.5">
                       {brandSubtitle || user?.badge}
                     </p>
                   )}
@@ -159,7 +159,7 @@ export default function Sidebar({
               {!isMobile && (
                 <button
                   onClick={onToggle}
-                  className="w-8 h-8 rounded-none flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 ml-1.5 cursor-pointer"
+                  className="w-8 h-8 rounded-none flex items-center justify-center text-slate-300 hover:text-[#F66E0A] hover:bg-white/10 transition-colors shrink-0 ml-1.5 cursor-pointer"
                   aria-label="Collapse sidebar"
                 >
                   <Menu className="w-4.5 h-4.5" />
@@ -170,7 +170,7 @@ export default function Sidebar({
             /* When sidebar is hidden/minimized: The initial S box appears here */
             <button
               onClick={() => { onNavigate(homeHref); onMobileClose(); handleLeave(); }}
-              className="w-10 h-10 rounded-none bg-[#F66E0A]/10 hover:bg-[#F66E0A]/20 border border-[#F66E0A]/30 flex items-center justify-center transition-all cursor-pointer group"
+              className="w-10 h-10 rounded-[5px] bg-[#F66E0A]/10 hover:bg-[#F66E0A]/20 border border-[#F66E0A]/30 flex items-center justify-center transition-all cursor-pointer group"
               aria-label={brandTitle || user?.name || 'Dashboard'}
             >
               <span className="text-[#F66E0A] font-black text-base group-hover:scale-105 transition-transform">
@@ -219,26 +219,26 @@ export default function Sidebar({
                   onMouseEnter={(e) => handleHover(item.label, e.currentTarget)}
                   onMouseLeave={handleLeave}
                   className={cn(
-                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-none",
+                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-md",
                     isOpen
                       ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
                       : "w-10 h-10 flex items-center justify-center",
                     isActive
                       ? "bg-[#F66E0A]/12 text-[#F66E0A] font-semibold"
-                      : "text-slate-400 hover:text-white hover:bg-[#F66E0A]/[0.07] font-normal"
+                      : "text-slate-200 hover:text-white hover:bg-white/[0.07] font-medium"
                   )}
                   aria-label={item.label}
                 >
-                  {/* Left indicator line: appears only on selected item when sidebar is expanded, NOT in hidden/minimized sidebar */}
+                  {/* Left indicator line */}
                   {isActive && isOpen && (
-                    <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#F66E0A] pointer-events-none" />
+                    <span className="absolute left-0 top-0 bottom-0 w-[2.5px] bg-[#F66E0A] pointer-events-none" />
                   )}
                   <div className={cn(
-                    "flex items-center justify-center shrink-0 pointer-events-none",
+                    "flex items-center justify-center shrink-0 pointer-events-none transition-colors duration-150",
                     isMobile
                       ? "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]"
                       : "[&>svg]:w-[24px] [&>svg]:h-[24px] [&>img]:w-[24px] [&>img]:h-[24px]",
-                    isActive ? "text-[#F66E0A]" : "text-slate-400 group-hover:text-white"
+                    isActive ? "text-[#F66E0A]" : "text-slate-300 group-hover:text-white"
                   )}>
                     {item.icon}
                   </div>
@@ -246,8 +246,8 @@ export default function Sidebar({
                     <span
                       className={cn(
                         isMobile ? "text-[15px]" : "text-[14px]",
-                        "truncate flex-1 capitalize tracking-normal",
-                        isActive ? "font-semibold text-[#F66E0A]" : "font-normal text-slate-300 group-hover:text-white"
+                        "truncate flex-1 capitalize tracking-normal transition-colors duration-150",
+                        isActive ? "font-semibold text-[#F66E0A]" : "font-medium text-slate-200 group-hover:text-white"
                       )}
                     >
                       {item.label}
@@ -276,26 +276,26 @@ export default function Sidebar({
                   onMouseEnter={(e) => handleHover(item.label, e.currentTarget)}
                   onMouseLeave={handleLeave}
                   className={cn(
-                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-none",
+                    "relative overflow-hidden transition-all duration-150 font-sans cursor-pointer group rounded-md",
                     isOpen
                       ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
                       : "w-10 h-10 flex items-center justify-center",
                     isActive
                       ? "bg-[#F66E0A]/12 text-[#F66E0A] font-semibold"
-                      : "text-slate-400 hover:text-white hover:bg-[#F66E0A]/[0.07] font-normal"
+                      : "text-slate-200 hover:text-white hover:bg-white/[0.07] font-medium"
                   )}
                   aria-label={item.label}
                 >
-                  {/* Left indicator line: appears only on selected item when sidebar is expanded, NOT in hidden/minimized sidebar */}
+                  {/* Left indicator line */}
                   {isActive && isOpen && (
-                    <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#F66E0A] pointer-events-none" />
+                    <span className="absolute left-0 top-0 bottom-0 w-[2.5px] bg-[#F66E0A] pointer-events-none" />
                   )}
                   <div className={cn(
-                    "flex items-center justify-center shrink-0 pointer-events-none",
+                    "flex items-center justify-center shrink-0 pointer-events-none transition-colors duration-150",
                     isMobile
                       ? "[&>svg]:w-[26px] [&>svg]:h-[26px] [&>img]:w-[26px] [&>img]:h-[26px]"
                       : "[&>svg]:w-[24px] [&>svg]:h-[24px] [&>img]:w-[24px] [&>img]:h-[24px]",
-                    isActive ? "text-[#F66E0A]" : "text-slate-400 group-hover:text-white"
+                    isActive ? "text-[#F66E0A]" : "text-slate-300 group-hover:text-white"
                   )}>
                     {item.icon}
                   </div>
@@ -303,8 +303,8 @@ export default function Sidebar({
                     <span
                       className={cn(
                         isMobile ? "text-[15px]" : "text-[14px]",
-                        "truncate flex-1 capitalize tracking-normal",
-                        isActive ? "font-semibold text-[#F66E0A]" : "font-normal text-slate-300 group-hover:text-white"
+                        "truncate flex-1 capitalize tracking-normal transition-colors duration-150",
+                        isActive ? "font-semibold text-[#F66E0A]" : "font-medium text-slate-200 group-hover:text-white"
                       )}
                     >
                       {item.label}
@@ -323,7 +323,7 @@ export default function Sidebar({
               onMouseEnter={(e) => handleHover(signOutLabel, e.currentTarget)}
               onMouseLeave={handleLeave}
               className={cn(
-                "transition-all duration-150 font-sans cursor-pointer group text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-none",
+                "transition-all duration-150 font-sans cursor-pointer group text-slate-200 hover:text-red-400 hover:bg-red-500/10 rounded-md font-medium",
                 isOpen
                   ? "flex items-center gap-3.5 w-full px-3 py-2.5 text-left"
                   : "w-10 h-10 flex items-center justify-center"
@@ -331,10 +331,10 @@ export default function Sidebar({
               aria-label={signOutLabel}
             >
               <div className="flex items-center justify-center shrink-0 [&>svg]:w-[22px] [&>svg]:h-[22px] pointer-events-none">
-                <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-400 transition-colors" />
+                <LogOut className="w-5 h-5 text-slate-300 group-hover:text-red-400 transition-colors" />
               </div>
               {isOpen && (
-                <span className={cn(isMobile ? "text-[15px]" : "text-[14px]", "truncate font-medium text-slate-300 group-hover:text-red-400")}>
+                <span className={cn(isMobile ? "text-[15px]" : "text-[14px]", "truncate font-medium text-slate-200 group-hover:text-red-400 transition-colors")}>
                   {signOutLabel}
                 </span>
               )}
@@ -357,7 +357,7 @@ export default function Sidebar({
             {/* Arrow */}
             <div className="w-0 h-0 border-y-[5px] border-y-transparent border-r-[6px] mr-[-1px] border-r-[#0d131f]" />
             {/* Tooltip bubble */}
-            <div className="px-3 py-1.5 rounded shadow-2xl flex items-center whitespace-nowrap border border-white/10 text-[13px] font-medium tracking-wide bg-[#0d131f] text-slate-100">
+            <div className="px-3 py-1.5 rounded-md shadow-2xl flex items-center whitespace-nowrap border border-white/10 text-[13px] font-medium tracking-wide bg-[#0d131f] text-slate-100">
               <span className="capitalize">{hoveredTooltip.label}</span>
             </div>
           </div>

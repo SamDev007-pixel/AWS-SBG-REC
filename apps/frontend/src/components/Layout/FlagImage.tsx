@@ -31,7 +31,7 @@ function getOptimizedFlagUrl(url: string): string {
   return url;
 }
 
-export default function FlagImage({ flag, name, className = "w-[27px] h-[18px] rounded-none", imgClassName }: FlagImageProps) {
+export default function FlagImage({ flag, name, className = "w-[27px] h-[18px] rounded-[3px]", imgClassName }: FlagImageProps) {
   const [hasError, setHasError] = useState(false);
 
   // If missing flag or flag has error, render the fallback placeholder
@@ -40,7 +40,7 @@ export default function FlagImage({ flag, name, className = "w-[27px] h-[18px] r
     return (
       <div 
         className={cn(
-          "flex items-center justify-center bg-slate-800 text-white rounded-none font-black select-none text-[10px] border border-slate-300 shrink-0 overflow-hidden box-border",
+          "flex items-center justify-center bg-slate-800 text-white rounded-[3px] font-black select-none text-[10px] border border-slate-300 shrink-0 overflow-hidden box-border",
           className
         )}
       >
@@ -57,13 +57,13 @@ export default function FlagImage({ flag, name, className = "w-[27px] h-[18px] r
     return (
       <div 
         className={cn(
-          "relative overflow-hidden rounded-none shrink-0 border border-slate-300 box-border flex items-center justify-center bg-white",
+          "relative overflow-hidden rounded-[3px] shrink-0 border border-slate-300 box-border block bg-transparent",
           className
         )}
       >
         <img 
           src={src} 
-          className={cn("w-full h-full object-cover select-none pointer-events-none rounded-none block", imgClassName)} 
+          className={cn("w-full h-full object-cover select-none pointer-events-none rounded-[3px] block", imgClassName)} 
           alt={name || "Flag"} 
           loading="eager"
           decoding="async"
@@ -77,7 +77,7 @@ export default function FlagImage({ flag, name, className = "w-[27px] h-[18px] r
   return (
     <div 
       className={cn(
-        "flex items-center justify-center select-none shrink-0 overflow-hidden rounded-none border border-slate-300 box-border bg-white",
+        "flex items-center justify-center select-none shrink-0 overflow-hidden rounded-[3px] border border-slate-300 box-border bg-white",
         className
       )}
     >

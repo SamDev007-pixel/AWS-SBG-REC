@@ -40,7 +40,7 @@ export default function StatsCard({
     <div className="flex items-center justify-between">
       <div className="flex flex-col gap-1 min-w-0">
         <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">{label}</span>
-        <span className="text-3xl font-extrabold text-foreground font-display tracking-tight mt-1">{value}</span>
+        <span className="text-3xl font-semibold text-foreground font-display tracking-tight mt-1">{value}</span>
         <span className="text-xs font-semibold text-foreground/50 mt-1 flex items-center gap-1.5 truncate">{subtext}</span>
       </div>
 
@@ -62,7 +62,7 @@ export default function StatsCard({
   );
 
   const hoverProps = {
-    whileHover: { y: -3, boxShadow: "-12px 0 28px rgba(105, 145, 255, 0), 12px 0 28px rgba(0, 0, 0, 0.4), 0 10px 20px rgba(15, 23, 42, 0.10)", borderColor: "rgba(255, 255, 255, 0.4)", transition: { duration: 0.25, ease: "easeOut" as const } },
+    whileHover: { y: -2, boxShadow: "0 4px 14px -2px rgba(230, 128, 0, 0.24), 0 2px 6px -1px rgba(230, 128, 0, 0.14)", borderColor: "rgba(230, 128, 0, 0.5)", transition: { duration: 0.2, ease: "easeOut" as const } },
     whileTap: { scale: 0.98 },
   };
 

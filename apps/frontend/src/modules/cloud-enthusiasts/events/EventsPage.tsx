@@ -410,14 +410,13 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
       ref={cardRef}
       className={`group rounded-[6px] overflow-hidden transition-all duration-300 flex flex-col h-full relative cursor-pointer ${
         isEnded
-          ? 'bg-slate-900 border border-slate-500 hover:border-[#FF9900]/50 hover:shadow-[0_0_0_3px_rgba(255,153,0,0.12),0_8px_24px_rgba(255,153,0,0.10)] hover:-translate-y-1 ended-blur'
+          ? 'bg-slate-950 border border-slate-800 hover:border-[#FF9900]/40 hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
           : 'bg-white border border-slate-200 hover:border-[#FF9900]/70 hover:shadow-[0_12px_30px_-6px_rgba(35,47,62,0.08),0_0_15px_rgba(255,153,0,0.22)] hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.02)]'
       }`}
     >
-
       {isEnded ? (
-        /* ── ENDED: Full-card dark layout ── */
-        <div className="relative flex flex-col h-full">
+        /* ── ENDED: Full-card dark layout with poster background ── */
+        <div className="relative flex flex-col h-full bg-slate-950 min-h-[420px]">
           {/* Banner as full background */}
           <div className="absolute inset-0">
             <img
@@ -434,20 +433,20 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
                 }
               }}
             />
-            {/* Heavy dark overlay so text is readable */}
-            <div className="absolute inset-0 bg-black/70" />
+            {/* Dark screen overlay — increased darkness slightly more as requested */}
+            <div className="absolute inset-0 bg-black/82" />
           </div>
 
-          {/* Content overlaid on dark bg */}
+          {/* Content overlaid on dark bg — text opacity very low as requested */}
           <div className="relative z-10 p-5 flex flex-col gap-3 h-full">
 
             {/* Category badge */}
-            <span className="self-start bg-white/20 text-white font-semibold text-[10px] uppercase tracking-wide px-3 py-1 rounded-full border border-white/30">
+            <span className="self-start bg-white/10 text-white/40 font-semibold text-[10px] uppercase tracking-wide px-3 py-1 rounded-full border border-white/15">
               {category}
             </span>
 
             {/* Title */}
-            <h3 className="font-bold text-[22px] line-clamp-2 font-display leading-snug text-white">
+            <h3 className="font-bold text-[20px] line-clamp-2 font-display leading-snug text-white/40">
               {title}
             </h3>
 
@@ -456,52 +455,53 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
               <TruncatedDescription
                 description={short_description}
                 eventId={event_id}
-                className="text-[12px] leading-relaxed text-white/70"
+                className="text-[12px] leading-relaxed text-white/30"
                 linkSizeClass="text-[11px]"
                 isDark={true}
               />
             )}
 
             {/* Date / Time / Venue */}
-            <div className="pt-3 border-t border-white/15 flex flex-col gap-1.5">
+            <div className="pt-3 border-t border-white/10 flex flex-col gap-1.5">
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
-                  <Calendar className="w-4 h-4 shrink-0 text-white/60" />
+                <span className="flex items-center gap-2 text-[12.5px] font-medium text-white/35">
+                  <Calendar className="w-3.5 h-3.5 shrink-0 text-white/25" />
                   <span className="truncate">{formattedDate}</span>
                 </span>
-                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
-                  <Clock className="w-4 h-4 shrink-0 text-white/60" />
+                <span className="flex items-center gap-2 text-[12.5px] font-medium text-white/35">
+                  <Clock className="w-3.5 h-3.5 shrink-0 text-white/25" />
                   <span className="truncate">{startTimeStr} · {mode}</span>
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[13px] font-medium text-white/85">
-                <MapPin className="w-4 h-4 shrink-0 text-white/60" />
-                <span className="truncate">{venue}</span>
-              </div>
+              {venue && (
+                <div className="flex items-center gap-2 text-[12.5px] font-medium text-white/35">
+                  <MapPin className="w-3.5 h-3.5 shrink-0 text-white/25" />
+                  <span className="truncate">{venue}</span>
+                </div>
+              )}
             </div>
 
             {/* Footer */}
-            <div className="mt-auto pt-3 border-t border-white/15 flex items-center justify-between gap-3">
-              <span className="text-[11px] font-semibold text-white/80 bg-white/15 px-3 py-1 rounded-full border border-white/25">Event Ended</span>
-              <span className="text-[10px] text-white/65 font-medium">{registered} registered</span>
+            <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold text-white/35 bg-white/10 px-3 py-1 rounded-full border border-white/15">Event Ended</span>
+              <span className="text-[10px] text-white/30 font-medium">{registered} registered</span>
             </div>
 
-            <button disabled className="w-full py-2.5 rounded-[6px] bg-white/10 border border-white/20 text-white/60 font-semibold text-[12px] cursor-not-allowed">
+            <button disabled className="w-full py-2.5 rounded-[6px] bg-white/5 border border-white/10 text-white/30 font-semibold text-[12px] cursor-not-allowed">
               Event Closed
             </button>
 
           </div>
 
           {/* Completed stamp */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 translate-y-10">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
             <div className={`completed-stamp on-dark ${inView ? 'animate-stamp' : 'opacity-0'}`}>
               Completed
             </div>
           </div>
         </div>
-
       ) : (
-        /* ── ACTIVE: Fullbleed layout matching core/events ── */
+        /* ── ACTIVE: Standard layout ── */
         <>
           {/* Poster (Premium full-bleed cover image) */}
           <div className="h-48 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
@@ -525,9 +525,11 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           <div className="p-5 pt-4 flex-1 flex flex-col gap-3 bg-white">
             <div className="flex flex-col gap-3">
               {/* Title */}
-              <h3 className="text-[18px] font-bold text-slate-800 leading-snug tracking-tight hover:text-[#FF9900] transition-colors line-clamp-2" title={title}>
-                {title}
-              </h3>
+              <Link href={`/events/${event_id}`} className="block">
+                <h3 className="text-[18px] font-bold text-slate-800 leading-snug tracking-tight hover:text-[#FF9900] transition-colors line-clamp-2" title={title}>
+                  {title}
+                </h3>
+              </Link>
 
               {/* Badges Row (Live status, Category) */}
               <div className="flex flex-wrap items-center gap-1.5">
@@ -563,7 +565,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           </div>
 
           {/* Card Footer Container */}
-          <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto rounded-b-[6px]">
+          <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3 mt-auto rounded-b-[6px]">
             {/* Seats remaining */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">

@@ -174,7 +174,7 @@ function Dot({
           style={{ fontSize: '10px' }}
           className="w-max inline-flex items-center gap-2 px-2.5 py-1 bg-white/95 backdrop-blur-md text-[#1A1C1E] rounded-[4px] shadow-sm border border-slate-200 whitespace-nowrap font-bold uppercase tracking-normal"
         >
-          <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 rounded-none border border-slate-200/60 object-contain flex-shrink-0" />
+          <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-[21px] h-[14px] rounded-[2px] border border-slate-300/80 shadow-xs shrink-0" />
           <span className="font-bold tracking-tight text-slate-800 uppercase">{item.name}</span>
         </div>
       </Html>
@@ -191,7 +191,7 @@ function Dot({
               style={{ fontSize: '10px' }}
               className="w-max inline-flex items-center gap-2 px-2.5 py-1 bg-[#FF9900] text-white rounded-[4px] shadow-sm border border-[#FF9900]/40 whitespace-nowrap font-bold uppercase tracking-normal"
             >
-              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 rounded-none border border-white/20 object-contain flex-shrink-0" />
+              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-[21px] h-[14px] rounded-[2px] border border-white/30 shadow-xs shrink-0" />
               <span className="font-bold">{item.name}</span>
             </motion.div>
           </Html>

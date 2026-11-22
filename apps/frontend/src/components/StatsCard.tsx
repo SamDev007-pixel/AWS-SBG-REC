@@ -44,7 +44,7 @@ export default function StatsCard({
         <span className="text-xs sm:text-[13px] font-bold text-slate-500 tracking-wider uppercase">
           {label}
         </span>
-        <span className="text-xl sm:text-2xl font-bold text-slate-900 font-display tracking-tight leading-tight">
+        <span className="text-xl sm:text-2xl font-semibold text-slate-900 font-display tracking-tight leading-tight">
           {value}
         </span>
         <span className="text-xs sm:text-[13px] font-semibold text-slate-500 flex items-center gap-1.5 truncate">
@@ -77,7 +77,7 @@ export default function StatsCard({
   if (onClick) {
     return (
       <div className="block w-full group">
-        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-slate-300">
+        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-[#E68000]/50 hover:shadow-[0_4px_14px_-2px_rgba(230,128,0,0.24),0_2px_6px_-1px_rgba(230,128,0,0.14)] hover:-translate-y-0.5 transition-all duration-200">
           <CardContent />
         </GlassCard>
       </div>
@@ -87,7 +87,7 @@ export default function StatsCard({
   if (href) {
     return (
       <Link href={href} className="block w-full group">
-        <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-slate-300">
+        <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-[#E68000]/50 hover:shadow-[0_4px_14px_-2px_rgba(230,128,0,0.24),0_2px_6px_-1px_rgba(230,128,0,0.14)] hover:-translate-y-0.5 transition-all duration-200">
           <CardContent />
         </GlassCard>
       </Link>
@@ -96,7 +96,7 @@ export default function StatsCard({
 
   return (
     <div className="block w-full group">
-      <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200">
+      <GlassCard delay={delay} style={style} className="!p-3.5 border border-slate-200 cursor-pointer hover:border-[#E68000]/50 hover:shadow-[0_4px_14px_-2px_rgba(230,128,0,0.24),0_2px_6px_-1px_rgba(230,128,0,0.14)] hover:-translate-y-0.5 transition-all duration-200">
         <CardContent />
       </GlassCard>
     </div>

@@ -11,7 +11,6 @@ import {
   ArrowRight,
   BriefcaseBusiness,
   GraduationCap,
-  Sparkles,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -315,7 +314,7 @@ function RoleSection({
         <div 
           onClick={onToggleFlip}
           className={cn(
-            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
+            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between items-center transition-all duration-300 h-full cursor-pointer hover:shadow-lg hover:border-slate-300/80",
             isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
           )}
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "translate3d(0,0,0)" }}
@@ -430,64 +429,72 @@ function RoleSection({
         <div 
           onClick={onToggleFlip}
           className={cn(
-            "absolute inset-0 w-full h-full bg-[#0B0F19] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-[#FF9900]/40 hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.3),0_0_15px_rgba(255,153,0,0.15)]",
+            "absolute inset-0 w-full h-full bg-[#0F172A] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-slate-700 overflow-hidden",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg) translate3d(0,0,0)" }}
         >
-          <div className="w-full relative flex items-start justify-between">
+          <div className="w-full relative flex items-start justify-between pb-3 border-b border-slate-800/80 shrink-0">
             <div className="flex-1 text-left">
-              <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Role Profile</span>
-              <h3 className="text-lg font-black text-white tracking-tight leading-tight mt-0.5">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Role Profile</span>
+              <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-tight mt-0.5">
                 {path.name}
               </h3>
             </div>
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 bg-slate-800/80 border border-slate-700/80 px-2.5 py-1 rounded-[4px] shrink-0">
+              AWS Specialization
+            </span>
           </div>
 
-          <div className="mt-4 flex-1 flex flex-col gap-4 text-left overflow-y-auto premium-scrollbar pr-1 max-h-[220px] sm:max-h-[240px]">
+          <div className="my-auto py-1 flex-1 flex flex-col justify-around gap-2.5 sm:gap-3 text-left overflow-hidden">
+            {/* Section 1: Role Overview */}
             <div className="space-y-1">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <BriefcaseBusiness size={12} className="text-[#FF9900]" />
-                What Does a {path.name} Do?
-              </div>
-              <p className="text-[11.5px] text-slate-300 leading-relaxed font-normal">
+              <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Role Overview
+              </span>
+              <p className="text-[11px] sm:text-[11.5px] text-slate-300 leading-snug font-normal">
                 {details.role}
               </p>
             </div>
 
+            {/* Section 2: Certification Pathway */}
             {details.path.length > 0 && (
               <div className="space-y-1.5">
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <GraduationCap size={12} className="text-[#0972D3]" />
-                  Recommended Certification Path
-                </div>
-                <ul className="space-y-1 pl-1">
+                <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Recommended Certification Pathway
+                </span>
+                <div className="flex flex-col gap-1.5 pl-0.5">
                   {details.path.map((step, idx) => (
-                    <li key={idx} className="text-[11px] text-slate-300 flex items-start gap-2 leading-tight">
-                      <span className="text-[#FF9900] font-bold text-[10px] mt-0.5">›</span>
-                      <span>{step}</span>
-                    </li>
+                    <div key={idx} className="flex items-start gap-2 text-[11px] sm:text-[11.5px] text-slate-200">
+                      <span className="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700 text-[9px] text-slate-400 font-semibold flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="leading-snug">{step}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
-            <div className="space-y-1">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles size={12} className="text-emerald-400" />
-                Industry Salary Range (India)
+            {/* Section 3: Industry Salary Benchmark */}
+            {details.salary && details.salary !== "N/A" && (
+              <div className="space-y-1">
+                <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Market Compensation (India)
+                </span>
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[4px] bg-slate-800/80 border border-slate-700/90 text-[11px] text-slate-100">
+                  <span className="font-semibold text-white tracking-tight">{details.salary}</span>
+                  <span className="text-[10px] text-slate-400 font-normal border-l border-slate-700 pl-2">Est. Industry Range</span>
+                </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 bg-emerald-950/40 border border-emerald-500/20 px-2.5 py-1 rounded-md text-[11px] font-bold text-emerald-300">
-                <span>{details.salary}</span>
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="w-full pt-4 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-            <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">Click card to return</span>
-            <span className="text-[#FF9900] font-semibold flex items-center gap-1">
+          <div className="w-full pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs shrink-0">
+            <span className="text-[11px] font-medium text-slate-500">Click card to return</span>
+            <span className="text-[#FF9900] hover:text-[#ffaa2b] font-medium flex items-center gap-1 transition-colors">
               <span>View certifications</span>
-              <span>→</span>
+              <span className="text-sm leading-none">→</span>
             </span>
           </div>
         </div>

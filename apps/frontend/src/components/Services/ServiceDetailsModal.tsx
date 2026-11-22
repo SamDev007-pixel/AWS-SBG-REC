@@ -21,14 +21,17 @@ interface ServiceDetailsModalProps {
   onClose: () => void;
   onNavigateService: (id: string) => void;
   allServices: AWSServiceSummary[];
+  userRole?: string | null;
 }
 
 export default function ServiceDetailsModal({
   id,
   onClose,
   onNavigateService,
-  allServices
+  allServices,
+  userRole
 }: ServiceDetailsModalProps) {
+  const isEnthusiast = userRole !== "core" && userRole !== "crew";
   const [service, setService] = useState<AWSServiceDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,9 +130,12 @@ export default function ServiceDetailsModal({
                 </div>
                 <div className="flex flex-col gap-1">
                   <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 leading-none">
-                    {service.name}
-                    {service.isFeatured && (
-                      <Star size={16} className="fill-amber-400 text-amber-400 shrink-0" />
+                    <span>{service.name}</span>
+                    {!isEnthusiast && service.isFeatured && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[5px] bg-amber-50 border border-amber-200/80 text-[10px] font-semibold text-amber-700 tracking-wide select-none">
+                        <Star size={10} className="fill-amber-500 text-amber-500 shrink-0" />
+                        <span>Featured</span>
+                      </span>
                     )}
                   </h3>
                   <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">

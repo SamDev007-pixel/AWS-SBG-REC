@@ -103,7 +103,7 @@ export default function CalendarCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
-        className="rounded-xl border border-slate-200 !p-3.5 cursor-pointer select-none transition-all duration-[250ms] ease-out shadow-xs hover:border-slate-300 hover:shadow-sm bg-white"
+        className="rounded-xl border border-slate-200 bg-white !p-3.5 cursor-pointer select-none transition-all duration-200 ease-out shadow-xs hover:border-[#E68000]/50 hover:shadow-[0_4px_14px_-2px_rgba(230,128,0,0.24),0_2px_6px_-1px_rgba(230,128,0,0.14)] hover:-translate-y-0.5"
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center justify-between">

@@ -18,7 +18,11 @@ import {
 } from "@/lib/api";
 import ServiceDetailsModal from "./ServiceDetailsModal";
 
-export default function ServicesCatalog() {
+interface ServicesCatalogProps {
+  userRole?: string | null;
+}
+
+export default function ServicesCatalog({ userRole: propUserRole }: ServicesCatalogProps = {}) {
   const [services, setServices] = useState<AWSRegionSummary[]>([]);
   const [categories, setCategories] = useState<AWSServiceCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,17 +42,35 @@ export default function ServicesCatalog() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // User role state
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(propUserRole ?? null);
 
   useEffect(() => {
+    if (propUserRole !== undefined) {
+      setUserRole(propUserRole ? propUserRole.toLowerCase().trim() : null);
+    }
+  }, [propUserRole]);
+
+  useEffect(() => {
+    if (propUserRole !== undefined) return;
     try {
       const raw = localStorage.getItem("aws_sgb_rec_user");
       if (raw) {
         const parsed = JSON.parse(raw);
-        setUserRole((parsed?.role ?? "").toLowerCase().trim());
+        const roleStr = (parsed?.role ?? "").toLowerCase().trim();
+        setUserRole(roleStr);
+        if (roleStr !== "core" && parsed?.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=edit_event`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setUserRole("core");
+              }
+            })
+            .catch(() => {});
+        }
       }
     } catch { /* ignore */ }
-  }, []);
+  }, [propUserRole]);
 
   type AWSRegionSummary = AWSServiceSummary;
 
@@ -74,14 +96,14 @@ export default function ServicesCatalog() {
     loadData();
   }, []);
 
-  // Filter services by role restriction first
+  // Role calculation: enthusiasts (and visitors) see ONLY featured services
+  const isEnthusiast = userRole !== "core" && userRole !== "crew";
+
+  // Filter services by role restriction: enthusiasts see ONLY featured services, not other than that
   const servicesForRole = useMemo(() => {
-    const isEnthusiast = userRole !== "core" && userRole !== "crew";
     if (!isEnthusiast) return services;
-    
-    const visibleServices = services.filter(service => service.isVisibleToEnthusiasts);
-    return visibleServices.length > 0 ? visibleServices : services;
-  }, [services, userRole]);
+    return services.filter(service => Boolean(service.isFeatured));
+  }, [services, isEnthusiast]);
 
   // Responsive columns logic based on container width
   useEffect(() => {
@@ -109,16 +131,6 @@ export default function ServicesCatalog() {
     const activeCategoryIds = new Set(servicesForRole.map(s => s.categoryId));
     return categories.filter(cat => activeCategoryIds.has(cat.id));
   }, [categories, servicesForRole]);
-
-  // Statistics calculation based on role-filtered services
-  const stats = useMemo(() => {
-    const total = servicesForRole.length;
-    const active = servicesForRole.filter(s => s.isActive).length;
-    const featured = servicesForRole.filter(s => s.isFeatured).length;
-    const categoriesCount = visibleCategories.length;
-
-    return { total, active, featured, categoriesCount };
-  }, [servicesForRole, visibleCategories]);
 
   // Category counts map for interactive pill badges
   const categoryCounts = useMemo(() => {
@@ -148,8 +160,8 @@ export default function ServicesCatalog() {
         selectedCategorySlug === "all" ||
         service.category?.slug === selectedCategorySlug;
 
-      // Featured filter
-      const matchesFeatured = !showOnlyFeatured || service.isFeatured;
+      // Featured filter: enthusiasts already only have featured services; for core/crew use the toggle
+      const matchesFeatured = isEnthusiast ? true : (!showOnlyFeatured || service.isFeatured);
 
       // Status filter
       const matchesStatus =
@@ -160,7 +172,7 @@ export default function ServicesCatalog() {
 
       return matchesSearch && matchesCategory && matchesFeatured && matchesStatus && matchesActive;
     });
-  }, [servicesForRole, searchQuery, selectedCategorySlug, showOnlyFeatured, statusFilter]);
+  }, [servicesForRole, searchQuery, selectedCategorySlug, showOnlyFeatured, statusFilter, isEnthusiast]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -182,8 +194,8 @@ export default function ServicesCatalog() {
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <h2
-                  className="font-display text-2xl sm:text-3xl font-medium leading-tight tracking-tight text-slate-900 m-0"
-                  style={{ fontWeight: 500 }}
+                  className="font-display text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-slate-900 m-0"
+                  style={{ fontWeight: 600 }}
                 >
                   AWS Services Catalog
                 </h2>
@@ -198,30 +210,10 @@ export default function ServicesCatalog() {
                 )}
               </div>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-500 m-0">
-                Comprehensive reference covering major AWS global cloud service offerings.
+                {isEnthusiast
+                  ? "Featured AWS global cloud services curated for cloud enthusiasts."
+                  : "Comprehensive reference covering major AWS global cloud service offerings."}
               </p>
-            </div>
-
-            {/* Metrics Pills matching project design system */}
-            <div className="shrink-0">
-              <div className="inline-flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/80 shadow-xs">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Services</span>
-                  <span className="text-xs font-extrabold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded-md leading-none">{stats.total}</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Categories</span>
-                  <span className="text-xs font-extrabold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded-md leading-none">{stats.categoriesCount}</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
-                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Featured</span>
-                  <span className="text-xs font-extrabold text-amber-600 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded-md leading-none">{stats.featured}</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/60 shadow-xs select-none">
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Active GA</span>
-                  <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md leading-none">{stats.active}</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -229,11 +221,11 @@ export default function ServicesCatalog() {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
               {/* Search */}
-              <div className="lg:col-span-6 relative">
+              <div className={cn(isEnthusiast ? "lg:col-span-8" : "lg:col-span-6", "relative")}>
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                 <input
                   type="text"
-                  placeholder="Search by service code, name, category, or description..."
+                  placeholder={isEnthusiast ? "Search featured services by code, name, category, or description..." : "Search by service code, name, category, or description..."}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 focus:outline-none rounded-xl text-xs sm:text-[13px] font-normal transition-all text-slate-800 placeholder:text-slate-400 shadow-xs"
@@ -241,7 +233,7 @@ export default function ServicesCatalog() {
               </div>
 
               {/* Status Dropdown */}
-              <div className="lg:col-span-3">
+              <div className={isEnthusiast ? "lg:col-span-4" : "lg:col-span-3"}>
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
@@ -253,21 +245,23 @@ export default function ServicesCatalog() {
                 </select>
               </div>
 
-              {/* Featured Toggle */}
-              <div className="lg:col-span-3">
-                <button
-                  onClick={() => setShowOnlyFeatured(!showOnlyFeatured)}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border transition-all text-xs font-semibold shadow-xs cursor-pointer select-none active:scale-98",
-                    showOnlyFeatured
-                      ? "bg-amber-50/90 border-amber-300 text-amber-700 font-bold"
-                      : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-medium"
-                  )}
-                >
-                  <Star size={13} className={showOnlyFeatured ? "fill-amber-500 stroke-none" : "text-slate-400"} />
-                  <span>Featured Services Only</span>
-                </button>
-              </div>
+              {/* Featured Toggle (only for core/crew who view all services) */}
+              {!isEnthusiast && (
+                <div className="lg:col-span-3">
+                  <button
+                    onClick={() => setShowOnlyFeatured(!showOnlyFeatured)}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border transition-all text-xs font-semibold shadow-xs cursor-pointer select-none active:scale-98",
+                      showOnlyFeatured
+                        ? "bg-amber-50/90 border-amber-300 text-amber-700 font-bold"
+                        : "bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-medium"
+                    )}
+                  >
+                    <Star size={13} className={showOnlyFeatured ? "fill-amber-500 stroke-none" : "text-slate-400"} />
+                    <span>Featured Services Only</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Category Filter Pills with count badges */}
@@ -372,11 +366,16 @@ export default function ServicesCatalog() {
                   <div
                     key={service.id}
                     onClick={() => setSelectedServiceId(service.id)}
-                    className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-5 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden min-h-[174px]"
+                    className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-5 hover:border-[#E68000]/50 hover:shadow-[0_4px_14px_-2px_rgba(230,128,0,0.24),0_2px_6px_-1px_rgba(230,128,0,0.14)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col group relative overflow-hidden min-h-[174px]"
                   >
-                    {/* Featured dot */}
-                    {service.isFeatured && (
-                      <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-amber-400" />
+                    {/* Featured badge for Core & Crew only */}
+                    {!isEnthusiast && service.isFeatured && (
+                      <div className="absolute top-3.5 right-3.5 pointer-events-none">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] bg-amber-50/90 border border-amber-200/80 text-[9px] font-semibold text-amber-700 tracking-wide select-none shadow-2xs">
+                          <Star size={8.5} className="fill-amber-500 text-amber-500" />
+                          <span>Featured</span>
+                        </span>
+                      </div>
                     )}
 
                     {/* Icon + meta */}
@@ -391,7 +390,7 @@ export default function ServicesCatalog() {
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      <div className="min-w-0">
+                      <div className={cn("min-w-0", !isEnthusiast && service.isFeatured ? "pr-14" : "")}>
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{service.serviceCode}</span>
                           {service.status !== "GA" && (
@@ -400,7 +399,7 @@ export default function ServicesCatalog() {
                             </span>
                           )}
                         </div>
-                        <h4 className="text-[14px] font-semibold text-slate-800 truncate group-hover:text-[#FF9900] transition-colors leading-tight">
+                        <h4 className="text-[14px] font-semibold text-slate-800 truncate group-hover:text-[#E68000] transition-colors leading-tight">
                           {service.name}
                         </h4>
                       </div>
@@ -416,7 +415,7 @@ export default function ServicesCatalog() {
                       <span className="text-[10px] font-medium text-slate-400 truncate max-w-[60%]">
                         {service.category?.name || "AWS Core"}
                       </span>
-                      <span className="text-[10px] font-medium text-[#FF9900] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
+                      <span className="text-[10px] font-medium text-[#E68000] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
                         View <BookOpen size={10} />
                       </span>
                     </div>
@@ -437,6 +436,7 @@ export default function ServicesCatalog() {
             setSelectedServiceId(id);
           }}
           allServices={servicesForRole}
+          userRole={userRole}
         />
       )}
     </section>
